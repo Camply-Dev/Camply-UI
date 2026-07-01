@@ -18,21 +18,17 @@
 	"sideEffects": [
 		"**/*.css"
 	],
-	"main": "./dist/index.cjs",
-	"module": "./dist/index.js",
+	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"exports": {
 		".": {
-			"import": {
-				"types": "./dist/index.d.ts",
-				"default": "./dist/index.js"
-			},
-			"require": {
-				"types": "./dist/index.d.cts",
-				"default": "./dist/index.cjs"
-			}
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
 		},
-		"./styles.css": "./dist/index.css"
+		"./button": {
+			"types": "./dist/button.d.ts",
+			"import": "./dist/button.js"
+		}
 	},
 	"files": [
 		"dist",
@@ -43,7 +39,7 @@
 	},
 	"scripts": {
 		"dev": "bun --cwd playground dev",
-		"build": "tsup",
+		"build": "tsup && bun scripts/post-build.ts",
 		"typecheck": "tsc --noEmit",
 		"check": "biome check .",
 		"lint": "biome lint .",

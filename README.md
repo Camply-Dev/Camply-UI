@@ -37,9 +37,10 @@ dist/             # Sortie du build (généré)
 
 ## Ajouter un composant
 
-1. Créer un dossier dans `src/components/MonComposant/`
+1. Créer un dossier dans `src/components/MonComposant/` avec `MonComposant.tsx`, `MonComposant.css` et `index.ts` (qui importe le CSS)
 2. Exporter depuis `src/index.ts`
-3. Tester dans `playground/src/App.tsx`
+3. Lancer `bun run build` pour générer les bundles et synchroniser les exports npm
+4. Tester dans `playground/src/App.tsx`
 
 ## Utilisation (après publication)
 
@@ -49,11 +50,18 @@ bun add @camply/ui
 
 ```tsx
 import { Button } from "@camply/ui";
-import "@camply/ui/styles.css";
 
 export function Example() {
   return <Button variant="primary">Cliquer</Button>;
 }
+```
+
+Le CSS de chaque composant est importé automatiquement par votre bundler (Vite, webpack, etc.) via les side-effects. Seul le CSS des composants réellement utilisés est inclus.
+
+Import direct par composant (recommandé pour un tree-shaking maximal) :
+
+```tsx
+import { Button } from "@camply/ui/button";
 ```
 
 ## Publication sur npm
