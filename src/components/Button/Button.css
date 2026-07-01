@@ -1,0 +1,65 @@
+.camply-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	border: 1px solid transparent;
+	border-radius: 0.5rem;
+	font-family: inherit;
+	font-weight: 600;
+	line-height: 1;
+	cursor: pointer;
+	transition:
+		background-color 0.15s ease,
+		border-color 0.15s ease,
+		color 0.15s ease,
+		box-shadow 0.15s ease;
+}
+
+.camply-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.camply-btn--sm {
+	padding: 0.375rem 0.75rem;
+	font-size: 0.875rem;
+}
+
+.camply-btn--md {
+	padding: 0.5rem 1rem;
+	font-size: 1rem;
+}
+
+.camply-btn--lg {
+	padding: 0.75rem 1.25rem;
+	font-size: 1.125rem;
+}
+
+.camply-btn--primary {
+	background-color: #2563eb;
+	color: #ffffff;
+}
+
+.camply-btn--primary:hover:not(:disabled) {
+	background-color: #1d4ed8;
+}
+
+.camply-btn--secondary {
+	background-color: #f1f5f9;
+	color: #0f172a;
+	border-color: #cbd5e1;
+}
+
+.camply-btn--secondary:hover:not(:disabled) {
+	background-color: #e2e8f0;
+}
+
+.camply-btn--ghost {
+	background-color: transparent;
+	color: #2563eb;
+}
+
+.camply-btn--ghost:hover:not(:disabled) {
+	background-color: #eff6ff;
+}
