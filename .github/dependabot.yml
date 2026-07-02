@@ -2,13 +2,13 @@ version: 2
 
 updates:
   - package-ecosystem: bun
-    directory: "/"
+    directories:
+      - "/"
+      - "playground"
     schedule:
       interval: weekly
     commit-message:
       prefix: deps
-    labels:
-      - dependencies
 
   - package-ecosystem: github-actions
     directory: "/"
@@ -16,6 +16,3 @@ updates:
       interval: weekly
     commit-message:
       prefix: ci
-    labels:
-      - dependencies
-      - github-actions
