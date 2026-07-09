@@ -1,19 +1,28 @@
+@import "../../styles/tokens.css";
+
 .camply-btn {
+	position: relative;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: 0.5rem;
+	gap: var(--camply-space-2);
 	border: 1px solid transparent;
-	border-radius: 0.5rem;
+	border-radius: var(--camply-radius-sm);
 	font-family: inherit;
 	font-weight: 600;
 	line-height: 1;
+	white-space: nowrap;
 	cursor: pointer;
 	transition:
-		background-color 0.15s ease,
-		border-color 0.15s ease,
-		color 0.15s ease,
-		box-shadow 0.15s ease;
+		background-color var(--camply-transition),
+		border-color var(--camply-transition),
+		color var(--camply-transition),
+		box-shadow var(--camply-transition);
+}
+
+.camply-btn:focus-visible {
+	outline: none;
+	box-shadow: var(--camply-ring);
 }
 
 .camply-btn:disabled {
@@ -21,6 +30,12 @@
 	cursor: not-allowed;
 }
 
+.camply-btn.camply-btn--loading {
+	opacity: 0.8;
+	cursor: progress;
+}
+
+/* Sizes */
 .camply-btn--sm {
 	padding: 0.375rem 0.75rem;
 	font-size: 0.875rem;
@@ -36,30 +51,81 @@
 	font-size: 1.125rem;
 }
 
+/* Variants */
 .camply-btn--primary {
-	background-color: #2563eb;
-	color: #ffffff;
+	background-color: var(--camply-accent);
+	color: var(--camply-accent-contrast);
 }
 
 .camply-btn--primary:hover:not(:disabled) {
-	background-color: #1d4ed8;
+	background-color: var(--camply-accent-hover);
 }
 
 .camply-btn--secondary {
-	background-color: #f1f5f9;
-	color: #0f172a;
-	border-color: #cbd5e1;
+	background-color: var(--camply-surface-2);
+	color: var(--camply-text);
+	border-color: var(--camply-border);
 }
 
 .camply-btn--secondary:hover:not(:disabled) {
-	background-color: #e2e8f0;
+	background-color: var(--camply-elevated);
+	border-color: var(--camply-border-strong);
 }
 
 .camply-btn--ghost {
 	background-color: transparent;
-	color: #2563eb;
+	color: var(--camply-accent);
 }
 
 .camply-btn--ghost:hover:not(:disabled) {
-	background-color: #eff6ff;
+	background-color: var(--camply-accent-soft);
+}
+
+.camply-btn--soft {
+	background-color: var(--camply-accent-soft);
+	color: var(--camply-accent);
+}
+
+.camply-btn--soft:hover:not(:disabled) {
+	background-color: var(--camply-accent-soft-hover);
+}
+
+.camply-btn--danger {
+	background-color: var(--camply-danger);
+	color: var(--camply-danger-contrast);
+}
+
+.camply-btn--danger:hover:not(:disabled) {
+	background-color: var(--camply-danger-hover);
+}
+
+/* Modifiers */
+.camply-btn--full {
+	width: 100%;
+}
+
+/* Parts */
+.camply-btn__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.camply-btn__label {
+	display: inline-block;
+}
+
+.camply-btn__spinner {
+	width: 1em;
+	height: 1em;
+	border: 2px solid currentColor;
+	border-top-color: transparent;
+	border-radius: 50%;
+	animation: camply-btn-spin 0.6s linear infinite;
+}
+
+@keyframes camply-btn-spin {
+	to {
+		transform: rotate(360deg);
+	}
 }

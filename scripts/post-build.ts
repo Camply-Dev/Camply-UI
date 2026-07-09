@@ -1,21 +1,14 @@
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
-
-const root = resolve(import.meta.dirname, "..");
-const distDir = join(root, "dist");
-const pkgPath = join(root, "package.json");
-
-type Component = {
-	name: string;
-	slug: string;
-};
-
-function getComponents(): Component[] {
-	return readdirSync(join(root, "src/components")).map((name) => ({
-		name,
-		slug: name.toLowerCase(),
-	}));
-}
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import {
+	type Component,
+	computeExports,
+	distDir,
+	exportsMatch,
+	getComponents,
+	readPackageJson,
+	root,
+} from "./package-exports";
 
 function getExportNames(component: Component): string[] {
 	const indexPath = join(root, "src/components", component.name, "index.ts");
@@ -71,37 +64,36 @@ function writeBarrel(components: Component[]) {
 	);
 }
 
-function syncPackageExports(components: Component[]) {
-	const pkg = JSON.parse(readFileSync(pkgPath, "utf-8")) as {
-		exports: Record<string, unknown>;
-		main?: string;
-		module?: string;
-	};
+// Le build ne réécrit plus package.json. Il vérifie seulement que le champ `exports` est
+// synchronisé avec src/components ; sinon il échoue et invite à lancer le script de sync dédié.
+function verifyPackageExports(components: Component[]) {
+	const expected = computeExports(components);
+	const pkg = readPackageJson();
 
-	const exports: Record<string, unknown> = {
-		".": {
-			types: "./dist/index.d.ts",
-			import: "./dist/index.js",
-		},
-	};
-
-	for (const { slug } of components) {
-		exports[`./${slug}`] = {
-			types: `./dist/${slug}.d.ts`,
-			import: `./dist/${slug}.js`,
-		};
+	if (exportsMatch(pkg.exports, expected)) {
+		return;
 	}
 
-	pkg.exports = exports;
-	pkg.main = "./dist/index.js";
-	delete pkg.module;
-
-	writeFileSync(pkgPath, `${JSON.stringify(pkg, null, "\t")}\n`);
+	console.error(
+		[
+			"",
+			"✖ package.json `exports` est désynchronisé des composants de src/components.",
+			"",
+			"  Le build ne modifie plus package.json automatiquement.",
+			"  Régénère les exports (met aussi `main` à jour) avec :",
+			"",
+			"      bun scripts/sync-package-exports.ts",
+			"",
+			"  puis relance `bun run build`. (Ou édite le champ `exports` à la main.)",
+			"",
+		].join("\n"),
+	);
+	process.exit(1);
 }
 
 const components = getComponents();
 patchComponentBundles(components);
 writeBarrel(components);
-syncPackageExports(components);
+verifyPackageExports(components);
 
 console.log(`Built ${components.length} component(s): ${components.map((c) => c.name).join(", ")}`);

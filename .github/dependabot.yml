@@ -4,7 +4,7 @@ updates:
   - package-ecosystem: bun
     directories:
       - "/"
-      - "playground"
+      - "docs"
     schedule:
       interval: weekly
     commit-message:

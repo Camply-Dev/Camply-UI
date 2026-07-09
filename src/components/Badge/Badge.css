@@ -1,0 +1,100 @@
+@import "../../styles/tokens.css";
+
+.camply-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	border: 1px solid transparent;
+	border-radius: var(--camply-radius-pill);
+	font-family: inherit;
+	font-weight: 600;
+	line-height: 1;
+	white-space: nowrap;
+	vertical-align: middle;
+}
+
+/* Sizes */
+.camply-badge--sm {
+	padding: 0.125rem 0.5rem;
+	font-size: 0.75rem;
+}
+
+.camply-badge--md {
+	padding: 0.25rem 0.625rem;
+	font-size: 0.8125rem;
+}
+
+/* Tones — définissent les variables locales consommées par les variantes */
+.camply-badge--accent {
+	--_fg: var(--camply-accent);
+	--_bg: var(--camply-accent-soft);
+	--_border: var(--camply-accent-border);
+	--_solid-bg: var(--camply-accent);
+	--_solid-fg: var(--camply-accent-contrast);
+}
+
+.camply-badge--neutral {
+	--_fg: var(--camply-text-muted);
+	--_bg: var(--camply-border-soft);
+	--_border: var(--camply-border-strong);
+	--_solid-bg: var(--camply-surface-2);
+	--_solid-fg: var(--camply-text);
+}
+
+.camply-badge--success {
+	--_fg: var(--camply-success);
+	--_bg: var(--camply-success-soft);
+	--_border: var(--camply-success-border);
+	--_solid-bg: var(--camply-success);
+	--_solid-fg: var(--camply-success-contrast);
+}
+
+.camply-badge--warning {
+	--_fg: var(--camply-warning);
+	--_bg: var(--camply-warning-soft);
+	--_border: var(--camply-warning-border);
+	--_solid-bg: var(--camply-warning);
+	--_solid-fg: var(--camply-warning-contrast);
+}
+
+.camply-badge--danger {
+	--_fg: var(--camply-danger);
+	--_bg: var(--camply-danger-soft);
+	--_border: var(--camply-danger-border);
+	--_solid-bg: var(--camply-danger);
+	--_solid-fg: var(--camply-danger-contrast);
+}
+
+.camply-badge--info {
+	--_fg: var(--camply-info);
+	--_bg: var(--camply-info-soft);
+	--_border: var(--camply-info-border);
+	--_solid-bg: var(--camply-info);
+	--_solid-fg: var(--camply-info-contrast);
+}
+
+/* Variants — consomment les variables de ton */
+.camply-badge--soft {
+	background-color: var(--_bg);
+	color: var(--_fg);
+}
+
+.camply-badge--solid {
+	background-color: var(--_solid-bg);
+	color: var(--_solid-fg);
+}
+
+.camply-badge--outline {
+	background-color: transparent;
+	color: var(--_fg);
+	border-color: var(--_border);
+}
+
+/* Dot */
+.camply-badge__dot {
+	width: 0.5em;
+	height: 0.5em;
+	border-radius: var(--camply-radius-pill);
+	background-color: currentColor;
+	flex-shrink: 0;
+}

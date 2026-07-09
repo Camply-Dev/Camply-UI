@@ -7,7 +7,7 @@ Bibliothèque de composants React pour Camply, publiable sur npm.
 - **Bun** — runtime et gestionnaire de paquets
 - **TypeScript** — typage strict
 - **tsup** — build ESM + CJS + déclarations `.d.ts`
-- **Vite** — playground de développement local
+- **Vite** — vitrine / documentation visuelle locale (`docs/`)
 
 ## Démarrage rapide
 
@@ -15,7 +15,7 @@ Bibliothèque de composants React pour Camply, publiable sur npm.
 # Installer les dépendances
 bun install
 
-# Lancer le playground (http://localhost:5173)
+# Lancer la vitrine docs (http://localhost:5173)
 bun run dev
 
 # Builder la lib pour npm
@@ -31,7 +31,7 @@ bun run typecheck
 src/
   components/     # Composants React
   index.ts        # Point d'entrée public
-playground/       # App de dev pour tester les composants
+docs/             # Vitrine / documentation visuelle (Vite)
 dist/             # Sortie du build (généré)
 ```
 
@@ -40,7 +40,7 @@ dist/             # Sortie du build (généré)
 1. Créer un dossier dans `src/components/MonComposant/` avec `MonComposant.tsx`, `MonComposant.css` et `index.ts` (qui importe le CSS)
 2. Exporter depuis `src/index.ts`
 3. Lancer `bun run build` pour générer les bundles et synchroniser les exports npm
-4. Tester dans `playground/src/App.tsx`
+4. Vérifier le rendu dans la vitrine `docs/` (`bun run dev`)
 
 ## Utilisation (après publication)
 
@@ -80,6 +80,7 @@ npm publish --access public
 
 | Script       | Description                          |
 | ------------ | ------------------------------------ |
-| `bun run dev`       | Playground Vite en mode dev          |
+| `bun run dev`       | Vitrine `docs/` (Vite) en mode dev   |
+| `bun run docs:build`| Build de la vitrine `docs/`          |
 | `bun run build`     | Build de la lib dans `dist/`         |
 | `bun run typecheck` | Vérification TypeScript sans emit    |

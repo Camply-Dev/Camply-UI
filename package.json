@@ -25,6 +25,10 @@
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js"
 		},
+		"./badge": {
+			"types": "./dist/badge.d.ts",
+			"import": "./dist/badge.js"
+		},
 		"./button": {
 			"types": "./dist/button.d.ts",
 			"import": "./dist/button.js"
@@ -38,9 +42,11 @@
 		"access": "public"
 	},
 	"scripts": {
-		"dev": "bun --cwd playground dev",
+		"dev": "bun --cwd docs dev",
+		"docs:dev": "bun --cwd docs dev",
+		"docs:build": "bun --cwd docs build",
 		"build": "tsup && bun scripts/post-build.ts",
-		"typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
+		"typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p docs/tsconfig.json",
 		"check": "biome check .",
 		"lint": "biome lint .",
 		"format": "biome format --write .",
