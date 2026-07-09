@@ -9,6 +9,8 @@ const PATHS: Record<string, string> = {
 	chevron: "m9 6 6 6-6 6",
 	copy: "M9 9h11v11H9zM5 15H4V4h11v1",
 	check: "M20 6 9 17l-5-5",
+	search: "M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20.5 20.5 16.7 16.7",
+	clock: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8v4l2.5 1.5",
 	form: "M4 5h16M4 12h16M4 19h10",
 	surface: "M3 5h18v14H3zM3 10h18",
 	nav: "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM15 9l-2 6-4 1 2-6z",

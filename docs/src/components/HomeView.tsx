@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@camply/ui";
 import { Icon } from "../icons";
-import { ALL_COMPONENTS, AVAILABLE, FAMILIES, FAMILY_ICON, type SectionId } from "../showcase-data";
+import { AVAILABLE, CSS, FAMILIES, FAMILY_ICON, TOTAL } from "../showcase-data";
 
 function Snippet() {
 	const [copied, setCopied] = useState(false);
@@ -23,13 +23,13 @@ function Snippet() {
 }
 
 interface HomeViewProps {
-	onNavigate: (section: SectionId) => void;
+	onNavigate: (id: string) => void;
 }
 
 export function HomeView({ onNavigate }: HomeViewProps) {
 	const stats = [
+		{ v: String(TOTAL), l: "composants" },
 		{ v: String(AVAILABLE.length), l: "disponibles" },
-		{ v: String(ALL_COMPONENTS.length), l: "au total" },
 		{ v: String(FAMILIES.length), l: "familles" },
 		{ v: "ESM", l: "tree-shakable" },
 	];
@@ -41,7 +41,7 @@ export function HomeView({ onNavigate }: HomeViewProps) {
 					C
 				</span>
 				<span className="cu-pill">
-					<span className="cu-dot" />v0.1.0 · {AVAILABLE.length} composants disponibles
+					<span className="cu-dot" />v0.1.0 · {AVAILABLE.length} / {TOTAL} composants
 				</span>
 				<h1 className="cu-hero__title">
 					La librairie UI
@@ -57,11 +57,11 @@ export function HomeView({ onNavigate }: HomeViewProps) {
 						variant="primary"
 						size="lg"
 						rightIcon={<Icon name="arrow" />}
-						onClick={() => onNavigate("components")}
+						onClick={() => onNavigate("button")}
 					>
 						Explorer les composants
 					</Button>
-					<Button variant="secondary" size="lg" onClick={() => onNavigate("tokens")}>
+					<Button variant="secondary" size="lg" onClick={() => onNavigate(CSS)}>
 						Voir le CSS par défaut
 					</Button>
 				</div>
@@ -80,24 +80,29 @@ export function HomeView({ onNavigate }: HomeViewProps) {
 			<h2 className="cu-h2">Explorer par famille</h2>
 			<div className="cu-fams">
 				{FAMILIES.map((family) => {
-					const available = family.components.filter((c) => c.status === "available").length;
+					const available = family.subfamilies
+						.flatMap((s) => s.items)
+						.filter((i) => i.status === "available").length;
+					const firstId = family.subfamilies[0].items[0].id;
 					return (
 						<button
 							key={family.title}
 							type="button"
 							className="cu-fam"
-							onClick={() => onNavigate(available > 0 ? "components" : "roadmap")}
+							onClick={() => onNavigate(firstId)}
 						>
 							<div className="cu-fam__head">
 								<span className="cu-fam__icon">
 									<Icon name={FAMILY_ICON[family.title] ?? "components"} size={20} />
 								</span>
 								<span className="cu-fam__count">
-									{available}/{family.components.length} dispo
+									{available}/{family.count}
 								</span>
 							</div>
 							<div className="cu-fam__name">{family.title}</div>
-							<div className="cu-fam__desc">{family.desc}</div>
+							<div className="cu-fam__desc">
+								{family.subfamilies.map((s) => s.title).join(" · ")}
+							</div>
 						</button>
 					);
 				})}
