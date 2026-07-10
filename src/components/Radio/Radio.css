@@ -1,0 +1,62 @@
+.camply-radio__group {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+.camply-radio__wrap {
+	display: inline-flex;
+	align-items: center;
+	gap: 11px;
+	font-family: var(--camply-font-sans);
+	font-size: 14px;
+	color: var(--camply-text);
+	cursor: pointer;
+	user-select: none;
+}
+.camply-radio__wrap.camply-radio__disabled {
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+.camply-radio__box {
+	position: relative;
+	display: inline-flex;
+	flex: none;
+}
+.camply-radio__input {
+	position: absolute;
+	inset: 0;
+	margin: 0;
+	opacity: 0;
+	cursor: inherit;
+}
+.camply-radio__control {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	border: 1px solid var(--camply-border-strong);
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.25);
+	transition: border-color var(--camply-duration);
+}
+.camply-radio__dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: var(--camply-accent);
+	transform: scale(0);
+	transition: transform 0.18s var(--camply-ease-spring);
+}
+.camply-radio__input:checked + .camply-radio__control {
+	border-color: var(--camply-accent);
+}
+.camply-radio__input:checked + .camply-radio__control .camply-radio__dot {
+	transform: scale(1);
+}
+.camply-radio__input:focus-visible + .camply-radio__control {
+	box-shadow: var(--camply-ring);
+}
+.camply-radio__label {
+	line-height: 1.3;
+}

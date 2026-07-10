@@ -1,0 +1,132 @@
+.camply-commandpalette__backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: var(--camply-z-modal);
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	padding: 12vh 24px 24px;
+	background: var(--camply-overlay);
+	backdrop-filter: blur(3px);
+	animation: camply-cmd-bg 0.18s ease;
+}
+@keyframes camply-cmd-bg {
+	from {
+		opacity: 0;
+	}
+}
+
+.camply-commandpalette__panel {
+	width: 100%;
+	max-width: 560px;
+	max-height: 60vh;
+	display: flex;
+	flex-direction: column;
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius-xl);
+	background: var(--camply-elevated);
+	box-shadow: var(--camply-shadow-lg);
+	font-family: var(--camply-font-sans);
+	overflow: hidden;
+	animation: camply-cmd-in 0.2s var(--camply-ease);
+}
+@keyframes camply-cmd-in {
+	from {
+		opacity: 0;
+		transform: translateY(-10px) scale(0.99);
+	}
+}
+
+.camply-commandpalette__searchRow {
+	display: flex;
+	align-items: center;
+	gap: 11px;
+	padding: 15px 18px;
+	border-bottom: 1px solid var(--camply-border);
+}
+.camply-commandpalette__searchIcon {
+	color: var(--camply-text-muted-2);
+	flex: none;
+}
+.camply-commandpalette__input {
+	flex: 1;
+	min-width: 0;
+	border: none;
+	outline: none;
+	background: transparent;
+	color: var(--camply-text);
+	font-family: inherit;
+	font-size: 15px;
+}
+.camply-commandpalette__input::placeholder {
+	color: var(--camply-text-muted-2);
+}
+.camply-commandpalette__esc {
+	flex: none;
+	padding: 3px 7px;
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius-xs);
+	background: rgba(255, 255, 255, 0.03);
+	color: var(--camply-text-muted-2);
+	font-family: var(--camply-font-mono);
+	font-size: 11px;
+}
+
+.camply-commandpalette__list {
+	flex: 1;
+	overflow-y: auto;
+	padding: 8px;
+}
+.camply-commandpalette__group {
+	margin-bottom: 4px;
+}
+.camply-commandpalette__groupLabel {
+	padding: 8px 10px 5px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.4px;
+	text-transform: uppercase;
+	color: var(--camply-text-muted-2);
+}
+.camply-commandpalette__item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+	padding: 10px 12px;
+	border: none;
+	border-radius: var(--camply-radius);
+	background: none;
+	color: var(--camply-text-muted);
+	font-family: inherit;
+	font-size: 14px;
+	text-align: left;
+	cursor: pointer;
+}
+.camply-commandpalette__active {
+	background: rgba(255, 255, 255, 0.06);
+	color: var(--camply-text);
+}
+.camply-commandpalette__itemIcon {
+	display: inline-flex;
+	color: var(--camply-accent-hover);
+	flex: none;
+}
+.camply-commandpalette__itemLabel {
+	flex: 1;
+}
+.camply-commandpalette__shortcut {
+	flex: none;
+	padding: 2px 7px;
+	border: 1px solid var(--camply-border);
+	border-radius: var(--camply-radius-xs);
+	color: var(--camply-text-muted-2);
+	font-family: var(--camply-font-mono);
+	font-size: 11px;
+}
+.camply-commandpalette__empty {
+	padding: 32px 16px;
+	text-align: center;
+	font-size: 14px;
+	color: var(--camply-text-muted-2);
+}

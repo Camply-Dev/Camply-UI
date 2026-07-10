@@ -1,0 +1,108 @@
+.camply-combobox__root {
+	display: flex;
+	flex-direction: column;
+	gap: 7px;
+	font-family: var(--camply-font-sans);
+}
+.camply-combobox__label {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--camply-text);
+}
+.camply-combobox__control {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	height: 42px;
+	padding: 0 13px;
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius);
+	background: rgba(0, 0, 0, 0.25);
+	transition:
+		border-color var(--camply-duration),
+		box-shadow var(--camply-duration);
+}
+.camply-combobox__control.camply-combobox__open,
+.camply-combobox__control:focus-within {
+	border-color: var(--camply-accent);
+}
+.camply-combobox__control.camply-combobox__disabled {
+	opacity: 0.55;
+	pointer-events: none;
+}
+.camply-combobox__searchIcon {
+	color: var(--camply-text-muted-2);
+	flex: none;
+}
+.camply-combobox__input {
+	flex: 1;
+	min-width: 0;
+	border: none;
+	outline: none;
+	background: transparent;
+	color: var(--camply-text);
+	font-family: inherit;
+	font-size: 14px;
+}
+.camply-combobox__input::placeholder {
+	color: var(--camply-text-muted-2);
+}
+.camply-combobox__chevron {
+	flex: none;
+	color: var(--camply-text-muted-2);
+	transition: transform var(--camply-duration);
+}
+.camply-combobox__chevronOpen {
+	transform: rotate(180deg);
+}
+
+.camply-combobox__list {
+	margin: 0;
+	padding: 6px;
+	list-style: none;
+	overflow-y: auto;
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius-lg);
+	background: var(--camply-elevated);
+	box-shadow: var(--camply-shadow-pop);
+	animation: camply-combo-in 0.14s var(--camply-ease);
+}
+@keyframes camply-combo-in {
+	from {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+}
+.camply-combobox__option {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 9px 11px;
+	border-radius: var(--camply-radius-sm);
+	font-size: 14px;
+	color: var(--camply-text-muted);
+	cursor: pointer;
+}
+.camply-combobox__option.camply-combobox__active {
+	background: rgba(255, 255, 255, 0.06);
+	color: var(--camply-text);
+}
+.camply-combobox__option[aria-selected="true"] {
+	background: var(--camply-accent-soft);
+	color: var(--camply-accent-hover);
+}
+.camply-combobox__optionDisabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+.camply-combobox__tick {
+	flex: none;
+	color: var(--camply-accent);
+}
+.camply-combobox__empty {
+	padding: 14px 11px;
+	text-align: center;
+	font-size: 13.5px;
+	color: var(--camply-text-muted-2);
+}

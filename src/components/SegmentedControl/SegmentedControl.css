@@ -1,0 +1,58 @@
+.camply-segmentedcontrol__root {
+	position: relative;
+	display: inline-flex;
+	padding: 3px;
+	border: 1px solid var(--camply-border);
+	border-radius: var(--camply-radius-lg);
+	background: rgba(0, 0, 0, 0.28);
+	font-family: var(--camply-font-sans);
+}
+.camply-segmentedcontrol__fullWidth {
+	display: flex;
+	width: 100%;
+}
+
+.camply-segmentedcontrol__thumb {
+	position: absolute;
+	top: 3px;
+	bottom: 3px;
+	border-radius: var(--camply-radius-sm);
+	background: var(--camply-accent);
+	transition:
+		left 0.25s var(--camply-ease-spring),
+		width 0.25s var(--camply-ease-spring);
+	pointer-events: none;
+}
+
+.camply-segmentedcontrol__segment {
+	position: relative;
+	z-index: 1;
+	flex: 1 1 auto;
+	border: none;
+	border-radius: var(--camply-radius-sm);
+	background: transparent;
+	color: var(--camply-text-muted);
+	font-family: inherit;
+	font-weight: 600;
+	cursor: pointer;
+	transition: color 0.2s;
+	white-space: nowrap;
+}
+.camply-segmentedcontrol__md .camply-segmentedcontrol__segment {
+	padding: 8px 18px;
+	font-size: 13.5px;
+}
+.camply-segmentedcontrol__sm .camply-segmentedcontrol__segment {
+	padding: 6px 14px;
+	font-size: 12.5px;
+}
+.camply-segmentedcontrol__segment:hover:not(.camply-segmentedcontrol__active) {
+	color: var(--camply-text);
+}
+.camply-segmentedcontrol__segment:focus-visible {
+	outline: none;
+	box-shadow: var(--camply-ring);
+}
+.camply-segmentedcontrol__active {
+	color: var(--camply-accent-contrast);
+}

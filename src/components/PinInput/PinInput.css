@@ -1,0 +1,47 @@
+.camply-pininput__root {
+	--_s: 48px;
+	--_fs: 19px;
+	display: inline-flex;
+	gap: 10px;
+	font-family: var(--camply-font-sans);
+}
+.camply-pininput__sm {
+	--_s: 38px;
+	--_fs: 16px;
+}
+.camply-pininput__md {
+	--_s: 48px;
+}
+.camply-pininput__lg {
+	--_s: 56px;
+	--_fs: 22px;
+}
+.camply-pininput__disabled {
+	opacity: 0.55;
+	pointer-events: none;
+}
+
+.camply-pininput__cell {
+	width: var(--_s);
+	height: var(--_s);
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius);
+	background: rgba(0, 0, 0, 0.25);
+	color: var(--camply-text);
+	font-family: var(--camply-font-display);
+	font-size: var(--_fs);
+	font-weight: 600;
+	text-align: center;
+	outline: none;
+	transition:
+		border-color var(--camply-duration),
+		box-shadow var(--camply-duration),
+		background var(--camply-duration);
+}
+.camply-pininput__cell:focus {
+	border-color: var(--camply-accent);
+}
+.camply-pininput__filled {
+	border-color: var(--camply-accent-border);
+	background: var(--camply-accent-soft);
+}

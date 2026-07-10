@@ -11,7 +11,11 @@
 		"isolatedModules": true,
 		"baseUrl": ".",
 		"paths": {
-			"@camply/ui": ["../src/index.ts"]
+			"@camply/ui": ["../src/index.ts"],
+			"react": ["../node_modules/@types/react"],
+			"react/*": ["../node_modules/@types/react/*"],
+			"react-dom": ["../node_modules/@types/react-dom"],
+			"react-dom/*": ["../node_modules/@types/react-dom/*"]
 		}
 	},
 	"include": ["src"]

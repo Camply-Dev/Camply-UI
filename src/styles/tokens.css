@@ -79,18 +79,20 @@
 	--camply-shadow-sm: 0 2px 8px rgba(2, 8, 18, 0.5);
 	--camply-shadow-md: 0 8px 24px rgba(2, 8, 18, 0.55);
 	--camply-shadow-lg: 0 22px 55px rgba(2, 8, 18, 0.62);
+	--camply-shadow-pop: 0 16px 40px rgba(2, 8, 18, 0.6);
 
 	/* --- Focus ring --- */
 	--camply-ring: 0 0 0 3px rgba(56, 189, 248, 0.4);
 
 	/* --- Fonts --- */
-	--camply-font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-		sans-serif;
+	--camply-font-sans:
+		"Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 	--camply-font-display: "Space Grotesk", var(--camply-font-sans);
 	--camply-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
 	/* --- Transitions --- */
 	--camply-ease: cubic-bezier(0.22, 1, 0.36, 1);
+	--camply-ease-spring: cubic-bezier(0.34, 1.5, 0.5, 1);
 	--camply-duration: 0.2s;
 	--camply-transition: 0.15s ease;
 

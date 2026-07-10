@@ -1,0 +1,104 @@
+.camply-steps__root {
+	display: flex;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-family: var(--camply-font-sans);
+}
+.camply-steps__horizontal {
+	flex-direction: row;
+}
+.camply-steps__vertical {
+	flex-direction: column;
+	gap: 4px;
+}
+
+.camply-steps__step {
+	--_c: var(--camply-text-muted-2);
+	--_bubble-bg: rgba(255, 255, 255, 0.05);
+	--_bubble-bd: var(--camply-border-strong);
+	--_bubble-fg: var(--camply-text-muted-2);
+	--_line: var(--camply-border-strong);
+	display: flex;
+	gap: 12px;
+}
+.camply-steps__horizontal .camply-steps__step {
+	flex: 1;
+	flex-direction: column;
+	align-items: flex-start;
+}
+.camply-steps__horizontal .camply-steps__step:last-child {
+	flex: none;
+}
+
+.camply-steps__done {
+	--_c: var(--camply-accent-hover);
+	--_bubble-bg: var(--camply-accent);
+	--_bubble-bd: var(--camply-accent);
+	--_bubble-fg: var(--camply-accent-contrast);
+	--_line: var(--camply-accent);
+}
+.camply-steps__current {
+	--_c: var(--camply-text);
+	--_bubble-bg: var(--camply-accent-soft);
+	--_bubble-bd: var(--camply-accent);
+	--_bubble-fg: var(--camply-accent-hover);
+}
+
+.camply-steps__marker {
+	display: flex;
+	align-items: center;
+	flex: none;
+}
+.camply-steps__vertical .camply-steps__marker {
+	flex-direction: column;
+}
+.camply-steps__bubble {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	border: 1.5px solid var(--_bubble-bd);
+	border-radius: 50%;
+	background: var(--_bubble-bg);
+	color: var(--_bubble-fg);
+	font-size: 13px;
+	font-weight: 700;
+}
+.camply-steps__connector {
+	background: var(--_line);
+	transition: background var(--camply-duration);
+}
+.camply-steps__horizontal .camply-steps__connector {
+	height: 2px;
+	flex: 1;
+	margin: 0 8px;
+}
+.camply-steps__vertical .camply-steps__connector {
+	width: 2px;
+	flex: 1;
+	min-height: 22px;
+	margin: 4px 0;
+}
+
+.camply-steps__text {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+.camply-steps__horizontal .camply-steps__text {
+	margin-top: 9px;
+}
+.camply-steps__vertical .camply-steps__text {
+	padding-bottom: 12px;
+}
+.camply-steps__label {
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--_c);
+}
+.camply-steps__desc {
+	font-size: 12px;
+	color: var(--camply-text-muted-2);
+}

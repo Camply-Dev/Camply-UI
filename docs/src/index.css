@@ -102,62 +102,22 @@ h3 {
 }
 
 .cu-logo {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
+	display: block;
 	width: 38px;
 	height: 38px;
 	flex: none;
-	border-radius: 11px;
-	background: linear-gradient(150deg, var(--sc-accent-hi), var(--sc-accent));
-	color: #04121e;
-	font-family: var(--sc-font-display);
-	font-weight: 700;
-	font-size: 20px;
-	box-shadow: 0 6px 18px rgba(56, 189, 248, 0.25);
+	filter: drop-shadow(0 4px 12px rgba(56, 189, 248, 0.22));
 }
 
 .cu-logo--lg {
 	width: 66px;
 	height: 66px;
-	border-radius: 18px;
-	font-size: 34px;
 }
 
-/* ---------- Search ---------- */
+/* ---------- Search ----------
+   La recherche est un <Input> de @camply/ui — seul l'espacement vit ici. */
 .cu-search {
-	position: relative;
 	margin-bottom: 14px;
-}
-
-.cu-search__icon {
-	position: absolute;
-	left: 11px;
-	top: 50%;
-	display: inline-flex;
-	transform: translateY(-50%);
-	color: var(--sc-muted-2);
-	pointer-events: none;
-}
-
-.cu-search__input {
-	width: 100%;
-	padding: 9px 12px 9px 34px;
-	border: 1px solid var(--sc-line-strong);
-	border-radius: 9px;
-	background: rgba(0, 0, 0, 0.3);
-	color: var(--sc-text);
-	font-family: inherit;
-	font-size: 13.5px;
-	outline: none;
-}
-
-.cu-search__input:focus {
-	border-color: var(--sc-accent);
-}
-
-.cu-search__input::placeholder {
-	color: var(--sc-muted-2);
 }
 
 /* ---------- Top links ---------- */
@@ -372,9 +332,10 @@ h3 {
 	z-index: 10;
 	display: flex;
 	align-items: center;
+	justify-content: space-between;
 	gap: 9px;
 	margin: 0 clamp(-20px, -5vw, -64px);
-	padding: 15px clamp(20px, 5vw, 64px);
+	padding: 12px clamp(20px, 5vw, 64px);
 	background: rgba(7, 11, 18, 0.72);
 	backdrop-filter: blur(16px);
 	border-bottom: 1px solid var(--sc-line-soft);
@@ -382,8 +343,27 @@ h3 {
 	color: var(--sc-muted-2);
 }
 
-.cu-topbar__active {
-	color: var(--sc-muted);
+/* Ouvre le CommandPalette (⌘K) de @camply/ui. */
+.cu-topbar__palette {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 5px 10px;
+	border: 1px solid var(--sc-line);
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.02);
+	color: var(--sc-muted-2);
+	font-family: inherit;
+	font-size: 12.5px;
+	cursor: pointer;
+	transition:
+		color 0.15s,
+		border-color 0.15s;
+}
+
+.cu-topbar__palette:hover {
+	color: var(--sc-text);
+	border-color: var(--sc-line-strong);
 }
 
 .cu-view {
@@ -516,49 +496,9 @@ h3 {
 	justify-content: center;
 }
 
-/* ---------- Snippet ---------- */
-.cu-snippet {
-	display: inline-flex;
-	align-items: center;
-	gap: 10px;
+/* ---------- Snippet (hero) — composant @camply/ui, marge locale ---------- */
+.cu-hero .camply-snippet__root {
 	margin-top: 26px;
-	padding: 9px 9px 9px 16px;
-	border: 1px solid var(--sc-line-strong);
-	border-radius: 10px;
-	background: rgba(0, 0, 0, 0.3);
-}
-
-.cu-snippet__code {
-	font-family: var(--sc-font-mono);
-	font-size: 13.5px;
-	color: var(--sc-text);
-}
-
-.cu-snippet__prompt {
-	margin-right: 8px;
-	color: var(--sc-accent-hi);
-}
-
-.cu-snippet__copy {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 30px;
-	height: 30px;
-	flex: none;
-	border: none;
-	border-radius: 8px;
-	background: rgba(255, 255, 255, 0.05);
-	color: var(--sc-muted);
-	cursor: pointer;
-	transition:
-		background 0.15s ease,
-		color 0.15s ease;
-}
-
-.cu-snippet__copy:hover {
-	color: var(--sc-text);
-	background: rgba(255, 255, 255, 0.09);
 }
 
 /* ---------- Stats ---------- */
@@ -870,4 +810,127 @@ h3 {
 	font-size: 11.5px;
 	color: #8fa1b8;
 	text-align: right;
+}
+
+/* ---------- Interactive playground ---------- */
+.cu-pg {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.cu-pg__preview {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 40px 0;
+}
+
+.cu-controls {
+	padding: 4px 18px;
+	border: 1px solid var(--sc-line);
+	border-radius: 14px;
+	background: var(--sc-surface);
+}
+
+.cu-control {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	min-height: 52px;
+	padding: 8px 0;
+	border-top: 1px solid var(--sc-line-soft);
+}
+
+.cu-control:first-child {
+	border-top: none;
+}
+
+.cu-control__label {
+	flex: none;
+	font-size: 13px;
+	font-weight: 500;
+	color: #cdd9e6;
+}
+
+.cu-control__field {
+	display: flex;
+	flex: 1;
+	justify-content: flex-end;
+	min-width: 0;
+}
+
+/* Les contrôles du playground sont des composants @camply/ui (Input,
+   SegmentedControl, Switch) — plus aucun widget custom ici. */
+
+.cu-usage__title {
+	margin: 0 0 14px;
+	font-size: 18px;
+	font-weight: 700;
+}
+
+/* Bloc de code = Snippet @camply/ui, mis en forme "pre" multi-lignes. */
+.cu-usage__snippet .camply-snippet__code {
+	white-space: pre;
+	overflow-x: auto;
+	padding: 8px 4px;
+	font-size: 13px;
+	line-height: 1.7;
+	color: #cdd9e6;
+}
+
+.cu-perso__sub {
+	margin: 4px 0 16px;
+	font-size: 13.5px;
+	line-height: 1.55;
+	color: var(--sc-muted);
+}
+
+.cu-perso__sub code {
+	font-family: var(--sc-font-mono);
+	font-size: 12px;
+	color: var(--sc-accent-hi);
+}
+
+.cu-props {
+	overflow: hidden;
+	border: 1px solid var(--sc-line);
+	border-radius: 14px;
+}
+
+.cu-props__row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 14px;
+	padding: 11px 16px;
+	border-top: 1px solid var(--sc-line-soft);
+}
+
+.cu-props__row:first-child {
+	border-top: none;
+}
+
+.cu-props__name {
+	flex: none;
+	width: 170px;
+	font-family: var(--sc-font-mono);
+	font-size: 12.5px;
+	color: var(--sc-accent-hi);
+}
+
+.cu-props__type {
+	flex: none;
+	width: 130px;
+	font-family: var(--sc-font-mono);
+	font-size: 12px;
+	color: #8fa1b8;
+}
+
+.cu-props__desc {
+	flex: 1;
+	min-width: 180px;
+	font-size: 13px;
+	color: var(--sc-muted);
 }

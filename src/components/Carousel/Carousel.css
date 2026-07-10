@@ -1,0 +1,88 @@
+.camply-carousel__root {
+	font-family: var(--camply-font-sans);
+	outline: none;
+}
+.camply-carousel__root:focus-visible {
+	outline: none;
+}
+.camply-carousel__viewport {
+	position: relative;
+	overflow: hidden;
+	border-radius: var(--camply-radius-lg);
+}
+.camply-carousel__track {
+	display: flex;
+	transition: transform 0.4s var(--camply-ease);
+}
+.camply-carousel__slide {
+	flex: 0 0 100%;
+	min-width: 0;
+}
+
+.camply-carousel__arrow {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 38px;
+	height: 38px;
+	border: 1px solid var(--camply-border-strong);
+	border-radius: 50%;
+	background: rgba(12, 20, 32, 0.72);
+	backdrop-filter: blur(8px);
+	color: var(--camply-text);
+	cursor: pointer;
+	transition:
+		background var(--camply-duration),
+		opacity var(--camply-duration);
+}
+.camply-carousel__arrow:hover:not(:disabled) {
+	background: rgba(12, 20, 32, 0.92);
+}
+.camply-carousel__arrow:disabled {
+	opacity: 0.3;
+	cursor: not-allowed;
+}
+.camply-carousel__arrow:focus-visible {
+	outline: none;
+	box-shadow: var(--camply-ring);
+}
+.camply-carousel__prev {
+	left: 12px;
+}
+.camply-carousel__next {
+	right: 12px;
+}
+
+.camply-carousel__dots {
+	display: flex;
+	justify-content: center;
+	gap: 7px;
+	margin-top: 14px;
+}
+.camply-carousel__dot {
+	width: 7px;
+	height: 7px;
+	padding: 0;
+	border: none;
+	border-radius: 50%;
+	background: var(--camply-border-strong);
+	cursor: pointer;
+	transition:
+		background var(--camply-duration),
+		width var(--camply-duration);
+}
+.camply-carousel__dot:hover {
+	background: var(--camply-text-muted-2);
+}
+.camply-carousel__dotActive {
+	width: 22px;
+	border-radius: 999px;
+	background: var(--camply-accent);
+}
+.camply-carousel__dot:focus-visible {
+	outline: none;
+	box-shadow: var(--camply-ring);
+}

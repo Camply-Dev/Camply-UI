@@ -1,127 +1,140 @@
-@import "../../styles/tokens.css";
-
-.camply-btn {
+.camply-button__btn {
+	--_h: 40px;
+	--_px: 18px;
+	--_fs: 14px;
+	--_radius: var(--camply-radius);
 	position: relative;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: var(--camply-space-2);
+	gap: 8px;
+	height: var(--_h);
+	padding: 0 var(--_px);
 	border: 1px solid transparent;
-	border-radius: var(--camply-radius-sm);
-	font-family: inherit;
+	border-radius: var(--_radius);
+	font-family: var(--camply-font-sans);
+	font-size: var(--_fs);
 	font-weight: 600;
 	line-height: 1;
 	white-space: nowrap;
 	cursor: pointer;
+	user-select: none;
 	transition:
-		background-color var(--camply-transition),
-		border-color var(--camply-transition),
-		color var(--camply-transition),
-		box-shadow var(--camply-transition);
+		background var(--camply-duration),
+		border-color var(--camply-duration),
+		color var(--camply-duration),
+		transform 0.12s var(--camply-ease-spring);
 }
 
-.camply-btn:focus-visible {
+.camply-button__btn:focus-visible {
 	outline: none;
 	box-shadow: var(--camply-ring);
 }
 
-.camply-btn:disabled {
-	opacity: 0.5;
+.camply-button__btn:disabled {
 	cursor: not-allowed;
+	opacity: 0.55;
 }
 
-.camply-btn.camply-btn--loading {
-	opacity: 0.8;
-	cursor: progress;
+.camply-button__btn.camply-button__loading {
+	cursor: wait;
+	opacity: 0.85;
 }
 
-/* Sizes */
-.camply-btn--sm {
-	padding: 0.375rem 0.75rem;
-	font-size: 0.875rem;
+.camply-button__btn:active:not(:disabled) {
+	transform: scale(0.97);
 }
 
-.camply-btn--md {
-	padding: 0.5rem 1rem;
-	font-size: 1rem;
+.camply-button__label {
+	display: inline-block;
 }
 
-.camply-btn--lg {
-	padding: 0.75rem 1.25rem;
-	font-size: 1.125rem;
-}
-
-/* Variants */
-.camply-btn--primary {
-	background-color: var(--camply-accent);
-	color: var(--camply-accent-contrast);
-}
-
-.camply-btn--primary:hover:not(:disabled) {
-	background-color: var(--camply-accent-hover);
-}
-
-.camply-btn--secondary {
-	background-color: var(--camply-surface-2);
-	color: var(--camply-text);
-	border-color: var(--camply-border);
-}
-
-.camply-btn--secondary:hover:not(:disabled) {
-	background-color: var(--camply-elevated);
-	border-color: var(--camply-border-strong);
-}
-
-.camply-btn--ghost {
-	background-color: transparent;
-	color: var(--camply-accent);
-}
-
-.camply-btn--ghost:hover:not(:disabled) {
-	background-color: var(--camply-accent-soft);
-}
-
-.camply-btn--soft {
-	background-color: var(--camply-accent-soft);
-	color: var(--camply-accent);
-}
-
-.camply-btn--soft:hover:not(:disabled) {
-	background-color: var(--camply-accent-soft-hover);
-}
-
-.camply-btn--danger {
-	background-color: var(--camply-danger);
-	color: var(--camply-danger-contrast);
-}
-
-.camply-btn--danger:hover:not(:disabled) {
-	background-color: var(--camply-danger-hover);
-}
-
-/* Modifiers */
-.camply-btn--full {
-	width: 100%;
-}
-
-/* Parts */
-.camply-btn__icon {
+.camply-button__icon {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 }
 
-.camply-btn__label {
-	display: inline-block;
+/* --- sizes --- */
+.camply-button__sm {
+	--_h: 32px;
+	--_px: 13px;
+	--_fs: 13px;
+	--_radius: var(--camply-radius-sm);
+	gap: 6px;
 }
 
-.camply-btn__spinner {
-	width: 1em;
-	height: 1em;
+.camply-button__md {
+	--_h: 40px;
+}
+
+.camply-button__lg {
+	--_h: 48px;
+	--_px: 24px;
+	--_fs: 16px;
+	--_radius: var(--camply-radius-lg);
+}
+
+/* --- variants --- */
+.camply-button__primary {
+	background: var(--camply-accent);
+	color: var(--camply-accent-contrast);
+}
+
+.camply-button__primary:hover:not(:disabled) {
+	background: var(--camply-accent-hover);
+}
+
+.camply-button__secondary {
+	background: rgba(255, 255, 255, 0.04);
+	border-color: var(--camply-border-strong);
+	color: var(--camply-text);
+}
+
+.camply-button__secondary:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+.camply-button__ghost {
+	background: transparent;
+	color: var(--camply-text-muted);
+}
+
+.camply-button__ghost:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.05);
+	color: var(--camply-text);
+}
+
+.camply-button__soft {
+	background: var(--camply-accent-soft);
+	color: var(--camply-accent-hover);
+}
+
+.camply-button__soft:hover:not(:disabled) {
+	background: var(--camply-accent-soft-hover);
+}
+
+.camply-button__danger {
+	background: var(--camply-danger);
+	color: var(--camply-danger-contrast);
+}
+
+.camply-button__danger:hover:not(:disabled) {
+	background: var(--camply-danger-hover);
+}
+
+.camply-button__fullWidth {
+	width: 100%;
+}
+
+.camply-button__spinner {
+	width: 15px;
+	height: 15px;
 	border: 2px solid currentColor;
 	border-top-color: transparent;
 	border-radius: 50%;
-	animation: camply-btn-spin 0.6s linear infinite;
+	opacity: 0.75;
+	animation: camply-btn-spin 0.7s linear infinite;
 }
 
 @keyframes camply-btn-spin {

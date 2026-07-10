@@ -1,4 +1,4 @@
-import { type HTMLAttributes, forwardRef, type ReactNode } from "react";
+import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 
 export type BadgeVariant = "soft" | "solid" | "outline";
 export type BadgeTone = "accent" | "neutral" | "success" | "warning" | "danger" | "info";
@@ -34,7 +34,15 @@ const sizeStyles: Record<BadgeSize, string> = {
 
 export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
 	(
-		{ children, variant = "soft", tone = "accent", size = "md", dot = false, className = "", ...props },
+		{
+			children,
+			variant = "soft",
+			tone = "accent",
+			size = "md",
+			dot = false,
+			className = "",
+			...props
+		},
 		ref,
 	) => {
 		const classes = [

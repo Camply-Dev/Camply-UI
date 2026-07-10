@@ -1,0 +1,36 @@
+.camply-skeleton__sk {
+	display: block;
+	background: linear-gradient(
+		90deg,
+		rgba(255, 255, 255, 0.04),
+		rgba(148, 176, 216, 0.14),
+		rgba(255, 255, 255, 0.04)
+	);
+	background-size: 200% 100%;
+	animation: camply-skeleton 1.4s linear infinite;
+}
+@keyframes camply-skeleton {
+	0% {
+		background-position: 200% 0;
+	}
+	100% {
+		background-position: -200% 0;
+	}
+}
+
+.camply-skeleton__text {
+	height: 14px;
+	border-radius: var(--camply-radius-xs);
+}
+.camply-skeleton__rect {
+	border-radius: var(--camply-radius);
+}
+.camply-skeleton__circle {
+	border-radius: 50%;
+}
+
+.camply-skeleton__stack {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}

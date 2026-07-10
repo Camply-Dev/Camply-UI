@@ -1,0 +1,114 @@
+.camply-toast__viewport {
+	position: fixed;
+	z-index: var(--camply-z-toast);
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	width: min(360px, calc(100vw - 32px));
+	pointer-events: none;
+}
+.camply-toast__viewport[data-position="bottom-right"] {
+	bottom: 22px;
+	right: 22px;
+}
+.camply-toast__viewport[data-position="bottom-left"] {
+	bottom: 22px;
+	left: 22px;
+}
+.camply-toast__viewport[data-position="top-right"] {
+	top: 22px;
+	right: 22px;
+}
+.camply-toast__viewport[data-position="top-left"] {
+	top: 22px;
+	left: 22px;
+}
+.camply-toast__viewport[data-position="bottom-center"] {
+	bottom: 22px;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.camply-toast__toast {
+	--_c: var(--camply-accent);
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 13px 14px;
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius-lg);
+	background: var(--camply-elevated);
+	box-shadow: var(--camply-shadow-lg);
+	font-family: var(--camply-font-sans);
+	pointer-events: auto;
+	animation: camply-toast-in 0.3s var(--camply-ease);
+}
+@keyframes camply-toast-in {
+	from {
+		opacity: 0;
+		transform: translateY(14px) scale(0.98);
+	}
+}
+.camply-toast__toast[data-tone="success"] {
+	--_c: var(--camply-accent);
+}
+.camply-toast__toast[data-tone="info"] {
+	--_c: var(--camply-info);
+}
+.camply-toast__toast[data-tone="warn"] {
+	--_c: var(--camply-warning);
+}
+.camply-toast__toast[data-tone="danger"] {
+	--_c: var(--camply-danger);
+}
+.camply-toast__toast[data-tone="default"] {
+	--_c: var(--camply-text-muted);
+}
+
+.camply-toast__icon {
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	background: var(--_c);
+	color: var(--camply-accent-contrast);
+}
+.camply-toast__body {
+	flex: 1;
+	min-width: 0;
+}
+.camply-toast__title {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--camply-text);
+}
+.camply-toast__desc {
+	margin-top: 2px;
+	font-size: 12.5px;
+	line-height: 1.45;
+	color: var(--camply-text-muted-2);
+}
+.camply-toast__close {
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	margin: -2px -3px 0 0;
+	border: none;
+	border-radius: var(--camply-radius-xs);
+	background: transparent;
+	color: var(--camply-text-muted-2);
+	cursor: pointer;
+	transition:
+		background var(--camply-duration),
+		color var(--camply-duration);
+}
+.camply-toast__close:hover {
+	background: rgba(255, 255, 255, 0.08);
+	color: var(--camply-text);
+}

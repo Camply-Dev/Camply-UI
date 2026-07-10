@@ -1,0 +1,30 @@
+.camply-kbd__group {
+	display: inline-flex;
+	gap: 4px;
+	align-items: center;
+}
+.camply-kbd__kbd {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var(--camply-border-strong);
+	border-bottom-width: 2px;
+	border-radius: var(--camply-radius-xs);
+	background: rgba(255, 255, 255, 0.04);
+	color: var(--camply-text-muted);
+	font-family: var(--camply-font-mono);
+	font-weight: 500;
+	line-height: 1;
+}
+.camply-kbd__md {
+	min-width: 22px;
+	height: 22px;
+	padding: 0 6px;
+	font-size: 11.5px;
+}
+.camply-kbd__sm {
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	font-size: 10.5px;
+}

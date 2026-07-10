@@ -1,0 +1,47 @@
+.camply-meter__root {
+	width: 100%;
+	font-family: var(--camply-font-sans);
+}
+.camply-meter__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+.camply-meter__label {
+	font-size: 12.5px;
+	color: var(--camply-text-muted);
+}
+.camply-meter__value {
+	font-family: var(--camply-font-mono);
+	font-size: 12.5px;
+	color: var(--camply-text);
+}
+.camply-meter__track {
+	width: 100%;
+	border-radius: var(--camply-radius-pill);
+	background: rgba(255, 255, 255, 0.09);
+	overflow: hidden;
+}
+.camply-meter__md {
+	height: 8px;
+}
+.camply-meter__sm {
+	height: 5px;
+}
+.camply-meter__fill {
+	height: 100%;
+	border-radius: var(--camply-radius-pill);
+	transition:
+		width 0.35s var(--camply-ease),
+		background 0.3s var(--camply-ease);
+}
+.camply-meter__ok {
+	background: linear-gradient(90deg, #0284c7, var(--camply-accent));
+}
+.camply-meter__warn {
+	background: linear-gradient(90deg, #b0904a, var(--camply-warning));
+}
+.camply-meter__danger {
+	background: linear-gradient(90deg, #b0574a, var(--camply-danger));
+}

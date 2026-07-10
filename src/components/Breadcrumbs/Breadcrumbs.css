@@ -1,0 +1,33 @@
+.camply-breadcrumbs__nav {
+	font-family: var(--camply-font-sans);
+}
+.camply-breadcrumbs__list {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	flex-wrap: wrap;
+}
+.camply-breadcrumbs__crumb {
+	display: inline-flex;
+	font-size: 14px;
+}
+.camply-breadcrumbs__link {
+	color: var(--camply-text-muted);
+	text-decoration: none;
+	transition: color var(--camply-duration);
+}
+a.camply-breadcrumbs__link:hover {
+	color: var(--camply-text);
+}
+.camply-breadcrumbs__current {
+	color: var(--camply-text);
+	font-weight: 600;
+}
+.camply-breadcrumbs__sep {
+	display: inline-flex;
+	align-items: center;
+	color: var(--camply-text-disabled);
+}

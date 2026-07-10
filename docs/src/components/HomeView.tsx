@@ -1,26 +1,6 @@
-import { useState } from "react";
-import { Button } from "@camply/ui";
+import { Button, Snippet } from "@camply/ui";
 import { Icon } from "../icons";
 import { AVAILABLE, CSS, FAMILIES, FAMILY_ICON, TOTAL } from "../showcase-data";
-
-function Snippet() {
-	const [copied, setCopied] = useState(false);
-	const copy = () => {
-		navigator.clipboard?.writeText("npm i @camply/ui");
-		setCopied(true);
-		setTimeout(() => setCopied(false), 1400);
-	};
-	return (
-		<div className="cu-snippet">
-			<code className="cu-snippet__code">
-				<span className="cu-snippet__prompt">$</span>npm i @camply/ui
-			</code>
-			<button type="button" className="cu-snippet__copy" aria-label="Copier" onClick={copy}>
-				<Icon name={copied ? "check" : "copy"} size={15} />
-			</button>
-		</div>
-	);
-}
 
 interface HomeViewProps {
 	onNavigate: (id: string) => void;
@@ -37,11 +17,16 @@ export function HomeView({ onNavigate }: HomeViewProps) {
 	return (
 		<div>
 			<div className="cu-hero">
-				<span className="cu-logo cu-logo--lg" aria-hidden="true">
-					C
-				</span>
+				<img
+					className="cu-logo cu-logo--lg"
+					src="/logo.svg"
+					alt="Camply UI"
+					width={66}
+					height={66}
+				/>
 				<span className="cu-pill">
-					<span className="cu-dot" />v0.1.0 · {AVAILABLE.length} / {TOTAL} composants
+					<span className="cu-dot" />
+					v0.1.0 · {AVAILABLE.length} / {TOTAL} composants
 				</span>
 				<h1 className="cu-hero__title">
 					La librairie UI
@@ -65,7 +50,9 @@ export function HomeView({ onNavigate }: HomeViewProps) {
 						Voir le CSS par défaut
 					</Button>
 				</div>
-				<Snippet />
+				<div style={{ width: "100%", maxWidth: 420 }}>
+					<Snippet prompt>npm i @camply/ui</Snippet>
+				</div>
 			</div>
 
 			<div className="cu-stats">

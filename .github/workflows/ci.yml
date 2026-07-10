@@ -20,8 +20,14 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Build
+      - name: Build library
         run: bun run build
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Build docs
+        run: bun run docs:build
 
   biome:
     name: Biome Check

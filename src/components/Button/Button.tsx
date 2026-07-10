@@ -1,4 +1,5 @@
 import { type ButtonHTMLAttributes, forwardRef, type ReactNode } from "react";
+import { cn } from "../../lib/cn";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "soft" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
@@ -6,67 +7,51 @@ export type ButtonSize = "sm" | "md" | "lg";
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	variant?: ButtonVariant;
 	size?: ButtonSize;
+	/** stretch to container width */
+	fullWidth?: boolean;
+	/** shows a spinner and disables the button */
 	loading?: boolean;
 	leftIcon?: ReactNode;
 	rightIcon?: ReactNode;
-	fullWidth?: boolean;
 }
-
-const variantStyles: Record<ButtonVariant, string> = {
-	primary: "camply-btn--primary",
-	secondary: "camply-btn--secondary",
-	ghost: "camply-btn--ghost",
-	soft: "camply-btn--soft",
-	danger: "camply-btn--danger",
-};
-
-const sizeStyles: Record<ButtonSize, string> = {
-	sm: "camply-btn--sm",
-	md: "camply-btn--md",
-	lg: "camply-btn--lg",
-};
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 	(
 		{
-			children,
 			variant = "primary",
 			size = "md",
-			loading = false,
+			fullWidth,
+			loading,
 			leftIcon,
 			rightIcon,
-			fullWidth = false,
 			disabled,
-			className = "",
 			type = "button",
+			className,
+			children,
 			...props
 		},
 		ref,
 	) => {
-		const classes = [
-			"camply-btn",
-			variantStyles[variant],
-			sizeStyles[size],
-			fullWidth && "camply-btn--full",
-			loading && "camply-btn--loading",
-			className,
-		]
-			.filter(Boolean)
-			.join(" ");
-
 		return (
 			<button
 				ref={ref}
 				type={type}
-				className={classes}
+				className={cn(
+					"camply-button__btn",
+					`camply-button__${variant}`,
+					`camply-button__${size}`,
+					fullWidth && "camply-button__fullWidth",
+					loading && "camply-button__loading",
+					className,
+				)}
 				disabled={disabled || loading}
-				aria-busy={loading || undefined}
+				data-loading={loading || undefined}
 				{...props}
 			>
-				{loading && <span className="camply-btn__spinner" aria-hidden="true" />}
-				{!loading && leftIcon && <span className="camply-btn__icon">{leftIcon}</span>}
-				{children && <span className="camply-btn__label">{children}</span>}
-				{rightIcon && <span className="camply-btn__icon">{rightIcon}</span>}
+				{loading && <span className="camply-button__spinner" aria-hidden="true" />}
+				{!loading && leftIcon && <span className="camply-button__icon">{leftIcon}</span>}
+				{children && <span className="camply-button__label">{children}</span>}
+				{!loading && rightIcon && <span className="camply-button__icon">{rightIcon}</span>}
 			</button>
 		);
 	},

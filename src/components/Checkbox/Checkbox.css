@@ -1,0 +1,64 @@
+.camply-checkbox__wrap {
+	display: inline-flex;
+	align-items: center;
+	gap: 11px;
+	font-family: var(--camply-font-sans);
+	font-size: 14px;
+	color: var(--camply-text);
+	cursor: pointer;
+	user-select: none;
+}
+.camply-checkbox__wrap.camply-checkbox__disabled {
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+
+.camply-checkbox__box {
+	position: relative;
+	display: inline-flex;
+	flex: none;
+}
+.camply-checkbox__input {
+	position: absolute;
+	inset: 0;
+	margin: 0;
+	opacity: 0;
+	cursor: inherit;
+}
+.camply-checkbox__control {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius-xs);
+	background: rgba(0, 0, 0, 0.25);
+	color: var(--camply-accent-contrast);
+	transition:
+		background var(--camply-duration),
+		border-color var(--camply-duration);
+}
+.camply-checkbox__tick {
+	opacity: 0;
+	transform: scale(0.6);
+	transition:
+		opacity 0.15s,
+		transform 0.15s var(--camply-ease-spring);
+}
+
+.camply-checkbox__input:checked + .camply-checkbox__control {
+	background: var(--camply-accent);
+	border-color: var(--camply-accent);
+}
+.camply-checkbox__input:checked + .camply-checkbox__control .camply-checkbox__tick {
+	opacity: 1;
+	transform: scale(1);
+}
+.camply-checkbox__input:focus-visible + .camply-checkbox__control {
+	box-shadow: var(--camply-ring);
+}
+
+.camply-checkbox__label {
+	line-height: 1.3;
+}

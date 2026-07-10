@@ -30,11 +30,25 @@ const c = (
 // Ordre = ordre d'affichage dans la sidebar (familles et sous-familles en dérivent).
 export const COMPONENTS: ComponentEntry[] = [
 	// ----- Primitifs -----
-	c("button", "Button", "Primitifs", "Boutons", "Bouton d'action : variantes, tailles, loading et icônes.", "available"),
+	c(
+		"button",
+		"Button",
+		"Primitifs",
+		"Boutons",
+		"Bouton d'action : variantes, tailles, loading et icônes.",
+		"available",
+	),
 	c("buttongroup", "ButtonGroup", "Primitifs", "Boutons", "Groupe de boutons à bords partagés."),
 	c("iconbutton", "IconButton", "Primitifs", "Boutons", "Bouton carré ne contenant qu'une icône."),
 	c("toggle", "Toggle", "Primitifs", "Boutons", "Bouton bascule à deux états."),
-	c("badge", "Badge", "Primitifs", "Marqueurs", "Marqueur de statut : tons, variantes, pastille.", "available"),
+	c(
+		"badge",
+		"Badge",
+		"Primitifs",
+		"Marqueurs",
+		"Marqueur de statut : tons, variantes, pastille.",
+		"available",
+	),
 	c("tag", "Tag", "Primitifs", "Marqueurs", "Étiquette compacte, éventuellement supprimable."),
 	c("kbd", "Kbd", "Primitifs", "Marqueurs", "Représentation d'une touche clavier."),
 	c("divider", "Divider", "Primitifs", "Mise en forme", "Séparateur avec libellé optionnel."),
@@ -49,7 +63,13 @@ export const COMPONENTS: ComponentEntry[] = [
 	c("taginput", "TagInput", "Formulaires", "Saisie", "Saisie d'étiquettes à la volée."),
 	c("select", "Select", "Formulaires", "Sélection", "Liste déroulante personnalisée."),
 	c("multiselect", "MultiSelect", "Formulaires", "Sélection", "Sélection multiple à jetons."),
-	c("combobox", "Combobox", "Formulaires", "Sélection", "Autocomplétion filtrante et sélectionnable."),
+	c(
+		"combobox",
+		"Combobox",
+		"Formulaires",
+		"Sélection",
+		"Autocomplétion filtrante et sélectionnable.",
+	),
 	c("colorpicker", "ColorPicker", "Formulaires", "Sélection", "Sélecteur de couleur HSV complet."),
 	c("datepicker", "DatePicker", "Formulaires", "Dates", "Calendrier : date précise ou plage."),
 	c("checkbox", "Checkbox", "Formulaires", "Choix", "Case à cocher."),
@@ -74,7 +94,13 @@ export const COMPONENTS: ComponentEntry[] = [
 
 	// ----- Navigation -----
 	c("tabs", "Tabs", "Navigation", "Onglets", "Onglets accessibles."),
-	c("segmentedcontrol", "SegmentedControl", "Navigation", "Onglets", "Sélecteur segmenté à choix unique."),
+	c(
+		"segmentedcontrol",
+		"SegmentedControl",
+		"Navigation",
+		"Onglets",
+		"Sélecteur segmenté à choix unique.",
+	),
 	c("menubar", "Menubar", "Navigation", "Onglets", "Barre de menus applicative."),
 	c("accordion", "Accordion", "Navigation", "Structure", "Sections repliables."),
 	c("breadcrumbs", "Breadcrumbs", "Navigation", "Structure", "Fil d'Ariane."),
@@ -99,6 +125,77 @@ export const COMPONENTS: ComponentEntry[] = [
 	c("carousel", "Carousel", "Données", "Média", "Carrousel d'éléments."),
 	c("commandpalette", "CommandPalette", "Données", "Commandes", "Palette de commandes (⌘K)."),
 ];
+
+// Composants réellement intégrés dans src/components (étendu à chaque lot).
+const AVAILABLE_IDS = new Set<string>([
+	// Primitifs
+	"button",
+	"badge",
+	"buttongroup",
+	"iconbutton",
+	"toggle",
+	"tag",
+	"kbd",
+	"divider",
+	"snippet",
+	"spoiler",
+	// Formulaires
+	"input",
+	"numberinput",
+	"pininput",
+	"textarea",
+	"taginput",
+	"select",
+	"multiselect",
+	"combobox",
+	"colorpicker",
+	"datepicker",
+	"checkbox",
+	"radiogroup",
+	"switch",
+	"slider",
+	"rangeslider",
+	"rating",
+	"fileupload",
+	// Surfaces
+	"card",
+	"alert",
+	"banner",
+	"modal",
+	"drawer",
+	"sheet",
+	"dropdownmenu",
+	"tooltip",
+	"popover",
+	"hovercard",
+	// Navigation
+	"tabs",
+	"segmentedcontrol",
+	"menubar",
+	"accordion",
+	"breadcrumbs",
+	"pagination",
+	"steps",
+	"timeline",
+	// Feedback
+	"progress",
+	"radialprogress",
+	"meter",
+	"spinner",
+	"skeleton",
+	"toast",
+	// Données
+	"avatar",
+	"stat",
+	"descriptionlist",
+	"table",
+	"tree",
+	"carousel",
+	"commandpalette",
+]);
+for (const entry of COMPONENTS) {
+	entry.status = AVAILABLE_IDS.has(entry.id) ? "available" : "upcoming";
+}
 
 export interface Subfamily {
 	title: string;

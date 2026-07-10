@@ -1,0 +1,105 @@
+.camply-numberinput__field {
+	display: flex;
+	flex-direction: column;
+	gap: 7px;
+	font-family: var(--camply-font-sans);
+}
+.camply-numberinput__label {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--camply-text);
+}
+.camply-numberinput__wrap {
+	--_h: 42px;
+	display: flex;
+	align-items: center;
+	height: var(--_h);
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius);
+	background: rgba(0, 0, 0, 0.25);
+	transition:
+		border-color var(--camply-duration),
+		box-shadow var(--camply-duration);
+}
+.camply-numberinput__wrap:focus-within {
+	border-color: var(--camply-accent);
+}
+.camply-numberinput__hasError {
+	border-color: var(--camply-danger);
+}
+.camply-numberinput__disabled {
+	opacity: 0.55;
+	pointer-events: none;
+}
+.camply-numberinput__sm {
+	--_h: 34px;
+}
+.camply-numberinput__md {
+	--_h: 42px;
+}
+.camply-numberinput__lg {
+	--_h: 50px;
+}
+
+.camply-numberinput__step {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--_h);
+	height: 100%;
+	border: none;
+	background: transparent;
+	color: var(--camply-text-muted);
+	cursor: pointer;
+	flex: none;
+	transition:
+		background var(--camply-duration),
+		color var(--camply-duration);
+}
+.camply-numberinput__step:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.05);
+	color: var(--camply-text);
+}
+.camply-numberinput__step:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.camply-numberinput__inputWrap {
+	display: flex;
+	align-items: center;
+	gap: 3px;
+	flex: 1;
+	min-width: 0;
+	padding: 0 4px;
+	border-left: 1px solid var(--camply-border);
+	border-right: 1px solid var(--camply-border);
+	height: 100%;
+}
+.camply-numberinput__affix {
+	color: var(--camply-text-muted-2);
+	font-size: 14px;
+	flex: none;
+}
+.camply-numberinput__input {
+	width: 100%;
+	min-width: 0;
+	border: none;
+	outline: none;
+	background: transparent;
+	color: var(--camply-text);
+	font-family: inherit;
+	font-size: 14px;
+	text-align: center;
+}
+.camply-numberinput__input::placeholder {
+	color: var(--camply-text-muted-2);
+}
+
+.camply-numberinput__desc {
+	font-size: 12px;
+	color: var(--camply-text-muted);
+}
+.camply-numberinput__descError {
+	color: var(--camply-danger-hover);
+}

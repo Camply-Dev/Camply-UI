@@ -1,0 +1,89 @@
+.camply-table__wrap {
+	border: 1px solid var(--camply-border);
+	border-radius: var(--camply-radius-lg);
+	overflow: hidden;
+	overflow-x: auto;
+	font-family: var(--camply-font-sans);
+}
+.camply-table__table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 14px;
+}
+
+.camply-table__th {
+	padding: 12px 16px;
+	text-align: left;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.4px;
+	text-transform: uppercase;
+	color: var(--camply-text-muted-2);
+	background: rgba(255, 255, 255, 0.03);
+	white-space: nowrap;
+}
+.camply-table__sortable {
+	cursor: pointer;
+	user-select: none;
+}
+.camply-table__sortable:hover {
+	color: var(--camply-text-muted);
+}
+.camply-table__thInner {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 0;
+	border: none;
+	background: none;
+	font: inherit;
+	letter-spacing: inherit;
+	text-transform: inherit;
+	color: inherit;
+	cursor: inherit;
+}
+button.camply-table__thInner:focus-visible {
+	outline: none;
+	border-radius: var(--camply-radius-xs);
+	box-shadow: var(--camply-ring);
+}
+.camply-table__sortIcon {
+	display: inline-flex;
+	color: var(--camply-accent);
+}
+.camply-table__sortIdle {
+	color: var(--camply-text-disabled);
+}
+
+.camply-table__td {
+	padding: 13px 16px;
+	border-top: 1px solid var(--camply-border-soft);
+	color: var(--camply-text);
+	vertical-align: middle;
+}
+.camply-table__striped {
+	background: rgba(255, 255, 255, 0.015);
+}
+.camply-table__clickable {
+	cursor: pointer;
+	transition: background var(--camply-duration);
+}
+.camply-table__clickable:hover {
+	background: rgba(255, 255, 255, 0.03);
+}
+
+.camply-table__align-left {
+	text-align: left;
+}
+.camply-table__align-right {
+	text-align: right;
+}
+.camply-table__align-center {
+	text-align: center;
+}
+
+.camply-table__empty {
+	padding: 40px 16px;
+	text-align: center;
+	color: var(--camply-text-muted-2);
+}

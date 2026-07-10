@@ -1,10 +1,11 @@
+import { Input } from "@camply/ui";
 import { useState } from "react";
 import { Icon } from "../icons";
 import {
 	COMPONENTS,
 	CSS,
-	type Family,
 	FAMILIES,
+	type Family,
 	HOME,
 	ROADMAP,
 	type Subfamily,
@@ -14,11 +15,12 @@ import {
 interface SidebarProps {
 	active: string;
 	onNavigate: (id: string) => void;
+	onOpenPalette?: () => void;
 }
 
 const subKey = (family: Family, sub: Subfamily) => `${family.title}|${sub.title}`;
 
-export function Sidebar({ active, onNavigate }: SidebarProps) {
+export function Sidebar({ active, onNavigate, onOpenPalette }: SidebarProps) {
 	const [query, setQuery] = useState("");
 	const [openFam, setOpenFam] = useState<Record<string, boolean>>({});
 	const [openSub, setOpenSub] = useState<Record<string, boolean>>({});
@@ -36,7 +38,8 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
 	const famOpen = (family: Family) => {
 		if (searching) return famHasMatch(family);
 		if (family.title in openFam) return openFam[family.title];
-		if (activeIsComponent) return family.subfamilies.some((s) => s.items.some((i) => i.id === active));
+		if (activeIsComponent)
+			return family.subfamilies.some((s) => s.items.some((i) => i.id === active));
 		return family.title === firstFamily;
 	};
 
@@ -63,9 +66,7 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
 	return (
 		<aside className="cu-side">
 			<div className="cu-brand">
-				<span className="cu-logo" aria-hidden="true">
-					C
-				</span>
+				<img className="cu-logo" src="/logo.svg" alt="Camply UI" width={38} height={38} />
 				<div>
 					<div className="cu-brand__name">Camply UI</div>
 					<div className="cu-brand__meta">{TOTAL} composants · React</div>
@@ -73,14 +74,18 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
 			</div>
 
 			<div className="cu-search">
-				<span className="cu-search__icon">
-					<Icon name="search" size={15} />
-				</span>
-				<input
-					className="cu-search__input"
+				<Input
+					size="sm"
 					type="search"
+					leftIcon={<Icon name="search" size={15} />}
 					value={query}
 					onChange={(e) => setQuery(e.target.value)}
+					onKeyDown={(e) => {
+						if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+							e.preventDefault();
+							onOpenPalette?.();
+						}
+					}}
 					placeholder="Rechercher un composant…"
 					aria-label="Rechercher un composant"
 				/>
@@ -111,12 +116,19 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
 					if (searching && !famHasMatch(family)) return null;
 					const open = famOpen(family);
 					const count = searching
-						? family.subfamilies.reduce((n, s) => n + s.items.filter((i) => matches(i.label)).length, 0)
+						? family.subfamilies.reduce(
+								(n, s) => n + s.items.filter((i) => matches(i.label)).length,
+								0,
+							)
 						: family.count;
 					return (
 						<div key={family.title}>
 							<button type="button" className="cu-fam-row" onClick={() => toggleFam(family)}>
-								<Icon name="chevron" size={13} className={open ? "cu-chev cu-chev--open" : "cu-chev"} />
+								<Icon
+									name="chevron"
+									size={13}
+									className={open ? "cu-chev cu-chev--open" : "cu-chev"}
+								/>
 								<span className="cu-fam-row__label">{family.title}</span>
 								<span className="cu-count">{count}</span>
 							</button>
@@ -147,7 +159,9 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
 															<button
 																key={item.id}
 																type="button"
-																className={item.id === active ? "cu-item cu-item--active" : "cu-item"}
+																className={
+																	item.id === active ? "cu-item cu-item--active" : "cu-item"
+																}
 																onClick={() => onNavigate(item.id)}
 															>
 																{item.label}

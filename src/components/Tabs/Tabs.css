@@ -1,0 +1,83 @@
+.camply-tabs__root {
+	font-family: var(--camply-font-sans);
+}
+.camply-tabs__list {
+	display: flex;
+	gap: 4px;
+}
+.camply-tabs__list-line {
+	border-bottom: 1px solid var(--camply-border);
+}
+.camply-tabs__list-soft {
+	width: fit-content;
+	padding: 3px;
+	border-radius: var(--camply-radius);
+	background: rgba(0, 0, 0, 0.28);
+}
+
+.camply-tabs__tab {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	border: none;
+	background: none;
+	color: var(--camply-text-muted);
+	font-family: inherit;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition:
+		color var(--camply-duration),
+		background var(--camply-duration),
+		border-color var(--camply-duration);
+}
+.camply-tabs__tab:hover:not(:disabled) {
+	color: var(--camply-text);
+}
+.camply-tabs__tab:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+.camply-tabs__tab:focus-visible {
+	outline: none;
+	border-radius: var(--camply-radius-xs);
+	box-shadow: var(--camply-ring);
+}
+
+/* line variant — underline indicator */
+.camply-tabs__tab-line {
+	padding: 11px 15px;
+	margin-bottom: -1px;
+	border-bottom: 2px solid transparent;
+}
+.camply-tabs__tab-line.camply-tabs__selected {
+	color: var(--camply-text);
+	border-bottom-color: var(--camply-accent);
+}
+
+/* soft variant — pill group */
+.camply-tabs__tab-soft {
+	padding: 8px 15px;
+	border-radius: var(--camply-radius-sm);
+}
+.camply-tabs__tab-soft.camply-tabs__selected {
+	background: var(--camply-accent-soft);
+	color: var(--camply-accent-hover);
+}
+
+.camply-tabs__tabIcon {
+	display: inline-flex;
+}
+.camply-tabs__panel {
+	padding: 18px 2px;
+	font-size: 14px;
+	line-height: 1.6;
+	color: var(--camply-text-muted);
+	animation: camply-tab-in 0.25s var(--camply-ease);
+}
+@keyframes camply-tab-in {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+}

@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import {
 	type Component,
@@ -91,8 +91,14 @@ function verifyPackageExports(components: Component[]) {
 	process.exit(1);
 }
 
+// Copie les tokens dans dist et les expose en @camply/ui/styles.css (import unique côté consommateur).
+function copyTokens() {
+	copyFileSync(join(root, "src/styles/tokens.css"), join(distDir, "styles.css"));
+}
+
 const components = getComponents();
 patchComponentBundles(components);
+copyTokens();
 writeBarrel(components);
 verifyPackageExports(components);
 

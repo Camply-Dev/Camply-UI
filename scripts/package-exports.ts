@@ -38,6 +38,7 @@ export function computeExports(components: Component[]): PackageExports {
 			types: "./dist/index.d.ts",
 			import: "./dist/index.js",
 		},
+		"./styles.css": "./dist/styles.css",
 	};
 
 	for (const { slug } of components) {
@@ -51,7 +52,10 @@ export function computeExports(components: Component[]): PackageExports {
 }
 
 // Comparaison stable (ordre des clés ignoré) entre les exports du package.json et ceux attendus.
-export function exportsMatch(actual: PackageExports | undefined, expected: PackageExports): boolean {
+export function exportsMatch(
+	actual: PackageExports | undefined,
+	expected: PackageExports,
+): boolean {
 	return stableStringify(actual ?? {}) === stableStringify(expected);
 }
 

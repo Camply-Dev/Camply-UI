@@ -5,7 +5,8 @@ export function TokensView() {
 		<div>
 			<header className="cu-pagehead">
 				<span className="cu-pill">
-					<span className="cu-dot" />Fondations
+					<span className="cu-dot" />
+					Fondations
 				</span>
 				<h1 className="cu-pagehead__title">Tokens CSS</h1>
 				<p className="cu-pagehead__sub">

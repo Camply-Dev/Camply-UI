@@ -1,86 +1,94 @@
 # @camply/ui
 
-Bibliothèque de composants React pour Camply, publiable sur npm.
+Bibliothèque de **58 composants React** pour Camply — thème sombre premium, accent cyan, customisable de A à Z via design tokens. ESM only, tree-shakable, zéro dépendance runtime.
 
-## Stack
-
-- **Bun** — runtime et gestionnaire de paquets
-- **TypeScript** — typage strict
-- **tsup** — build ESM + CJS + déclarations `.d.ts`
-- **Vite** — vitrine / documentation visuelle locale (`docs/`)
-
-## Démarrage rapide
+## Utilisation
 
 ```bash
-# Installer les dépendances
-bun install
-
-# Lancer la vitrine docs (http://localhost:5173)
-bun run dev
-
-# Builder la lib pour npm
-bun run build
-
-# Vérifier les types
-bun run typecheck
+bun add @camply/ui   # ou npm i @camply/ui
 ```
 
-## Structure
-
-```
-src/
-  components/     # Composants React
-  index.ts        # Point d'entrée public
-docs/             # Vitrine / documentation visuelle (Vite)
-dist/             # Sortie du build (généré)
-```
-
-## Ajouter un composant
-
-1. Créer un dossier dans `src/components/MonComposant/` avec `MonComposant.tsx`, `MonComposant.css` et `index.ts` (qui importe le CSS)
-2. Exporter depuis `src/index.ts`
-3. Lancer `bun run build` pour générer les bundles et synchroniser les exports npm
-4. Vérifier le rendu dans la vitrine `docs/` (`bun run dev`)
-
-## Utilisation (après publication)
-
-```bash
-bun add @camply/ui
-```
+Importer les design tokens **une seule fois** (entrée de l'app) :
 
 ```tsx
-import { Button } from "@camply/ui";
+import "@camply/ui/styles.css";
+```
+
+Puis utiliser les composants :
+
+```tsx
+import { Button, Badge } from "@camply/ui";
 
 export function Example() {
-  return <Button variant="primary">Cliquer</Button>;
+	return (
+		<>
+			<Button variant="primary">Cliquer</Button>
+			<Badge tone="accent" dot>Actif</Badge>
+		</>
+	);
 }
 ```
 
-Le CSS de chaque composant est importé automatiquement par votre bundler (Vite, webpack, etc.) via les side-effects. Seul le CSS des composants réellement utilisés est inclus.
-
-Import direct par composant (recommandé pour un tree-shaking maximal) :
+Le CSS de chaque composant est chargé automatiquement par le bundler (side-effects) : seul le CSS des composants réellement utilisés est inclus. Import par composant possible pour un contrôle maximal :
 
 ```tsx
 import { Button } from "@camply/ui/button";
 ```
 
-## Publication sur npm
+### Thémer
 
-1. Mettre à jour `name`, `author` et `repository` dans `package.json`
-2. Se connecter : `npm login`
-3. Pour un package scopé public : ajouter `"publishConfig": { "access": "public" }`
-4. Publier :
+Tous les composants lisent les variables `--camply-*` définies dans `styles.css`. Thémer = surcharger ces variables (globalement ou sur un scope) :
 
-```bash
-bun run build
-npm publish --access public
+```css
+:root {
+	--camply-accent: #8b5cf6; /* accent violet au lieu de cyan */
+}
 ```
 
-## Scripts
+Chaque composant accepte aussi `className` et `style`.
 
-| Script       | Description                          |
-| ------------ | ------------------------------------ |
-| `bun run dev`       | Vitrine `docs/` (Vite) en mode dev   |
-| `bun run docs:build`| Build de la vitrine `docs/`          |
-| `bun run build`     | Build de la lib dans `dist/`         |
-| `bun run typecheck` | Vérification TypeScript sans emit    |
+## Développement
+
+- **Bun** — runtime et gestionnaire de paquets
+- **TypeScript** strict · **tsup** (build ESM + `.d.ts`) · **Biome** (lint/format) · **Vite** (vitrine `docs/`)
+
+```bash
+bun install          # dépendances
+bun run dev          # vitrine docs (http://localhost:5173)
+bun run build        # build de la lib dans dist/
+bun run typecheck    # TypeScript sans emit
+bun run check        # Biome (lint + format)
+```
+
+### Structure
+
+```
+src/
+  components/       # 58 composants (MonComposant.tsx + .css + index.ts)
+  lib/              # helpers internes (cn, Portal, icons, useAnchor…)
+  styles/tokens.css # design tokens (source de @camply/ui/styles.css)
+docs/               # vitrine / documentation visuelle (Vite)
+scripts/            # build (post-build, sync des exports npm)
+dist/               # sortie du build (généré)
+```
+
+### Ajouter un composant
+
+1. Créer `src/components/MonComposant/` avec `MonComposant.tsx`, `MonComposant.css` et `index.ts` (qui importe le CSS et ré-exporte les symboles)
+2. L'exporter depuis `src/index.ts`
+3. Synchroniser les exports npm : `bun scripts/sync-package-exports.ts`
+4. `bun run build` (vérifie que les exports sont synchronisés, sinon échoue)
+5. Vérifier le rendu dans la vitrine (`bun run dev`)
+
+### Conventions
+
+- Classes CSS : `camply-<slug>__<élément>` ; aucune couleur en dur, tout passe par les tokens `--camply-*`
+- Composant à racine DOM unique → `forwardRef` + `displayName` ; tous acceptent `className` + `style`
+- a11y : patterns WAI-ARIA (listbox pilotée par `aria-activedescendant`, Échap ferme les overlays…) ; toute suppression Biome est inline et justifiée
+
+## Publication
+
+```bash
+bun run build      # lancé aussi automatiquement par prepublishOnly
+npm publish        # package scopé public (publishConfig.access = public)
+```

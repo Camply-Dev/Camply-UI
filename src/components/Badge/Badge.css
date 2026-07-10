@@ -1,5 +1,3 @@
-@import "../../styles/tokens.css";
-
 .camply-badge {
 	display: inline-flex;
 	align-items: center;
@@ -26,7 +24,7 @@
 
 /* Tones — définissent les variables locales consommées par les variantes */
 .camply-badge--accent {
-	--_fg: var(--camply-accent);
+	--_fg: var(--camply-accent-hover);
 	--_bg: var(--camply-accent-soft);
 	--_border: var(--camply-accent-border);
 	--_solid-bg: var(--camply-accent);
@@ -37,8 +35,8 @@
 	--_fg: var(--camply-text-muted);
 	--_bg: var(--camply-border-soft);
 	--_border: var(--camply-border-strong);
-	--_solid-bg: var(--camply-surface-2);
-	--_solid-fg: var(--camply-text);
+	--_solid-bg: #cdd9e6;
+	--_solid-fg: var(--camply-accent-contrast);
 }
 
 .camply-badge--success {
@@ -58,7 +56,7 @@
 }
 
 .camply-badge--danger {
-	--_fg: var(--camply-danger);
+	--_fg: var(--camply-danger-hover);
 	--_bg: var(--camply-danger-soft);
 	--_border: var(--camply-danger-border);
 	--_solid-bg: var(--camply-danger);

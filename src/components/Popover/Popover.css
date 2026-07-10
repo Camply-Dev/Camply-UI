@@ -1,0 +1,19 @@
+.camply-popover__panel {
+	min-width: 220px;
+	max-width: 320px;
+	padding: 16px;
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius-lg);
+	background: var(--camply-elevated);
+	box-shadow: var(--camply-shadow-pop);
+	color: var(--camply-text);
+	font-family: var(--camply-font-sans);
+	font-size: 14px;
+	animation: camply-pop-in 0.14s var(--camply-ease);
+}
+@keyframes camply-pop-in {
+	from {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+}
