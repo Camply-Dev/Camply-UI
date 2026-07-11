@@ -1,13 +1,14 @@
+import { Badge, Card } from "@camply/ui";
+import { Icon } from "../icons";
 import { TOKEN_GROUPS } from "../showcase-data";
 
 export function TokensView() {
 	return (
 		<div>
 			<header className="cu-pagehead">
-				<span className="cu-pill">
-					<span className="cu-dot" />
+				<Badge tone="accent" icon={<Icon name="tokens" size={12} />}>
 					Fondations
-				</span>
+				</Badge>
 				<h1 className="cu-pagehead__title">Tokens CSS</h1>
 				<p className="cu-pagehead__sub">
 					Tous les composants lisent ces variables <code>--camply-*</code>. Thémer, c'est changer
@@ -17,7 +18,7 @@ export function TokensView() {
 
 			<div className="cu-tokens">
 				{TOKEN_GROUPS.map((group) => (
-					<div key={group.title} className="cu-tokgroup">
+					<Card key={group.title} padding="none" className="cu-tokgroup">
 						<div className="cu-tokgroup__head">{group.title}</div>
 						<div className="cu-tokgroup__body">
 							{group.rows.map((row) => (
@@ -30,7 +31,7 @@ export function TokensView() {
 								</div>
 							))}
 						</div>
-					</div>
+					</Card>
 				))}
 			</div>
 		</div>

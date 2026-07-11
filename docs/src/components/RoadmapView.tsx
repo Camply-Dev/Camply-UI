@@ -1,5 +1,6 @@
 import { Badge } from "@camply/ui";
 import { FAMILIES } from "../showcase-data";
+import { ClickableCard } from "./ClickableCard";
 
 interface RoadmapViewProps {
 	onNavigate: (id: string) => void;
@@ -9,7 +10,7 @@ export function RoadmapView({ onNavigate }: RoadmapViewProps) {
 	return (
 		<div>
 			<header className="cu-pagehead">
-				<span className="cu-pill">Roadmap</span>
+				<Badge tone="accent">Roadmap</Badge>
 				<h1 className="cu-pagehead__title">Roadmap composants</h1>
 				<p className="cu-pagehead__sub">
 					Les composants à venir, groupés par famille et sous-famille (même source que la
@@ -33,11 +34,10 @@ export function RoadmapView({ onNavigate }: RoadmapViewProps) {
 								<div className="cu-road-sub__title">{sub.title}</div>
 								<div className="cu-road">
 									{sub.items.map((item) => (
-										<button
+										<ClickableCard
 											key={item.id}
-											type="button"
 											className="cu-road__card"
-											onClick={() => onNavigate(item.id)}
+											onActivate={() => onNavigate(item.id)}
 										>
 											<div className="cu-road__top">
 												<span className="cu-road__name">{item.label}</span>
@@ -46,7 +46,7 @@ export function RoadmapView({ onNavigate }: RoadmapViewProps) {
 												</Badge>
 											</div>
 											<p className="cu-road__desc">{item.description}</p>
-										</button>
+										</ClickableCard>
 									))}
 								</div>
 							</div>

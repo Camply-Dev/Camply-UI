@@ -2,7 +2,6 @@ import {
 	type CSSProperties,
 	type KeyboardEvent,
 	useCallback,
-	useEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -11,8 +10,10 @@ import { cn } from "../../lib/cn";
 import { Check, ChevronDown, Search } from "../../lib/icons";
 import { Portal } from "../../lib/Portal";
 import { useAnchor } from "../../lib/useAnchor";
-import { useControllable, useId } from "../../lib/useControllable";
+import { useControllable } from "../../lib/useControllable";
 import { useDismiss } from "../../lib/useDismiss";
+import { useId } from "../../lib/useId";
+import { useListboxNav } from "../../lib/useListboxNav";
 export interface ComboboxOption<T extends string = string> {
 	value: T;
 	label: string;
@@ -61,7 +62,6 @@ export function Combobox<T extends string = string>({
 	);
 	const [open, setOpen] = useState(false);
 	const [query, setQuery] = useState("");
-	const [active, setActive] = useState(0);
 
 	const wrapRef = useRef<HTMLDivElement>(null);
 	const listRef = useRef<HTMLUListElement>(null);
@@ -83,6 +83,9 @@ export function Combobox<T extends string = string>({
 		() => (query ? options.filter((o) => filter(o, query)) : options),
 		[options, query, filter],
 	);
+	// Combobox garde ses propres flèches (clamp, sans boucle) : on ne reprend du
+	// hook que l'index actif et le défilement automatique de l'option active.
+	const { active, setActive } = useListboxNav(listRef, open, filtered);
 
 	const displayValue = open ? query : (selectedOption?.label ?? "");
 
@@ -113,18 +116,9 @@ export function Combobox<T extends string = string>({
 				e.preventDefault();
 				if (filtered[active]) pick(filtered[active]);
 				break;
-			case "Escape":
-				setOpen(false);
-				break;
+			// Échap est déjà géré par useDismiss (écoute au niveau document).
 		}
 	};
-
-	useEffect(() => {
-		if (open) {
-			const el = listRef.current?.children[active] as HTMLElement | undefined;
-			el?.scrollIntoView({ block: "nearest" });
-		}
-	}, [active, open]);
 
 	return (
 		<div className={cn("camply-combobox__root", className)} style={style}>
@@ -174,7 +168,7 @@ export function Combobox<T extends string = string>({
 						// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: ul+role="listbox" est le pattern ARIA canonique
 						role="listbox"
 						className={"camply-combobox__list"}
-						style={{ ...floatStyle, zIndex: "var(--camply-z-dropdown)" as never }}
+						style={floatStyle}
 					>
 						{filtered.length === 0 ? (
 							<li className={"camply-combobox__empty"}>{emptyMessage}</li>

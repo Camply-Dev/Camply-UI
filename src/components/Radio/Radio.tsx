@@ -1,6 +1,7 @@
 import { type CSSProperties, createContext, type ReactNode, useContext } from "react";
 import { cn } from "../../lib/cn";
-import { useControllable, useId } from "../../lib/useControllable";
+import { useControllable } from "../../lib/useControllable";
+import { useId } from "../../lib/useId";
 
 interface RadioContextValue {
 	name: string;

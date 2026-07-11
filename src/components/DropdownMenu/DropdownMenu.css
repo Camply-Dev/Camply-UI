@@ -6,13 +6,8 @@
 	background: var(--camply-elevated);
 	box-shadow: var(--camply-shadow-pop);
 	font-family: var(--camply-font-sans);
-	animation: camply-menu-in 0.14s var(--camply-ease);
-}
-@keyframes camply-menu-in {
-	from {
-		opacity: 0;
-		transform: translateY(-4px);
-	}
+	z-index: var(--camply-z-dropdown);
+	animation: camply-float-in 0.14s var(--camply-ease);
 }
 
 .camply-dropdownmenu__item {

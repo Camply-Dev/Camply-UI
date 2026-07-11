@@ -6,18 +6,35 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 import { Check, Copy } from "../../lib/icons";
+import { Portal } from "../../lib/Portal";
+import { useAnchor } from "../../lib/useAnchor";
 import { useControllable } from "../../lib/useControllable";
+import { useDismiss } from "../../lib/useDismiss";
 import { IconButton } from "../IconButton";
+
 export interface ColorPickerProps {
 	/** controlled hex value, e.g. "#38bdf8" */
 	value?: string;
+	/** couleur initiale ; omise = aucune couleur (pastille vide en mode compact) */
 	defaultValue?: string;
 	onChange?: (hex: string) => void;
+	/** opacité contrôlée (0–1). `value` reste un hex #RRGGBB — l'alpha est géré à part. */
+	alpha?: number;
+	defaultAlpha?: number;
+	onAlphaChange?: (alpha: number) => void;
 	label?: string;
-	/** show the copy-hex button */
+	/** show the copy-hex button (mode full uniquement) */
 	copyable?: boolean;
+	/**
+	 * "full" (défaut) : sélecteur affiché en ligne.
+	 * "compact" : une pastille de couleur qui révèle le sélecteur (carré,
+	 * barre de teinte, HEX/RGB cliquables-pour-copier) dans une palette
+	 * flottante au survol (ou au focus/clic).
+	 */
+	variant?: "full" | "compact";
 	className?: string;
 	style?: CSSProperties;
 }
@@ -81,26 +98,36 @@ function parseHex(hex: string): [number, number, number] | null {
 }
 
 /**
- * Full color picker: saturation/value square + hue slider, with live HEX & RGB
- * readout. Drag or click either surface. Controllable via value/onChange.
+ * Color picker : carré saturation/valeur + slider de teinte, avec lecture HEX &
+ * RGB. Deux présentations via `variant` : "full" (en ligne) ou "compact"
+ * (pastille + palette flottante au survol). Contrôlable via value/onChange.
  */
 export function ColorPicker({
 	value,
-	defaultValue = "#38bdf8",
+	defaultValue,
 	onChange,
+	alpha: alphaProp,
+	defaultAlpha,
+	onAlphaChange,
 	label,
 	copyable = true,
+	variant = "full",
 	className,
 	style,
 }: ColorPickerProps) {
-	const [hex, setHex] = useControllable<string>(value, defaultValue, onChange);
+	const [hex, setHex] = useControllable<string>(value, defaultValue ?? "", onChange);
+	// Pas de couleur -> on part d'un blanc neutre pour que le carré reste utilisable.
 	const [hsv, setHsv] = useState<[number, number, number]>(() => {
-		const rgb = parseHex(hex) ?? [56, 189, 248];
-		return rgbToHsv(...rgb);
+		const rgb = parseHex(hex);
+		return rgb ? rgbToHsv(...rgb) : [0, 0, 1];
 	});
-	const [copied, setCopied] = useState(false);
+	const [alpha, setAlpha] = useControllable<number>(alphaProp, defaultAlpha ?? 1, onAlphaChange);
+	const [copiedField, setCopiedField] = useState<"hex" | "rgb" | null>(null);
 	const svRef = useRef<HTMLDivElement>(null);
 	const hueRef = useRef<HTMLDivElement>(null);
+	const alphaRef = useRef<HTMLDivElement>(null);
+
+	const hasColor = parseHex(hex) != null;
 
 	// keep internal HSV in sync when a controlled hex arrives from outside
 	useEffect(() => {
@@ -119,13 +146,43 @@ export function ColorPicker({
 		[setHex],
 	);
 
+	// --- palette flottante (mode compact) ---
+	const compact = variant === "compact";
+	const [open, setOpen] = useState(false);
+	const swatchRef = useRef<HTMLButtonElement>(null);
+	const panelRef = useRef<HTMLDivElement>(null);
+	const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+	const draggingRef = useRef(false);
+
+	const anchorStyle = useAnchor(swatchRef, panelRef, open, { placement: "bottom-start", gap: 8 });
+	const close = useCallback(() => setOpen(false), []);
+	useDismiss(open && compact, close, [swatchRef, panelRef]);
+
+	const openNow = () => {
+		clearTimeout(closeTimer.current);
+		setOpen(true);
+	};
+	// Referme après un court délai — mais jamais pendant un glissé (on repousse
+	// tant que draggingRef est vrai). Un survol de la pastille/palette annule le
+	// timer via openNow.
+	const scheduleClose = () => {
+		clearTimeout(closeTimer.current);
+		const tick = () => {
+			if (draggingRef.current) closeTimer.current = setTimeout(tick, 150);
+			else setOpen(false);
+		};
+		closeTimer.current = setTimeout(tick, 200);
+	};
+	useEffect(() => () => clearTimeout(closeTimer.current), []);
+
 	const dragSV = (e: PointerEvent) => {
 		const el = svRef.current;
 		if (!el) return;
+		draggingRef.current = true;
 		const move = (clientX: number, clientY: number) => {
 			const r = el.getBoundingClientRect();
-			const s = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
-			const v = Math.max(0, Math.min(1, 1 - (clientY - r.top) / r.height));
+			const s = clamp((clientX - r.left) / r.width, 0, 1);
+			const v = clamp(1 - (clientY - r.top) / r.height, 0, 1);
 			commit(hsv[0], s, v);
 		};
 		move(e.clientX, e.clientY);
@@ -133,6 +190,7 @@ export function ColorPicker({
 		const onUp = () => {
 			window.removeEventListener("pointermove", onMove);
 			window.removeEventListener("pointerup", onUp);
+			draggingRef.current = false;
 		};
 		window.addEventListener("pointermove", onMove);
 		window.addEventListener("pointerup", onUp);
@@ -141,9 +199,10 @@ export function ColorPicker({
 	const dragHue = (e: PointerEvent) => {
 		const el = hueRef.current;
 		if (!el) return;
+		draggingRef.current = true;
 		const move = (clientX: number) => {
 			const r = el.getBoundingClientRect();
-			const h = Math.max(0, Math.min(360, ((clientX - r.left) / r.width) * 360));
+			const h = clamp(((clientX - r.left) / r.width) * 360, 0, 360);
 			commit(h, hsv[1], hsv[2]);
 		};
 		move(e.clientX);
@@ -151,6 +210,26 @@ export function ColorPicker({
 		const onUp = () => {
 			window.removeEventListener("pointermove", onMove);
 			window.removeEventListener("pointerup", onUp);
+			draggingRef.current = false;
+		};
+		window.addEventListener("pointermove", onMove);
+		window.addEventListener("pointerup", onUp);
+	};
+
+	const dragAlpha = (e: PointerEvent) => {
+		const el = alphaRef.current;
+		if (!el) return;
+		draggingRef.current = true;
+		const move = (clientX: number) => {
+			const rr = el.getBoundingClientRect();
+			setAlpha(clamp((clientX - rr.left) / rr.width, 0, 1));
+		};
+		move(e.clientX);
+		const onMove = (ev: globalThis.PointerEvent) => move(ev.clientX);
+		const onUp = () => {
+			window.removeEventListener("pointermove", onMove);
+			window.removeEventListener("pointerup", onUp);
+			draggingRef.current = false;
 		};
 		window.addEventListener("pointermove", onMove);
 		window.addEventListener("pointerup", onUp);
@@ -159,21 +238,24 @@ export function ColorPicker({
 	const [h, s, v] = hsv;
 	const [r, g, b] = hsvToRgb(h, s, v);
 	const hueHex = toHex(h, 1, 1);
+	const solidHex = toHex(h, s, v);
+	const rgbText = `${r}, ${g}, ${b}`;
+	// Couleur affichée AVEC son opacité (au-dessus d'un damier de transparence).
+	const rgbaFill = `rgba(${r}, ${g}, ${b}, ${alpha})`;
 
-	const copy = async () => {
+	const copyValue = async (text: string, field: "hex" | "rgb") => {
 		try {
-			await navigator.clipboard?.writeText(hex);
-			setCopied(true);
-			setTimeout(() => setCopied(false), 1400);
+			await navigator.clipboard?.writeText(text);
+			setCopiedField(field);
+			setTimeout(() => setCopiedField(null), 1400);
 		} catch {
 			/* noop */
 		}
 	};
 
-	return (
-		<div className={cn("camply-colorpicker__root", className)} style={style}>
-			{label && <span className={"camply-colorpicker__label"}>{label}</span>}
-
+	// Carré saturation/valeur + barre de teinte, partagés par les deux variantes.
+	const pickerCore = (
+		<>
 			<div
 				ref={svRef}
 				className={"camply-colorpicker__square"}
@@ -184,7 +266,7 @@ export function ColorPicker({
 			>
 				<span
 					className={"camply-colorpicker__svKnob"}
-					style={{ left: `${s * 100}%`, top: `${(1 - v) * 100}%`, background: hex }}
+					style={{ left: `${s * 100}%`, top: `${(1 - v) * 100}%`, background: toHex(h, s, v) }}
 				/>
 			</div>
 
@@ -195,26 +277,121 @@ export function ColorPicker({
 				/>
 			</div>
 
+			<div ref={alphaRef} className={"camply-colorpicker__alpha"} onPointerDown={dragAlpha}>
+				<span
+					className={"camply-colorpicker__alphaFill"}
+					style={{ background: `linear-gradient(to right, transparent, ${solidHex})` }}
+				/>
+				<span
+					className={"camply-colorpicker__alphaKnob"}
+					style={{ left: `${alpha * 100}%`, background: rgbaFill }}
+				/>
+			</div>
+		</>
+	);
+
+	// Mode compact : HEX & RGB cliquables (copient la valeur au clic).
+	const copyReadout = (
+		<div className={"camply-colorpicker__readout"}>
+			<button
+				type="button"
+				className={"camply-colorpicker__field camply-colorpicker__fieldCopy"}
+				onClick={() => hasColor && copyValue(hex, "hex")}
+			>
+				<span className={"camply-colorpicker__fieldLabel"}>
+					{copiedField === "hex" ? "Copié !" : "HEX"}
+				</span>
+				<span className={"camply-colorpicker__fieldValue"}>
+					{hasColor ? hex.toUpperCase() : "—"}
+				</span>
+			</button>
+			<button
+				type="button"
+				className={"camply-colorpicker__field camply-colorpicker__fieldCopy"}
+				onClick={() => hasColor && copyValue(rgbText, "rgb")}
+			>
+				<span className={"camply-colorpicker__fieldLabel"}>
+					{copiedField === "rgb" ? "Copié !" : "RGB"}
+				</span>
+				<span className={"camply-colorpicker__fieldValue"}>{hasColor ? rgbText : "—"}</span>
+			</button>
+		</div>
+	);
+
+	if (compact) {
+		return (
+			<div
+				className={cn("camply-colorpicker__root", "camply-colorpicker__compact", className)}
+				style={style}
+			>
+				{label && <span className={"camply-colorpicker__label"}>{label}</span>}
+				<button
+					ref={swatchRef}
+					type="button"
+					aria-haspopup="dialog"
+					aria-expanded={open}
+					aria-label={label ? `${label} : ${hasColor ? hex : "aucune"}` : `Couleur ${hex}`}
+					className={"camply-colorpicker__swatch"}
+					onMouseEnter={openNow}
+					onMouseLeave={scheduleClose}
+					onFocus={openNow}
+					onClick={openNow}
+				>
+					<span
+						className={"camply-colorpicker__swatchFill"}
+						style={{ background: hasColor ? rgbaFill : "transparent" }}
+					/>
+				</button>
+				{open && (
+					<Portal>
+						<div
+							ref={panelRef}
+							role="dialog"
+							aria-label="Sélecteur de couleur"
+							className={"camply-colorpicker__pop"}
+							style={anchorStyle}
+							onMouseEnter={openNow}
+							onMouseLeave={scheduleClose}
+						>
+							{pickerCore}
+							{copyReadout}
+						</div>
+					</Portal>
+				)}
+			</div>
+		);
+	}
+
+	// Mode full : lecture avec aperçu, HEX, RGB et bouton copier.
+	return (
+		<div className={cn("camply-colorpicker__root", className)} style={style}>
+			{label && <span className={"camply-colorpicker__label"}>{label}</span>}
+			{pickerCore}
 			<div className={"camply-colorpicker__readout"}>
-				<span className={"camply-colorpicker__preview"} style={{ background: hex }} />
+				<span className={"camply-colorpicker__preview"}>
+					<span
+						className={"camply-colorpicker__swatchFill"}
+						style={{ background: hasColor ? rgbaFill : "transparent" }}
+					/>
+				</span>
 				<div className={"camply-colorpicker__field"}>
 					<span className={"camply-colorpicker__fieldLabel"}>HEX</span>
-					<span className={"camply-colorpicker__fieldValue"}>{hex.toUpperCase()}</span>
+					<span className={"camply-colorpicker__fieldValue"}>
+						{hasColor ? hex.toUpperCase() : "—"}
+					</span>
 				</div>
 				<div className={"camply-colorpicker__field"}>
 					<span className={"camply-colorpicker__fieldLabel"}>RGB</span>
-					<span className={"camply-colorpicker__fieldValue"}>
-						{r}, {g}, {b}
-					</span>
+					<span className={"camply-colorpicker__fieldValue"}>{hasColor ? rgbText : "—"}</span>
 				</div>
 				{copyable && (
 					<IconButton
-						label={copied ? "Copié" : "Copier"}
+						label={copiedField ? "Copié" : "Copier"}
 						variant="secondary"
 						size="md"
-						onClick={copy}
+						onClick={() => hasColor && copyValue(hex, "hex")}
 					>
-						{copied ? <Check size={15} /> : <Copy size={15} />}
+						{copiedField ? <Check size={15} /> : <Copy size={15} />}
 					</IconButton>
 				)}
 			</div>

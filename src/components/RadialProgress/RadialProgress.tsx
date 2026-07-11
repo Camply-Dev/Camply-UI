@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 export interface RadialProgressProps {
 	/** 0–100 */
@@ -31,7 +32,7 @@ export function RadialProgress({
 	className,
 	style,
 }: RadialProgressProps) {
-	const clamped = Math.max(0, Math.min(100, value));
+	const clamped = clamp(value, 0, 100);
 	const r = (size - thickness) / 2;
 	const circumference = 2 * Math.PI * r;
 	const offset = circumference * (1 - clamped / 100);

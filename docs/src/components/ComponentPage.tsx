@@ -39,14 +39,14 @@ export function ComponentPage({ entry, onNavigate }: ComponentPageProps) {
 		<div>
 			<header className="cu-pagehead">
 				<div className="cu-crumbrow">
-					<span className="cu-pill">{entry.family}</span>
+					<Badge tone="accent">{entry.family}</Badge>
 					<Icon name="chevron" size={12} />
 					<span className="cu-crumb">{entry.subfamily}</span>
 				</div>
 				<div className="cu-titlerow">
 					<h1 className="cu-pagehead__title">{entry.label}</h1>
 					{config ? (
-						<Badge tone="success" dot>
+						<Badge tone="success" icon={<Icon name="check" size={12} />}>
 							Disponible
 						</Badge>
 					) : (

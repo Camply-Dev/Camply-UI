@@ -2,7 +2,7 @@ import type { SVGProps } from "react";
 
 type IconProps = SVGProps<SVGSVGElement> & { size?: number };
 
-function Base({ size = 16, children, ...props }: IconProps & { children: React.ReactNode }) {
+function Base({ size = 16, children, ...props }: IconProps) {
 	return (
 		<svg
 			width={size}
@@ -62,11 +62,6 @@ export const Search = (p: IconProps) => (
 		<path d="m21 21-4.3-4.3" />
 	</Base>
 );
-export const ArrowRight = (p: IconProps) => (
-	<Base {...p}>
-		<path d="M5 12h14M13 6l6 6-6 6" />
-	</Base>
-);
 export const Info = (p: IconProps) => (
 	<Base {...p}>
 		<circle cx="12" cy="12" r="9" />
@@ -91,26 +86,10 @@ export const AlertCircle = (p: IconProps) => (
 		<path d="M12 8v5M12 16h.01" />
 	</Base>
 );
-export const Trash = (p: IconProps) => (
-	<Base {...p}>
-		<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" />
-	</Base>
-);
-export const Edit = (p: IconProps) => (
-	<Base {...p}>
-		<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
-	</Base>
-);
 export const Copy = (p: IconProps) => (
 	<Base {...p}>
 		<rect x="9" y="9" width="11" height="11" rx="2" />
 		<path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" />
-	</Base>
-);
-export const Settings = (p: IconProps) => (
-	<Base {...p}>
-		<circle cx="12" cy="12" r="3" />
-		<path d="M19 12a7 7 0 0 0-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 0 0-1.7-1L14.4 3h-4l-.4 2.6a7 7 0 0 0-1.7 1l-2.4-1-2 3.4 2 1.6a7 7 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7 7 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6a7 7 0 0 0 .1-1z" />
 	</Base>
 );
 export const TrendUp = (p: IconProps) => (
@@ -148,11 +127,5 @@ export const File = (p: IconProps) => (
 	<Base {...p}>
 		<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
 		<path d="M14 2v6h6" />
-	</Base>
-);
-export const Clock = (p: IconProps) => (
-	<Base {...p}>
-		<circle cx="12" cy="12" r="9" />
-		<path d="M12 7v5l3 2" />
 	</Base>
 );

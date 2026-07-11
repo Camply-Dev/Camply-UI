@@ -33,11 +33,12 @@ export function Menubar({ menus, className, style: styleProp }: MenubarProps) {
 	const menuRef = useRef<HTMLDivElement>(null);
 	const triggerRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-	const anchorRef = {
-		get current() {
-			return openIndex != null ? triggerRefs.current[openIndex] : null;
-		},
-	} as React.RefObject<HTMLElement | null>;
+	// A STABLE ref object pointed at whichever top trigger is currently open.
+	// (A fresh `{ get current() }` object each render would make useAnchor's
+	// `update` unstable, re-run its effect every render, and — since setStyle
+	// produced a new object each time — spin into "Maximum update depth".)
+	const anchorRef = useRef<HTMLElement | null>(null);
+	anchorRef.current = openIndex != null ? triggerRefs.current[openIndex] : null;
 
 	const style = useAnchor(anchorRef, menuRef, openIndex != null, {
 		placement: "bottom-start",
@@ -83,12 +84,7 @@ export function Menubar({ menus, className, style: styleProp }: MenubarProps) {
 
 			{activeMenu && (
 				<Portal>
-					<div
-						ref={menuRef}
-						role="menu"
-						className={"camply-menubar__menu"}
-						style={{ ...style, zIndex: "var(--camply-z-dropdown)" as never }}
-					>
+					<div ref={menuRef} role="menu" className={"camply-menubar__menu"} style={style}>
 						{activeMenu.items.map((item, i) => (
 							// biome-ignore lint/suspicious/noArrayIndexKey: items de menu déclaratifs sans id — la position est l'identité
 							<div key={i}>

@@ -6,6 +6,7 @@ import {
 	useCallback,
 	useRef,
 } from "react";
+import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 import { useControllable } from "../../lib/useControllable";
 
@@ -52,23 +53,24 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 	const trackRef = useRef<HTMLDivElement>(null);
 	const dragging = useRef<0 | 1 | null>(null);
 
-	const clamp = useCallback(
+	// Cale une valeur brute sur le pas le plus proche, puis la borne à [min, max].
+	const snap = useCallback(
 		(v: number) => {
 			const stepped = Math.round((v - min) / step) * step + min;
-			return Math.max(min, Math.min(max, stepped));
+			return clamp(stepped, min, max);
 		},
 		[min, max, step],
 	);
 
 	const setHandle = useCallback(
 		(index: 0 | 1, raw: number) => {
-			const v = clamp(raw);
+			const v = snap(raw);
 			const next: RangeValue = [range[0], range[1]];
 			if (index === 0) next[0] = Math.min(v, range[1] - minGap);
 			else next[1] = Math.max(v, range[0] + minGap);
 			setRange(next);
 		},
-		[clamp, range, minGap, setRange],
+		[snap, range, minGap, setRange],
 	);
 
 	const valueFromX = useCallback(
@@ -138,19 +140,19 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 					className={"camply-rangeslider__fill"}
 					style={{ left: `${pct(range[0])}%`, right: `${100 - pct(range[1])}%` }}
 				/>
-				{[0, 1].map((i) => (
+				{([0, 1] as const).map((i) => (
 					<div
 						key={i}
 						role="slider"
 						tabIndex={disabled ? -1 : 0}
 						aria-valuemin={min}
 						aria-valuemax={max}
-						aria-valuenow={range[i as 0 | 1]}
+						aria-valuenow={range[i]}
 						aria-label={label ? `${label} ${i === 0 ? "minimum" : "maximum"}` : undefined}
 						className={"camply-rangeslider__knob"}
-						style={{ left: `${pct(range[i as 0 | 1])}%` }}
-						onPointerDown={onPointerDown(i as 0 | 1)}
-						onKeyDown={onKey(i as 0 | 1)}
+						style={{ left: `${pct(range[i])}%` }}
+						onPointerDown={onPointerDown(i)}
+						onKeyDown={onKey(i)}
 					/>
 				))}
 			</div>

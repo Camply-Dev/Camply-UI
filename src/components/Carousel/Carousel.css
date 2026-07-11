@@ -2,9 +2,6 @@
 	font-family: var(--camply-font-sans);
 	outline: none;
 }
-.camply-carousel__root:focus-visible {
-	outline: none;
-}
 .camply-carousel__viewport {
 	position: relative;
 	overflow: hidden;

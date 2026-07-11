@@ -1,7 +1,8 @@
-import { type CSSProperties, type ReactNode, useEffect } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { cn } from "../../lib/cn";
 import { X } from "../../lib/icons";
 import { Portal } from "../../lib/Portal";
+import { useEscapeAndScrollLock } from "../../lib/useEscapeAndScrollLock";
 import { IconButton } from "../IconButton";
 export interface SheetProps {
 	open: boolean;
@@ -36,17 +37,7 @@ export function Sheet({
 	className,
 	style,
 }: SheetProps) {
-	useEffect(() => {
-		if (!open) return;
-		const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-		document.addEventListener("keydown", onKey);
-		const prev = document.body.style.overflow;
-		document.body.style.overflow = "hidden";
-		return () => {
-			document.removeEventListener("keydown", onKey);
-			document.body.style.overflow = prev;
-		};
-	}, [open, onClose]);
+	useEscapeAndScrollLock(open, onClose);
 
 	if (!open) return null;
 
@@ -61,7 +52,7 @@ export function Sheet({
 					role="dialog"
 					aria-modal="true"
 					className={cn("camply-sheet__sheet", `camply-sheet__${side}`, className)}
-					style={{ height: typeof height === "number" ? `${height}px` : height, ...style }}
+					style={{ height, ...style }}
 				>
 					{handle && side === "bottom" && (
 						<div className={"camply-sheet__handle"} aria-hidden="true" />

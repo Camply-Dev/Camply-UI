@@ -1,15 +1,9 @@
-import {
-	type CSSProperties,
-	cloneElement,
-	isValidElement,
-	type ReactElement,
-	type ReactNode,
-	useRef,
-	useState,
-} from "react";
+import { type CSSProperties, type ReactElement, type ReactNode, useRef } from "react";
+import { cloneTrigger } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { type Placement, useAnchor } from "../../lib/useAnchor";
+import { useDelayedOpen } from "../../lib/useDelayedOpen";
 export interface TooltipProps {
 	content: ReactNode;
 	children: ReactElement;
@@ -32,32 +26,20 @@ export function Tooltip({
 	className,
 	style: styleProp,
 }: TooltipProps) {
-	const [open, setOpen] = useState(false);
 	const anchorRef = useRef<HTMLElement>(null);
 	const tipRef = useRef<HTMLDivElement>(null);
-	const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+	const { open, show, hide } = useDelayedOpen(delay);
 
 	const style = useAnchor(anchorRef, tipRef, open, { placement, gap: 8 });
 	const side = placement.split("-")[0];
 
-	const show = () => {
-		clearTimeout(timer.current);
-		timer.current = setTimeout(() => setOpen(true), delay);
-	};
-	const hide = () => {
-		clearTimeout(timer.current);
-		setOpen(false);
-	};
-
-	const triggerEl = isValidElement(children)
-		? cloneElement(children as ReactElement<Record<string, unknown>>, {
-				ref: anchorRef,
-				onMouseEnter: show,
-				onMouseLeave: hide,
-				onFocus: show,
-				onBlur: hide,
-			})
-		: children;
+	const triggerEl = cloneTrigger(children, {
+		ref: anchorRef,
+		onMouseEnter: show,
+		onMouseLeave: hide,
+		onFocus: show,
+		onBlur: hide,
+	});
 
 	return (
 		<>
@@ -68,7 +50,7 @@ export function Tooltip({
 						ref={tipRef}
 						role="tooltip"
 						className={cn("camply-tooltip__tip", `camply-tooltip__${side}`, className)}
-						style={{ ...style, ...styleProp, zIndex: "var(--camply-z-tooltip)" as never }}
+						style={{ ...style, ...styleProp }}
 					>
 						{content}
 						<span aria-hidden="true" className={"camply-tooltip__arrow"} />

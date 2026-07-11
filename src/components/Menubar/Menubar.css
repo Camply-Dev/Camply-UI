@@ -39,13 +39,8 @@
 	background: var(--camply-elevated);
 	box-shadow: var(--camply-shadow-pop);
 	font-family: var(--camply-font-sans);
-	animation: camply-mb-in 0.13s var(--camply-ease);
-}
-@keyframes camply-mb-in {
-	from {
-		opacity: 0;
-		transform: translateY(-4px);
-	}
+	z-index: var(--camply-z-dropdown);
+	animation: camply-float-in 0.13s var(--camply-ease);
 }
 .camply-menubar__item {
 	display: flex;

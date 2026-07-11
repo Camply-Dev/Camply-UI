@@ -1,6 +1,6 @@
 import { forwardRef, type InputHTMLAttributes, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
-import { useId } from "../../lib/useControllable";
+import { useId } from "../../lib/useId";
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
 	label?: string;
 	/** helper text shown under the field */

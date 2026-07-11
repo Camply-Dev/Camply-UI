@@ -6,6 +6,7 @@ import {
 	useCallback,
 	useRef,
 } from "react";
+import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 import { useControllable } from "../../lib/useControllable";
 
@@ -46,10 +47,11 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
 	const trackRef = useRef<HTMLDivElement>(null);
 	const dragging = useRef(false);
 
-	const clamp = useCallback(
+	// Cale une valeur brute sur le pas le plus proche, puis la borne à [min, max].
+	const snap = useCallback(
 		(v: number) => {
 			const stepped = Math.round((v - min) / step) * step + min;
-			return Math.max(min, Math.min(max, stepped));
+			return clamp(stepped, min, max);
 		},
 		[min, max, step],
 	);
@@ -60,9 +62,9 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
 			if (!el) return;
 			const rect = el.getBoundingClientRect();
 			const ratio = (clientX - rect.left) / rect.width;
-			setVal(clamp(min + ratio * (max - min)));
+			setVal(snap(min + ratio * (max - min)));
 		},
-		[clamp, min, max, setVal],
+		[snap, min, max, setVal],
 	);
 
 	const onPointerDown = (e: PointerEvent) => {
@@ -109,7 +111,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
 				return;
 		}
 		e.preventDefault();
-		setVal(clamp(next));
+		setVal(snap(next));
 	};
 
 	const pct = ((val - min) / (max - min)) * 100;

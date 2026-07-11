@@ -26,6 +26,23 @@ interface AnchorOptions {
 
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
+// Fields useAnchor writes into the floating style. Comparing them lets us skip
+// redundant setState calls — which keeps repeated measurement from looping.
+const STYLE_KEYS = [
+	"top",
+	"left",
+	"opacity",
+	"pointerEvents",
+	"position",
+	"width",
+	"maxHeight",
+	"overflowY",
+] as const;
+
+function styleEqual(a: CSSProperties, b: CSSProperties): boolean {
+	return STYLE_KEYS.every((k) => a[k] === b[k]);
+}
+
 /**
  * Positions a floating element (rendered in a Portal, position:fixed) relative
  * to an anchor. Chooses the side with the most room, clamps to the viewport,
@@ -67,8 +84,10 @@ export function useAnchor(
 		const vw = window.innerWidth;
 		const vh = window.innerHeight;
 
-		const requested = placement.split("-")[0] as "top" | "bottom";
-		const align = placement.split("-")[1] as "start" | "end" | undefined;
+		const [requested, align] = placement.split("-") as [
+			"top" | "bottom",
+			"start" | "end" | undefined,
+		];
 
 		// Room available on each side, between the anchor and the viewport edge.
 		const spaceBelow = vh - a.bottom - gap - padding;
@@ -110,12 +129,20 @@ export function useAnchor(
 			next.maxHeight = Math.round(Math.max(minHeight, avail));
 			next.overflowY = "auto";
 		}
-		setStyle(next);
+		// Only update state when the computed style actually changed. Bailing on
+		// equal values is what makes measuring-on-every-commit (below) safe: it
+		// can never spin into an infinite render loop.
+		setStyle((prev) => (styleEqual(prev, next) ? prev : next));
 	}, [anchorRef, floatRef, placement, gap, matchWidth, padding, constrainHeight, minHeight]);
 
+	// Measure after every commit while open. Deliberately dependency-free: the
+	// floating node may mount a beat after `open` flips, and the anchor itself
+	// can change under us (a menubar switching which item is open) without any
+	// of our other signals firing. `setStyle` bails when nothing moved, so this
+	// converges in a render or two instead of looping.
 	useIsoLayoutEffect(() => {
 		if (open) update();
-	}, [open, update]);
+	});
 
 	useEffect(() => {
 		if (!open) return;
@@ -124,12 +151,13 @@ export function useAnchor(
 		window.addEventListener("scroll", update, true);
 		window.addEventListener("resize", update);
 
-		// Reposition when the floating element's own size changes (async content,
-		// filtering a list, fonts loading…).
+		// Reposition when either element changes size (async content, filtering a
+		// list, fonts loading, the anchor reflowing…).
 		let ro: ResizeObserver | undefined;
-		if (typeof ResizeObserver !== "undefined" && floatRef.current) {
+		if (typeof ResizeObserver !== "undefined") {
 			ro = new ResizeObserver(() => update());
-			ro.observe(floatRef.current);
+			if (floatRef.current) ro.observe(floatRef.current);
+			if (anchorRef.current) ro.observe(anchorRef.current);
 		}
 
 		return () => {
@@ -137,7 +165,7 @@ export function useAnchor(
 			window.removeEventListener("resize", update);
 			ro?.disconnect();
 		};
-	}, [open, update, floatRef]);
+	}, [open, update, floatRef, anchorRef]);
 
 	return style;
 }

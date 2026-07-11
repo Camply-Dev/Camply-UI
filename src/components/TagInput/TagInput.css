@@ -32,34 +32,7 @@
 	pointer-events: none;
 }
 
-.camply-taginput__tag {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	padding: 4px 6px 4px 10px;
-	border-radius: var(--camply-radius-sm);
-	background: var(--camply-accent-soft);
-	color: var(--camply-accent-hover);
-	font-size: 13px;
-	font-weight: 500;
-	line-height: 1;
-}
-.camply-taginput__remove {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 16px;
-	height: 16px;
-	border: none;
-	border-radius: 4px;
-	background: rgba(255, 255, 255, 0.08);
-	color: currentColor;
-	cursor: pointer;
-	transition: background var(--camply-duration);
-}
-.camply-taginput__remove:hover {
-	background: rgba(255, 255, 255, 0.18);
-}
+/* Les puces sont des composants <Tag> (styles fournis par Tag.css). */
 
 .camply-taginput__input {
 	flex: 1;

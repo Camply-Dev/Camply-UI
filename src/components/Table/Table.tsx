@@ -71,14 +71,13 @@ export function Table<Row>({
 									{col.header}
 									{col.sortValue && (
 										<span className={"camply-table__sortIcon"}>
-											{dir ? (
-												dir === "asc" ? (
-													<ChevronUp size={13} />
-												) : (
-													<ChevronDown size={13} />
-												)
+											{dir === "asc" ? (
+												<ChevronUp size={13} />
 											) : (
-												<ChevronDown size={13} className={"camply-table__sortIdle"} />
+												<ChevronDown
+													size={13}
+													className={dir ? undefined : "camply-table__sortIdle"}
+												/>
 											)}
 										</span>
 									)}

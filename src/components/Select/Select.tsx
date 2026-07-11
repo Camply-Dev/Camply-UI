@@ -1,17 +1,12 @@
-import {
-	type CSSProperties,
-	type KeyboardEvent,
-	useCallback,
-	useEffect,
-	useRef,
-	useState,
-} from "react";
+import { type CSSProperties, type KeyboardEvent, useCallback, useRef, useState } from "react";
 import { cn } from "../../lib/cn";
 import { Check, ChevronDown } from "../../lib/icons";
 import { Portal } from "../../lib/Portal";
 import { useAnchor } from "../../lib/useAnchor";
-import { useControllable, useId } from "../../lib/useControllable";
+import { useControllable } from "../../lib/useControllable";
 import { useDismiss } from "../../lib/useDismiss";
+import { useId } from "../../lib/useId";
+import { useListboxNav } from "../../lib/useListboxNav";
 
 export interface SelectOption<T extends string = string> {
 	value: T;
@@ -55,11 +50,11 @@ export function Select<T extends string = string>({
 		onChange as ((v: T | undefined) => void) | undefined,
 	);
 	const [open, setOpen] = useState(false);
-	const [active, setActive] = useState(0);
 
 	const triggerRef = useRef<HTMLButtonElement>(null);
 	const listRef = useRef<HTMLUListElement>(null);
 	const listId = useId("listbox");
+	const { active, setActive, moveActive } = useListboxNav(listRef, open, options);
 
 	const floatStyle = useAnchor(triggerRef, listRef, open, {
 		placement: "bottom-start",
@@ -87,17 +82,6 @@ export function Select<T extends string = string>({
 		triggerRef.current?.focus();
 	};
 
-	const moveActive = (dir: 1 | -1) => {
-		setActive((prev) => {
-			let next = prev;
-			for (let i = 0; i < options.length; i++) {
-				next = (next + dir + options.length) % options.length;
-				if (!options[next].disabled) break;
-			}
-			return next;
-		});
-	};
-
 	const onKeyDown = (e: KeyboardEvent) => {
 		if (disabled) return;
 		if (!open) {
@@ -122,7 +106,12 @@ export function Select<T extends string = string>({
 				break;
 			case "End":
 				e.preventDefault();
-				setActive(options.length - 1 - [...options].reverse().findIndex((o) => !o.disabled));
+				for (let i = options.length - 1; i >= 0; i--) {
+					if (!options[i].disabled) {
+						setActive(i);
+						break;
+					}
+				}
 				break;
 			case "Enter":
 			case " ":
@@ -134,13 +123,6 @@ export function Select<T extends string = string>({
 				break;
 		}
 	};
-
-	useEffect(() => {
-		if (open) {
-			const el = listRef.current?.children[active] as HTMLElement | undefined;
-			el?.scrollIntoView({ block: "nearest" });
-		}
-	}, [active, open]);
 
 	return (
 		<div className={cn("camply-select__root", className)} style={style}>
@@ -181,7 +163,7 @@ export function Select<T extends string = string>({
 						role="listbox"
 						tabIndex={-1}
 						className={"camply-select__list"}
-						style={{ ...floatStyle, zIndex: "var(--camply-z-dropdown)" as never }}
+						style={floatStyle}
 					>
 						{options.map((opt, i) => {
 							const isSelected = opt.value === selected;

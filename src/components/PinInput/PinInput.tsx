@@ -1,4 +1,5 @@
 import { type ClipboardEvent, type CSSProperties, type KeyboardEvent, useRef } from "react";
+import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 import { useControllable } from "../../lib/useControllable";
 export interface PinInputProps {
@@ -53,7 +54,7 @@ export function PinInput({
 	};
 
 	const focusCell = (i: number) => {
-		const el = refs.current[Math.max(0, Math.min(length - 1, i))];
+		const el = refs.current[clamp(i, 0, length - 1)];
 		el?.focus();
 		el?.select();
 	};
@@ -70,7 +71,7 @@ export function PinInput({
 			e.preventDefault();
 			if (chars[i]) {
 				setCharAt(i, "");
-			} else {
+			} else if (i > 0) {
 				focusCell(i - 1);
 				setCharAt(i - 1, "");
 			}

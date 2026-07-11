@@ -1,6 +1,8 @@
 // Données de la vitrine (docs uniquement — PAS la librairie).
 // Source UNIQUE de navigation : familles → sous-familles → composants.
-// Seuls Button et Badge sont réellement publiés ; tout le reste est "upcoming".
+// La disponibilité d'un composant est dérivée du registre des playgrounds.
+
+import { PLAYGROUNDS } from "./playground";
 
 export type ComponentStatus = "available" | "upcoming";
 
@@ -18,14 +20,24 @@ export const HOME = "__home";
 export const CSS = "__css";
 export const ROADMAP = "__roadmap";
 
+// Un composant est "disponible" dès qu'il possède un playground : une seule
+// source de vérité, impossible d'oublier de le lister à la main.
+const AVAILABLE_IDS = new Set(Object.keys(PLAYGROUNDS));
+
 const c = (
 	id: string,
 	label: string,
 	family: string,
 	subfamily: string,
 	description: string,
-	status: ComponentStatus = "upcoming",
-): ComponentEntry => ({ id, label, family, subfamily, status, description });
+): ComponentEntry => ({
+	id,
+	label,
+	family,
+	subfamily,
+	status: AVAILABLE_IDS.has(id) ? "available" : "upcoming",
+	description,
+});
 
 // Ordre = ordre d'affichage dans la sidebar (familles et sous-familles en dérivent).
 export const COMPONENTS: ComponentEntry[] = [
@@ -36,19 +48,11 @@ export const COMPONENTS: ComponentEntry[] = [
 		"Primitifs",
 		"Boutons",
 		"Bouton d'action : variantes, tailles, loading et icônes.",
-		"available",
 	),
 	c("buttongroup", "ButtonGroup", "Primitifs", "Boutons", "Groupe de boutons à bords partagés."),
 	c("iconbutton", "IconButton", "Primitifs", "Boutons", "Bouton carré ne contenant qu'une icône."),
 	c("toggle", "Toggle", "Primitifs", "Boutons", "Bouton bascule à deux états."),
-	c(
-		"badge",
-		"Badge",
-		"Primitifs",
-		"Marqueurs",
-		"Marqueur de statut : tons, variantes, pastille.",
-		"available",
-	),
+	c("badge", "Badge", "Primitifs", "Marqueurs", "Marqueur de statut : tons, variantes, icône."),
 	c("tag", "Tag", "Primitifs", "Marqueurs", "Étiquette compacte, éventuellement supprimable."),
 	c("kbd", "Kbd", "Primitifs", "Marqueurs", "Représentation d'une touche clavier."),
 	c("divider", "Divider", "Primitifs", "Mise en forme", "Séparateur avec libellé optionnel."),
@@ -126,77 +130,6 @@ export const COMPONENTS: ComponentEntry[] = [
 	c("commandpalette", "CommandPalette", "Données", "Commandes", "Palette de commandes (⌘K)."),
 ];
 
-// Composants réellement intégrés dans src/components (étendu à chaque lot).
-const AVAILABLE_IDS = new Set<string>([
-	// Primitifs
-	"button",
-	"badge",
-	"buttongroup",
-	"iconbutton",
-	"toggle",
-	"tag",
-	"kbd",
-	"divider",
-	"snippet",
-	"spoiler",
-	// Formulaires
-	"input",
-	"numberinput",
-	"pininput",
-	"textarea",
-	"taginput",
-	"select",
-	"multiselect",
-	"combobox",
-	"colorpicker",
-	"datepicker",
-	"checkbox",
-	"radiogroup",
-	"switch",
-	"slider",
-	"rangeslider",
-	"rating",
-	"fileupload",
-	// Surfaces
-	"card",
-	"alert",
-	"banner",
-	"modal",
-	"drawer",
-	"sheet",
-	"dropdownmenu",
-	"tooltip",
-	"popover",
-	"hovercard",
-	// Navigation
-	"tabs",
-	"segmentedcontrol",
-	"menubar",
-	"accordion",
-	"breadcrumbs",
-	"pagination",
-	"steps",
-	"timeline",
-	// Feedback
-	"progress",
-	"radialprogress",
-	"meter",
-	"spinner",
-	"skeleton",
-	"toast",
-	// Données
-	"avatar",
-	"stat",
-	"descriptionlist",
-	"table",
-	"tree",
-	"carousel",
-	"commandpalette",
-]);
-for (const entry of COMPONENTS) {
-	entry.status = AVAILABLE_IDS.has(entry.id) ? "available" : "upcoming";
-}
-
 export interface Subfamily {
 	title: string;
 	count: number;
@@ -236,7 +169,6 @@ export const BY_ID: Record<string, ComponentEntry> = Object.fromEntries(
 
 export const TOTAL = COMPONENTS.length;
 export const AVAILABLE = COMPONENTS.filter((entry) => entry.status === "available");
-export const UPCOMING = COMPONENTS.filter((entry) => entry.status === "upcoming");
 
 export const FAMILY_ICON: Record<string, string> = {
 	Primitifs: "components",

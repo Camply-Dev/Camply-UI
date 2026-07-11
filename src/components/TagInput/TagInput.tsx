@@ -1,7 +1,7 @@
-import { type CSSProperties, type KeyboardEvent, useRef, useState } from "react";
+import { type CSSProperties, type KeyboardEvent, useState } from "react";
 import { cn } from "../../lib/cn";
-import { X } from "../../lib/icons";
 import { useControllable } from "../../lib/useControllable";
+import { Tag } from "../Tag";
 
 export interface TagInputProps {
 	value?: string[];
@@ -39,7 +39,6 @@ export function TagInput({
 }: TagInputProps) {
 	const [tags, setTags] = useControllable<string[]>(value, defaultValue, onChange);
 	const [draft, setDraft] = useState("");
-	const inputRef = useRef<HTMLInputElement>(null);
 
 	const addTag = (raw: string) => {
 		const tag = raw.trim();
@@ -78,23 +77,11 @@ export function TagInput({
 			{/* label : cliquer n'importe où dans la zone focus l'input, nativement */}
 			<label className={cn("camply-taginput__wrap", disabled && "camply-taginput__disabled")}>
 				{keyed.map(({ tag, i, key }) => (
-					<span key={key} className={"camply-taginput__tag"}>
+					<Tag key={key} onRemove={() => removeAt(i)} removeLabel={`Retirer ${tag}`}>
 						{tag}
-						<button
-							type="button"
-							className={"camply-taginput__remove"}
-							aria-label={`Retirer ${tag}`}
-							onClick={(e) => {
-								e.stopPropagation();
-								removeAt(i);
-							}}
-						>
-							<X size={10} />
-						</button>
-					</span>
+					</Tag>
 				))}
 				<input
-					ref={inputRef}
 					className={"camply-taginput__input"}
 					value={draft}
 					placeholder={tags.length === 0 ? placeholder : ""}

@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useLayoutEffect, useState } from "react";
+import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 interface PortalProps {
@@ -7,21 +7,19 @@ interface PortalProps {
 	container?: Element | null;
 }
 
-// Layout effect côté client : le portail doit monter AVANT les effets passifs
-// du parent (useAnchor mesure le nœud flottant dans son effet — s'il montait
-// en useEffect classique, la mesure verrait un ref nul et le popup resterait
-// invisible). useEffect en SSR pour éviter le warning.
-const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
-
 /**
  * Renders children into document.body (or a custom container) so overlays
  * escape ancestor `overflow:hidden` / `transform` / `z-index` stacking —
  * this is what prevents dropdowns and menus from being clipped.
- * SSR-safe: renders nothing until mounted on the client.
+ *
+ * The portal is created SYNCHRONOUSLY on the client (no post-mount `mounted`
+ * flag). This is essential: `useAnchor` measures the floating node in the
+ * parent's layout effect, which runs right after this commit — so the node
+ * must already be in the DOM. A deferred mount left the anchor measuring a
+ * null ref, and the overlay stayed stuck at `opacity:0` in the top-left
+ * corner. SSR-safe: renders nothing when there is no document.
  */
 export function Portal({ children, container }: PortalProps) {
-	const [mounted, setMounted] = useState(false);
-	useIsoLayoutEffect(() => setMounted(true), []);
-	if (!mounted) return null;
+	if (typeof document === "undefined") return null;
 	return createPortal(children, container ?? document.body);
 }

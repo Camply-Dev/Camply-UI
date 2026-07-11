@@ -65,13 +65,8 @@
 	border-radius: var(--camply-radius-lg);
 	background: var(--camply-elevated);
 	box-shadow: var(--camply-shadow-pop);
-	animation: camply-combo-in 0.14s var(--camply-ease);
-}
-@keyframes camply-combo-in {
-	from {
-		opacity: 0;
-		transform: translateY(-4px);
-	}
+	z-index: var(--camply-z-dropdown);
+	animation: camply-float-in 0.14s var(--camply-ease);
 }
 .camply-combobox__option {
 	display: flex;

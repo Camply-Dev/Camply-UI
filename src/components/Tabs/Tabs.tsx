@@ -1,6 +1,7 @@
 import { type CSSProperties, createContext, type ReactNode, useContext } from "react";
 import { cn } from "../../lib/cn";
-import { useControllable, useId } from "../../lib/useControllable";
+import { useControllable } from "../../lib/useControllable";
+import { useId } from "../../lib/useId";
 
 type TabsVariant = "line" | "soft";
 interface TabsContextValue {
@@ -40,7 +41,7 @@ export function Tabs({
 	const idBase = useId("tabs");
 	return (
 		<TabsContext.Provider value={{ value: current, setValue: setCurrent, idBase, variant }}>
-			<div className={cn("camply-tabs__root", `camply-tabs__${variant}`, className)} style={style}>
+			<div className={cn("camply-tabs__root", className)} style={style}>
 				{children}
 			</div>
 		</TabsContext.Provider>

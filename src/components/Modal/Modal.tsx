@@ -2,6 +2,7 @@ import { type CSSProperties, type ReactNode, useEffect, useRef } from "react";
 import { cn } from "../../lib/cn";
 import { X } from "../../lib/icons";
 import { Portal } from "../../lib/Portal";
+import { useEscapeAndScrollLock } from "../../lib/useEscapeAndScrollLock";
 import { IconButton } from "../IconButton";
 export interface ModalProps {
 	open: boolean;
@@ -35,18 +36,7 @@ export function Modal({
 }: ModalProps) {
 	const panelRef = useRef<HTMLDivElement>(null);
 
-	// Esc to close + lock body scroll while open.
-	useEffect(() => {
-		if (!open) return;
-		const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-		document.addEventListener("keydown", onKey);
-		const prev = document.body.style.overflow;
-		document.body.style.overflow = "hidden";
-		return () => {
-			document.removeEventListener("keydown", onKey);
-			document.body.style.overflow = prev;
-		};
-	}, [open, onClose]);
+	useEscapeAndScrollLock(open, onClose);
 
 	// Move focus into the dialog when it opens.
 	useEffect(() => {

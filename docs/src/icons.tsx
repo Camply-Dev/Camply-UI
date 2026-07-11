@@ -3,7 +3,6 @@ import type { SVGProps } from "react";
 const PATHS: Record<string, string> = {
 	home: "M3 11l9-8 9 8M5 10v10h14V10",
 	components: "M4 4h7v7H4zM13 4h7v7h-7zM13 13h7v7h-7zM4 13h7v7H4z",
-	roadmap: "M4 21V4M4 4h12l-2 4 2 4H4",
 	tokens: "m8 6-6 6 6 6M16 6l6 6-6 6",
 	arrow: "M5 12h14M13 6l6 6-6 6",
 	chevron: "m9 6 6 6-6 6",

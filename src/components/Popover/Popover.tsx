@@ -1,13 +1,12 @@
 import {
 	type CSSProperties,
-	cloneElement,
-	isValidElement,
 	type ReactElement,
 	type ReactNode,
 	useCallback,
 	useRef,
 	useState,
 } from "react";
+import { cloneTrigger } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { type Placement, useAnchor } from "../../lib/useAnchor";
@@ -41,16 +40,14 @@ export function Popover({
 	const close = useCallback(() => setOpen(false), []);
 	useDismiss(open, close, [anchorRef, panelRef]);
 
-	const triggerEl = isValidElement(trigger)
-		? cloneElement(trigger as ReactElement<Record<string, unknown>>, {
-				ref: anchorRef,
-				onClick: (e: React.MouseEvent) => {
-					(trigger.props as { onClick?: (e: React.MouseEvent) => void }).onClick?.(e);
-					setOpen((o) => !o);
-				},
-				"aria-expanded": open,
-			})
-		: trigger;
+	const triggerEl = cloneTrigger(trigger, {
+		ref: anchorRef,
+		onClick: (e: React.MouseEvent) => {
+			(trigger.props as { onClick?: (e: React.MouseEvent) => void }).onClick?.(e);
+			setOpen((o) => !o);
+		},
+		"aria-expanded": open,
+	});
 
 	return (
 		<>
@@ -60,7 +57,7 @@ export function Popover({
 					<div
 						ref={panelRef}
 						className={cn("camply-popover__panel", className)}
-						style={{ ...style, ...styleProp, zIndex: "var(--camply-z-dropdown)" as never }}
+						style={{ ...style, ...styleProp }}
 					>
 						{children}
 					</div>

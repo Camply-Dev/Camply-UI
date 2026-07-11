@@ -7,7 +7,6 @@ import { NAVIGATION } from "./navigation";
 import { PRIMITIFS } from "./primitifs";
 import { SURFACES } from "./surfaces";
 
-export type { PlaygroundConfig } from "./engine";
 export { PlaygroundView } from "./engine";
 
 export const PLAYGROUNDS: Record<string, PlaygroundConfig> = {

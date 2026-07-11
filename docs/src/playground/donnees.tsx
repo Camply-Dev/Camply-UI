@@ -12,11 +12,7 @@ import {
 } from "@camply/ui";
 import { type CSSProperties, useState } from "react";
 import { Icon } from "../icons";
-import type { PlaygroundConfig, Values } from "./engine";
-
-const str = (v: unknown) => String(v);
-const bool = (v: unknown) => Boolean(v);
-const num = (v: unknown) => Number(v);
+import { bool, num, type PlaygroundConfig, str } from "./engine";
 
 const TABLE_ROWS = [
 	{ id: 1, name: "Alice Martin", role: "Design", projects: 12 },
@@ -35,7 +31,7 @@ const slide = (bg: string): CSSProperties => ({
 	fontSize: 18,
 });
 
-function CommandPalettePreview(_p: Values) {
+function CommandPalettePreview() {
 	const [open, setOpen] = useState(false);
 	return (
 		<>
@@ -87,7 +83,7 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 				<Avatar
 					name={str(p.name)}
 					size={num(p.size)}
-					status={p.status === "none" ? undefined : (str(p.status) as never)}
+					status={p.status === "none" ? undefined : str(p.status)}
 				/>
 				<AvatarGroup
 					avatars={[
@@ -151,7 +147,7 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 		render: (p) => (
 			<div style={{ width: "100%", maxWidth: 420 }}>
 				<DescriptionList
-					layout={str(p.layout) as never}
+					layout={str(p.layout)}
 					divided={bool(p.divided)}
 					items={[
 						{ term: "Forfait", description: "Pro" },
@@ -285,7 +281,7 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 		imports: ["CommandPalette", "useCommandPalette"],
 		controls: [],
 		defaults: {},
-		render: (p) => <CommandPalettePreview {...p} />,
+		render: () => <CommandPalettePreview />,
 		code: () =>
 			`import { CommandPalette, useCommandPalette } from "@camply/ui";\n\nconst [open, setOpen] = useCommandPalette(); // ⌘K / Ctrl+K\n\n<CommandPalette\n  open={open}\n  onClose={() => setOpen(false)}\n  commands={[\n    { id: "new", label: "Nouveau projet", group: "Actions", shortcut: "⌘N", onRun: create },\n    { id: "docs", label: "Documentation", group: "Aide", onRun: openDocs },\n  ]}\n/>`,
 		props: [

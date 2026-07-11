@@ -59,17 +59,17 @@ export function CommandPalette({
 
 	// Group results, preserving order of first appearance.
 	const groups = useMemo(() => {
-		const map = new Map<string, Command[]>();
+		const byGroup = new Map<string, Command[]>();
 		for (const cmd of results) {
 			const key = cmd.group ?? "";
-			const list = map.get(key);
+			const list = byGroup.get(key);
 			if (list) list.push(cmd);
-			else map.set(key, [cmd]);
+			else byGroup.set(key, [cmd]);
 		}
 		// flat index lookup for keyboard nav
 		const flat: Command[] = [];
-		for (const list of map.values()) flat.push(...list);
-		return { map, flat };
+		for (const list of byGroup.values()) flat.push(...list);
+		return { byGroup, flat };
 	}, [results]);
 
 	useEffect(() => {
@@ -117,8 +117,6 @@ export function CommandPalette({
 
 	if (!open) return null;
 
-	let runningIndex = -1;
-
 	return (
 		<Portal>
 			{/* biome-ignore lint/a11y/noStaticElementInteractions: fermeture au clic sur le backdrop — chemin clavier équivalent : Échap */}
@@ -153,12 +151,11 @@ export function CommandPalette({
 						{groups.flat.length === 0 && (
 							<div className={"camply-commandpalette__empty"}>{emptyMessage}</div>
 						)}
-						{[...groups.map.entries()].map(([group, cmds]) => (
+						{[...groups.byGroup.entries()].map(([group, cmds]) => (
 							<div key={group || "_"} className={"camply-commandpalette__group"}>
 								{group && <div className={"camply-commandpalette__groupLabel"}>{group}</div>}
 								{cmds.map((cmd) => {
-									runningIndex += 1;
-									const idx = runningIndex;
+									const idx = groups.flat.indexOf(cmd);
 									return (
 										<button
 											key={cmd.id}

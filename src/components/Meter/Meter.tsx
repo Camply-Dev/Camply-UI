@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 export interface MeterProps {
 	value: number;
@@ -33,7 +34,7 @@ export function Meter({
 	className,
 	style,
 }: MeterProps) {
-	const clamped = Math.max(min, Math.min(max, value));
+	const clamped = clamp(value, min, max);
 	const pct = ((clamped - min) / (max - min)) * 100;
 
 	// Decide the tone. With explicit low/high thresholds, colour by how good the

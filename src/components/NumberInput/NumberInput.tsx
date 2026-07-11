@@ -1,7 +1,9 @@
 import { type CSSProperties, forwardRef, type KeyboardEvent } from "react";
+import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 import { Minus, Plus } from "../../lib/icons";
-import { useControllable, useId } from "../../lib/useControllable";
+import { useControllable } from "../../lib/useControllable";
+import { useId } from "../../lib/useId";
 
 export interface NumberInputProps {
 	value?: number;
@@ -52,12 +54,11 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 	const autoId = useId("number");
 	const describedBy = error || hint ? `${autoId}-desc` : undefined;
 
-	const clamp = (n: number) => Math.max(min, Math.min(max, n));
 	const round = (n: number) => (precision != null ? parseFloat(n.toFixed(precision)) : n);
 
 	const bump = (dir: 1 | -1, big = false) => {
 		const amount = step * (big ? 10 : 1) * dir;
-		setVal(round(clamp((val || 0) + amount)));
+		setVal(round(clamp((val || 0) + amount, min, max)));
 	};
 
 	const onKeyDown = (e: KeyboardEvent) => {
@@ -124,7 +125,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 							const parsed = parseFloat(raw);
 							if (!Number.isNaN(parsed)) setVal(parsed);
 						}}
-						onBlur={() => setVal(round(clamp(val || 0)))}
+						onBlur={() => setVal(round(clamp(val || 0, min, max)))}
 						onKeyDown={onKeyDown}
 					/>
 					{suffix && <span className={"camply-numberinput__affix"}>{suffix}</span>}

@@ -1,7 +1,8 @@
 import { Input } from "@camply/ui";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Icon } from "../icons";
 import {
+	BY_ID,
 	COMPONENTS,
 	CSS,
 	FAMILIES,
@@ -18,47 +19,56 @@ interface SidebarProps {
 	onOpenPalette?: () => void;
 }
 
-const subKey = (family: Family, sub: Subfamily) => `${family.title}|${sub.title}`;
+const subKey = (family: string, sub: string) => `${family}|${sub}`;
 
 export function Sidebar({ active, onNavigate, onOpenPalette }: SidebarProps) {
 	const [query, setQuery] = useState("");
-	const [openFam, setOpenFam] = useState<Record<string, boolean>>({});
-	const [openSub, setOpenSub] = useState<Record<string, boolean>>({});
 
 	const q = query.trim().toLowerCase();
 	const searching = q.length > 0;
 	const activeIsComponent = active !== HOME && active !== CSS && active !== ROADMAP;
-	const firstFamily = FAMILIES[0].title;
 
 	const matches = (label: string) => label.toLowerCase().includes(q);
 	const famHasMatch = (family: Family) =>
 		family.subfamilies.some((s) => s.items.some((i) => matches(i.label)));
 	const subHasMatch = (sub: Subfamily) => sub.items.some((i) => matches(i.label));
 
-	const famOpen = (family: Family) => {
-		if (searching) return famHasMatch(family);
-		if (family.title in openFam) return openFam[family.title];
-		if (activeIsComponent)
-			return family.subfamilies.some((s) => s.items.some((i) => i.id === active));
-		return family.title === firstFamily;
-	};
+	// Accordéon : UNE seule famille et UNE seule sous-famille ouvertes à la fois.
+	// Par défaut : la famille/sous-famille du composant actif, sinon la première.
+	const [open, setOpen] = useState<{ fam: string; sub: string }>(() => {
+		const entry = activeIsComponent ? BY_ID[active] : undefined;
+		if (entry) return { fam: entry.family, sub: subKey(entry.family, entry.subfamily) };
+		const first = FAMILIES[0];
+		return { fam: first.title, sub: subKey(first.title, first.subfamilies[0].title) };
+	});
 
-	const subOpen = (family: Family, sub: Subfamily) => {
-		if (searching) return subHasMatch(sub);
-		const key = subKey(family, sub);
-		if (key in openSub) return openSub[key];
-		if (activeIsComponent) return sub.items.some((i) => i.id === active);
-		return family.title === firstFamily && family.subfamilies[0].title === sub.title;
-	};
+	// Naviguer vers un composant (sidebar ou palette) ouvre sa famille + sa
+	// sous-famille et referme toutes les autres.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: resync uniquement sur changement du composant actif
+	useEffect(() => {
+		if (!activeIsComponent) return;
+		const entry = BY_ID[active];
+		if (entry) setOpen({ fam: entry.family, sub: subKey(entry.family, entry.subfamily) });
+	}, [active]);
 
+	const famOpen = (family: Family) => (searching ? famHasMatch(family) : open.fam === family.title);
+	const subOpen = (family: Family, sub: Subfamily) =>
+		searching ? subHasMatch(sub) : open.sub === subKey(family.title, sub.title);
+
+	// Ouvrir une famille referme les autres (et ouvre sa 1re sous-famille) ;
+	// recliquer la famille ouverte referme tout.
 	const toggleFam = (family: Family) => {
-		const next = !famOpen(family);
-		setOpenFam((prev) => ({ ...prev, [family.title]: next }));
+		setOpen((cur) =>
+			cur.fam === family.title
+				? { fam: "", sub: "" }
+				: { fam: family.title, sub: subKey(family.title, family.subfamilies[0].title) },
+		);
 	};
 
+	// Ouvrir une sous-famille referme les autres ; recliquer la referme.
 	const toggleSub = (family: Family, sub: Subfamily) => {
-		const next = !subOpen(family, sub);
-		setOpenSub((prev) => ({ ...prev, [subKey(family, sub)]: next }));
+		const key = subKey(family.title, sub.title);
+		setOpen((cur) => ({ fam: family.title, sub: cur.sub === key ? "" : key }));
 	};
 
 	const noResults = searching && !COMPONENTS.some((i) => matches(i.label));
@@ -114,12 +124,9 @@ export function Sidebar({ active, onNavigate, onOpenPalette }: SidebarProps) {
 			<nav className="cu-tree">
 				{FAMILIES.map((family) => {
 					if (searching && !famHasMatch(family)) return null;
-					const open = famOpen(family);
+					const isOpen = famOpen(family);
 					const count = searching
-						? family.subfamilies.reduce(
-								(n, s) => n + s.items.filter((i) => matches(i.label)).length,
-								0,
-							)
+						? family.subfamilies.flatMap((s) => s.items).filter((i) => matches(i.label)).length
 						: family.count;
 					return (
 						<div key={family.title}>
@@ -127,16 +134,16 @@ export function Sidebar({ active, onNavigate, onOpenPalette }: SidebarProps) {
 								<Icon
 									name="chevron"
 									size={13}
-									className={open ? "cu-chev cu-chev--open" : "cu-chev"}
+									className={isOpen ? "cu-chev cu-chev--open" : "cu-chev"}
 								/>
 								<span className="cu-fam-row__label">{family.title}</span>
 								<span className="cu-count">{count}</span>
 							</button>
-							{open && (
+							{isOpen && (
 								<div className="cu-sublist">
 									{family.subfamilies.map((sub) => {
 										if (searching && !subHasMatch(sub)) return null;
-										const sopen = subOpen(family, sub);
+										const isSubOpen = subOpen(family, sub);
 										const items = searching ? sub.items.filter((i) => matches(i.label)) : sub.items;
 										return (
 											<div key={sub.title}>
@@ -148,12 +155,12 @@ export function Sidebar({ active, onNavigate, onOpenPalette }: SidebarProps) {
 													<Icon
 														name="chevron"
 														size={12}
-														className={sopen ? "cu-chev cu-chev--open" : "cu-chev"}
+														className={isSubOpen ? "cu-chev cu-chev--open" : "cu-chev"}
 													/>
 													<span className="cu-sub-row__label">{sub.title}</span>
 													<span className="cu-count">{items.length}</span>
 												</button>
-												{sopen && (
+												{isSubOpen && (
 													<div className="cu-itemlist">
 														{items.map((item) => (
 															<button

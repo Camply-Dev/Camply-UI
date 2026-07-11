@@ -19,11 +19,7 @@ import {
 	TagInput,
 	Textarea,
 } from "@camply/ui";
-import type { PlaygroundConfig } from "./engine";
-
-const str = (v: unknown) => String(v);
-const bool = (v: unknown) => Boolean(v);
-const num = (v: unknown) => Number(v);
+import { bool, num, type PlaygroundConfig, str } from "./engine";
 
 const COUNTRIES = [
 	{ value: "fr", label: "France" },
@@ -40,11 +36,11 @@ const FRAMEWORKS = [
 	{ value: "svelte", label: "Svelte" },
 ];
 
-const OPTIONS_CODE = `const options = [
-  { value: "fr", label: "France" },
-  { value: "be", label: "Belgique" },
-  { value: "ch", label: "Suisse" },
-];`;
+// Sérialise un tableau d'options en code copiable, aligné sur l'aperçu.
+const optionsCode = (options: { value: string; label: string }[]) =>
+	`const options = [\n${options
+		.map((o) => `  { value: "${o.value}", label: "${o.label}" },`)
+		.join("\n")}\n];`;
 
 export const FORMULAIRES: Record<string, PlaygroundConfig> = {
 	input: {
@@ -61,7 +57,7 @@ export const FORMULAIRES: Record<string, PlaygroundConfig> = {
 				<Input
 					label={str(p.label)}
 					placeholder={str(p.placeholder)}
-					size={str(p.size) as never}
+					size={str(p.size)}
 					error={p.state === "error" ? "Champ invalide" : undefined}
 					disabled={p.state === "disabled"}
 				/>
@@ -100,7 +96,7 @@ export const FORMULAIRES: Record<string, PlaygroundConfig> = {
 				<NumberInput
 					label={str(p.label)}
 					suffix={str(p.suffix) || undefined}
-					size={str(p.size) as never}
+					size={str(p.size)}
 					disabled={bool(p.disabled)}
 					defaultValue={3}
 					min={0}
@@ -209,7 +205,7 @@ export const FORMULAIRES: Record<string, PlaygroundConfig> = {
 			<div style={{ width: 280 }}>
 				<Select
 					label={str(p.label)}
-					size={str(p.size) as never}
+					size={str(p.size)}
 					disabled={bool(p.disabled)}
 					defaultValue="fr"
 					options={COUNTRIES}
@@ -217,7 +213,7 @@ export const FORMULAIRES: Record<string, PlaygroundConfig> = {
 			</div>
 		),
 		code: (p) =>
-			`import { Select } from "@camply/ui";\n\n${OPTIONS_CODE}\n\n<Select\n  label="${p.label}"\n  options={options}\n  defaultValue="fr"${
+			`import { Select } from "@camply/ui";\n\n${optionsCode(COUNTRIES)}\n\n<Select\n  label="${p.label}"\n  options={options}\n  defaultValue="fr"${
 				p.disabled ? "\n  disabled" : ""
 			}\n/>`,
 		props: [
@@ -248,7 +244,7 @@ export const FORMULAIRES: Record<string, PlaygroundConfig> = {
 			</div>
 		),
 		code: (p) =>
-			`import { MultiSelect } from "@camply/ui";\n\n${OPTIONS_CODE}\n\n<MultiSelect\n  label="${p.label}"\n  options={options}\n  defaultValue={["fr"]}${
+			`import { MultiSelect } from "@camply/ui";\n\n${optionsCode(FRAMEWORKS)}\n\n<MultiSelect\n  label="${p.label}"\n  options={options}\n  defaultValue={["react", "next"]}${
 				p.disabled ? "\n  disabled" : ""
 			}\n/>`,
 		props: [
@@ -278,7 +274,7 @@ export const FORMULAIRES: Record<string, PlaygroundConfig> = {
 			</div>
 		),
 		code: (p) =>
-			`import { Combobox } from "@camply/ui";\n\n${OPTIONS_CODE}\n\n<Combobox\n  label="${p.label}"\n  options={options}\n  placeholder="Rechercher…"${
+			`import { Combobox } from "@camply/ui";\n\n${optionsCode(COUNTRIES)}\n\n<Combobox\n  label="${p.label}"\n  options={options}\n  placeholder="Rechercher un pays…"${
 				p.disabled ? "\n  disabled" : ""
 			}\n/>`,
 		props: [
@@ -297,23 +293,37 @@ export const FORMULAIRES: Record<string, PlaygroundConfig> = {
 	colorpicker: {
 		component: "ColorPicker",
 		controls: [
+			{ key: "variant", label: "Variante", type: "seg", options: ["full", "compact"] },
 			{ key: "label", label: "Label", type: "text" },
 			{ key: "copyable", label: "Copiable", type: "toggle" },
 		],
-		defaults: { label: "", copyable: true },
+		defaults: { variant: "full", label: "", copyable: true },
 		render: (p) => (
-			<div style={{ width: "100%", maxWidth: 320 }}>
+			<div style={{ width: "100%", maxWidth: 320, display: "flex", justifyContent: "center" }}>
 				<ColorPicker
+					key={str(p.variant)}
+					variant={str(p.variant)}
 					label={str(p.label) || undefined}
 					copyable={bool(p.copyable)}
-					defaultValue="#38bdf8"
+					defaultValue={p.variant === "compact" ? undefined : "#38bdf8"}
 				/>
 			</div>
 		),
-		extraAttrs: ['defaultValue="#38bdf8"'],
+		code: (p) => {
+			const lines = [`  variant="${p.variant}"`];
+			if (p.label) lines.push(`  label="${p.label}"`);
+			if (p.variant === "full") {
+				lines.push('  defaultValue="#38bdf8"');
+				if (!p.copyable) lines.push("  copyable={false}");
+			}
+			return `import { ColorPicker } from "@camply/ui";\n\n<ColorPicker\n${lines.join("\n")}\n/>`;
+		},
 		props: [
+			["variant", "enum", "full (en ligne) · compact (pastille + palette au survol)"],
 			["value / defaultValue", "string", 'hex contrôlé / initial, ex. "#38bdf8"'],
 			["onChange", "(hex: string) => void", "changement"],
+			["alpha / defaultAlpha", "number", "opacité 0–1 (value reste #RRGGBB)"],
+			["onAlphaChange", "(alpha: number) => void", "changement d'opacité"],
 			["copyable", "boolean", "bouton copier le hex (défaut true)"],
 			["label", "string", "libellé au-dessus"],
 		],
@@ -410,7 +420,7 @@ export const FORMULAIRES: Record<string, PlaygroundConfig> = {
 				key={String(p.checked)}
 				label={str(p.label)}
 				defaultChecked={bool(p.checked)}
-				size={str(p.size) as never}
+				size={str(p.size)}
 			/>
 		),
 		props: [

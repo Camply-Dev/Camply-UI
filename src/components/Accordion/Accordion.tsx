@@ -25,10 +25,12 @@ export function Accordion({
 	style,
 	children,
 }: AccordionProps) {
-	const initial = new Set(
-		defaultValue == null ? [] : Array.isArray(defaultValue) ? defaultValue : [defaultValue],
+	const [open, setOpen] = useState<Set<string>>(
+		() =>
+			new Set(
+				defaultValue == null ? [] : Array.isArray(defaultValue) ? defaultValue : [defaultValue],
+			),
 	);
-	const [open, setOpen] = useState<Set<string>>(initial);
 
 	const toggle = (value: string) => {
 		setOpen((prev) => {

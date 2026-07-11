@@ -102,3 +102,12 @@
 	--camply-z-modal: 1200;
 	--camply-z-toast: 1300;
 }
+
+/* Animation d'entrée partagée par tous les éléments flottants (Select,
+   MultiSelect, Combobox, DropdownMenu, Menubar, Popover, HoverCard, DatePicker). */
+@keyframes camply-float-in {
+	from {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+}

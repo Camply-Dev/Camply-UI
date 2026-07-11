@@ -1,15 +1,9 @@
-import {
-	type CSSProperties,
-	cloneElement,
-	isValidElement,
-	type ReactElement,
-	type ReactNode,
-	useRef,
-	useState,
-} from "react";
+import { type CSSProperties, type ReactElement, type ReactNode, useRef } from "react";
+import { cloneTrigger } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { type Placement, useAnchor } from "../../lib/useAnchor";
+import { useDelayedOpen } from "../../lib/useDelayedOpen";
 export interface HoverCardProps {
 	trigger: ReactElement;
 	children: ReactNode;
@@ -31,31 +25,19 @@ export function HoverCard({
 	className,
 	style: styleProp,
 }: HoverCardProps) {
-	const [open, setOpen] = useState(false);
 	const anchorRef = useRef<HTMLElement>(null);
 	const cardRef = useRef<HTMLDivElement>(null);
-	const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+	const { open, show, hide } = useDelayedOpen(openDelay, closeDelay);
 
 	const style = useAnchor(anchorRef, cardRef, open, { placement, gap: 8 });
 
-	const show = () => {
-		clearTimeout(timer.current);
-		timer.current = setTimeout(() => setOpen(true), openDelay);
-	};
-	const hide = () => {
-		clearTimeout(timer.current);
-		timer.current = setTimeout(() => setOpen(false), closeDelay);
-	};
-
-	const triggerEl = isValidElement(trigger)
-		? cloneElement(trigger as ReactElement<Record<string, unknown>>, {
-				ref: anchorRef,
-				onMouseEnter: show,
-				onMouseLeave: hide,
-				onFocus: show,
-				onBlur: hide,
-			})
-		: trigger;
+	const triggerEl = cloneTrigger(trigger, {
+		ref: anchorRef,
+		onMouseEnter: show,
+		onMouseLeave: hide,
+		onFocus: show,
+		onBlur: hide,
+	});
 
 	return (
 		<>
@@ -66,7 +48,7 @@ export function HoverCard({
 					<div
 						ref={cardRef}
 						className={cn("camply-hovercard__card", className)}
-						style={{ ...style, ...styleProp, zIndex: "var(--camply-z-tooltip)" as never }}
+						style={{ ...style, ...styleProp }}
 						onMouseEnter={show}
 						onMouseLeave={hide}
 					>

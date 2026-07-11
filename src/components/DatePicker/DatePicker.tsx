@@ -3,8 +3,9 @@ import { cn } from "../../lib/cn";
 import { Calendar, ChevronLeft, ChevronRight } from "../../lib/icons";
 import { Portal } from "../../lib/Portal";
 import { useAnchor } from "../../lib/useAnchor";
-import { useControllable, useId } from "../../lib/useControllable";
+import { useControllable } from "../../lib/useControllable";
 import { useDismiss } from "../../lib/useDismiss";
+import { useId } from "../../lib/useId";
 
 export type DateRange = [Date | null, Date | null];
 
@@ -127,13 +128,9 @@ export function DatePicker({
 			setOpen(false);
 			return;
 		}
-		// Plage : 1er clic = début ; clic avant le début = nouveau début ;
+		// Plage : 1er clic = début ; clic avant/sur le début = nouveau début ;
 		// clic après = fin (et fermeture) ; recommencer une fois complète.
-		if (!rangeStart || rangeEnd) {
-			setRange([d, null]);
-		} else if (d < rangeStart) {
-			setRange([d, null]);
-		} else if (isSameDay(d, rangeStart)) {
+		if (!rangeStart || rangeEnd || d <= startOfDay(rangeStart)) {
 			setRange([d, null]);
 		} else {
 			setRange([rangeStart, d]);
@@ -152,16 +149,12 @@ export function DatePicker({
 
 	const today = new Date();
 
-	const display =
-		mode === "single"
-			? selected
-				? fmt(selected)
-				: placeholder
-			: rangeStart && rangeEnd
-				? `${fmt(rangeStart)} — ${fmt(rangeEnd)}`
-				: rangeStart
-					? `${fmt(rangeStart)} — …`
-					: placeholder;
+	let display = placeholder;
+	if (mode === "single") {
+		if (selected) display = fmt(selected);
+	} else if (rangeStart) {
+		display = rangeEnd ? `${fmt(rangeStart)} — ${fmt(rangeEnd)}` : `${fmt(rangeStart)} — …`;
+	}
 
 	const hasValue = mode === "single" ? selected != null : rangeStart != null;
 
@@ -198,7 +191,7 @@ export function DatePicker({
 						role="dialog"
 						aria-label="Calendrier"
 						className={"camply-datepicker__pop"}
-						style={{ ...floatStyle, zIndex: "var(--camply-z-dropdown)" as never }}
+						style={floatStyle}
 					>
 						<div className={"camply-datepicker__head"}>
 							<button

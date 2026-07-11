@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 export interface ProgressProps {
 	/** 0–100; omit for an indeterminate bar */
@@ -21,7 +22,7 @@ export function Progress({
 	style,
 }: ProgressProps) {
 	const indeterminate = value == null;
-	const clamped = indeterminate ? 0 : Math.max(0, Math.min(100, value));
+	const clamped = indeterminate ? 0 : clamp(value, 0, 100);
 
 	return (
 		<div className={cn("camply-progress__root", className)} style={style}>

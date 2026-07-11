@@ -84,13 +84,8 @@
 	border-radius: var(--camply-radius-lg);
 	background: var(--camply-elevated);
 	box-shadow: var(--camply-shadow-pop);
-	animation: camply-select-in 0.14s var(--camply-ease);
-}
-@keyframes camply-select-in {
-	from {
-		opacity: 0;
-		transform: translateY(-4px);
-	}
+	z-index: var(--camply-z-dropdown);
+	animation: camply-float-in 0.14s var(--camply-ease);
 }
 
 .camply-select__option {

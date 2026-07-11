@@ -9,11 +9,7 @@ import {
 	ToastProvider,
 	useToast,
 } from "@camply/ui";
-import type { PlaygroundConfig, Values } from "./engine";
-
-const str = (v: unknown) => String(v);
-const bool = (v: unknown) => Boolean(v);
-const num = (v: unknown) => Number(v);
+import { bool, num, type PlaygroundConfig, str, type Values } from "./engine";
 
 function ToastTrigger(p: Values) {
 	const { toast } = useToast();
@@ -22,7 +18,7 @@ function ToastTrigger(p: Values) {
 			variant="secondary"
 			onClick={() =>
 				toast({
-					tone: str(p.tone) as never,
+					tone: str(p.tone),
 					title: "Enregistré",
 					description: "Tes modifications ont bien été sauvegardées.",
 				})
@@ -46,7 +42,7 @@ export const FEEDBACK: Record<string, PlaygroundConfig> = {
 			<div style={{ width: "100%", maxWidth: 420 }}>
 				<Progress
 					value={p.value === "∞" ? undefined : num(p.value)}
-					tone={str(p.tone) as never}
+					tone={str(p.tone)}
 					label="Téléversement"
 					showValue={bool(p.showValue)}
 				/>
@@ -71,7 +67,7 @@ export const FEEDBACK: Record<string, PlaygroundConfig> = {
 			{ key: "tone", label: "Ton", type: "seg", options: ["accent", "info", "warn", "danger"] },
 		],
 		defaults: { value: "72", tone: "accent" },
-		render: (p) => <RadialProgress value={num(p.value)} tone={str(p.tone) as never} />,
+		render: (p) => <RadialProgress value={num(p.value)} tone={str(p.tone)} />,
 		code: (p) =>
 			`import { RadialProgress } from "@camply/ui";\n\n<RadialProgress value={${p.value}} tone="${p.tone}" />`,
 		props: [

@@ -88,11 +88,13 @@
 	border-color: var(--_border);
 }
 
-/* Dot */
-.camply-badge__dot {
-	width: 0.5em;
-	height: 0.5em;
-	border-radius: var(--camply-radius-pill);
-	background-color: currentColor;
+/* Icône optionnelle avant le contenu — se dimensionne sur la taille du badge */
+.camply-badge__icon {
+	display: inline-flex;
+	align-items: center;
 	flex-shrink: 0;
+}
+.camply-badge__icon svg {
+	width: 1em;
+	height: 1em;
 }

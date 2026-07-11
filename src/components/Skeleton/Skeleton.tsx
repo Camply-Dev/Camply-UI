@@ -11,8 +11,6 @@ export interface SkeletonProps {
 	style?: CSSProperties;
 }
 
-const dim = (v: number | string | undefined) => (typeof v === "number" ? `${v}px` : v);
-
 export function Skeleton({
 	width,
 	height,
@@ -21,16 +19,12 @@ export function Skeleton({
 	className,
 	style,
 }: SkeletonProps) {
+	// React ajoute automatiquement "px" aux valeurs numériques de style.
 	return (
 		<span
 			aria-hidden="true"
 			className={cn("camply-skeleton__sk", `camply-skeleton__${variant}`, className)}
-			style={{
-				width: dim(width),
-				height: dim(height),
-				borderRadius: dim(radius),
-				...style,
-			}}
+			style={{ width, height, borderRadius: radius, ...style }}
 		/>
 	);
 }

@@ -27,7 +27,7 @@ export function Stat({
 	style,
 }: StatProps) {
 	const up = delta != null && delta >= 0;
-	const good = delta == null ? true : invertDelta ? !up : up;
+	const good = invertDelta ? !up : up;
 
 	return (
 		<div className={cn("camply-stat__root", className)} style={style}>

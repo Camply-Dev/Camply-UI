@@ -9,6 +9,7 @@
 	font-weight: 600;
 	line-height: 1.4;
 	box-shadow: var(--camply-shadow-md);
+	z-index: var(--camply-z-tooltip);
 	animation: camply-tip-in 0.14s var(--camply-ease);
 }
 @keyframes camply-tip-in {
@@ -34,14 +35,4 @@
 	top: -3px;
 	left: 50%;
 	margin-left: -4px;
-}
-.camply-tooltip__left .camply-tooltip__arrow {
-	right: -3px;
-	top: 50%;
-	margin-top: -4px;
-}
-.camply-tooltip__right .camply-tooltip__arrow {
-	left: -3px;
-	top: 50%;
-	margin-top: -4px;
 }

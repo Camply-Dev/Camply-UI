@@ -21,10 +21,7 @@ import {
 } from "@camply/ui";
 import { useState } from "react";
 import { Icon } from "../icons";
-import type { PlaygroundConfig, Values } from "./engine";
-
-const str = (v: unknown) => String(v);
-const bool = (v: unknown) => Boolean(v);
+import { bool, type PlaygroundConfig, str, type Values } from "./engine";
 
 // ---------- Aperçus à état (overlays) ----------
 function ModalPreview(p: Values) {
@@ -37,7 +34,7 @@ function ModalPreview(p: Values) {
 			<Modal
 				open={open}
 				onClose={() => setOpen(false)}
-				size={str(p.size) as never}
+				size={str(p.size)}
 				title="Supprimer le projet"
 				description="Cette action est définitive et supprime toutes les données associées."
 				footer={
@@ -65,7 +62,7 @@ function DrawerPreview(p: Values) {
 			<Drawer
 				open={open}
 				onClose={() => setOpen(false)}
-				side={str(p.side) as never}
+				side={str(p.side)}
 				title="Filtres"
 				footer={
 					<Button variant="primary" onClick={() => setOpen(false)}>
@@ -89,7 +86,7 @@ function SheetPreview(p: Values) {
 			<Sheet
 				open={open}
 				onClose={() => setOpen(false)}
-				side={str(p.side) as never}
+				side={str(p.side)}
 				handle={bool(p.handle)}
 				title="Partager le projet"
 			>
@@ -112,7 +109,7 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 		defaults: { padding: "md", interactive: false },
 		render: (p) => (
 			<div style={{ width: "100%", maxWidth: 340 }}>
-				<Card padding={str(p.padding) as never} interactive={bool(p.interactive)}>
+				<Card padding={str(p.padding)} interactive={bool(p.interactive)}>
 					<CardHeader>
 						<CardTitle>Forfait Pro</CardTitle>
 						<CardDescription>Tout ce qu'il faut pour lancer un produit soigné.</CardDescription>
@@ -155,7 +152,7 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 			<div style={{ width: "100%", maxWidth: 460 }}>
 				<Alert
 					key={`${p.tone}-${p.dismissible}`}
-					tone={str(p.tone) as never}
+					tone={str(p.tone)}
 					title={str(p.title)}
 					dismissible={bool(p.dismissible)}
 				>
@@ -191,7 +188,7 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 			<div style={{ width: "100%", maxWidth: 560 }}>
 				<Banner
 					key={`${p.tone}-${p.dismissible}`}
-					tone={str(p.tone) as never}
+					tone={str(p.tone)}
 					dismissible={bool(p.dismissible)}
 					action={
 						<Button size="sm" variant="primary">
@@ -306,7 +303,7 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 		],
 		defaults: { content: "Ajouter au projet", placement: "top" },
 		render: (p) => (
-			<Tooltip content={str(p.content)} placement={str(p.placement) as never}>
+			<Tooltip content={str(p.content)} placement={str(p.placement)}>
 				<Button variant="secondary">Survole-moi</Button>
 			</Tooltip>
 		),
@@ -333,7 +330,7 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 		render: (p) => (
 			<Popover
 				trigger={<Button variant="secondary">Ouvrir le popover</Button>}
-				placement={str(p.placement) as never}
+				placement={str(p.placement)}
 			>
 				<div style={{ maxWidth: 240 }}>
 					<strong style={{ display: "block", marginBottom: 6 }}>Astuce</strong>

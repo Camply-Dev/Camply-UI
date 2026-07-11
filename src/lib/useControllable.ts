@@ -24,10 +24,3 @@ export function useControllable<T>(
 
 	return [current, set];
 }
-
-let idCounter = 0;
-/** Stable unique id for a11y (label/aria-controls) without extra deps. */
-export function useId(prefix = "gv"): string {
-	const [id] = useState(() => `${prefix}-${++idCounter}`);
-	return id;
-}

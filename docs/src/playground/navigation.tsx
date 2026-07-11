@@ -13,11 +13,7 @@ import {
 	Tabs,
 	Timeline,
 } from "@camply/ui";
-import type { PlaygroundConfig } from "./engine";
-
-const str = (v: unknown) => String(v);
-const bool = (v: unknown) => Boolean(v);
-const num = (v: unknown) => Number(v);
+import { bool, num, type PlaygroundConfig, str } from "./engine";
 
 export const NAVIGATION: Record<string, PlaygroundConfig> = {
 	tabs: {
@@ -27,7 +23,7 @@ export const NAVIGATION: Record<string, PlaygroundConfig> = {
 		defaults: { variant: "line" },
 		render: (p) => (
 			<div style={{ width: "100%", maxWidth: 460 }}>
-				<Tabs defaultValue="apercu" variant={str(p.variant) as never}>
+				<Tabs defaultValue="apercu" variant={str(p.variant)}>
 					<TabList>
 						<Tab value="apercu">Aperçu</Tab>
 						<Tab value="specs">Spécifications</Tab>
@@ -62,7 +58,7 @@ export const NAVIGATION: Record<string, PlaygroundConfig> = {
 		render: (p) => (
 			<div style={{ width: "100%", maxWidth: 420, display: "flex", justifyContent: "center" }}>
 				<SegmentedControl
-					size={str(p.size) as never}
+					size={str(p.size)}
 					fullWidth={bool(p.fullWidth)}
 					style={bool(p.fullWidth) ? undefined : { minWidth: 300 }}
 					defaultValue="semaine"
@@ -206,7 +202,7 @@ export const NAVIGATION: Record<string, PlaygroundConfig> = {
 			<div style={{ width: "100%", maxWidth: 520 }}>
 				<Steps
 					current={num(p.current)}
-					orientation={str(p.orientation) as never}
+					orientation={str(p.orientation)}
 					steps={[
 						{ label: "Compte", description: "Tes identifiants" },
 						{ label: "Profil", description: "Quelques infos" },

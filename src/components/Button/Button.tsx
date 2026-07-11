@@ -45,7 +45,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 					className,
 				)}
 				disabled={disabled || loading}
-				data-loading={loading || undefined}
 				{...props}
 			>
 				{loading && <span className="camply-button__spinner" aria-hidden="true" />}

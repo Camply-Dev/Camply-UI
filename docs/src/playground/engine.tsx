@@ -1,10 +1,17 @@
 // Moteur de playground générique : chaque composant fournit une config
 // déclarative (contrôles, rendu, props) et le moteur fait le reste —
 // état, panneau de contrôles (composants @camply/ui), code généré, table des props.
-import { Input, SegmentedControl, Snippet, Switch } from "@camply/ui";
+import { Input, SegmentedControl, Snippet, Switch, Table } from "@camply/ui";
 import { type ReactNode, useState } from "react";
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+// ---------- Conversions des valeurs de contrôle ----------
+// Le défaut `= string` fait que TypeScript infère T depuis la prop cible,
+// ce qui évite d'écrire `as never` à chaque appel côté configs.
+export const str = <T = string>(v: unknown): T => String(v) as unknown as T;
+export const bool = (v: unknown) => Boolean(v);
+export const num = (v: unknown) => Number(v);
 
 // ---------- Types ----------
 export type ControlValue = string | boolean;
@@ -44,9 +51,8 @@ function genCode(cfg: PlaygroundConfig, p: Values): string {
 		const v = p[c.key];
 		if (c.type === "toggle") {
 			if (v) attrs.push(`  ${c.key}`);
-		} else if (c.type === "seg") {
-			attrs.push(`  ${c.key}="${v}"`);
-		} else if (typeof v === "string" && v) {
+		} else if (c.type === "seg" || v) {
+			// seg : toujours émis ; texte : seulement s'il est non vide
 			attrs.push(`  ${c.key}="${v}"`);
 		}
 	}
@@ -56,14 +62,12 @@ function genCode(cfg: PlaygroundConfig, p: Values): string {
 	const imports = (cfg.imports ?? [name]).join(", ");
 	const child = cfg.childrenKey ? String(p[cfg.childrenKey] ?? "") : "";
 	const open = attrs.length ? `<${name}\n${attrs.join("\n")}\n` : `<${name}`;
-	const jsx = child
-		? `${open}${attrs.length ? ">" : ">"}\n  ${child}\n</${name}>`
-		: `${open}${attrs.length ? "/>" : " />"}`;
+	const jsx = child ? `${open}>\n  ${child}\n</${name}>` : `${open}${attrs.length ? "/>" : " />"}`;
 	return `import { ${imports} } from "@camply/ui";\n\n${jsx}`;
 }
 
 // ---------- Blocs ----------
-export function UsageBlock({ code }: { code: string }) {
+function UsageBlock({ code }: { code: string }) {
 	return (
 		<section className="cu-usage">
 			<h2 className="cu-usage__title">Utilisation</h2>
@@ -74,7 +78,7 @@ export function UsageBlock({ code }: { code: string }) {
 	);
 }
 
-export function PropsTable({ rows }: { rows: PropRow[] }) {
+function PropsTable({ rows }: { rows: PropRow[] }) {
 	return (
 		<section className="cu-perso">
 			<h2 className="cu-usage__title">Personnalisation</h2>
@@ -82,15 +86,29 @@ export function PropsTable({ rows }: { rows: PropRow[] }) {
 				Chaque composant accepte aussi <code>className</code>, <code>style</code> et les tokens{" "}
 				<code>--camply-*</code>.
 			</p>
-			<div className="cu-props">
-				{rows.map((row) => (
-					<div key={row[0]} className="cu-props__row">
-						<code className="cu-props__name">{row[0]}</code>
-						<code className="cu-props__type">{row[1]}</code>
-						<span className="cu-props__desc">{row[2]}</span>
-					</div>
-				))}
-			</div>
+			<Table
+				rowKey={(r) => r.name}
+				data={rows.map(([name, type, description]) => ({ name, type, description }))}
+				columns={[
+					{
+						key: "name",
+						header: "Prop",
+						width: 190,
+						cell: (r) => <code className="cu-props__name">{r.name}</code>,
+					},
+					{
+						key: "type",
+						header: "Type",
+						width: 150,
+						cell: (r) => <code className="cu-props__type">{r.type}</code>,
+					},
+					{
+						key: "description",
+						header: "Description",
+						cell: (r) => <span className="cu-props__desc">{r.description}</span>,
+					},
+				]}
+			/>
 		</section>
 	);
 }

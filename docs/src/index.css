@@ -389,26 +389,6 @@ h3 {
 	margin-bottom: 28px;
 }
 
-.cu-pill {
-	display: inline-flex;
-	align-items: center;
-	gap: 7px;
-	padding: 4px 12px;
-	border-radius: 999px;
-	background: var(--sc-accent-soft);
-	color: var(--sc-accent-hi);
-	font-size: 11.5px;
-	font-weight: 700;
-	letter-spacing: 0.02em;
-}
-
-.cu-dot {
-	width: 6px;
-	height: 6px;
-	border-radius: 999px;
-	background: var(--sc-accent);
-}
-
 .cu-crumbrow {
 	display: flex;
 	align-items: center;
@@ -509,11 +489,8 @@ h3 {
 	margin-top: 52px;
 }
 
+/* Boîtes de stats = Card @camply/ui — seul le centrage vit ici. */
 .cu-stat {
-	padding: 20px;
-	border: 1px solid var(--sc-line);
-	border-radius: 14px;
-	background: var(--sc-surface);
 	text-align: center;
 }
 
@@ -544,24 +521,10 @@ h3 {
 	gap: 16px;
 }
 
+/* Cartes de famille = Card interactive @camply/ui (surface + survol) ;
+   ici seulement l'agencement interne. */
 .cu-fam {
-	display: block;
-	width: 100%;
-	padding: 20px;
-	border: 1px solid var(--sc-line);
-	border-radius: 16px;
-	background: var(--sc-surface);
 	text-align: left;
-	font-family: inherit;
-	cursor: pointer;
-	transition:
-		border-color 0.18s ease,
-		background 0.18s ease;
-}
-
-.cu-fam:hover {
-	border-color: rgba(56, 189, 248, 0.4);
-	background: rgba(56, 189, 248, 0.04);
 }
 
 .cu-fam__head {
@@ -706,24 +669,9 @@ h3 {
 	gap: 12px;
 }
 
+/* Cartes de roadmap = Card interactive @camply/ui. */
 .cu-road__card {
-	display: block;
-	width: 100%;
-	padding: 16px;
-	border: 1px solid var(--sc-line);
-	border-radius: 14px;
-	background: var(--sc-surface);
 	text-align: left;
-	font-family: inherit;
-	cursor: pointer;
-	transition:
-		border-color 0.18s ease,
-		background 0.18s ease;
-}
-
-.cu-road__card:hover {
-	border-color: rgba(56, 189, 248, 0.4);
-	background: rgba(56, 189, 248, 0.04);
 }
 
 .cu-road__top {
@@ -755,13 +703,7 @@ h3 {
 	gap: 16px;
 }
 
-.cu-tokgroup {
-	overflow: hidden;
-	border: 1px solid var(--sc-line);
-	border-radius: 14px;
-	background: var(--sc-surface);
-}
-
+/* Groupes de tokens = Card @camply/ui (padding none) ; en-tête + corps ici. */
 .cu-tokgroup__head {
 	padding: 12px 16px;
 	border-bottom: 1px solid var(--sc-line-soft);
@@ -893,44 +835,20 @@ h3 {
 	color: var(--sc-accent-hi);
 }
 
-.cu-props {
-	overflow: hidden;
-	border: 1px solid var(--sc-line);
-	border-radius: 14px;
-}
-
-.cu-props__row {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: baseline;
-	gap: 14px;
-	padding: 11px 16px;
-	border-top: 1px solid var(--sc-line-soft);
-}
-
-.cu-props__row:first-child {
-	border-top: none;
-}
-
+/* Table des props = Table @camply/ui ; ici seulement le style des cellules. */
 .cu-props__name {
-	flex: none;
-	width: 170px;
 	font-family: var(--sc-font-mono);
 	font-size: 12.5px;
 	color: var(--sc-accent-hi);
 }
 
 .cu-props__type {
-	flex: none;
-	width: 130px;
 	font-family: var(--sc-font-mono);
 	font-size: 12px;
 	color: #8fa1b8;
 }
 
 .cu-props__desc {
-	flex: 1;
-	min-width: 180px;
 	font-size: 13px;
 	color: var(--sc-muted);
 }

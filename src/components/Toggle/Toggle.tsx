@@ -23,7 +23,6 @@ export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
 				ref={ref}
 				type="button"
 				aria-pressed={on}
-				data-state={on ? "on" : "off"}
 				className={cn(
 					"camply-toggle__toggle",
 					`camply-toggle__${size}`,

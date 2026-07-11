@@ -12,10 +12,7 @@ import {
 	Toggle,
 } from "@camply/ui";
 import { Icon } from "../icons";
-import type { PlaygroundConfig } from "./engine";
-
-const str = (v: unknown) => String(v);
-const bool = (v: unknown) => Boolean(v);
+import { bool, type PlaygroundConfig, str } from "./engine";
 
 export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 	button: {
@@ -35,8 +32,8 @@ export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 		defaults: { text: "Cliquer", variant: "primary", size: "md", state: "normal", icon: false },
 		render: (p) => (
 			<Button
-				variant={str(p.variant) as never}
-				size={str(p.size) as never}
+				variant={str(p.variant)}
+				size={str(p.size)}
 				disabled={p.state === "disabled"}
 				loading={p.state === "loading"}
 				leftIcon={p.icon ? <Icon name="plus" size={16} /> : undefined}
@@ -74,25 +71,30 @@ export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 			},
 			{ key: "variant", label: "Variante", type: "seg", options: ["soft", "solid", "outline"] },
 			{ key: "size", label: "Taille", type: "seg", options: ["sm", "md"] },
-			{ key: "dot", label: "Pastille", type: "toggle" },
+			{ key: "icon", label: "Icône", type: "seg", options: ["aucune", "check", "clock", "plus"] },
 		],
-		defaults: { text: "Actif", tone: "accent", variant: "soft", size: "md", dot: true },
-		childrenKey: "text",
+		defaults: { text: "Actif", tone: "accent", variant: "soft", size: "md", icon: "check" },
 		render: (p) => (
 			<Badge
-				tone={str(p.tone) as never}
-				variant={str(p.variant) as never}
-				size={str(p.size) as never}
-				dot={bool(p.dot)}
+				tone={str(p.tone)}
+				variant={str(p.variant)}
+				size={str(p.size)}
+				icon={p.icon !== "aucune" ? <Icon name={str(p.icon)} size={13} /> : undefined}
 			>
 				{str(p.text)}
 			</Badge>
 		),
+		code: (p) => {
+			const name = str(p.icon);
+			const iconAttr =
+				name === "aucune" ? "" : `\n  icon={<${name.charAt(0).toUpperCase() + name.slice(1)} />}`;
+			return `import { Badge } from "@camply/ui";\n\n<Badge tone="${p.tone}" variant="${p.variant}"${iconAttr}>\n  ${p.text}\n</Badge>`;
+		},
 		props: [
 			["tone", "enum", "accent · neutral · success · warning · danger · info"],
 			["variant", "enum", "soft · solid · outline"],
 			["size", "enum", "sm · md"],
-			["dot", "boolean", "pastille de statut avant le contenu"],
+			["icon", "ReactNode", "icône affichée avant le contenu"],
 		],
 	},
 
@@ -110,7 +112,7 @@ export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 		],
 		defaults: { attached: true, orientation: "horizontal" },
 		render: (p) => (
-			<ButtonGroup attached={bool(p.attached)} orientation={str(p.orientation) as never}>
+			<ButtonGroup attached={bool(p.attached)} orientation={str(p.orientation)}>
 				<Button variant="secondary">Jour</Button>
 				<Button variant="secondary">Semaine</Button>
 				<Button variant="secondary">Mois</Button>
@@ -143,8 +145,8 @@ export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 		render: (p) => (
 			<IconButton
 				label="Ajouter"
-				variant={str(p.variant) as never}
-				size={str(p.size) as never}
+				variant={str(p.variant)}
+				size={str(p.size)}
 				disabled={bool(p.disabled)}
 			>
 				<Icon name="plus" size={17} />
@@ -172,7 +174,7 @@ export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 		defaults: { text: "Gras", pressed: true, size: "md" },
 		childrenKey: "text",
 		render: (p) => (
-			<Toggle key={String(p.pressed)} defaultPressed={bool(p.pressed)} size={str(p.size) as never}>
+			<Toggle key={String(p.pressed)} defaultPressed={bool(p.pressed)} size={str(p.size)}>
 				{str(p.text)}
 			</Toggle>
 		),
@@ -207,9 +209,7 @@ export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 			{ key: "size", label: "Taille", type: "seg", options: ["sm", "md"] },
 		],
 		defaults: { keys: "⌘ K", size: "md" },
-		render: (p) => (
-			<Kbd keys={str(p.keys).split(" ").filter(Boolean)} size={str(p.size) as never} />
-		),
+		render: (p) => <Kbd keys={str(p.keys).split(" ").filter(Boolean)} size={str(p.size)} />,
 		code: (p) => {
 			const keys = str(p.keys).split(" ").filter(Boolean);
 			return `import { Kbd } from "@camply/ui";\n\n<Kbd keys={${JSON.stringify(keys)}}${
@@ -232,7 +232,7 @@ export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 		defaults: { label: "OU", variant: "solid" },
 		render: (p) => (
 			<div style={{ width: "100%", maxWidth: 420 }}>
-				<Divider label={str(p.label) || undefined} variant={str(p.variant) as never} />
+				<Divider label={str(p.label) || undefined} variant={str(p.variant)} />
 			</div>
 		),
 		props: [

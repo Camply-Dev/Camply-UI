@@ -6,6 +6,7 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 import { ChevronLeft, ChevronRight } from "../../lib/icons";
 export interface CarouselProps {
@@ -41,7 +42,7 @@ export function Carousel({
 	const go = useCallback(
 		(next: number) => {
 			if (loop) setIndex((next + count) % count);
-			else setIndex(Math.max(0, Math.min(count - 1, next)));
+			else setIndex(clamp(next, 0, count - 1));
 		},
 		[count, loop],
 	);

@@ -8,11 +8,6 @@
 	color: var(--camply-text);
 	font-family: var(--camply-font-sans);
 	font-size: 14px;
-	animation: camply-hc-in 0.16s var(--camply-ease);
-}
-@keyframes camply-hc-in {
-	from {
-		opacity: 0;
-		transform: translateY(-4px);
-	}
+	z-index: var(--camply-z-tooltip);
+	animation: camply-float-in 0.16s var(--camply-ease);
 }

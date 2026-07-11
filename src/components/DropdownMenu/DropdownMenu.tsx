@@ -1,14 +1,13 @@
 import {
 	type CSSProperties,
-	cloneElement,
 	forwardRef,
-	isValidElement,
 	type ReactElement,
 	type ReactNode,
 	useCallback,
 	useRef,
 	useState,
 } from "react";
+import { cloneTrigger } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { type Placement, useAnchor } from "../../lib/useAnchor";
@@ -40,17 +39,15 @@ export function DropdownMenu({
 	const close = useCallback(() => setOpen(false), []);
 	useDismiss(open, close, [anchorRef, menuRef]);
 
-	const triggerEl = isValidElement(trigger)
-		? cloneElement(trigger as ReactElement<Record<string, unknown>>, {
-				ref: anchorRef,
-				onClick: (e: React.MouseEvent) => {
-					(trigger.props as { onClick?: (e: React.MouseEvent) => void }).onClick?.(e);
-					setOpen((o) => !o);
-				},
-				"aria-haspopup": "menu",
-				"aria-expanded": open,
-			})
-		: trigger;
+	const triggerEl = cloneTrigger(trigger, {
+		ref: anchorRef,
+		onClick: (e: React.MouseEvent) => {
+			(trigger.props as { onClick?: (e: React.MouseEvent) => void }).onClick?.(e);
+			setOpen((o) => !o);
+		},
+		"aria-haspopup": "menu",
+		"aria-expanded": open,
+	});
 
 	return (
 		<>
@@ -62,7 +59,7 @@ export function DropdownMenu({
 						ref={menuRef}
 						role="menu"
 						className={cn("camply-dropdownmenu__menu", className)}
-						style={{ ...style, zIndex: "var(--camply-z-dropdown)" as never }}
+						style={style}
 						onClick={() => setOpen(false)}
 					>
 						{children}

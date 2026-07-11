@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 import { ChevronLeft, ChevronRight } from "../../lib/icons";
 import { useControllable } from "../../lib/useControllable";
@@ -47,7 +48,7 @@ export function Pagination({
 	style,
 }: PaginationProps) {
 	const [current, setCurrent] = useControllable<number>(page, defaultPage, onChange);
-	const go = (p: number) => setCurrent(Math.max(1, Math.min(total, p)));
+	const go = (p: number) => setCurrent(clamp(p, 1, total));
 	const pages = buildPages(current, total, siblings);
 
 	return (
@@ -63,10 +64,8 @@ export function Pagination({
 			</button>
 			{pages.map((p, i) =>
 				p === DOTS ? (
-					<span
-						key={i < pages.length / 2 ? "dots-left" : "dots-right"}
-						className={"camply-pagination__dots"}
-					>
+					// biome-ignore lint/suspicious/noArrayIndexKey: séparateurs "…" à position fixe — l'index EST l'identité
+					<span key={`dots-${i}`} className={"camply-pagination__dots"}>
 						{DOTS}
 					</span>
 				) : (
@@ -75,7 +74,7 @@ export function Pagination({
 						type="button"
 						className={cn("camply-pagination__page", p === current && "camply-pagination__active")}
 						aria-current={p === current ? "page" : undefined}
-						onClick={() => go(p as number)}
+						onClick={() => go(p)}
 					>
 						{p}
 					</button>

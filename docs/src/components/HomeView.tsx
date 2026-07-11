@@ -1,6 +1,7 @@
-import { Button, Snippet } from "@camply/ui";
+import { Badge, Button, Card, Snippet } from "@camply/ui";
 import { Icon } from "../icons";
 import { AVAILABLE, CSS, FAMILIES, FAMILY_ICON, TOTAL } from "../showcase-data";
+import { ClickableCard } from "./ClickableCard";
 
 interface HomeViewProps {
 	onNavigate: (id: string) => void;
@@ -8,10 +9,10 @@ interface HomeViewProps {
 
 export function HomeView({ onNavigate }: HomeViewProps) {
 	const stats = [
-		{ v: String(TOTAL), l: "composants" },
-		{ v: String(AVAILABLE.length), l: "disponibles" },
-		{ v: String(FAMILIES.length), l: "familles" },
-		{ v: "ESM", l: "tree-shakable" },
+		{ value: String(TOTAL), label: "composants" },
+		{ value: String(AVAILABLE.length), label: "disponibles" },
+		{ value: String(FAMILIES.length), label: "familles" },
+		{ value: "ESM", label: "tree-shakable" },
 	];
 
 	return (
@@ -24,10 +25,9 @@ export function HomeView({ onNavigate }: HomeViewProps) {
 					width={66}
 					height={66}
 				/>
-				<span className="cu-pill">
-					<span className="cu-dot" />
+				<Badge tone="accent">
 					v0.1.0 · {AVAILABLE.length} / {TOTAL} composants
-				</span>
+				</Badge>
 				<h1 className="cu-hero__title">
 					La librairie UI
 					<br />
@@ -57,10 +57,10 @@ export function HomeView({ onNavigate }: HomeViewProps) {
 
 			<div className="cu-stats">
 				{stats.map((stat) => (
-					<div key={stat.l} className="cu-stat">
-						<div className="cu-stat__v">{stat.v}</div>
-						<div className="cu-stat__l">{stat.l}</div>
-					</div>
+					<Card key={stat.label} className="cu-stat">
+						<div className="cu-stat__v">{stat.value}</div>
+						<div className="cu-stat__l">{stat.label}</div>
+					</Card>
 				))}
 			</div>
 
@@ -72,11 +72,10 @@ export function HomeView({ onNavigate }: HomeViewProps) {
 						.filter((i) => i.status === "available").length;
 					const firstId = family.subfamilies[0].items[0].id;
 					return (
-						<button
+						<ClickableCard
 							key={family.title}
-							type="button"
 							className="cu-fam"
-							onClick={() => onNavigate(firstId)}
+							onActivate={() => onNavigate(firstId)}
 						>
 							<div className="cu-fam__head">
 								<span className="cu-fam__icon">
@@ -90,7 +89,7 @@ export function HomeView({ onNavigate }: HomeViewProps) {
 							<div className="cu-fam__desc">
 								{family.subfamilies.map((s) => s.title).join(" · ")}
 							</div>
-						</button>
+						</ClickableCard>
 					);
 				})}
 			</div>

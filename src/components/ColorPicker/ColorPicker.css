@@ -88,3 +88,119 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+
+/* ---------- Mode compact : pastille + palette flottante ---------- */
+.camply-colorpicker__compact {
+	flex-direction: row;
+	align-items: center;
+	gap: 10px;
+	width: auto;
+	max-width: none;
+}
+.camply-colorpicker__swatch {
+	width: 34px;
+	height: 34px;
+	flex: none;
+	padding: 0;
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius-sm);
+	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
+	cursor: pointer;
+	transition:
+		transform 0.12s var(--camply-ease-spring),
+		box-shadow var(--camply-duration);
+}
+.camply-colorpicker__swatch:hover {
+	transform: scale(1.06);
+}
+.camply-colorpicker__swatch:focus-visible {
+	outline: none;
+	box-shadow: var(--camply-ring);
+}
+
+/* La palette flottante (portalée, positionnée par useAnchor). */
+.camply-colorpicker__pop {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	width: 240px;
+	padding: 14px;
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius-lg);
+	background: var(--camply-elevated);
+	box-shadow: var(--camply-shadow-pop);
+	z-index: var(--camply-z-dropdown);
+	animation: camply-float-in 0.14s var(--camply-ease);
+}
+.camply-colorpicker__pop .camply-colorpicker__square {
+	height: 150px;
+}
+
+/* Damier de transparence : la couleur (avec son opacité) est posée par-dessus.
+   Sans couleur, seul le damier reste visible (pastille « vide »). */
+.camply-colorpicker__swatch,
+.camply-colorpicker__preview,
+.camply-colorpicker__alpha {
+	position: relative;
+	background-image:
+		linear-gradient(45deg, rgba(255, 255, 255, 0.14) 25%, transparent 25%),
+		linear-gradient(-45deg, rgba(255, 255, 255, 0.14) 25%, transparent 25%),
+		linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.14) 75%),
+		linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.14) 75%);
+	background-size: 10px 10px;
+	background-position:
+		0 0,
+		0 5px,
+		5px -5px,
+		-5px 0;
+	background-color: rgba(0, 0, 0, 0.4);
+}
+.camply-colorpicker__swatchFill {
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+}
+
+/* Curseur d'opacité (alpha) : transparent → couleur, sur le damier. */
+.camply-colorpicker__alpha {
+	height: 14px;
+	border-radius: var(--camply-radius-pill);
+	cursor: pointer;
+	touch-action: none;
+}
+.camply-colorpicker__alphaFill {
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+}
+.camply-colorpicker__alphaKnob {
+	position: absolute;
+	top: 50%;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	border: 2px solid #fff;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+}
+
+/* Champs HEX / RGB cliquables (copient la valeur). */
+.camply-colorpicker__fieldCopy {
+	flex: 1;
+	min-width: 0;
+	text-align: left;
+	cursor: pointer;
+	font-family: inherit;
+	transition:
+		border-color var(--camply-duration),
+		background var(--camply-duration);
+}
+.camply-colorpicker__fieldCopy:hover {
+	border-color: var(--camply-accent-border);
+	background: rgba(255, 255, 255, 0.04);
+}
+.camply-colorpicker__fieldCopy:focus-visible {
+	outline: none;
+	box-shadow: var(--camply-ring);
+}

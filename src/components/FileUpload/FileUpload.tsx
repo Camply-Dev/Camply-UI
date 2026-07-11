@@ -38,7 +38,7 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 		const [error, setError] = useState<string | null>(null);
 		const nextId = useRef(0);
 
-		const accept_ok = (f: File) => {
+		const isAccepted = (f: File) => {
 			if (!accept) return true;
 			const rules = accept.split(",").map((s) => s.trim());
 			return rules.some((r) =>
@@ -53,7 +53,7 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 			setError(null);
 			const list: FileItem[] = [];
 			for (const f of Array.from(incoming)) {
-				if (!accept_ok(f)) {
+				if (!isAccepted(f)) {
 					setError(`Type non accepté : ${f.name}`);
 					continue;
 				}
