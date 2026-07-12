@@ -67,7 +67,7 @@ export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 				key: "tone",
 				label: "Ton",
 				type: "seg",
-				options: ["accent", "neutral", "success", "warning", "danger", "info"],
+				options: ["accent", "neutral", "success", "warn", "danger", "info"],
 			},
 			{ key: "variant", label: "Variante", type: "seg", options: ["soft", "solid", "outline"] },
 			{ key: "size", label: "Taille", type: "seg", options: ["sm", "md"] },
@@ -91,7 +91,7 @@ export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 			return `import { Badge } from "@camply/ui";\n\n<Badge tone="${p.tone}" variant="${p.variant}"${iconAttr}>\n  ${p.text}\n</Badge>`;
 		},
 		props: [
-			["tone", "enum", "accent · neutral · success · warning · danger · info"],
+			["tone", "enum", "accent · neutral · success · warn · danger · info"],
 			["variant", "enum", "soft · solid · outline"],
 			["size", "enum", "sm · md"],
 			["icon", "ReactNode", "icône affichée avant le contenu"],

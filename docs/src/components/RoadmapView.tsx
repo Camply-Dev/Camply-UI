@@ -41,7 +41,7 @@ export function RoadmapView({ onNavigate }: RoadmapViewProps) {
 										>
 											<div className="cu-road__top">
 												<span className="cu-road__name">{item.label}</span>
-												<Badge tone="warning" variant="soft" size="sm">
+												<Badge tone="warn" variant="soft" size="sm">
 													À venir
 												</Badge>
 											</div>

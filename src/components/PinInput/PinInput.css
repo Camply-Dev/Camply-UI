@@ -26,7 +26,7 @@
 	height: var(--_s);
 	border: 1px solid var(--camply-border-strong);
 	border-radius: var(--camply-radius);
-	background: rgba(0, 0, 0, 0.25);
+	background: var(--camply-field-bg);
 	color: var(--camply-text);
 	font-family: var(--camply-font-display);
 	font-size: var(--_fs);

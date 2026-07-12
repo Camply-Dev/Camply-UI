@@ -1,6 +1,7 @@
-import { type CSSProperties, type ReactNode, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { cn } from "../../lib/cn";
-import { AlertCircle, AlertTriangle, CheckCircle, Info, X } from "../../lib/icons";
+import { Info, STATUS_ICONS, X } from "../../lib/icons";
+import { useDismissible } from "../../lib/useDismissible";
 import { IconButton } from "../IconButton";
 export type BannerTone = "info" | "success" | "warn" | "danger" | "accent";
 
@@ -16,13 +17,7 @@ export interface BannerProps {
 	style?: CSSProperties;
 }
 
-const ICONS = {
-	info: Info,
-	success: CheckCircle,
-	warn: AlertTriangle,
-	danger: AlertCircle,
-	accent: Info,
-} as const;
+const ICONS = { ...STATUS_ICONS, accent: Info } as const;
 
 /** Full-width notification bar for page- or section-level messages. */
 export function Banner({
@@ -35,7 +30,7 @@ export function Banner({
 	className,
 	style,
 }: BannerProps) {
-	const [open, setOpen] = useState(true);
+	const { open, dismiss } = useDismissible(onDismiss);
 	if (!open) return null;
 	const ToneIcon = ICONS[tone];
 	const showIcon = icon !== null;
@@ -55,10 +50,7 @@ export function Banner({
 					variant="ghost"
 					size="sm"
 					className={"camply-banner__close"}
-					onClick={() => {
-						setOpen(false);
-						onDismiss?.();
-					}}
+					onClick={dismiss}
 				>
 					<X size={15} />
 				</IconButton>

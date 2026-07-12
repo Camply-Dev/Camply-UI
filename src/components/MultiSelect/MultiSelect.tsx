@@ -156,7 +156,7 @@ export function MultiSelect<T extends string = string>({
 						// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: ul+role="listbox" est le pattern ARIA canonique
 						role="listbox"
 						aria-multiselectable="true"
-						className={"camply-multiselect__list"}
+						className="camply-floating-surface camply-floating-list camply-multiselect__list"
 						style={floatStyle}
 					>
 						{options.map((opt, i) => {
@@ -173,10 +173,10 @@ export function MultiSelect<T extends string = string>({
 									aria-selected={isSelected}
 									aria-disabled={opt.disabled || blocked || undefined}
 									className={cn(
-										"camply-multiselect__option",
+										"camply-listbox-option camply-multiselect__option",
 										isSelected && "camply-multiselect__selected",
-										i === active && "camply-multiselect__active",
-										(opt.disabled || blocked) && "camply-multiselect__optionDisabled",
+										i === active && "camply-listbox-option--active",
+										(opt.disabled || blocked) && "camply-listbox-option--disabled",
 									)}
 									onMouseEnter={() => !opt.disabled && setActive(i)}
 									onClick={() => toggle(opt)}

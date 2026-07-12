@@ -58,7 +58,7 @@ export function DropdownMenu({
 					<div
 						ref={menuRef}
 						role="menu"
-						className={cn("camply-dropdownmenu__menu", className)}
+						className={cn("camply-floating-surface", "camply-dropdownmenu__menu", className)}
 						style={style}
 						onClick={() => setOpen(false)}
 					>
@@ -90,17 +90,13 @@ export const MenuItem = forwardRef<HTMLButtonElement, MenuItemProps>(
 				type="button"
 				role="menuitem"
 				disabled={disabled}
-				className={cn(
-					"camply-dropdownmenu__item",
-					danger && "camply-dropdownmenu__danger",
-					className,
-				)}
+				className={cn("camply-menu-item", danger && "camply-menu-item--danger", className)}
 				style={style}
 				onClick={() => onSelect?.()}
 			>
-				{icon && <span className={"camply-dropdownmenu__itemIcon"}>{icon}</span>}
-				<span className={"camply-dropdownmenu__itemLabel"}>{children}</span>
-				{shortcut && <span className={"camply-dropdownmenu__shortcut"}>{shortcut}</span>}
+				{icon && <span className={"camply-menu-item__icon"}>{icon}</span>}
+				<span className={"camply-menu-item__label"}>{children}</span>
+				{shortcut && <span className={"camply-menu-item__shortcut"}>{shortcut}</span>}
 			</button>
 		);
 	},
@@ -109,7 +105,7 @@ export const MenuItem = forwardRef<HTMLButtonElement, MenuItemProps>(
 MenuItem.displayName = "MenuItem";
 
 export function MenuSeparator({ className, style }: { className?: string; style?: CSSProperties }) {
-	return <hr className={cn("camply-dropdownmenu__separator", className)} style={style} />;
+	return <hr className={cn("camply-menu-separator", className)} style={style} />;
 }
 
 export function MenuLabel({

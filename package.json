@@ -3,6 +3,9 @@
 	"version": "0.1.0",
 	"description": "Bibliothèque de composants React pour Camply",
 	"type": "module",
+	"workspaces": [
+		"docs"
+	],
 	"license": "MIT",
 	"author": "Camply",
 	"repository": {

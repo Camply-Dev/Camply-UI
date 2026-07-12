@@ -2,6 +2,7 @@ import {
 	type CSSProperties,
 	type KeyboardEvent,
 	useCallback,
+	useEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -83,9 +84,26 @@ export function Combobox<T extends string = string>({
 		() => (query ? options.filter((o) => filter(o, query)) : options),
 		[options, query, filter],
 	);
-	// Combobox garde ses propres flèches (clamp, sans boucle) : on ne reprend du
-	// hook que l'index actif et le défilement automatique de l'option active.
+	// Combobox garde ses propres flèches (sans boucle) : on ne reprend du hook que
+	// l'index actif et le défilement automatique de l'option active.
 	const { active, setActive } = useListboxNav(listRef, open, filtered);
+
+	// À chaque nouvelle liste filtrée, place l'actif sur la première option activable
+	// (sinon Enter sur une première option désactivée ne ferait rien).
+	useEffect(() => {
+		const first = filtered.findIndex((o) => !o.disabled);
+		setActive(first < 0 ? 0 : first);
+	}, [filtered, setActive]);
+
+	// Déplace l'option active en sautant les désactivées, sans boucler.
+	const moveActive = (dir: 1 | -1) => {
+		setActive((prev) => {
+			for (let next = prev + dir; next >= 0 && next < filtered.length; next += dir) {
+				if (!filtered[next].disabled) return next;
+			}
+			return prev;
+		});
+	};
 
 	const displayValue = open ? query : (selectedOption?.label ?? "");
 
@@ -106,11 +124,11 @@ export function Combobox<T extends string = string>({
 		switch (e.key) {
 			case "ArrowDown":
 				e.preventDefault();
-				setActive((a) => Math.min(a + 1, filtered.length - 1));
+				moveActive(1);
 				break;
 			case "ArrowUp":
 				e.preventDefault();
-				setActive((a) => Math.max(a - 1, 0));
+				moveActive(-1);
 				break;
 			case "Enter":
 				e.preventDefault();
@@ -167,7 +185,7 @@ export function Combobox<T extends string = string>({
 						id={listId}
 						// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: ul+role="listbox" est le pattern ARIA canonique
 						role="listbox"
-						className={"camply-combobox__list"}
+						className="camply-floating-surface camply-floating-list camply-combobox__list"
 						style={floatStyle}
 					>
 						{filtered.length === 0 ? (
@@ -185,9 +203,10 @@ export function Combobox<T extends string = string>({
 										role="option"
 										aria-selected={isSelected}
 										className={cn(
+											"camply-listbox-option",
 											"camply-combobox__option",
-											i === active && "camply-combobox__active",
-											opt.disabled && "camply-combobox__optionDisabled",
+											i === active && "camply-listbox-option--active",
+											opt.disabled && "camply-listbox-option--disabled",
 										)}
 										onMouseEnter={() => !opt.disabled && setActive(i)}
 										onMouseDown={(e) => e.preventDefault()}

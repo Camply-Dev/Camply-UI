@@ -1,35 +1,10 @@
-.camply-switch__wrap {
-	display: inline-flex;
-	align-items: center;
-	gap: 11px;
-	font-family: var(--camply-font-sans);
-	font-size: 14px;
-	color: var(--camply-text);
-	cursor: pointer;
-	user-select: none;
-}
-.camply-switch__wrap.camply-switch__spread {
+/* Ossature (wrap / box / input masqué / label / focus) : .camply-control__* dans tokens.css. */
+.camply-control__wrap.camply-switch__spread {
 	display: flex;
 	justify-content: space-between;
 	width: 100%;
 }
-.camply-switch__wrap.camply-switch__disabled {
-	cursor: not-allowed;
-	opacity: 0.5;
-}
 
-.camply-switch__control {
-	position: relative;
-	display: inline-flex;
-	flex: none;
-}
-.camply-switch__input {
-	position: absolute;
-	inset: 0;
-	margin: 0;
-	opacity: 0;
-	cursor: inherit;
-}
 .camply-switch__track {
 	--_w: 42px;
 	--_h: 24px;
@@ -58,16 +33,9 @@
 	--_h: 20px;
 }
 
-.camply-switch__input:checked + .camply-switch__track {
+.camply-control__input:checked + .camply-switch__track {
 	background: var(--camply-accent);
 }
-.camply-switch__input:checked + .camply-switch__track .camply-switch__thumb {
+.camply-control__input:checked + .camply-switch__track .camply-switch__thumb {
 	transform: translateX(calc(var(--_w) - var(--_h)));
-}
-.camply-switch__input:focus-visible + .camply-switch__track {
-	box-shadow: var(--camply-ring);
-}
-
-.camply-switch__label {
-	line-height: 1.3;
 }

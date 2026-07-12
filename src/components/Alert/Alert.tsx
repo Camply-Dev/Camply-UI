@@ -1,6 +1,7 @@
-import { type CSSProperties, type ReactNode, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { cn } from "../../lib/cn";
-import { AlertCircle, AlertTriangle, CheckCircle, Info, X } from "../../lib/icons";
+import { STATUS_ICONS, X } from "../../lib/icons";
+import { useDismissible } from "../../lib/useDismissible";
 import { IconButton } from "../IconButton";
 export type AlertTone = "info" | "success" | "warn" | "danger";
 
@@ -17,13 +18,6 @@ export interface AlertProps {
 	style?: CSSProperties;
 }
 
-const ICONS = {
-	info: Info,
-	success: CheckCircle,
-	warn: AlertTriangle,
-	danger: AlertCircle,
-} as const;
-
 export function Alert({
 	tone = "info",
 	title,
@@ -34,16 +28,11 @@ export function Alert({
 	className,
 	style,
 }: AlertProps) {
-	const [open, setOpen] = useState(true);
+	const { open, dismiss } = useDismissible(onDismiss);
 	if (!open) return null;
 
-	const ToneIcon = ICONS[tone];
+	const ToneIcon = STATUS_ICONS[tone];
 	const showIcon = icon !== null;
-
-	const dismiss = () => {
-		setOpen(false);
-		onDismiss?.();
-	};
 
 	return (
 		<div

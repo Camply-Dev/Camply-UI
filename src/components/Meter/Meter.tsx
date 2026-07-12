@@ -29,7 +29,10 @@ export function Meter({
 	optimum = "high",
 	label,
 	showValue = true,
-	formatValue = (v, m) => `${Math.round((v / m) * 100)}%`,
+	// Le pourcentage se lit sur l'étendue [min, max], pas sur max seul — sinon
+	// avec min=50/max=100/value=75 le libellé affiche 75 % alors que la barre
+	// se remplit à 50 %.
+	formatValue = (v, m) => `${Math.round(((v - min) / (m - min)) * 100)}%`,
 	size = "md",
 	className,
 	style,

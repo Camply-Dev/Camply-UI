@@ -6,8 +6,11 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	justify-content: center;
 	gap: 8px;
-	padding: 30px 22px;
+	/* Hauteur figée : identique avant / pendant / après upload. */
+	min-height: 172px;
+	padding: 24px 22px;
 	border: 1.5px dashed var(--camply-border-strong);
 	border-radius: var(--camply-radius-lg);
 	background: rgba(255, 255, 255, 0.015);
@@ -43,8 +46,12 @@
 	color: var(--camply-accent-hover);
 }
 .camply-fileupload__primary {
+	max-width: 100%;
 	font-size: 14px;
 	color: var(--camply-text);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 .camply-fileupload__link {
 	color: var(--camply-accent-hover);
@@ -74,63 +81,44 @@
 	color: var(--camply-danger-hover);
 }
 
-.camply-fileupload__files {
-	margin: 14px 0 0;
-	padding: 0;
-	list-style: none;
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
+/* Zone après upload réussi : bordure pleine teintée succès. */
+.camply-fileupload__uploaded,
+.camply-fileupload__uploaded:hover,
+.camply-fileupload__uploaded:focus-within {
+	border-style: solid;
+	border-color: var(--camply-success-border);
+	background: var(--camply-success-soft);
 }
-.camply-fileupload__file {
-	display: flex;
-	align-items: center;
-	gap: 11px;
-	padding: 10px 12px;
-	border: 1px solid var(--camply-border);
-	border-radius: var(--camply-radius);
-	background: rgba(255, 255, 255, 0.02);
+.camply-fileupload__iconDone {
+	background: var(--camply-success-soft);
+	color: var(--camply-success);
 }
-.camply-fileupload__fileIcon {
-	display: inline-flex;
-	color: var(--camply-accent-hover);
-	flex: none;
+
+/* Barre de progression = composant Progress @camply/ui ; largeur cadrée ici. */
+.camply-fileupload__bar {
+	max-width: 220px;
 }
-.camply-fileupload__fileMeta {
-	display: flex;
-	flex-direction: column;
-	gap: 1px;
-	flex: 1;
-	min-width: 0;
-}
-.camply-fileupload__fileName {
-	font-size: 13.5px;
-	color: var(--camply-text);
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-.camply-fileupload__fileSize {
-	font-size: 12px;
-	color: var(--camply-text-muted-2);
-}
-.camply-fileupload__fileRemove {
+
+/* Bouton effacer (état uploadé). */
+.camply-fileupload__clear {
 	display: inline-flex;
 	align-items: center;
-	justify-content: center;
-	width: 26px;
-	height: 26px;
+	gap: 5px;
+	margin-top: 4px;
+	padding: 5px 10px;
 	border: none;
 	border-radius: var(--camply-radius-sm);
-	background: transparent;
-	color: var(--camply-text-muted-2);
+	background: rgba(255, 255, 255, 0.05);
+	color: var(--camply-text-muted);
+	font-family: inherit;
+	font-size: 12.5px;
+	font-weight: 600;
 	cursor: pointer;
-	flex: none;
 	transition:
 		background var(--camply-duration),
 		color var(--camply-duration);
 }
-.camply-fileupload__fileRemove:hover {
+.camply-fileupload__clear:hover {
 	background: var(--camply-danger-soft);
 	color: var(--camply-danger-hover);
 }

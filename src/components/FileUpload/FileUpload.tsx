@@ -1,6 +1,8 @@
-import { type CSSProperties, type DragEvent, forwardRef, useRef, useState } from "react";
+import { type CSSProperties, type DragEvent, forwardRef, useEffect, useRef, useState } from "react";
 import { cn } from "../../lib/cn";
-import { File as FileIcon, Upload, X } from "../../lib/icons";
+import { CheckCircle, Upload, X } from "../../lib/icons";
+import { Progress } from "../Progress";
+import { Spinner } from "../Spinner";
 
 export interface FileUploadProps {
 	onChange?: (files: File[]) => void;
@@ -20,14 +22,22 @@ function formatSize(bytes: number): string {
 	return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
 }
 
+type UploadStatus = "uploading" | "done";
 interface FileItem {
 	id: number;
 	file: File;
+	progress: number; // 0 → 1
+	status: UploadStatus;
 }
 
-/** Drag-and-drop upload zone with a live file list. Emits real File objects
- *  through onChange — wire them to your own upload logic. The zone is a
- *  native label wrapping the file input: click and keyboard come for free. */
+// Cadence de la progression simulée (retour visuel ; le vrai upload est côté conso).
+const TICK = 80;
+const STEP = 0.07;
+
+/** Drag-and-drop upload zone. The zone itself reflects the state: prompt → live
+ *  progress (loader + bar) → uploaded confirmation (✓ + file names). Emits real
+ *  File objects through onChange — wire them to your own upload logic. The zone is
+ *  a native label wrapping the file input: click and keyboard come for free. */
 export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 	(
 		{ onChange, accept, multiple = false, maxSize, disabled = false, hint, className, style },
@@ -37,6 +47,23 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 		const [dragging, setDragging] = useState(false);
 		const [error, setError] = useState<string | null>(null);
 		const nextId = useRef(0);
+
+		const uploading = items.some((it) => it.status === "uploading");
+
+		// Fait avancer la progression des fichiers "uploading" jusqu'à 100 %, puis "done".
+		useEffect(() => {
+			if (!uploading) return;
+			const id = setInterval(() => {
+				setItems((prev) =>
+					prev.map((it) => {
+						if (it.status !== "uploading") return it;
+						const p = it.progress + STEP;
+						return p >= 1 ? { ...it, progress: 1, status: "done" } : { ...it, progress: p };
+					}),
+				);
+			}, TICK);
+			return () => clearInterval(id);
+		}, [uploading]);
 
 		const isAccepted = (f: File) => {
 			if (!accept) return true;
@@ -62,17 +89,18 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 					continue;
 				}
 				nextId.current += 1;
-				list.push({ id: nextId.current, file: f });
+				list.push({ id: nextId.current, file: f, progress: 0, status: "uploading" });
 			}
+			if (list.length === 0) return;
 			const next = multiple ? [...items, ...list] : list.slice(0, 1);
 			setItems(next);
 			onChange?.(next.map((it) => it.file));
 		};
 
-		const remove = (id: number) => {
-			const next = items.filter((it) => it.id !== id);
-			setItems(next);
-			onChange?.(next.map((it) => it.file));
+		const clear = () => {
+			setItems([]);
+			setError(null);
+			onChange?.([]);
 		};
 
 		const onDrop = (e: DragEvent) => {
@@ -81,6 +109,16 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 			if (!disabled) addFiles(e.dataTransfer.files);
 		};
 
+		const count = items.length;
+		// 1 fichier → son nom ; plusieurs → le nombre.
+		const summary = multiple
+			? `${count} fichier${count > 1 ? "s" : ""}`
+			: (items[0]?.file.name ?? "");
+		const pending = items.filter((it) => it.status === "uploading");
+		const percent = pending.length
+			? Math.round((pending.reduce((s, it) => s + it.progress, 0) / pending.length) * 100)
+			: 100;
+
 		return (
 			<div ref={ref} className={cn("camply-fileupload__root", className)} style={style}>
 				<label
@@ -88,6 +126,7 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 						"camply-fileupload__zone",
 						dragging && "camply-fileupload__dragging",
 						disabled && "camply-fileupload__disabled",
+						count > 0 && !uploading && "camply-fileupload__uploaded",
 					)}
 					onDragOver={(e) => {
 						e.preventDefault();
@@ -107,40 +146,54 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 							e.target.value = "";
 						}}
 					/>
-					<span className={"camply-fileupload__icon"}>
-						<Upload size={22} />
-					</span>
-					<span className={"camply-fileupload__primary"}>
-						Glisse tes fichiers ou <span className={"camply-fileupload__link"}>parcours</span>
-					</span>
-					{hint && <span className={"camply-fileupload__hint"}>{hint}</span>}
+
+					{count === 0 ? (
+						<>
+							<span className={"camply-fileupload__icon"}>
+								<Upload size={22} />
+							</span>
+							<span className={"camply-fileupload__primary"}>
+								Glisse tes fichiers ou <span className={"camply-fileupload__link"}>parcours</span>
+							</span>
+							{hint && <span className={"camply-fileupload__hint"}>{hint}</span>}
+						</>
+					) : uploading ? (
+						<>
+							<span className={"camply-fileupload__icon"}>
+								<Spinner size={22} thickness={2.5} label="Upload en cours" />
+							</span>
+							<span className={"camply-fileupload__primary"}>{summary}</span>
+							<Progress
+								value={percent}
+								size="sm"
+								showValue
+								label="Envoi…"
+								className={"camply-fileupload__bar"}
+							/>
+						</>
+					) : (
+						<>
+							<span className={"camply-fileupload__icon camply-fileupload__iconDone"}>
+								<CheckCircle size={24} />
+							</span>
+							<span className={"camply-fileupload__primary"}>{summary}</span>
+							<button
+								type="button"
+								className={"camply-fileupload__clear"}
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									clear();
+								}}
+							>
+								<X size={13} />
+								Effacer
+							</button>
+						</>
+					)}
 				</label>
 
 				{error && <div className={"camply-fileupload__error"}>{error}</div>}
-
-				{items.length > 0 && (
-					<ul className={"camply-fileupload__files"}>
-						{items.map(({ id, file }) => (
-							<li key={id} className={"camply-fileupload__file"}>
-								<span className={"camply-fileupload__fileIcon"}>
-									<FileIcon size={17} />
-								</span>
-								<span className={"camply-fileupload__fileMeta"}>
-									<span className={"camply-fileupload__fileName"}>{file.name}</span>
-									<span className={"camply-fileupload__fileSize"}>{formatSize(file.size)}</span>
-								</span>
-								<button
-									type="button"
-									className={"camply-fileupload__fileRemove"}
-									aria-label={`Retirer ${file.name}`}
-									onClick={() => remove(id)}
-								>
-									<X size={14} />
-								</button>
-							</li>
-						))}
-					</ul>
-				)}
 			</div>
 		);
 	},

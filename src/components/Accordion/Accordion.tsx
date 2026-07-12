@@ -1,6 +1,7 @@
 import { type CSSProperties, createContext, type ReactNode, useContext, useState } from "react";
 import { cn } from "../../lib/cn";
 import { ChevronDown } from "../../lib/icons";
+import { useId } from "../../lib/useId";
 
 interface AccordionContextValue {
 	isOpen: (value: string) => boolean;
@@ -61,13 +62,17 @@ export function AccordionItem({ value, title, children, disabled }: AccordionIte
 	const ctx = useContext(AccordionContext);
 	if (!ctx) throw new Error("<AccordionItem> must be used within <Accordion>");
 	const open = ctx.isOpen(value);
+	const triggerId = useId("accordion-trigger");
+	const panelId = useId("accordion-panel");
 
 	return (
 		<div className={cn("camply-accordion__item", open && "camply-accordion__itemOpen")}>
 			<button
 				type="button"
+				id={triggerId}
 				className={"camply-accordion__trigger"}
 				aria-expanded={open}
+				aria-controls={panelId}
 				disabled={disabled}
 				onClick={() => ctx.toggle(value)}
 			>
@@ -77,11 +82,17 @@ export function AccordionItem({ value, title, children, disabled }: AccordionIte
 					className={cn("camply-accordion__chevron", open && "camply-accordion__chevronOpen")}
 				/>
 			</button>
-			<div className={"camply-accordion__panel"} style={{ gridTemplateRows: open ? "1fr" : "0fr" }}>
+			{/* <section> nommé par le trigger = région ARIA (pattern APG accordion). */}
+			<section
+				id={panelId}
+				aria-labelledby={triggerId}
+				className={"camply-accordion__panel"}
+				style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
+			>
 				<div className={"camply-accordion__panelInner"}>
 					<div className={"camply-accordion__body"}>{children}</div>
 				</div>
-			</div>
+			</section>
 		</div>
 	);
 }

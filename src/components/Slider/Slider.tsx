@@ -6,8 +6,8 @@ import {
 	useCallback,
 	useRef,
 } from "react";
-import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
+import { ratioToValue, snapToStep } from "../../lib/sliderGeometry";
 import { useControllable } from "../../lib/useControllable";
 
 export interface SliderProps {
@@ -47,24 +47,14 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
 	const trackRef = useRef<HTMLDivElement>(null);
 	const dragging = useRef(false);
 
-	// Cale une valeur brute sur le pas le plus proche, puis la borne à [min, max].
-	const snap = useCallback(
-		(v: number) => {
-			const stepped = Math.round((v - min) / step) * step + min;
-			return clamp(stepped, min, max);
-		},
-		[min, max, step],
-	);
-
 	const setFromClientX = useCallback(
 		(clientX: number) => {
 			const el = trackRef.current;
 			if (!el) return;
 			const rect = el.getBoundingClientRect();
-			const ratio = (clientX - rect.left) / rect.width;
-			setVal(snap(min + ratio * (max - min)));
+			setVal(snapToStep(ratioToValue(clientX, rect, min, max), min, max, step));
 		},
-		[snap, min, max, setVal],
+		[min, max, step, setVal],
 	);
 
 	const onPointerDown = (e: PointerEvent) => {
@@ -111,7 +101,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
 				return;
 		}
 		e.preventDefault();
-		setVal(snap(next));
+		setVal(snapToStep(next, min, max, step));
 	};
 
 	const pct = ((val - min) / (max - min)) * 100;

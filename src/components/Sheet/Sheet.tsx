@@ -1,8 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { cn } from "../../lib/cn";
 import { X } from "../../lib/icons";
-import { Portal } from "../../lib/Portal";
-import { useEscapeAndScrollLock } from "../../lib/useEscapeAndScrollLock";
+import { OverlayDialog } from "../../lib/OverlayDialog";
 import { IconButton } from "../IconButton";
 export interface SheetProps {
 	open: boolean;
@@ -17,6 +16,8 @@ export interface SheetProps {
 	showClose?: boolean;
 	/** show the drag handle affordance (bottom sheets) */
 	handle?: boolean;
+	/** clic sur le voile pour fermer (défaut true) */
+	closeOnBackdrop?: boolean;
 	/** applied to the sheet panel */
 	className?: string;
 	style?: CSSProperties;
@@ -34,49 +35,40 @@ export function Sheet({
 	height = "auto",
 	showClose = true,
 	handle = true,
+	closeOnBackdrop = true,
 	className,
 	style,
 }: SheetProps) {
-	useEscapeAndScrollLock(open, onClose);
-
-	if (!open) return null;
-
 	return (
-		<Portal>
-			{/* biome-ignore lint/a11y/noStaticElementInteractions: fermeture au clic sur le backdrop — chemin clavier équivalent : Échap */}
-			<div
-				className={"camply-sheet__backdrop"}
-				onMouseDown={(e) => e.target === e.currentTarget && onClose()}
-			>
-				<div
-					role="dialog"
-					aria-modal="true"
-					className={cn("camply-sheet__sheet", `camply-sheet__${side}`, className)}
-					style={{ height, ...style }}
-				>
-					{handle && side === "bottom" && (
-						<div className={"camply-sheet__handle"} aria-hidden="true" />
+		<OverlayDialog
+			open={open}
+			onClose={onClose}
+			closeOnBackdrop={closeOnBackdrop}
+			backdropClassName="camply-sheet__backdrop"
+			panelClassName={cn("camply-sheet__sheet", `camply-sheet__${side}`, className)}
+			style={{ height, ...style }}
+		>
+			{handle && side === "bottom" && (
+				<div className={"camply-sheet__handle"} aria-hidden="true" />
+			)}
+			{(title || showClose) && (
+				<div className={"camply-sheet__header"}>
+					{title && <h2 className={"camply-sheet__title"}>{title}</h2>}
+					{showClose && (
+						<IconButton
+							label="Fermer"
+							variant="ghost"
+							size="sm"
+							className={"camply-sheet__close"}
+							onClick={onClose}
+						>
+							<X size={15} />
+						</IconButton>
 					)}
-					{(title || showClose) && (
-						<div className={"camply-sheet__header"}>
-							{title && <h2 className={"camply-sheet__title"}>{title}</h2>}
-							{showClose && (
-								<IconButton
-									label="Fermer"
-									variant="ghost"
-									size="sm"
-									className={"camply-sheet__close"}
-									onClick={onClose}
-								>
-									<X size={15} />
-								</IconButton>
-							)}
-						</div>
-					)}
-					<div className={"camply-sheet__content"}>{children}</div>
-					{footer && <div className={"camply-sheet__footer"}>{footer}</div>}
 				</div>
-			</div>
-		</Portal>
+			)}
+			<div className={"camply-sheet__content"}>{children}</div>
+			{footer && <div className={"camply-sheet__footer"}>{footer}</div>}
+		</OverlayDialog>
 	);
 }

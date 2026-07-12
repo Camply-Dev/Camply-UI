@@ -5,6 +5,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
 	plugins: [react()],
 	resolve: {
+		dedupe: ["react", "react-dom"],
 		alias: {
 			"@camply/ui": resolve(__dirname, "../src/index.ts"),
 		},

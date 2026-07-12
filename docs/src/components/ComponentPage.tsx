@@ -50,7 +50,7 @@ export function ComponentPage({ entry, onNavigate }: ComponentPageProps) {
 							Disponible
 						</Badge>
 					) : (
-						<Badge tone="warning">À venir</Badge>
+						<Badge tone="warn">À venir</Badge>
 					)}
 				</div>
 				<p className="cu-pagehead__sub">{entry.description}</p>

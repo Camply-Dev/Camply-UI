@@ -1,4 +1,11 @@
-import { forwardRef, type HTMLAttributes, type ReactNode, useRef, useState } from "react";
+import {
+	forwardRef,
+	type HTMLAttributes,
+	type ReactNode,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import { cn } from "../../lib/cn";
 import { Check, Copy } from "../../lib/icons";
 import { IconButton } from "../IconButton";
@@ -20,6 +27,9 @@ export const Snippet = forwardRef<HTMLDivElement, SnippetProps>(
 	({ children, prompt = false, wrap = false, copyText, label, className, ...props }, ref) => {
 		const [copied, setCopied] = useState(false);
 		const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+		// Évite un setState après démontage si on part avant la fin des 1400 ms.
+		useEffect(() => () => clearTimeout(timer.current), []);
 
 		const copy = async () => {
 			try {

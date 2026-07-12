@@ -32,66 +32,9 @@
 }
 
 .camply-menubar__menu {
+	--camply-float-dur: 0.13s;
 	min-width: 200px;
 	padding: 6px;
-	border: 1px solid var(--camply-border-strong);
-	border-radius: var(--camply-radius-lg);
-	background: var(--camply-elevated);
-	box-shadow: var(--camply-shadow-pop);
 	font-family: var(--camply-font-sans);
-	z-index: var(--camply-z-dropdown);
-	animation: camply-float-in 0.13s var(--camply-ease);
 }
-.camply-menubar__item {
-	display: flex;
-	align-items: center;
-	gap: 11px;
-	width: 100%;
-	padding: 9px 11px;
-	border: none;
-	border-radius: var(--camply-radius-sm);
-	background: none;
-	color: var(--camply-text-muted);
-	font-family: inherit;
-	font-size: 13.5px;
-	font-weight: 500;
-	text-align: left;
-	cursor: pointer;
-	transition:
-		background 0.12s,
-		color 0.12s;
-}
-.camply-menubar__item:hover:not(:disabled),
-.camply-menubar__item:focus-visible:not(:disabled) {
-	outline: none;
-	background: rgba(255, 255, 255, 0.06);
-	color: var(--camply-text);
-}
-.camply-menubar__item:disabled {
-	opacity: 0.45;
-	cursor: not-allowed;
-}
-.camply-menubar__danger {
-	color: var(--camply-danger-hover);
-}
-.camply-menubar__danger:hover:not(:disabled) {
-	background: var(--camply-danger-soft);
-}
-.camply-menubar__icon {
-	display: inline-flex;
-	flex: none;
-}
-.camply-menubar__label {
-	flex: 1;
-}
-.camply-menubar__shortcut {
-	font-family: var(--camply-font-mono);
-	font-size: 11px;
-	color: var(--camply-text-muted-2);
-}
-.camply-menubar__separator {
-	height: 1px;
-	border: none;
-	margin: 5px 4px;
-	background: var(--camply-border);
-}
+/* Item / séparateur : .camply-menu-item* et .camply-menu-separator dans tokens.css. */

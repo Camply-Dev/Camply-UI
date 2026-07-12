@@ -52,70 +52,93 @@
 	pointer-events: none;
 }
 
-.camply-colorpicker__readout {
+/* ---------- Champs HEX / RGB éditables (composant Input) ----------
+   Côte à côte ; RGB (avec opacité) un peu plus large ; valeurs en mono. */
+.camply-colorpicker__fields {
+	display: flex;
+	gap: 8px;
+}
+.camply-colorpicker__fields > * {
+	flex: 1;
+	min-width: 0;
+}
+.camply-colorpicker__fields > *:last-child {
+	flex: 1.4;
+}
+.camply-colorpicker__fields .camply-input__input {
+	font-family: var(--camply-font-mono);
+	font-size: 13px;
+}
+
+/* ---------- Mode compact : déclencheur (façon champ) + palette flottante ---------- */
+.camply-colorpicker__compact {
+	gap: 7px;
+	width: 100%;
+	max-width: 240px;
+}
+
+/* Déclencheur : pastille + valeur + chevron ; ouvre la palette au survol/focus/clic. */
+.camply-colorpicker__trigger {
 	display: flex;
 	align-items: center;
 	gap: 10px;
+	width: 100%;
+	height: 42px;
+	padding: 0 12px;
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius);
+	background: var(--camply-field-bg);
+	color: var(--camply-text);
+	font-family: inherit;
+	cursor: pointer;
+	transition:
+		border-color var(--camply-duration),
+		box-shadow var(--camply-duration);
 }
-.camply-colorpicker__preview {
-	width: 40px;
-	height: 40px;
-	flex: none;
-	border-radius: var(--camply-radius-sm);
-	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
+.camply-colorpicker__trigger:hover {
+	border-color: var(--camply-accent-border);
 }
-.camply-colorpicker__field {
+.camply-colorpicker__trigger:focus-visible {
+	outline: none;
+	border-color: var(--camply-accent);
+	box-shadow: var(--camply-ring);
+}
+.camply-colorpicker__trigger--open {
+	border-color: var(--camply-accent);
+}
+.camply-colorpicker__triggerValue {
 	flex: 1;
 	min-width: 0;
-	padding: 6px 10px;
-	border: 1px solid var(--camply-border-strong);
-	border-radius: var(--camply-radius-sm);
-	background: rgba(0, 0, 0, 0.28);
-}
-.camply-colorpicker__fieldLabel {
-	display: block;
-	font-size: 10px;
-	letter-spacing: 0.4px;
-	text-transform: uppercase;
-	color: var(--camply-text-muted-2);
-}
-.camply-colorpicker__fieldValue {
-	display: block;
 	font-family: var(--camply-font-mono);
-	font-size: 13.5px;
+	font-size: 13px;
+	text-align: left;
 	color: var(--camply-text);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
-
-/* ---------- Mode compact : pastille + palette flottante ---------- */
-.camply-colorpicker__compact {
-	flex-direction: row;
-	align-items: center;
-	gap: 10px;
-	width: auto;
-	max-width: none;
+.camply-colorpicker__triggerValue--empty {
+	font-family: var(--camply-font-sans);
+	color: var(--camply-text-muted-2);
 }
-.camply-colorpicker__swatch {
-	width: 34px;
-	height: 34px;
+.camply-colorpicker__triggerChevron {
+	display: inline-flex;
+	align-items: center;
 	flex: none;
-	padding: 0;
-	border: 1px solid var(--camply-border-strong);
+	color: var(--camply-text-muted-2);
+	transition: transform var(--camply-duration);
+}
+.camply-colorpicker__trigger--open .camply-colorpicker__triggerChevron {
+	transform: rotate(180deg);
+}
+
+/* Pastille de couleur (déclencheur + préfixe du champ HEX). */
+.camply-colorpicker__swatch {
+	width: 22px;
+	height: 22px;
+	flex: none;
 	border-radius: var(--camply-radius-sm);
 	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
-	cursor: pointer;
-	transition:
-		transform 0.12s var(--camply-ease-spring),
-		box-shadow var(--camply-duration);
-}
-.camply-colorpicker__swatch:hover {
-	transform: scale(1.06);
-}
-.camply-colorpicker__swatch:focus-visible {
-	outline: none;
-	box-shadow: var(--camply-ring);
 }
 
 /* La palette flottante (portalée, positionnée par useAnchor). */
@@ -123,23 +146,15 @@
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
-	width: 240px;
+	width: 280px;
 	padding: 14px;
-	border: 1px solid var(--camply-border-strong);
-	border-radius: var(--camply-radius-lg);
-	background: var(--camply-elevated);
-	box-shadow: var(--camply-shadow-pop);
-	z-index: var(--camply-z-dropdown);
-	animation: camply-float-in 0.14s var(--camply-ease);
 }
 .camply-colorpicker__pop .camply-colorpicker__square {
 	height: 150px;
 }
 
-/* Damier de transparence : la couleur (avec son opacité) est posée par-dessus.
-   Sans couleur, seul le damier reste visible (pastille « vide »). */
+/* Damier de transparence : la couleur (avec son opacité) est posée par-dessus. */
 .camply-colorpicker__swatch,
-.camply-colorpicker__preview,
 .camply-colorpicker__alpha {
 	position: relative;
 	background-image:
@@ -183,24 +198,4 @@
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 	transform: translate(-50%, -50%);
 	pointer-events: none;
-}
-
-/* Champs HEX / RGB cliquables (copient la valeur). */
-.camply-colorpicker__fieldCopy {
-	flex: 1;
-	min-width: 0;
-	text-align: left;
-	cursor: pointer;
-	font-family: inherit;
-	transition:
-		border-color var(--camply-duration),
-		background var(--camply-duration);
-}
-.camply-colorpicker__fieldCopy:hover {
-	border-color: var(--camply-accent-border);
-	background: rgba(255, 255, 255, 0.04);
-}
-.camply-colorpicker__fieldCopy:focus-visible {
-	outline: none;
-	box-shadow: var(--camply-ring);
 }

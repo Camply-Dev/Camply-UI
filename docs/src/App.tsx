@@ -1,4 +1,4 @@
-import { Breadcrumbs, CommandPalette, Kbd, useCommandPalette } from "@camply/ui";
+import { Breadcrumbs, CommandPalette, type Crumb, Kbd, useCommandPalette } from "@camply/ui";
 import { useState } from "react";
 import { ComponentPage } from "./components/ComponentPage";
 import { HomeView } from "./components/HomeView";
@@ -12,23 +12,25 @@ export function App() {
 	const [paletteOpen, setPaletteOpen] = useCommandPalette();
 	const entry = BY_ID[active];
 
-	let crumbFamily = "Camply UI";
-	let crumbName = "Accueil";
-	if (active === CSS) {
-		crumbFamily = "Fondations";
-		crumbName = "CSS par défaut";
-	} else if (active === ROADMAP) {
-		crumbFamily = "Composants";
-		crumbName = "Roadmap";
-	} else if (entry) {
-		crumbFamily = entry.family;
-		crumbName = entry.label;
-	}
-
 	const go = (id: string) => {
 		setActive(id);
 		setPaletteOpen(false);
 	};
+
+	// Fil d'Ariane : racine "Camply UI" toujours présente et cliquable (→ Accueil),
+	// puis le chemin courant. Pour un composant : Camply UI → Famille → Composant.
+	const crumbs: Crumb[] = [{ label: "Camply UI", onClick: () => go(HOME) }];
+	if (active === CSS) {
+		crumbs.push({ label: "CSS par défaut" });
+	} else if (active === ROADMAP) {
+		crumbs.push({ label: "Roadmap" });
+	} else if (entry) {
+		const familyFirst = COMPONENTS.find((component) => component.family === entry.family)?.id;
+		crumbs.push({ label: entry.family, onClick: familyFirst ? () => go(familyFirst) : undefined });
+		crumbs.push({ label: entry.label });
+	} else {
+		crumbs.push({ label: "Accueil" });
+	}
 
 	// La vitrine se pilote avec le CommandPalette de la lib (⌘K) — dogfooding.
 	const commands = [
@@ -49,7 +51,7 @@ export function App() {
 			<Sidebar active={active} onNavigate={setActive} onOpenPalette={() => setPaletteOpen(true)} />
 			<main className="cu-main">
 				<header className="cu-topbar">
-					<Breadcrumbs items={[{ label: crumbFamily }, { label: crumbName }]} />
+					<Breadcrumbs items={crumbs} />
 					<button
 						type="button"
 						className="cu-topbar__palette"

@@ -92,7 +92,7 @@
 }
 
 .camply-button__secondary:hover:not(:disabled) {
-	background: rgba(255, 255, 255, 0.08);
+	background: var(--camply-surface-soft);
 }
 
 .camply-button__ghost {
@@ -134,11 +134,5 @@
 	border-top-color: transparent;
 	border-radius: 50%;
 	opacity: 0.75;
-	animation: camply-btn-spin 0.7s linear infinite;
-}
-
-@keyframes camply-btn-spin {
-	to {
-		transform: rotate(360deg);
-	}
+	animation: camply-spin 0.7s linear infinite;
 }

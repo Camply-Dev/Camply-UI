@@ -1,19 +1,9 @@
+/* Socle du voile : .camply-overlay-backdrop dans tokens.css — ici, la disposition. */
 .camply-modal__backdrop {
-	position: fixed;
-	inset: 0;
-	z-index: var(--camply-z-modal);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	padding: 24px;
-	background: var(--camply-overlay);
-	backdrop-filter: blur(3px);
-	animation: camply-modal-bg 0.18s ease;
-}
-@keyframes camply-modal-bg {
-	from {
-		opacity: 0;
-	}
 }
 
 .camply-modal__panel {
@@ -25,7 +15,6 @@
 	background: var(--camply-surface);
 	box-shadow: var(--camply-shadow-lg);
 	font-family: var(--camply-font-sans);
-	outline: none;
 	animation: camply-modal-in 0.22s var(--camply-ease);
 }
 @keyframes camply-modal-in {

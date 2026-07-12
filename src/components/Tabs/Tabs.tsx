@@ -1,4 +1,11 @@
-import { type CSSProperties, createContext, type ReactNode, useContext } from "react";
+import {
+	type CSSProperties,
+	createContext,
+	type KeyboardEvent,
+	type ReactNode,
+	useContext,
+	useRef,
+} from "react";
 import { cn } from "../../lib/cn";
 import { useControllable } from "../../lib/useControllable";
 import { useId } from "../../lib/useId";
@@ -50,10 +57,35 @@ export function Tabs({
 
 export function TabList({ children, className }: { children: ReactNode; className?: string }) {
 	const { variant } = useTabs();
+	const ref = useRef<HTMLDivElement>(null);
+
+	// Navigation clavier APG : ←/→ (+ Home/End) déplacent le focus entre onglets
+	// actifs et activent au passage (activation automatique — le focus suit la
+	// sélection via le tabIndex mobile). On interroge le DOM car TabList ne connaît
+	// pas la liste des valeurs (les onglets sont des enfants libres).
+	const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+		if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(e.key)) return;
+		const tabs = Array.from(
+			ref.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]:not([disabled])') ?? [],
+		);
+		if (tabs.length === 0) return;
+		e.preventDefault();
+		const at = tabs.indexOf(document.activeElement as HTMLButtonElement);
+		let next = at;
+		if (e.key === "ArrowRight") next = at < 0 ? 0 : (at + 1) % tabs.length;
+		else if (e.key === "ArrowLeft") next = at < 0 ? 0 : (at - 1 + tabs.length) % tabs.length;
+		else if (e.key === "Home") next = 0;
+		else next = tabs.length - 1;
+		tabs[next].focus();
+		tabs[next].click();
+	};
+
 	return (
 		<div
+			ref={ref}
 			role="tablist"
 			className={cn("camply-tabs__list", `camply-tabs__list-${variant}`, className)}
+			onKeyDown={onKeyDown}
 		>
 			{children}
 		</div>

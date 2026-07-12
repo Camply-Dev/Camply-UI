@@ -295,22 +295,39 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 		controls: [
 			{ key: "content", label: "Contenu", type: "text" },
 			{
+				key: "tone",
+				label: "Ton",
+				type: "seg",
+				options: ["default", "plain", "dark", "accent", "success", "warning", "danger", "info"],
+			},
+			{ key: "icon", label: "Icône", type: "toggle" },
+			{
 				key: "placement",
 				label: "Position",
 				type: "seg",
 				options: ["top", "bottom", "left", "right"],
 			},
 		],
-		defaults: { content: "Ajouter au projet", placement: "top" },
+		defaults: { content: "Ajouter au projet", tone: "default", icon: false, placement: "top" },
 		render: (p) => (
-			<Tooltip content={str(p.content)} placement={str(p.placement)}>
+			<Tooltip
+				content={str(p.content)}
+				tone={str(p.tone)}
+				placement={str(p.placement)}
+				icon={bool(p.icon) ? <Icon name="check" size={13} /> : undefined}
+			>
 				<Button variant="secondary">Survole-moi</Button>
 			</Tooltip>
 		),
-		code: (p) =>
-			`import { Tooltip } from "@camply/ui";\n\n<Tooltip content="${p.content}" placement="${p.placement}">\n  <Button variant="secondary">Survole-moi</Button>\n</Tooltip>`,
+		code: (p) => {
+			const toneAttr = p.tone === "default" ? "" : ` tone="${p.tone}"`;
+			const iconAttr = p.icon ? " icon={<Check size={14} />}" : "";
+			return `import { Tooltip } from "@camply/ui";\n\n<Tooltip content="${p.content}"${toneAttr}${iconAttr} placement="${p.placement}">\n  <Button variant="secondary">Survole-moi</Button>\n</Tooltip>`;
+		},
 		props: [
 			["content", "ReactNode", "contenu de l'infobulle"],
+			["icon", "ReactNode", "icône avant le contenu"],
+			["tone", "enum", "default · plain (sans fond) · dark · accent · success · warning · danger · info"],
 			["placement", "Placement", "top · bottom · left · right (+ variantes -start/-end)"],
 			["delay", "number", "délai d'apparition en ms (défaut 200)"],
 		],

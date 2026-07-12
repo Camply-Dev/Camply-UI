@@ -1,9 +1,9 @@
-import { type CSSProperties, forwardRef, type KeyboardEvent } from "react";
+import { type CSSProperties, forwardRef, type KeyboardEvent, useState } from "react";
 import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
+import { Field } from "../../lib/Field";
 import { Minus, Plus } from "../../lib/icons";
 import { useControllable } from "../../lib/useControllable";
-import { useId } from "../../lib/useId";
 
 export interface NumberInputProps {
 	value?: number;
@@ -51,14 +51,22 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 	ref,
 ) {
 	const [val, setVal] = useControllable<number>(value, defaultValue, onChange);
-	const autoId = useId("number");
-	const describedBy = error || hint ? `${autoId}-desc` : undefined;
+	// Brouillon de saisie : tant que le champ est focalisé, on affiche le texte brut
+	// (pour pouvoir taper « 1. », « - », « 1,5 »…). `val` suit dès qu'une valeur est
+	// analysable ; on resynchronise l'affichage à la validation/sortie.
+	const [draft, setDraft] = useState<string | null>(null);
 
 	const round = (n: number) => (precision != null ? parseFloat(n.toFixed(precision)) : n);
 
+	// Borne + arrondit, puis efface le brouillon pour réafficher la valeur canonique.
+	const commit = (n: number) => {
+		setVal(round(clamp(n, min, max)));
+		setDraft(null);
+	};
+
 	const bump = (dir: 1 | -1, big = false) => {
 		const amount = step * (big ? 10 : 1) * dir;
-		setVal(round(clamp((val || 0) + amount, min, max)));
+		commit((val || 0) + amount);
 	};
 
 	const onKeyDown = (e: KeyboardEvent) => {
@@ -81,74 +89,71 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 	const display = precision != null && !Number.isNaN(val) ? val.toFixed(precision) : `${val}`;
 
 	return (
-		<div className={cn("camply-numberinput__field", className)} style={style}>
-			{label && (
-				<label htmlFor={autoId} className={"camply-numberinput__label"}>
-					{label}
-				</label>
-			)}
-			<div
-				className={cn(
-					"camply-numberinput__wrap",
-					`camply-numberinput__${size}`,
-					error && "camply-numberinput__hasError",
-					disabled && "camply-numberinput__disabled",
-				)}
-			>
-				<button
-					type="button"
-					className={"camply-numberinput__step"}
-					aria-label="Diminuer"
-					tabIndex={-1}
-					disabled={disabled || val <= min}
-					onClick={() => bump(-1)}
+		<Field
+			label={label}
+			hint={hint}
+			error={error}
+			idPrefix="number"
+			className={className}
+			style={style}
+		>
+			{({ id: inputId, describedBy, invalid }) => (
+				<div
+					className={cn(
+						"camply-numberinput__wrap",
+						`camply-numberinput__${size}`,
+						error && "camply-numberinput__hasError",
+						disabled && "camply-numberinput__disabled",
+					)}
 				>
-					<Minus size={15} />
-				</button>
-				<div className={"camply-numberinput__inputWrap"}>
-					{prefix && <span className={"camply-numberinput__affix"}>{prefix}</span>}
-					<input
-						ref={ref}
-						id={autoId}
-						inputMode="decimal"
-						className={"camply-numberinput__input"}
-						value={display}
-						placeholder={placeholder}
-						disabled={disabled}
-						aria-describedby={describedBy}
-						onChange={(e) => {
-							const raw = e.target.value.replace(",", ".");
-							if (raw === "" || raw === "-") {
-								setVal(0);
-								return;
-							}
-							const parsed = parseFloat(raw);
-							if (!Number.isNaN(parsed)) setVal(parsed);
-						}}
-						onBlur={() => setVal(round(clamp(val || 0, min, max)))}
-						onKeyDown={onKeyDown}
-					/>
-					{suffix && <span className={"camply-numberinput__affix"}>{suffix}</span>}
+					<button
+						type="button"
+						className={"camply-numberinput__step"}
+						aria-label="Diminuer"
+						tabIndex={-1}
+						disabled={disabled || val <= min}
+						onClick={() => bump(-1)}
+					>
+						<Minus size={15} />
+					</button>
+					<div className={"camply-numberinput__inputWrap"}>
+						{prefix && <span className={"camply-numberinput__affix"}>{prefix}</span>}
+						<input
+							ref={ref}
+							id={inputId}
+							inputMode="decimal"
+							className={"camply-numberinput__input"}
+							value={draft ?? display}
+							placeholder={placeholder}
+							disabled={disabled}
+							aria-invalid={invalid}
+							aria-describedby={describedBy}
+							onChange={(e) => {
+								const raw = e.target.value;
+								setDraft(raw);
+								const norm = raw.replace(",", ".");
+								// Saisie partielle ("" ou "-") : on garde `val`, on validera à la sortie.
+								if (norm === "" || norm === "-") return;
+								const parsed = parseFloat(norm);
+								if (!Number.isNaN(parsed)) setVal(parsed);
+							}}
+							onBlur={() => commit(val || 0)}
+							onKeyDown={onKeyDown}
+						/>
+						{suffix && <span className={"camply-numberinput__affix"}>{suffix}</span>}
+					</div>
+					<button
+						type="button"
+						className={"camply-numberinput__step"}
+						aria-label="Augmenter"
+						tabIndex={-1}
+						disabled={disabled || val >= max}
+						onClick={() => bump(1)}
+					>
+						<Plus size={15} />
+					</button>
 				</div>
-				<button
-					type="button"
-					className={"camply-numberinput__step"}
-					aria-label="Augmenter"
-					tabIndex={-1}
-					disabled={disabled || val >= max}
-					onClick={() => bump(1)}
-				>
-					<Plus size={15} />
-				</button>
-			</div>
-			{(error || hint) && (
-				<span
-					id={describedBy}
-					className={cn("camply-numberinput__desc", error && "camply-numberinput__descError")}
-				>
-					{error || hint}
-				</span>
 			)}
-		</div>
+		</Field>
 	);
 });

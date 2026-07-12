@@ -1,4 +1,4 @@
-import { type CSSProperties, useLayoutEffect, useRef, useState } from "react";
+import { type CSSProperties, type KeyboardEvent, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "../../lib/cn";
 import { useControllable } from "../../lib/useControllable";
 
@@ -54,6 +54,27 @@ export function SegmentedControl<T extends string = string>({
 		return () => ro?.disconnect();
 	}, [activeIndex]);
 
+	// Un seul arrêt de tabulation (tabIndex mobile) ; ←/→/↑/↓ + Home/End déplacent
+	// et sélectionnent (activation automatique).
+	const select = (index: number) => {
+		const next = ((index % options.length) + options.length) % options.length;
+		setCurrent(options[next].value);
+		buttonRefs.current[next]?.focus();
+	};
+	const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+		const deltas: Record<string, number> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+		if (e.key in deltas) {
+			e.preventDefault();
+			select(activeIndex + deltas[e.key]);
+		} else if (e.key === "Home") {
+			e.preventDefault();
+			select(0);
+		} else if (e.key === "End") {
+			e.preventDefault();
+			select(options.length - 1);
+		}
+	};
+
 	return (
 		<div
 			role="tablist"
@@ -64,6 +85,7 @@ export function SegmentedControl<T extends string = string>({
 				className,
 			)}
 			style={style}
+			onKeyDown={onKeyDown}
 		>
 			{thumb && (
 				<span
@@ -83,6 +105,7 @@ export function SegmentedControl<T extends string = string>({
 						type="button"
 						role="tab"
 						aria-selected={active}
+						tabIndex={active ? 0 : -1}
 						className={cn(
 							"camply-segmentedcontrol__segment",
 							active && "camply-segmentedcontrol__active",

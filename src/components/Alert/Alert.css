@@ -67,6 +67,6 @@
 	transition: background var(--camply-duration);
 }
 .camply-alert__close:hover {
-	background: rgba(255, 255, 255, 0.08);
+	background: var(--camply-surface-soft);
 	color: var(--camply-text);
 }

@@ -47,7 +47,7 @@ export function HoverCard({
 					{/* biome-ignore lint/a11y/noStaticElementInteractions: survol uniquement par nature (garde la carte ouverte) — au clavier, focus/blur du trigger pilotent l'ouverture */}
 					<div
 						ref={cardRef}
-						className={cn("camply-hovercard__card", className)}
+						className={cn("camply-floating-surface", "camply-hovercard__card", className)}
 						style={{ ...style, ...styleProp }}
 						onMouseEnter={show}
 						onMouseLeave={hide}

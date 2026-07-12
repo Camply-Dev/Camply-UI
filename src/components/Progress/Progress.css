@@ -38,16 +38,16 @@
 	transition: width 0.35s var(--camply-ease);
 }
 .camply-progress__accent {
-	background: linear-gradient(90deg, #0284c7, var(--camply-accent));
+	background: var(--camply-gradient-accent);
 }
 .camply-progress__info {
-	background: linear-gradient(90deg, #6366f1, var(--camply-info));
+	background: var(--camply-gradient-info);
 }
 .camply-progress__warn {
-	background: linear-gradient(90deg, #b0904a, var(--camply-warning));
+	background: var(--camply-gradient-warn);
 }
 .camply-progress__danger {
-	background: linear-gradient(90deg, #b0574a, var(--camply-danger));
+	background: var(--camply-gradient-danger);
 }
 
 .camply-progress__indeterminate {

@@ -8,9 +8,11 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 import { Search } from "../../lib/icons";
 import { Portal } from "../../lib/Portal";
+import { useEscapeAndScrollLock } from "../../lib/useEscapeAndScrollLock";
 export interface Command {
 	id: string;
 	label: string;
@@ -66,10 +68,17 @@ export function CommandPalette({
 			if (list) list.push(cmd);
 			else byGroup.set(key, [cmd]);
 		}
-		// flat index lookup for keyboard nav
+		// flat index lookup for keyboard nav — un Map<Command, index> évite un
+		// indexOf (O(n)) par ligne rendue, soit O(n²) sur toute la liste.
 		const flat: Command[] = [];
-		for (const list of byGroup.values()) flat.push(...list);
-		return { byGroup, flat };
+		const index = new Map<Command, number>();
+		for (const list of byGroup.values()) {
+			for (const cmd of list) {
+				index.set(cmd, flat.length);
+				flat.push(cmd);
+			}
+		}
+		return { byGroup, flat, index };
 	}, [results]);
 
 	useEffect(() => {
@@ -89,23 +98,23 @@ export function CommandPalette({
 		[onClose],
 	);
 
+	// Échap + verrou de défilement au niveau document (l'input gardait un Échap
+	// local, mort dès que le focus quittait le champ — retiré ci-dessous).
+	useEscapeAndScrollLock(open, onClose);
+
 	const onKeyDown = (e: KeyboardEvent) => {
 		switch (e.key) {
 			case "ArrowDown":
 				e.preventDefault();
-				setActive((a) => Math.min(a + 1, groups.flat.length - 1));
+				setActive((a) => clamp(a + 1, 0, groups.flat.length - 1));
 				break;
 			case "ArrowUp":
 				e.preventDefault();
-				setActive((a) => Math.max(a - 1, 0));
+				setActive((a) => clamp(a - 1, 0, groups.flat.length - 1));
 				break;
 			case "Enter":
 				e.preventDefault();
 				if (groups.flat[active]) run(groups.flat[active]);
-				break;
-			case "Escape":
-				e.preventDefault();
-				onClose();
 				break;
 		}
 	};
@@ -121,7 +130,7 @@ export function CommandPalette({
 		<Portal>
 			{/* biome-ignore lint/a11y/noStaticElementInteractions: fermeture au clic sur le backdrop — chemin clavier équivalent : Échap */}
 			<div
-				className={"camply-commandpalette__backdrop"}
+				className={cn("camply-overlay-backdrop", "camply-commandpalette__backdrop")}
 				onMouseDown={(e) => e.target === e.currentTarget && onClose()}
 			>
 				<div
@@ -155,7 +164,7 @@ export function CommandPalette({
 							<div key={group || "_"} className={"camply-commandpalette__group"}>
 								{group && <div className={"camply-commandpalette__groupLabel"}>{group}</div>}
 								{cmds.map((cmd) => {
-									const idx = groups.flat.indexOf(cmd);
+									const idx = groups.index.get(cmd) ?? 0;
 									return (
 										<button
 											key={cmd.id}

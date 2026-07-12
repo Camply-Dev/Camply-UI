@@ -1,8 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { cn } from "../../lib/cn";
 import { X } from "../../lib/icons";
-import { Portal } from "../../lib/Portal";
-import { useEscapeAndScrollLock } from "../../lib/useEscapeAndScrollLock";
+import { OverlayDialog } from "../../lib/OverlayDialog";
 import { IconButton } from "../IconButton";
 export interface DrawerProps {
 	open: boolean;
@@ -13,6 +12,8 @@ export interface DrawerProps {
 	side?: "left" | "right";
 	width?: number | string;
 	showClose?: boolean;
+	/** clic sur le voile pour fermer (défaut true) */
+	closeOnBackdrop?: boolean;
 	/** applied to the drawer panel */
 	className?: string;
 	style?: CSSProperties;
@@ -27,46 +28,38 @@ export function Drawer({
 	side = "right",
 	width = 380,
 	showClose = true,
+	closeOnBackdrop = true,
 	className,
 	style,
 }: DrawerProps) {
-	useEscapeAndScrollLock(open, onClose);
-
-	if (!open) return null;
-
 	return (
-		<Portal>
-			{/* biome-ignore lint/a11y/noStaticElementInteractions: fermeture au clic sur le backdrop — chemin clavier équivalent : Échap */}
-			<div
-				className={"camply-drawer__backdrop"}
-				onMouseDown={(e) => e.target === e.currentTarget && onClose()}
-			>
-				<aside
-					role="dialog"
-					aria-modal="true"
-					className={cn("camply-drawer__panel", `camply-drawer__${side}`, className)}
-					style={{ width, ...style }}
-				>
-					{(title || showClose) && (
-						<div className={"camply-drawer__header"}>
-							{title && <h2 className={"camply-drawer__title"}>{title}</h2>}
-							{showClose && (
-								<IconButton
-									label="Fermer"
-									variant="ghost"
-									size="sm"
-									className={"camply-drawer__close"}
-									onClick={onClose}
-								>
-									<X size={15} />
-								</IconButton>
-							)}
-						</div>
+		<OverlayDialog
+			open={open}
+			onClose={onClose}
+			closeOnBackdrop={closeOnBackdrop}
+			as="aside"
+			backdropClassName="camply-drawer__backdrop"
+			panelClassName={cn("camply-drawer__panel", `camply-drawer__${side}`, className)}
+			style={{ width, ...style }}
+		>
+			{(title || showClose) && (
+				<div className={"camply-drawer__header"}>
+					{title && <h2 className={"camply-drawer__title"}>{title}</h2>}
+					{showClose && (
+						<IconButton
+							label="Fermer"
+							variant="ghost"
+							size="sm"
+							className={"camply-drawer__close"}
+							onClick={onClose}
+						>
+							<X size={15} />
+						</IconButton>
 					)}
-					<div className={"camply-drawer__content"}>{children}</div>
-					{footer && <div className={"camply-drawer__footer"}>{footer}</div>}
-				</aside>
-			</div>
-		</Portal>
+				</div>
+			)}
+			<div className={"camply-drawer__content"}>{children}</div>
+			{footer && <div className={"camply-drawer__footer"}>{footer}</div>}
+		</OverlayDialog>
 	);
 }

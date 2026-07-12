@@ -9,13 +9,33 @@
 }
 .camply-carousel__track {
 	display: flex;
+	gap: var(--cu-gap, 0px);
 	transition: transform 0.4s var(--camply-ease);
 }
 .camply-carousel__slide {
-	flex: 0 0 100%;
+	flex: 0 0 calc((100% - (var(--cu-spv, 1) - 1) * var(--cu-gap, 0px)) / var(--cu-spv, 1));
 	min-width: 0;
 }
 
+/* Effet fondu : diapos empilées (grille), l'active passe en opacité 1. */
+.camply-carousel__trackFade {
+	display: grid;
+	gap: 0;
+	transition: none;
+}
+.camply-carousel__trackFade .camply-carousel__slide {
+	grid-area: 1 / 1;
+	flex: none;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.4s var(--camply-ease);
+}
+.camply-carousel__trackFade .camply-carousel__slideActive {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+/* Flèches : uniquement l'icône (ni bordure ni fond). */
 .camply-carousel__arrow {
 	position: absolute;
 	top: 50%;
@@ -23,20 +43,18 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 38px;
-	height: 38px;
-	border: 1px solid var(--camply-border-strong);
-	border-radius: 50%;
-	background: rgba(12, 20, 32, 0.72);
-	backdrop-filter: blur(8px);
+	padding: 6px;
+	border: none;
+	border-radius: var(--camply-radius-sm);
+	background: none;
 	color: var(--camply-text);
 	cursor: pointer;
 	transition:
-		background var(--camply-duration),
+		color var(--camply-duration),
 		opacity var(--camply-duration);
 }
 .camply-carousel__arrow:hover:not(:disabled) {
-	background: rgba(12, 20, 32, 0.92);
+	color: var(--camply-accent-hover);
 }
 .camply-carousel__arrow:disabled {
 	opacity: 0.3;
@@ -47,10 +65,10 @@
 	box-shadow: var(--camply-ring);
 }
 .camply-carousel__prev {
-	left: 12px;
+	left: 6px;
 }
 .camply-carousel__next {
-	right: 12px;
+	right: 6px;
 }
 
 .camply-carousel__dots {
@@ -82,4 +100,24 @@
 .camply-carousel__dot:focus-visible {
 	outline: none;
 	box-shadow: var(--camply-ring);
+}
+
+/* Indicateur "barres" : traits d'égale largeur, l'actif en accent. */
+.camply-carousel__dotsLines .camply-carousel__dot {
+	width: 20px;
+	height: 3px;
+	border-radius: 999px;
+}
+.camply-carousel__dotsLines .camply-carousel__dotActive {
+	width: 20px;
+	background: var(--camply-accent);
+}
+
+/* Indicateur "compteur" : n / N. */
+.camply-carousel__count {
+	margin-top: 14px;
+	text-align: center;
+	font-family: var(--camply-font-mono);
+	font-size: 12.5px;
+	color: var(--camply-text-muted);
 }

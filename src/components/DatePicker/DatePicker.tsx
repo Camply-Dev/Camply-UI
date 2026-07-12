@@ -40,9 +40,55 @@ const isSameDay = (a: Date, b: Date) =>
 
 const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-/** Date field with a portalled month calendar. Navigate months with the
- *  arrows, pick a day (or a start/end range with mode="range"), respects
- *  min/max. Fully controllable. */
+const pad2 = (n: number) => String(n).padStart(2, "0");
+/** Date → "JJ/MM/AAAA" (format de saisie). */
+const formatInput = (d: Date) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
+
+/** Masque de saisie JJ/MM/AAAA : "/" insérés automatiquement. Respecte les "/"
+ *  déjà présents comme frontières fermes : seul le dernier segment (celui qu'on
+ *  tape) peut déborder, les segments figés sont tronqués sans décaler les autres —
+ *  éditer le mois ne corrompt donc plus l'année. */
+function maskDate(raw: string): string {
+	const segs = raw.split("/");
+	const maxes = [2, 2, 4];
+	const out = ["", "", ""];
+	let carry = "";
+	for (let i = 0; i < 3; i++) {
+		let seg = carry + (segs[i] ?? "").replace(/\D/g, "");
+		carry = "";
+		const isLast = i >= segs.length - 1;
+		if (seg.length > maxes[i]) {
+			// Segment actif → l'excédent déborde sur le suivant ; segment figé → ignoré.
+			if (isLast) carry = seg.slice(maxes[i]);
+			seg = seg.slice(0, maxes[i]);
+		}
+		out[i] = seg;
+	}
+	let end = 3;
+	while (end > 0 && out[end - 1] === "") end--;
+	return out.slice(0, end).join("/");
+}
+
+/** Parse "JJ/MM/AAAA" (année sur 4 chiffres) → Date valide, sinon null (rejette 31/02…). */
+function parseDate(text: string): Date | null {
+	const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(text.trim());
+	if (!m) return null;
+	const day = +m[1];
+	const month = +m[2];
+	const year = +m[3];
+	const d = new Date(year, month - 1, day);
+	if (d.getFullYear() !== year || d.getMonth() !== month - 1 || d.getDate() !== day) return null;
+	return d;
+}
+
+// 12 années par page, alignées (…2012–2023, 2024–2035…).
+const YEAR_PAGE = 12;
+const yearPageStart = (year: number) => Math.floor(year / YEAR_PAGE) * YEAR_PAGE;
+
+/** Date field with a portalled month calendar. Navigate months with the arrows,
+ *  jump to any year via the year grid (click the month/year label), pick a day
+ *  (or a start/end range with mode="range"), respects min/max. In single mode the
+ *  field is typable in JJ/MM/AAAA. Fully controllable. */
 export function DatePicker({
 	value,
 	defaultValue = null,
@@ -69,8 +115,12 @@ export function DatePicker({
 	);
 	const [open, setOpen] = useState(false);
 	const [view, setView] = useState<Date>(() => selected ?? range[0] ?? new Date());
+	// Saisie éditable (mode single) : null = affiche la date formatée ; sinon texte tapé.
+	const [draft, setDraft] = useState<string | null>(null);
+	// Vue de sélection d'année (grille) vs. calendrier des jours.
+	const [yearView, setYearView] = useState(false);
 
-	const triggerRef = useRef<HTMLButtonElement>(null);
+	const triggerRef = useRef<HTMLDivElement>(null);
 	const popRef = useRef<HTMLDivElement>(null);
 	const popId = useId("datepicker");
 
@@ -80,7 +130,10 @@ export function DatePicker({
 		constrainHeight: true,
 		minHeight: 300,
 	});
-	const close = useCallback(() => setOpen(false), []);
+	const close = useCallback(() => {
+		setOpen(false);
+		setYearView(false);
+	}, []);
 	useDismiss(open, close, [triggerRef, popRef]);
 
 	const weekdays = useMemo(() => {
@@ -123,6 +176,7 @@ export function DatePicker({
 	const pick = (raw: Date) => {
 		if (outOfRange(raw)) return;
 		const d = startOfDay(raw);
+		setDraft(null);
 		if (mode === "single") {
 			setSelected(d);
 			setOpen(false);
@@ -144,10 +198,47 @@ export function DatePicker({
 		setOpen(false);
 	};
 
-	const shiftMonth = (delta: number) =>
-		setView(new Date(view.getFullYear(), view.getMonth() + delta, 1));
+	const shiftPage = (delta: number) =>
+		setView(
+			yearView
+				? new Date(view.getFullYear() + delta * YEAR_PAGE, view.getMonth(), 1)
+				: new Date(view.getFullYear(), view.getMonth() + delta, 1),
+		);
+
+	// Ouverture / synchro de la vue sur la valeur courante.
+	const syncView = () => {
+		const focus = mode === "single" ? selected : range[0];
+		if (focus) setView(focus);
+	};
+	const openCalendar = () => {
+		if (disabled) return;
+		syncView();
+		setYearView(false);
+		setOpen(true);
+	};
+	const toggleCalendar = () => (open ? close() : openCalendar());
+
+	// Saisie éditable JJ/MM/AAAA (mode single) : masque + sélection si date valide.
+	const onType = (raw: string) => {
+		const masked = maskDate(raw);
+		setDraft(masked);
+		const d = parseDate(masked);
+		if (d && !outOfRange(d)) {
+			setSelected(startOfDay(d));
+			setView(d);
+		}
+	};
+
+	const pickYear = (year: number) => {
+		setView(new Date(year, view.getMonth(), 1));
+		setYearView(false);
+	};
 
 	const today = new Date();
+	const yearBase = yearPageStart(view.getFullYear());
+	const years = Array.from({ length: YEAR_PAGE }, (_, i) => yearBase + i);
+	const yearDisabled = (y: number) =>
+		(min != null && y < min.getFullYear()) || (max != null && y > max.getFullYear());
 
 	let display = placeholder;
 	if (mode === "single") {
@@ -161,27 +252,52 @@ export function DatePicker({
 	return (
 		<div className={cn("camply-datepicker__root", className)} style={style}>
 			{label && <span className={"camply-datepicker__label"}>{label}</span>}
-			<button
+			<div
 				ref={triggerRef}
-				type="button"
-				disabled={disabled}
-				aria-haspopup="dialog"
-				aria-expanded={open}
-				aria-controls={popId}
-				className={cn("camply-datepicker__trigger", open && "camply-datepicker__open")}
-				onClick={() => {
-					const focusDate = mode === "single" ? selected : rangeStart;
-					if (focusDate) setView(focusDate);
-					setOpen((o) => !o);
-				}}
+				className={cn(
+					"camply-datepicker__trigger",
+					open && "camply-datepicker__open",
+					disabled && "camply-datepicker__disabled",
+				)}
 			>
-				<Calendar size={16} className={"camply-datepicker__calIcon"} />
-				<span
-					className={cn("camply-datepicker__value", !hasValue && "camply-datepicker__placeholder")}
+				<button
+					type="button"
+					disabled={disabled}
+					aria-haspopup="dialog"
+					aria-expanded={open}
+					aria-controls={popId}
+					aria-label="Ouvrir le calendrier"
+					className={"camply-datepicker__calBtn"}
+					onClick={toggleCalendar}
 				>
-					{display}
-				</span>
-			</button>
+					<Calendar size={16} />
+				</button>
+				{mode === "single" ? (
+					<input
+						className={"camply-datepicker__input"}
+						value={draft ?? (selected ? formatInput(selected) : "")}
+						placeholder="JJ/MM/AAAA"
+						inputMode="numeric"
+						disabled={disabled}
+						aria-label={label ?? "Date"}
+						onChange={(e) => onType(e.target.value)}
+						onFocus={openCalendar}
+						onBlur={() => setDraft(null)}
+					/>
+				) : (
+					<button
+						type="button"
+						disabled={disabled}
+						className={cn(
+							"camply-datepicker__valueBtn",
+							!hasValue && "camply-datepicker__placeholder",
+						)}
+						onClick={toggleCalendar}
+					>
+						{display}
+					</button>
+				)}
+			</div>
 
 			{open && (
 				<Portal>
@@ -190,78 +306,108 @@ export function DatePicker({
 						id={popId}
 						role="dialog"
 						aria-label="Calendrier"
-						className={"camply-datepicker__pop"}
+						className="camply-floating-surface camply-datepicker__pop"
 						style={floatStyle}
 					>
 						<div className={"camply-datepicker__head"}>
 							<button
 								type="button"
 								className={"camply-datepicker__nav"}
-								aria-label="Mois précédent"
-								onClick={() => shiftMonth(-1)}
+								aria-label={yearView ? "Années précédentes" : "Mois précédent"}
+								onClick={() => shiftPage(-1)}
 							>
 								<ChevronLeft size={16} />
 							</button>
-							<span className={"camply-datepicker__monthLabel"}>{monthLabel}</span>
+							<button
+								type="button"
+								className={"camply-datepicker__monthLabel"}
+								aria-label="Choisir l'année"
+								aria-expanded={yearView}
+								onClick={() => setYearView((y) => !y)}
+							>
+								{yearView ? `${yearBase} – ${yearBase + YEAR_PAGE - 1}` : monthLabel}
+							</button>
 							<button
 								type="button"
 								className={"camply-datepicker__nav"}
-								aria-label="Mois suivant"
-								onClick={() => shiftMonth(1)}
+								aria-label={yearView ? "Années suivantes" : "Mois suivant"}
+								onClick={() => shiftPage(1)}
 							>
 								<ChevronRight size={16} />
 							</button>
 						</div>
 
-						<div className={"camply-datepicker__weekdays"}>
-							{weekdays.map((w) => (
-								<span key={w} className={"camply-datepicker__weekday"}>
-									{w}
-								</span>
-							))}
-						</div>
-
-						<div className={"camply-datepicker__days"}>
-							{grid.map((d) => {
-								const muted = d.getMonth() !== view.getMonth();
-								const disabledDay = outOfRange(d);
-								const isToday = isSameDay(d, today);
-								const isSel =
-									mode === "single"
-										? selected && isSameDay(d, selected)
-										: (rangeStart && isSameDay(d, rangeStart)) ||
-											(rangeEnd && isSameDay(d, rangeEnd));
-								const inRange =
-									mode === "range" &&
-									rangeStart &&
-									rangeEnd &&
-									startOfDay(d) > rangeStart &&
-									startOfDay(d) < rangeEnd;
-								return (
+						{yearView ? (
+							<div className={"camply-datepicker__years"}>
+								{years.map((y) => (
 									<button
-										key={d.getTime()}
+										key={y}
 										type="button"
-										disabled={disabledDay}
+										disabled={yearDisabled(y)}
 										className={cn(
-											"camply-datepicker__day",
-											muted && "camply-datepicker__muted",
-											isToday && "camply-datepicker__today",
-											inRange && "camply-datepicker__inRange",
-											isSel && "camply-datepicker__selected",
+											"camply-datepicker__year",
+											y === view.getFullYear() && "camply-datepicker__yearCurrent",
 										)}
-										onClick={() => pick(d)}
+										onClick={() => pickYear(y)}
 									>
-										{d.getDate()}
+										{y}
 									</button>
-								);
-							})}
-						</div>
+								))}
+							</div>
+						) : (
+							<>
+								<div className={"camply-datepicker__weekdays"}>
+									{weekdays.map((w) => (
+										<span key={w} className={"camply-datepicker__weekday"}>
+											{w}
+										</span>
+									))}
+								</div>
+
+								<div className={"camply-datepicker__days"}>
+									{grid.map((d) => {
+										const muted = d.getMonth() !== view.getMonth();
+										const disabledDay = outOfRange(d);
+										const isToday = isSameDay(d, today);
+										const isSel =
+											mode === "single"
+												? selected && isSameDay(d, selected)
+												: (rangeStart && isSameDay(d, rangeStart)) ||
+													(rangeEnd && isSameDay(d, rangeEnd));
+										const inRange =
+											mode === "range" &&
+											rangeStart &&
+											rangeEnd &&
+											startOfDay(d) > rangeStart &&
+											startOfDay(d) < rangeEnd;
+										return (
+											<button
+												key={d.getTime()}
+												type="button"
+												disabled={disabledDay}
+												className={cn(
+													"camply-datepicker__day",
+													muted && "camply-datepicker__muted",
+													isToday && "camply-datepicker__today",
+													inRange && "camply-datepicker__inRange",
+													isSel && "camply-datepicker__selected",
+												)}
+												onClick={() => pick(d)}
+											>
+												{d.getDate()}
+											</button>
+										);
+									})}
+								</div>
+							</>
+						)}
 
 						<div className={"camply-datepicker__footer"}>
 							<button
 								type="button"
 								className={"camply-datepicker__todayBtn"}
 								onClick={() => {
+									setYearView(false);
 									setView(new Date());
 									pick(new Date());
 								}}

@@ -12,25 +12,25 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
 		return (
 			<label
 				className={cn(
-					"camply-switch__wrap",
+					"camply-control__wrap",
 					`camply-switch__${size}`,
 					spread && "camply-switch__spread",
-					disabled && "camply-switch__disabled",
+					disabled && "camply-control__disabled",
 					className,
 				)}
 			>
-				{label && <span className={"camply-switch__label"}>{label}</span>}
-				<span className={"camply-switch__control"}>
+				{label && <span className={"camply-control__label"}>{label}</span>}
+				<span className={"camply-control__box"}>
 					<input
 						ref={ref}
 						type="checkbox"
 						// biome-ignore lint/a11y/useAriaPropsForRole: l'état coché du checkbox natif est mappé sur aria-checked par HTML-AAM — pas besoin de le dupliquer
 						role="switch"
-						className={"camply-switch__input"}
+						className={"camply-control__input"}
 						disabled={disabled}
 						{...props}
 					/>
-					<span className={"camply-switch__track"} aria-hidden="true">
+					<span className="camply-control__face camply-switch__track" aria-hidden="true">
 						<span className={"camply-switch__thumb"} />
 					</span>
 				</span>

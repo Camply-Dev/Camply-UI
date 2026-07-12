@@ -34,7 +34,7 @@
 	top: 0;
 	height: 100%;
 	border-radius: var(--camply-radius-pill);
-	background: linear-gradient(90deg, #0284c7, var(--camply-accent));
+	background: var(--camply-gradient-accent);
 }
 .camply-rangeslider__knob {
 	position: absolute;

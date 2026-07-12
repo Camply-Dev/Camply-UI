@@ -8,7 +8,7 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { AlertCircle, AlertTriangle, CheckCircle, Info, X } from "../../lib/icons";
+import { Info, STATUS_ICONS, X } from "../../lib/icons";
 import { Portal } from "../../lib/Portal";
 import { IconButton } from "../IconButton";
 export type ToastTone = "default" | "success" | "info" | "warn" | "danger";
@@ -41,13 +41,7 @@ export function useToast(): ToastContextValue {
 	return ctx;
 }
 
-const TONE_ICON = {
-	default: Info,
-	success: CheckCircle,
-	info: Info,
-	warn: AlertTriangle,
-	danger: AlertCircle,
-} as const;
+const TONE_ICON = { ...STATUS_ICONS, default: Info } as const;
 
 export interface ToastProviderProps {
 	children: ReactNode;

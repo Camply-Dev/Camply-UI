@@ -1,13 +1,10 @@
 .camply-hovercard__card {
+	/* passe au-dessus des dropdowns et anime un peu plus lentement */
+	--camply-float-z: var(--camply-z-tooltip);
+	--camply-float-dur: 0.16s;
 	width: 280px;
 	padding: 16px;
-	border: 1px solid var(--camply-border-strong);
-	border-radius: var(--camply-radius-lg);
-	background: var(--camply-elevated);
-	box-shadow: var(--camply-shadow-pop);
 	color: var(--camply-text);
 	font-family: var(--camply-font-sans);
 	font-size: 14px;
-	z-index: var(--camply-z-tooltip);
-	animation: camply-float-in 0.16s var(--camply-ease);
 }

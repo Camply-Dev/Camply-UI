@@ -129,3 +129,13 @@ export const File = (p: IconProps) => (
 		<path d="M14 2v6h6" />
 	</Base>
 );
+
+/** Icône sémantique par tonalité de statut, partagée par Alert, Banner et Toast.
+ *  Les composants qui ont des tonalités supplémentaires (accent, default) ajoutent
+ *  leur propre alias en local : `{ ...STATUS_ICONS, accent: Info }`. */
+export const STATUS_ICONS = {
+	info: Info,
+	success: CheckCircle,
+	warn: AlertTriangle,
+	danger: AlertCircle,
+} as const;

@@ -1,16 +1,4 @@
-.camply-input__field {
-	display: flex;
-	flex-direction: column;
-	gap: 7px;
-	font-family: var(--camply-font-sans);
-}
-
-.camply-input__label {
-	font-size: 13px;
-	font-weight: 600;
-	color: var(--camply-text);
-}
-
+/* Ossature (field / label / desc) : .camply-field* dans tokens.css. */
 .camply-input__wrap {
 	--_h: 42px;
 	--_px: 13px;
@@ -21,7 +9,7 @@
 	padding: 0 var(--_px);
 	border: 1px solid var(--camply-border-strong);
 	border-radius: var(--camply-radius);
-	background: rgba(0, 0, 0, 0.25);
+	background: var(--camply-field-bg);
 	transition:
 		border-color var(--camply-duration),
 		box-shadow var(--camply-duration);
@@ -33,7 +21,7 @@
 	border-color: var(--camply-danger);
 }
 .camply-input__wrap.camply-input__hasError:focus-within {
-	box-shadow: 0 0 0 3px rgba(224, 138, 122, 0.28);
+	box-shadow: var(--camply-danger-ring);
 }
 .camply-input__wrap.camply-input__disabled {
 	background: rgba(255, 255, 255, 0.02);
@@ -77,12 +65,4 @@
 	align-items: center;
 	color: var(--camply-text-muted-2);
 	flex: none;
-}
-
-.camply-input__desc {
-	font-size: 12px;
-	color: var(--camply-text-muted);
-}
-.camply-input__descError {
-	color: var(--camply-danger-hover);
 }

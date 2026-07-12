@@ -37,11 +37,11 @@
 		background 0.3s var(--camply-ease);
 }
 .camply-meter__ok {
-	background: linear-gradient(90deg, #0284c7, var(--camply-accent));
+	background: var(--camply-gradient-accent);
 }
 .camply-meter__warn {
-	background: linear-gradient(90deg, #b0904a, var(--camply-warning));
+	background: var(--camply-gradient-warn);
 }
 .camply-meter__danger {
-	background: linear-gradient(90deg, #b0574a, var(--camply-danger));
+	background: var(--camply-gradient-danger);
 }

@@ -3,6 +3,9 @@ import {
 	Avatar,
 	AvatarGroup,
 	Button,
+	Card,
+	CardDescription,
+	CardTitle,
 	Carousel,
 	CommandPalette,
 	DescriptionList,
@@ -10,7 +13,7 @@ import {
 	Table,
 	Tree,
 } from "@camply/ui";
-import { type CSSProperties, useState } from "react";
+import { useState } from "react";
 import { Icon } from "../icons";
 import { bool, num, type PlaygroundConfig, str } from "./engine";
 
@@ -20,16 +23,8 @@ const TABLE_ROWS = [
 	{ id: 3, name: "Chloé Nord", role: "Produit", projects: 5 },
 ];
 
-const slide = (bg: string): CSSProperties => ({
-	display: "grid",
-	placeItems: "center",
-	height: 160,
-	borderRadius: 12,
-	background: bg,
-	color: "#0b1220",
-	fontWeight: 600,
-	fontSize: 18,
-});
+// Diapositives de démo — vraies Card @camply/ui (dogfooding).
+const CAROUSEL_SLIDES = ["Rapide", "Accessible", "Thémable", "Léger", "Zéro dépendance"];
 
 function CommandPalettePreview() {
 	const [open, setOpen] = useState(false);
@@ -251,28 +246,66 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 	carousel: {
 		component: "Carousel",
 		controls: [
+			{ key: "slidesPerView", label: "Visibles", type: "seg", options: ["1", "2", "3"] },
+			{ key: "gap", label: "Espace", type: "seg", options: ["0", "12", "24"] },
+			{ key: "effect", label: "Effet", type: "seg", options: ["slide", "fade"] },
+			{ key: "indicator", label: "Indicateur", type: "seg", options: ["dots", "lines", "count"] },
 			{ key: "arrows", label: "Flèches", type: "toggle" },
-			{ key: "dots", label: "Points", type: "toggle" },
 		],
-		defaults: { arrows: true, dots: true },
+		defaults: {
+			slidesPerView: "1",
+			gap: "0",
+			effect: "slide",
+			indicator: "dots",
+			arrows: true,
+		},
 		render: (p) => (
-			<div style={{ width: "100%", maxWidth: 420 }}>
-				<Carousel arrows={bool(p.arrows)} dots={bool(p.dots)}>
-					<div style={slide("linear-gradient(150deg,#7dd3fc,#38bdf8)")}>Slide 1</div>
-					<div style={slide("linear-gradient(150deg,#b79ee0,#8467b0)")}>Slide 2</div>
-					<div style={slide("linear-gradient(150deg,#e0c07a,#b0904a)")}>Slide 3</div>
+			<div style={{ width: "100%", maxWidth: 460 }}>
+				<Carousel
+					slidesPerView={num(p.slidesPerView)}
+					gap={num(p.gap)}
+					effect={str(p.effect)}
+					indicator={str(p.indicator)}
+					arrows={bool(p.arrows)}
+				>
+					{CAROUSEL_SLIDES.map((title, i) => (
+						<Card
+							key={title}
+							padding="lg"
+							style={{
+								height: 150,
+								display: "flex",
+								flexDirection: "column",
+								justifyContent: "center",
+							}}
+						>
+							<CardTitle>{title}</CardTitle>
+							<CardDescription>Diapositive {i + 1}</CardDescription>
+						</Card>
+					))}
 				</Carousel>
 			</div>
 		),
-		code: (p) =>
-			`import { Carousel } from "@camply/ui";\n\n<Carousel${p.arrows ? "" : " arrows={false}"}${
-				p.dots ? "" : " dots={false}"
-			}>\n  <img src="/slide-1.jpg" alt="…" />\n  <img src="/slide-2.jpg" alt="…" />\n</Carousel>`,
+		code: (p) => {
+			const lines: string[] = [];
+			if (num(p.slidesPerView) !== 1) lines.push(`  slidesPerView={${num(p.slidesPerView)}}`);
+			if (num(p.gap) !== 0) lines.push(`  gap={${num(p.gap)}}`);
+			if (p.effect !== "slide") lines.push(`  effect="${p.effect}"`);
+			if (p.indicator !== "dots") lines.push(`  indicator="${p.indicator}"`);
+			if (!p.arrows) lines.push("  arrows={false}");
+			const attrs = lines.length ? `\n${lines.join("\n")}\n` : "";
+			return `import { Carousel, Card } from "@camply/ui";\n\n<Carousel${attrs}>\n  <Card>Diapositive 1</Card>\n  <Card>Diapositive 2</Card>\n</Carousel>`;
+		},
 		props: [
 			["children", "ReactNode[]", "une diapositive par enfant"],
-			["arrows / dots", "boolean", "flèches précédent/suivant · points indicateurs"],
-			["autoPlay", "number", "défilement auto en ms (0 = désactivé)"],
+			["slidesPerView / gap", "number", "diapos visibles à la fois · espace (px)"],
+			["effect", "enum", "slide (défaut) · fade (fondu enchaîné)"],
+			["indicator", "enum", "dots (défaut) · lines · count (n / N)"],
+			["arrows / dots", "boolean", "flèches précédent/suivant · indicateur visible"],
+			["autoPlay / pauseOnHover", "number / boolean", "défilement auto (ms) · pause au survol"],
 			["loop", "boolean", "reboucle après la dernière (défaut true)"],
+			["aspectRatio", "string", 'ratio du cadre, ex. "16 / 9"'],
+			["index / defaultIndex / onIndexChange", "number / fn", "index contrôlé"],
 		],
 	},
 

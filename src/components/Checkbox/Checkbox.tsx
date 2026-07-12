@@ -10,21 +10,21 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
 	({ label, className, disabled, ...props }, ref) => {
 		return (
 			<label
-				className={cn("camply-checkbox__wrap", disabled && "camply-checkbox__disabled", className)}
+				className={cn("camply-control__wrap", disabled && "camply-control__disabled", className)}
 			>
-				<span className={"camply-checkbox__box"}>
+				<span className={"camply-control__box"}>
 					<input
 						ref={ref}
 						type="checkbox"
-						className={"camply-checkbox__input"}
+						className={"camply-control__input"}
 						disabled={disabled}
 						{...props}
 					/>
-					<span className={"camply-checkbox__control"} aria-hidden="true">
+					<span className="camply-control__face camply-checkbox__control" aria-hidden="true">
 						<Check size={12} className={"camply-checkbox__tick"} />
 					</span>
 				</span>
-				{label && <span className={"camply-checkbox__label"}>{label}</span>}
+				{label && <span className={"camply-control__label"}>{label}</span>}
 			</label>
 		);
 	},

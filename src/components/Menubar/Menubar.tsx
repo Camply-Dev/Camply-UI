@@ -1,4 +1,4 @@
-import { type CSSProperties, type ReactNode, useCallback, useRef, useState } from "react";
+import { type CSSProperties, type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { useAnchor } from "../../lib/useAnchor";
@@ -24,14 +24,22 @@ export interface MenubarProps {
 	style?: CSSProperties;
 }
 
-/** A classic application menu bar (File / Edit / View…). Clicking a top menu
- *  opens it; hovering across the bar switches menus while one is open. Menus
- *  are portalled so they never clip. */
+// Intention de survol : petit délai avant d'ouvrir (évite les ouvertures au simple
+// passage de la souris) ; fermeture différée pour franchir l'espace barre → menu.
+const OPEN_DELAY = 110;
+const CLOSE_DELAY = 180;
+
+/** A classic application menu bar (File / Edit / View…). Hovering a top menu opens
+ *  it (after a short intent delay); once open, hovering across the bar switches
+ *  menus instantly. Clicking still toggles (touch / deliberate). Menus are
+ *  portalled so they never clip. */
 export function Menubar({ menus, className, style: styleProp }: MenubarProps) {
 	const [openIndex, setOpenIndex] = useState<number | null>(null);
 	const barRef = useRef<HTMLDivElement>(null);
 	const menuRef = useRef<HTMLDivElement>(null);
 	const triggerRefs = useRef<(HTMLButtonElement | null)[]>([]);
+	const openTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+	const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
 	// A STABLE ref object pointed at whichever top trigger is currently open.
 	// (A fresh `{ get current() }` object each render would make useAnchor's
@@ -50,6 +58,28 @@ export function Menubar({ menus, className, style: styleProp }: MenubarProps) {
 	const close = useCallback(() => setOpenIndex(null), []);
 	useDismiss(openIndex != null, close, [barRef, menuRef]);
 
+	useEffect(
+		() => () => {
+			clearTimeout(openTimer.current);
+			clearTimeout(closeTimer.current);
+		},
+		[],
+	);
+
+	// Survol d'un menu : ouvre (après délai si rien n'est ouvert, sinon bascule tout de suite).
+	const hoverOpen = (i: number) => {
+		clearTimeout(closeTimer.current);
+		clearTimeout(openTimer.current);
+		if (openIndex != null) setOpenIndex(i);
+		else openTimer.current = setTimeout(() => setOpenIndex(i), OPEN_DELAY);
+	};
+	const cancelOpen = () => clearTimeout(openTimer.current);
+	const scheduleClose = () => {
+		clearTimeout(closeTimer.current);
+		closeTimer.current = setTimeout(() => setOpenIndex(null), CLOSE_DELAY);
+	};
+	const cancelClose = () => clearTimeout(closeTimer.current);
+
 	const activeMenu = openIndex != null ? menus[openIndex] : null;
 
 	return (
@@ -59,6 +89,7 @@ export function Menubar({ menus, className, style: styleProp }: MenubarProps) {
 				role="menubar"
 				className={cn("camply-menubar__bar", className)}
 				style={styleProp}
+				onMouseLeave={scheduleClose}
 			>
 				{menus.map((menu, i) => (
 					<button
@@ -74,8 +105,12 @@ export function Menubar({ menus, className, style: styleProp }: MenubarProps) {
 							"camply-menubar__trigger",
 							openIndex === i && "camply-menubar__triggerOpen",
 						)}
-						onClick={() => setOpenIndex((cur) => (cur === i ? null : i))}
-						onMouseEnter={() => openIndex != null && setOpenIndex(i)}
+						onClick={() => {
+							cancelOpen();
+							setOpenIndex((cur) => (cur === i ? null : i));
+						}}
+						onMouseEnter={() => hoverOpen(i)}
+						onMouseLeave={cancelOpen}
 					>
 						{menu.label}
 					</button>
@@ -84,25 +119,32 @@ export function Menubar({ menus, className, style: styleProp }: MenubarProps) {
 
 			{activeMenu && (
 				<Portal>
-					<div ref={menuRef} role="menu" className={"camply-menubar__menu"} style={style}>
+					<div
+						ref={menuRef}
+						role="menu"
+						className="camply-floating-surface camply-menubar__menu"
+						style={style}
+						onMouseEnter={cancelClose}
+						onMouseLeave={scheduleClose}
+					>
 						{activeMenu.items.map((item, i) => (
 							// biome-ignore lint/suspicious/noArrayIndexKey: items de menu déclaratifs sans id — la position est l'identité
 							<div key={i}>
-								{item.separatorBefore && <hr className={"camply-menubar__separator"} />}
+								{item.separatorBefore && <hr className={"camply-menu-separator"} />}
 								<button
 									type="button"
 									role="menuitem"
 									disabled={item.disabled}
-									className={cn("camply-menubar__item", item.danger && "camply-menubar__danger")}
+									className={cn("camply-menu-item", item.danger && "camply-menu-item--danger")}
 									onClick={() => {
 										close();
 										item.onSelect?.();
 									}}
 								>
-									{item.icon && <span className={"camply-menubar__icon"}>{item.icon}</span>}
-									<span className={"camply-menubar__label"}>{item.label}</span>
+									{item.icon && <span className={"camply-menu-item__icon"}>{item.icon}</span>}
+									<span className={"camply-menu-item__label"}>{item.label}</span>
 									{item.shortcut && (
-										<span className={"camply-menubar__shortcut"}>{item.shortcut}</span>
+										<span className={"camply-menu-item__shortcut"}>{item.shortcut}</span>
 									)}
 								</button>
 							</div>

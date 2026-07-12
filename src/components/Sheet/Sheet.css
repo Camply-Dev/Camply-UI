@@ -1,16 +1,6 @@
+/* Socle du voile : .camply-overlay-backdrop dans tokens.css — ici, la disposition. */
 .camply-sheet__backdrop {
-	position: fixed;
-	inset: 0;
-	z-index: var(--camply-z-modal);
 	display: flex;
-	background: var(--camply-overlay);
-	backdrop-filter: blur(3px);
-	animation: camply-sheet-bg 0.18s ease;
-}
-@keyframes camply-sheet-bg {
-	from {
-		opacity: 0;
-	}
 }
 
 .camply-sheet__sheet {

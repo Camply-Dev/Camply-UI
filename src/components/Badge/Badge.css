@@ -47,7 +47,7 @@
 	--_solid-fg: var(--camply-success-contrast);
 }
 
-.camply-badge--warning {
+.camply-badge--warn {
 	--_fg: var(--camply-warning);
 	--_bg: var(--camply-warning-soft);
 	--_border: var(--camply-warning-border);

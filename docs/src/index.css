@@ -435,32 +435,43 @@ h3 {
 	color: var(--sc-accent-hi);
 }
 
-/* ---------- Home / hero ---------- */
-.cu-hero {
+/* ---------- Home / hero ----------
+   L'accueil occupe la hauteur dispo (pas de scroll) : héros centré, stats en bas. */
+.cu-home {
 	display: flex;
 	flex-direction: column;
+	gap: 22px;
+	min-height: calc(100vh - 160px);
+	padding-top: 4px;
+}
+
+.cu-hero {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
 	align-items: center;
+	justify-content: center;
+	gap: 16px;
 	text-align: center;
-	padding: 44px 0 8px;
 }
 
 .cu-hero .cu-logo {
-	margin-bottom: 22px;
+	margin: 0;
 }
 
 .cu-hero__title {
-	margin: 20px 0 16px;
-	font-size: clamp(34px, 6vw, 52px);
+	margin: 0;
+	font-size: clamp(28px, 4.2vw, 42px);
 	font-weight: 700;
-	line-height: 1.05;
+	line-height: 1.08;
 	letter-spacing: -0.03em;
 }
 
 .cu-hero__sub {
-	margin: 0 0 28px;
-	max-width: 540px;
-	font-size: 17px;
-	line-height: 1.65;
+	margin: 0;
+	max-width: 500px;
+	font-size: 15px;
+	line-height: 1.6;
 	color: var(--sc-muted);
 }
 
@@ -474,11 +485,13 @@ h3 {
 	flex-wrap: wrap;
 	gap: 12px;
 	justify-content: center;
+	margin-top: 2px;
 }
 
-/* ---------- Snippet (hero) — composant @camply/ui, marge locale ---------- */
-.cu-hero .camply-snippet__root {
-	margin-top: 26px;
+/* Snippet d'install (hero) = composant @camply/ui ; largeur cadrée ici. */
+.cu-hero__install {
+	width: 100%;
+	max-width: 420px;
 }
 
 /* ---------- Stats ---------- */
@@ -486,7 +499,6 @@ h3 {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 	gap: 14px;
-	margin-top: 52px;
 }
 
 /* Boîtes de stats = Card @camply/ui — seul le centrage vit ici. */
@@ -504,64 +516,6 @@ h3 {
 .cu-stat__l {
 	margin-top: 4px;
 	font-size: 12.5px;
-	color: var(--sc-muted);
-}
-
-/* ---------- Section heading ---------- */
-.cu-h2 {
-	margin: 52px 0 18px;
-	font-size: 20px;
-	font-weight: 700;
-}
-
-/* ---------- Families grid ---------- */
-.cu-fams {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-	gap: 16px;
-}
-
-/* Cartes de famille = Card interactive @camply/ui (surface + survol) ;
-   ici seulement l'agencement interne. */
-.cu-fam {
-	text-align: left;
-}
-
-.cu-fam__head {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 14px;
-}
-
-.cu-fam__icon {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 40px;
-	height: 40px;
-	border-radius: 11px;
-	background: var(--sc-accent-soft);
-	color: var(--sc-accent-hi);
-}
-
-.cu-fam__count {
-	font-size: 12px;
-	font-weight: 600;
-	color: var(--sc-muted-2);
-}
-
-.cu-fam__name {
-	margin-bottom: 6px;
-	font-family: var(--sc-font-display);
-	font-size: 16px;
-	font-weight: 700;
-	color: var(--sc-text-strong);
-}
-
-.cu-fam__desc {
-	font-size: 12.5px;
-	line-height: 1.5;
 	color: var(--sc-muted);
 }
 

@@ -72,8 +72,8 @@ export function TagInput({
 	});
 
 	return (
-		<div className={cn("camply-taginput__field", className)} style={style}>
-			{label && <span className={"camply-taginput__label"}>{label}</span>}
+		<div className={cn("camply-field", className)} style={style}>
+			{label && <span className={"camply-field__label"}>{label}</span>}
 			{/* label : cliquer n'importe où dans la zone focus l'input, nativement */}
 			<label className={cn("camply-taginput__wrap", disabled && "camply-taginput__disabled")}>
 				{keyed.map(({ tag, i, key }) => (
@@ -92,7 +92,7 @@ export function TagInput({
 					onBlur={() => addTag(draft)}
 				/>
 			</label>
-			{hint && <span className={"camply-taginput__hint"}>{hint}</span>}
+			{hint && <span className={"camply-field__desc"}>{hint}</span>}
 		</div>
 	);
 }

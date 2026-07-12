@@ -71,24 +71,24 @@ export function Radio({ value, label, disabled, className, style }: RadioProps) 
 
 	return (
 		<label
-			className={cn("camply-radio__wrap", isDisabled && "camply-radio__disabled", className)}
+			className={cn("camply-control__wrap", isDisabled && "camply-control__disabled", className)}
 			style={style}
 		>
-			<span className={"camply-radio__box"}>
+			<span className={"camply-control__box"}>
 				<input
 					type="radio"
-					className={"camply-radio__input"}
+					className={"camply-control__input"}
 					name={ctx.name}
 					value={value}
 					checked={checked}
 					disabled={isDisabled}
 					onChange={() => ctx.onChange(value)}
 				/>
-				<span className={"camply-radio__control"} aria-hidden="true">
+				<span className="camply-control__face camply-radio__control" aria-hidden="true">
 					<span className={"camply-radio__dot"} />
 				</span>
 			</span>
-			{label && <span className={"camply-radio__label"}>{label}</span>}
+			{label && <span className={"camply-control__label"}>{label}</span>}
 		</label>
 	);
 }

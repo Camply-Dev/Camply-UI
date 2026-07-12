@@ -1,10 +1,11 @@
 import { type ButtonHTMLAttributes, forwardRef, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
+import type { ButtonSize, ButtonVariant } from "../Button";
 export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	/** accessible label — required, since there's no visible text */
 	label: string;
-	variant?: "primary" | "secondary" | "ghost" | "soft" | "danger";
-	size?: "sm" | "md" | "lg";
+	variant?: ButtonVariant;
+	size?: ButtonSize;
 	children: ReactNode;
 }
 

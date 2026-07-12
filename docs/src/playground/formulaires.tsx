@@ -295,36 +295,30 @@ export const FORMULAIRES: Record<string, PlaygroundConfig> = {
 		controls: [
 			{ key: "variant", label: "Variante", type: "seg", options: ["full", "compact"] },
 			{ key: "label", label: "Label", type: "text" },
-			{ key: "copyable", label: "Copiable", type: "toggle" },
 		],
-		defaults: { variant: "full", label: "", copyable: true },
+		defaults: { variant: "full", label: "" },
 		render: (p) => (
 			<div style={{ width: "100%", maxWidth: 320, display: "flex", justifyContent: "center" }}>
 				<ColorPicker
 					key={str(p.variant)}
 					variant={str(p.variant)}
 					label={str(p.label) || undefined}
-					copyable={bool(p.copyable)}
-					defaultValue={p.variant === "compact" ? undefined : "#38bdf8"}
+					defaultValue="#38bdf8"
 				/>
 			</div>
 		),
 		code: (p) => {
 			const lines = [`  variant="${p.variant}"`];
 			if (p.label) lines.push(`  label="${p.label}"`);
-			if (p.variant === "full") {
-				lines.push('  defaultValue="#38bdf8"');
-				if (!p.copyable) lines.push("  copyable={false}");
-			}
+			lines.push('  defaultValue="#38bdf8"');
 			return `import { ColorPicker } from "@camply/ui";\n\n<ColorPicker\n${lines.join("\n")}\n/>`;
 		},
 		props: [
 			["variant", "enum", "full (en ligne) · compact (pastille + palette au survol)"],
 			["value / defaultValue", "string", 'hex contrôlé / initial, ex. "#38bdf8"'],
 			["onChange", "(hex: string) => void", "changement"],
-			["alpha / defaultAlpha", "number", "opacité 0–1 (value reste #RRGGBB)"],
+			["alpha / defaultAlpha", "number", "opacité 0–1 (éditable via HEX #RRGGBBAA ou RGBA)"],
 			["onAlphaChange", "(alpha: number) => void", "changement d'opacité"],
-			["copyable", "boolean", "bouton copier le hex (défaut true)"],
 			["label", "string", "libellé au-dessus"],
 		],
 	},
@@ -346,7 +340,7 @@ export const FORMULAIRES: Record<string, PlaygroundConfig> = {
 			</div>
 		),
 		props: [
-			["mode", "enum", "single (défaut) · range — plage début/fin"],
+			["mode", "enum", "single (défaut, saisie JJ/MM/AAAA) · range — plage début/fin"],
 			["value / defaultValue", "Date | null", "date contrôlée / initiale (mode single)"],
 			[
 				"rangeValue / defaultRangeValue / onRangeChange",
@@ -354,7 +348,7 @@ export const FORMULAIRES: Record<string, PlaygroundConfig> = {
 				"plage contrôlée (mode range)",
 			],
 			["onChange", "(date: Date | null) => void", "changement"],
-			["min / max", "Date", "bornes sélectionnables"],
+			["min / max", "Date", "bornes sélectionnables (jours et années)"],
 			["locale", "string", "locale Intl (défaut fr-FR)"],
 			["weekStartsOn", "0 | 1", "premier jour de semaine (défaut lundi)"],
 		],

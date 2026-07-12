@@ -162,7 +162,7 @@ export function Select<T extends string = string>({
 						// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: ul+role="listbox" est le pattern ARIA canonique
 						role="listbox"
 						tabIndex={-1}
-						className={"camply-select__list"}
+						className="camply-floating-surface camply-floating-list camply-select__list"
 						style={floatStyle}
 					>
 						{options.map((opt, i) => {
@@ -178,9 +178,10 @@ export function Select<T extends string = string>({
 									aria-selected={isSelected}
 									aria-disabled={opt.disabled || undefined}
 									className={cn(
+										"camply-listbox-option",
 										"camply-select__option",
-										i === active && "camply-select__active",
-										opt.disabled && "camply-select__optionDisabled",
+										i === active && "camply-listbox-option--active",
+										opt.disabled && "camply-listbox-option--disabled",
 									)}
 									onMouseEnter={() => !opt.disabled && setActive(i)}
 									onClick={() => pick(opt)}

@@ -20,7 +20,7 @@
 	padding: 6px 12px;
 	border: 1px solid var(--camply-border-strong);
 	border-radius: var(--camply-radius);
-	background: rgba(0, 0, 0, 0.25);
+	background: var(--camply-field-bg);
 	color: var(--camply-text);
 	font-family: inherit;
 	font-size: 14px;
@@ -72,7 +72,7 @@
 	width: 15px;
 	height: 15px;
 	border-radius: 4px;
-	background: rgba(255, 255, 255, 0.08);
+	background: var(--camply-surface-soft);
 	cursor: pointer;
 }
 .camply-multiselect__chipX:hover {
@@ -87,39 +87,10 @@
 	transform: rotate(180deg);
 }
 
-.camply-multiselect__list {
-	margin: 0;
-	padding: 6px;
-	list-style: none;
-	overflow-y: auto;
-	border: 1px solid var(--camply-border-strong);
-	border-radius: var(--camply-radius-lg);
-	background: var(--camply-elevated);
-	box-shadow: var(--camply-shadow-pop);
-	z-index: var(--camply-z-dropdown);
-	animation: camply-float-in 0.14s var(--camply-ease);
-}
-.camply-multiselect__option {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	padding: 9px 11px;
-	border-radius: var(--camply-radius-sm);
-	font-size: 14px;
-	color: var(--camply-text-muted);
-	cursor: pointer;
-}
-.camply-multiselect__option:hover,
-.camply-multiselect__option.camply-multiselect__active {
-	background: rgba(255, 255, 255, 0.05);
-	color: var(--camply-text);
-}
+/* Ossature de l'option : .camply-listbox-option* dans tokens.css. MultiSelect garde
+   son propre marquage de sélection (case + texte plus clair), pas l'accent aria-selected. */
 .camply-multiselect__selected {
 	color: var(--camply-text);
-}
-.camply-multiselect__optionDisabled {
-	opacity: 0.4;
-	cursor: not-allowed;
 }
 .camply-multiselect__box {
 	display: inline-flex;
@@ -129,7 +100,7 @@
 	height: 18px;
 	border: 1px solid var(--camply-border-strong);
 	border-radius: var(--camply-radius-xs);
-	background: rgba(0, 0, 0, 0.25);
+	background: var(--camply-field-bg);
 	color: var(--camply-accent-contrast);
 	flex: none;
 }

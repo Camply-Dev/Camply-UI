@@ -1,8 +1,7 @@
-import { type CSSProperties, type ReactNode, useEffect, useRef } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { cn } from "../../lib/cn";
 import { X } from "../../lib/icons";
-import { Portal } from "../../lib/Portal";
-import { useEscapeAndScrollLock } from "../../lib/useEscapeAndScrollLock";
+import { OverlayDialog } from "../../lib/OverlayDialog";
 import { IconButton } from "../IconButton";
 export interface ModalProps {
 	open: boolean;
@@ -34,57 +33,36 @@ export function Modal({
 	className,
 	style,
 }: ModalProps) {
-	const panelRef = useRef<HTMLDivElement>(null);
-
-	useEscapeAndScrollLock(open, onClose);
-
-	// Move focus into the dialog when it opens.
-	useEffect(() => {
-		if (open) panelRef.current?.focus();
-	}, [open]);
-
-	if (!open) return null;
-
 	return (
-		<Portal>
-			{/* biome-ignore lint/a11y/noStaticElementInteractions: fermeture au clic sur le backdrop — chemin clavier équivalent : Échap */}
-			<div
-				className={"camply-modal__backdrop"}
-				onMouseDown={(e) => {
-					if (closeOnBackdrop && e.target === e.currentTarget) onClose();
-				}}
-			>
-				<div
-					ref={panelRef}
-					role="dialog"
-					aria-modal="true"
-					tabIndex={-1}
-					className={cn("camply-modal__panel", `camply-modal__${size}`, className)}
-					style={style}
-				>
-					{(title || showClose) && (
-						<div className={"camply-modal__header"}>
-							<div>
-								{title && <h2 className={"camply-modal__title"}>{title}</h2>}
-								{description && <p className={"camply-modal__desc"}>{description}</p>}
-							</div>
-							{showClose && (
-								<IconButton
-									label="Fermer"
-									variant="ghost"
-									size="sm"
-									className={"camply-modal__close"}
-									onClick={onClose}
-								>
-									<X size={15} />
-								</IconButton>
-							)}
-						</div>
+		<OverlayDialog
+			open={open}
+			onClose={onClose}
+			closeOnBackdrop={closeOnBackdrop}
+			backdropClassName="camply-modal__backdrop"
+			panelClassName={cn("camply-modal__panel", `camply-modal__${size}`, className)}
+			style={style}
+		>
+			{(title || showClose) && (
+				<div className={"camply-modal__header"}>
+					<div>
+						{title && <h2 className={"camply-modal__title"}>{title}</h2>}
+						{description && <p className={"camply-modal__desc"}>{description}</p>}
+					</div>
+					{showClose && (
+						<IconButton
+							label="Fermer"
+							variant="ghost"
+							size="sm"
+							className={"camply-modal__close"}
+							onClick={onClose}
+						>
+							<X size={15} />
+						</IconButton>
 					)}
-					{children && <div className={"camply-modal__content"}>{children}</div>}
-					{footer && <div className={"camply-modal__footer"}>{footer}</div>}
 				</div>
-			</div>
-		</Portal>
+			)}
+			{children && <div className={"camply-modal__content"}>{children}</div>}
+			{footer && <div className={"camply-modal__footer"}>{footer}</div>}
+		</OverlayDialog>
 	);
 }

@@ -17,7 +17,7 @@
 	padding: 0 13px;
 	border: 1px solid var(--camply-border-strong);
 	border-radius: var(--camply-radius);
-	background: rgba(0, 0, 0, 0.25);
+	background: var(--camply-field-bg);
 	transition:
 		border-color var(--camply-duration),
 		box-shadow var(--camply-duration);
@@ -56,40 +56,13 @@
 	transform: rotate(180deg);
 }
 
-.camply-combobox__list {
-	margin: 0;
-	padding: 6px;
-	list-style: none;
-	overflow-y: auto;
-	border: 1px solid var(--camply-border-strong);
-	border-radius: var(--camply-radius-lg);
-	background: var(--camply-elevated);
-	box-shadow: var(--camply-shadow-pop);
-	z-index: var(--camply-z-dropdown);
-	animation: camply-float-in 0.14s var(--camply-ease);
-}
+/* Ossature de l'option : .camply-listbox-option* dans tokens.css. */
 .camply-combobox__option {
-	display: flex;
-	align-items: center;
 	justify-content: space-between;
-	gap: 10px;
-	padding: 9px 11px;
-	border-radius: var(--camply-radius-sm);
-	font-size: 14px;
-	color: var(--camply-text-muted);
-	cursor: pointer;
-}
-.camply-combobox__option.camply-combobox__active {
-	background: rgba(255, 255, 255, 0.06);
-	color: var(--camply-text);
 }
 .camply-combobox__option[aria-selected="true"] {
 	background: var(--camply-accent-soft);
 	color: var(--camply-accent-hover);
-}
-.camply-combobox__optionDisabled {
-	opacity: 0.4;
-	cursor: not-allowed;
 }
 .camply-combobox__tick {
 	flex: none;

@@ -9,85 +9,143 @@ import {
 import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 import { ChevronLeft, ChevronRight } from "../../lib/icons";
+import { useControllable } from "../../lib/useControllable";
+
+export type CarouselIndicator = "dots" | "lines" | "count";
+export type CarouselEffect = "slide" | "fade";
+
 export interface CarouselProps {
 	children: ReactNode[];
 	/** show prev/next arrows */
 	arrows?: boolean;
-	/** show dot indicators */
+	/** show the indicator under the carousel */
 	dots?: boolean;
+	/** style de l'indicateur : points, barres ou compteur "n / N" */
+	indicator?: CarouselIndicator;
+	/** nombre de diapositives visibles à la fois (effet "slide" uniquement) */
+	slidesPerView?: number;
+	/** espace entre diapositives, en px */
+	gap?: number;
+	/** transition entre diapositives : glissement (défaut) ou fondu */
+	effect?: CarouselEffect;
 	/** auto-advance interval in ms (0 = off) */
 	autoPlay?: number;
+	/** met l'autoplay en pause au survol (défaut true) */
+	pauseOnHover?: boolean;
 	/** loop back to the start after the last slide */
 	loop?: boolean;
+	/** ratio du cadre, ex. "16 / 9" — fige la hauteur du viewport */
+	aspectRatio?: string;
+	/** index contrôlé */
+	index?: number;
+	defaultIndex?: number;
+	onIndexChange?: (index: number) => void;
 	className?: string;
 	style?: CSSProperties;
 }
 
-/** Swipeable slide carousel with arrows, dots, keyboard and optional autoplay.
- *  Pass each slide as a child. */
+/** Swipeable slide carousel with arrows, indicators, keyboard and optional
+ *  autoplay. Customise it with `slidesPerView` + `gap` (multi-item), `effect`
+ *  (slide / fade), `indicator` (dots / lines / count), `aspectRatio`, and
+ *  controlled `index`. Pass each slide as a child. */
 export function Carousel({
 	children,
 	arrows = true,
 	dots = true,
+	indicator = "dots",
+	slidesPerView = 1,
+	gap = 0,
+	effect = "slide",
 	autoPlay = 0,
+	pauseOnHover = true,
 	loop = true,
+	aspectRatio,
+	index: indexProp,
+	defaultIndex = 0,
+	onIndexChange,
 	className,
 	style,
 }: CarouselProps) {
 	const slides = Array.isArray(children) ? children : [children];
 	const count = slides.length;
-	const [index, setIndex] = useState(0);
+	const fade = effect === "fade";
+	// Le fondu n'affiche qu'une diapo ; sinon on borne à ce qui existe.
+	const perView = fade ? 1 : clamp(slidesPerView, 1, Math.max(1, count));
+	// Positions navigables : on s'arrête quand la dernière diapo est visible.
+	const pages = Math.max(1, count - perView + 1);
+
+	const [index, setIndex] = useControllable<number>(indexProp, defaultIndex, onIndexChange);
+	const [paused, setPaused] = useState(false);
 	const touchX = useRef<number | null>(null);
+
+	// Si le nombre de pages diminue (perView/count changent), on garde un index valide.
+	const active = clamp(index, 0, pages - 1);
 
 	const go = useCallback(
 		(next: number) => {
-			if (loop) setIndex((next + count) % count);
-			else setIndex(clamp(next, 0, count - 1));
+			if (loop) setIndex(((next % pages) + pages) % pages);
+			else setIndex(clamp(next, 0, pages - 1));
 		},
-		[count, loop],
+		[pages, loop, setIndex],
 	);
 
 	useEffect(() => {
-		if (!autoPlay || count <= 1) return;
-		const id = setInterval(() => go(index + 1), autoPlay);
+		if (!autoPlay || count <= 1 || (pauseOnHover && paused)) return;
+		const id = setInterval(() => go(active + 1), autoPlay);
 		return () => clearInterval(id);
-	}, [autoPlay, count, go, index]);
+	}, [autoPlay, count, go, active, pauseOnHover, paused]);
 
-	const canPrev = loop || index > 0;
-	const canNext = loop || index < count - 1;
+	const canPrev = loop || active > 0;
+	const canNext = loop || active < pages - 1;
 
 	return (
 		<section
 			className={cn("camply-carousel__root", className)}
-			style={style}
+			style={{ ...style, "--cu-spv": perView, "--cu-gap": `${gap}px` } as CSSProperties}
 			aria-label="Carrousel"
 			aria-roledescription="carrousel"
 			// biome-ignore lint/a11y/noNoninteractiveTabindex: carrousel focusable pour la navigation ←/→ (pattern APG carousel)
 			tabIndex={0}
 			onKeyDown={(e) => {
-				if (e.key === "ArrowLeft") go(index - 1);
-				else if (e.key === "ArrowRight") go(index + 1);
+				if (e.key === "ArrowLeft") go(active - 1);
+				else if (e.key === "ArrowRight") go(active + 1);
 			}}
-			onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
+			onMouseEnter={() => pauseOnHover && setPaused(true)}
+			onMouseLeave={() => pauseOnHover && setPaused(false)}
+			onTouchStart={(e) => {
+				touchX.current = e.touches[0].clientX;
+			}}
 			onTouchEnd={(e) => {
 				if (touchX.current == null) return;
 				const dx = e.changedTouches[0].clientX - touchX.current;
-				if (Math.abs(dx) > 40) go(index + (dx < 0 ? 1 : -1));
+				if (Math.abs(dx) > 40) go(active + (dx < 0 ? 1 : -1));
 				touchX.current = null;
 			}}
 		>
-			<div className={"camply-carousel__viewport"}>
+			<div
+				className={"camply-carousel__viewport"}
+				style={aspectRatio ? { aspectRatio } : undefined}
+			>
 				<div
-					className={"camply-carousel__track"}
-					style={{ transform: `translateX(-${index * 100}%)` }}
+					className={cn("camply-carousel__track", fade && "camply-carousel__trackFade")}
+					style={
+						fade
+							? undefined
+							: {
+									transform: `translateX(calc(${-active} * (100% + var(--cu-gap)) / var(--cu-spv)))`,
+								}
+					}
 				>
 					{slides.map((slide, i) => (
 						// biome-ignore lint/a11y/useSemanticElements: div+role="group"+aria-roledescription="diapositive" est le pattern APG des slides
 						<div
 							// biome-ignore lint/suspicious/noArrayIndexKey: diapositives = children positionnels — l'index EST l'identité
 							key={i}
-							className={"camply-carousel__slide"}
-							aria-hidden={i !== index}
+							className={cn(
+								"camply-carousel__slide",
+								fade && i === active && "camply-carousel__slideActive",
+							)}
+							aria-hidden={fade ? i !== active : i < active || i >= active + perView}
 							role="group"
 							aria-roledescription="diapositive"
 						>
@@ -96,14 +154,14 @@ export function Carousel({
 					))}
 				</div>
 
-				{arrows && count > 1 && (
+				{arrows && pages > 1 && (
 					<>
 						<button
 							type="button"
 							className={cn("camply-carousel__arrow", "camply-carousel__prev")}
 							aria-label="Précédent"
 							disabled={!canPrev}
-							onClick={() => go(index - 1)}
+							onClick={() => go(active - 1)}
 						>
 							<ChevronLeft size={18} />
 						</button>
@@ -112,7 +170,7 @@ export function Carousel({
 							className={cn("camply-carousel__arrow", "camply-carousel__next")}
 							aria-label="Suivant"
 							disabled={!canNext}
-							onClick={() => go(index + 1)}
+							onClick={() => go(active + 1)}
 						>
 							<ChevronRight size={18} />
 						</button>
@@ -120,21 +178,32 @@ export function Carousel({
 				)}
 			</div>
 
-			{dots && count > 1 && (
-				<div className={"camply-carousel__dots"}>
-					{slides.map((_, i) => (
-						<button
-							// biome-ignore lint/suspicious/noArrayIndexKey: un point par position de diapositive — l'index EST l'identité
-							key={i}
-							type="button"
-							aria-label={`Diapositive ${i + 1}`}
-							aria-current={i === index}
-							className={cn("camply-carousel__dot", i === index && "camply-carousel__dotActive")}
-							onClick={() => setIndex(i)}
-						/>
-					))}
-				</div>
-			)}
+			{dots &&
+				pages > 1 &&
+				(indicator === "count" ? (
+					<div className={"camply-carousel__count"}>
+						{active + 1} / {pages}
+					</div>
+				) : (
+					<div
+						className={cn(
+							"camply-carousel__dots",
+							indicator === "lines" && "camply-carousel__dotsLines",
+						)}
+					>
+						{Array.from({ length: pages }, (_, i) => (
+							<button
+								// biome-ignore lint/suspicious/noArrayIndexKey: un point par page — l'index EST l'identité
+								key={i}
+								type="button"
+								aria-label={`Diapositive ${i + 1}`}
+								aria-current={i === active}
+								className={cn("camply-carousel__dot", i === active && "camply-carousel__dotActive")}
+								onClick={() => setIndex(i)}
+							/>
+						))}
+					</div>
+				))}
 		</section>
 	);
 }

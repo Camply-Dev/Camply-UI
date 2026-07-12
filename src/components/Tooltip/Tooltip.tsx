@@ -4,10 +4,25 @@ import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { type Placement, useAnchor } from "../../lib/useAnchor";
 import { useDelayedOpen } from "../../lib/useDelayedOpen";
+
+export type TooltipTone =
+	| "default"
+	| "plain"
+	| "dark"
+	| "accent"
+	| "success"
+	| "warning"
+	| "danger"
+	| "info";
+
 export interface TooltipProps {
 	content: ReactNode;
 	children: ReactElement;
+	/** icône affichée avant le contenu */
+	icon?: ReactNode;
 	placement?: Placement;
+	/** habillage : clair (défaut), sans fond (plain), sombre ou coloré (accent / sémantique) */
+	tone?: TooltipTone;
 	/** delay before showing, ms */
 	delay?: number;
 	className?: string;
@@ -16,12 +31,15 @@ export interface TooltipProps {
 
 /**
  * Hover/focus tooltip rendered in a Portal — positioned above the trigger by
- * default and flipped/clamped to stay on screen.
+ * default and flipped/clamped to stay on screen. Several looks via `tone`
+ * (default light, dark, accent, success, warning, danger, info).
  */
 export function Tooltip({
 	content,
 	children,
+	icon,
 	placement = "top",
+	tone = "default",
 	delay = 200,
 	className,
 	style: styleProp,
@@ -49,10 +67,20 @@ export function Tooltip({
 					<div
 						ref={tipRef}
 						role="tooltip"
-						className={cn("camply-tooltip__tip", `camply-tooltip__${side}`, className)}
+						className={cn(
+							"camply-tooltip__tip",
+							`camply-tooltip__${side}`,
+							`camply-tooltip__${tone}`,
+							className,
+						)}
 						style={{ ...style, ...styleProp }}
 					>
-						{content}
+						{icon && (
+							<span aria-hidden="true" className={"camply-tooltip__icon"}>
+								{icon}
+							</span>
+						)}
+						<span className={"camply-tooltip__label"}>{content}</span>
 						<span aria-hidden="true" className={"camply-tooltip__arrow"} />
 					</div>
 				</Portal>

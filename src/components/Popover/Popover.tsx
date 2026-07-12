@@ -56,7 +56,7 @@ export function Popover({
 				<Portal>
 					<div
 						ref={panelRef}
-						className={cn("camply-popover__panel", className)}
+						className={cn("camply-floating-surface", "camply-popover__panel", className)}
 						style={{ ...style, ...styleProp }}
 					>
 						{children}

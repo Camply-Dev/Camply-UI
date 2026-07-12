@@ -19,7 +19,15 @@
 	text-decoration: none;
 	transition: color var(--camply-duration);
 }
-a.camply-breadcrumbs__link:hover {
+.camply-breadcrumbs__button {
+	padding: 0;
+	border: none;
+	background: none;
+	font: inherit;
+	cursor: pointer;
+}
+a.camply-breadcrumbs__link:hover,
+button.camply-breadcrumbs__link:hover {
 	color: var(--camply-text);
 }
 .camply-breadcrumbs__current {
