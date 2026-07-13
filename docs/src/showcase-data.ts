@@ -4,7 +4,7 @@
 
 import { PLAYGROUNDS } from "./playground";
 
-export type ComponentStatus = "available" | "upcoming";
+type ComponentStatus = "available" | "upcoming";
 
 export interface ComponentEntry {
 	id: string;
@@ -172,16 +172,7 @@ export const BY_ID: Record<string, ComponentEntry> = Object.fromEntries(
 export const TOTAL = COMPONENTS.length;
 export const AVAILABLE = COMPONENTS.filter((entry) => entry.status === "available");
 
-export const FAMILY_ICON: Record<string, string> = {
-	Primitifs: "components",
-	Formulaires: "form",
-	Surfaces: "surface",
-	Navigation: "nav",
-	Feedback: "feedback",
-	Données: "data",
-};
-
-export interface TokenRow {
+interface TokenRow {
 	name: string;
 	value: string;
 	color?: boolean;

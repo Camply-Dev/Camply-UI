@@ -18,13 +18,13 @@ export const num = (v: unknown) => Number(v);
 export type ControlValue = string | boolean;
 export type Values = Record<string, ControlValue>;
 
-export type Control = { key: string; label: string } & (
+type Control = { key: string; label: string } & (
 	| { type: "text" }
 	| { type: "seg"; options: string[] }
 	| { type: "toggle" }
 );
 
-export type PropRow = [name: string, type: string, description: string];
+type PropRow = [name: string, type: string, description: string];
 
 export interface PlaygroundConfig {
 	/** nom du composant dans le code généré, ex. "Button" */

@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { cn } from "./cn";
 import { useId } from "./useId";
 
-export interface FieldRenderProps {
+interface FieldRenderProps {
 	/** id à poser sur le contrôle (lié au <label htmlFor>) */
 	id: string;
 	/** valeur d'aria-describedby (undefined s'il n'y a ni hint ni erreur) */
