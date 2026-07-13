@@ -9,12 +9,14 @@ import {
 } from "react";
 import { cn } from "../../lib/cn";
 import { Check, ChevronDown, Search } from "../../lib/icons";
+import { Listbox, ListboxOption } from "../../lib/Listbox";
 import { Portal } from "../../lib/Portal";
 import { useAnchor } from "../../lib/useAnchor";
 import { useControllable } from "../../lib/useControllable";
 import { useDismiss } from "../../lib/useDismiss";
 import { useId } from "../../lib/useId";
 import { firstEnabledIndex, useListboxNav } from "../../lib/useListboxNav";
+
 export interface ComboboxOption<T extends string = string> {
 	value: T;
 	label: string;
@@ -35,8 +37,10 @@ export interface ComboboxProps<T extends string = string> {
 	filter?: (option: ComboboxOption<T>, query: string) => boolean;
 }
 
-const defaultFilter = <T extends string>(option: ComboboxOption<T>, query: string) =>
-	option.label.toLowerCase().includes(query.toLowerCase());
+const defaultFilter = <T extends string>(option: ComboboxOption<T>, query: string) => {
+	const q = query.toLowerCase();
+	return option.label.toLowerCase().includes(q);
+};
 
 export function Combobox<T extends string = string>({
 	options,
@@ -51,16 +55,14 @@ export function Combobox<T extends string = string>({
 	style,
 	filter = defaultFilter,
 }: ComboboxProps<T>) {
-	const [selected, setSelected] = useControllable<T | undefined>(
-		value,
-		defaultValue,
-		onChange as ((v: T | undefined) => void) | undefined,
-	);
+	const [selected, setSelected] = useControllable(value, defaultValue, onChange, {
+		allowUndefined: true,
+	});
 	const [open, setOpen] = useState(false);
 	const [query, setQuery] = useState("");
 
 	const wrapRef = useRef<HTMLDivElement>(null);
-	const listRef = useRef<HTMLUListElement>(null);
+	const listRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const listId = useId("combobox");
 
@@ -79,21 +81,14 @@ export function Combobox<T extends string = string>({
 		() => (query ? options.filter((o) => filter(o, query)) : options),
 		[options, query, filter],
 	);
-	const { active, setActive } = useListboxNav(listRef, open, filtered);
+	const { active, setActive, moveActive } = useListboxNav(listRef, open, filtered, {
+		wrap: false,
+	});
 
 	useEffect(() => {
 		const first = firstEnabledIndex(filtered);
 		setActive(first < 0 ? 0 : first);
 	}, [filtered, setActive]);
-
-	const moveActive = (dir: 1 | -1) => {
-		setActive((prev) => {
-			for (let next = prev + dir; next >= 0 && next < filtered.length; next += dir) {
-				if (!filtered[next].disabled) return next;
-			}
-			return prev;
-		});
-	};
 
 	const displayValue = open ? query : (selectedOption?.label ?? "");
 
@@ -164,45 +159,36 @@ export function Combobox<T extends string = string>({
 
 			{open && (
 				<Portal>
-					<ul
-						ref={listRef}
+					<Listbox
+						listRef={listRef}
 						id={listId}
-						// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: ul+role="listbox" est le pattern ARIA canonique
-						role="listbox"
 						className="camply-floating-surface camply-floating-list camply-combobox__list"
 						style={floatStyle}
 					>
 						{filtered.length === 0 ? (
-							<li className={"camply-combobox__empty"}>{emptyMessage}</li>
+							<div className={"camply-combobox__empty"}>{emptyMessage}</div>
 						) : (
 							filtered.map((opt, i) => {
 								const isSelected = opt.value === selected;
 								return (
-									// biome-ignore lint/a11y/useFocusableInteractive: les options ne prennent pas le focus — piloté par aria-activedescendant depuis l'input
-									// biome-ignore lint/a11y/useKeyWithClickEvents: clavier géré au niveau de l'input (↑/↓/Enter/Esc)
-									<li
+									<ListboxOption
 										key={opt.value}
 										id={`${listId}-opt-${i}`}
-										// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: li+role="option" est le pattern ARIA canonique
-										role="option"
-										aria-selected={isSelected}
-										className={cn(
-											"camply-listbox-option",
-											"camply-combobox__option",
-											i === active && "camply-listbox-option--active",
-											opt.disabled && "camply-listbox-option--disabled",
-										)}
+										active={i === active}
+										selected={isSelected}
+										disabled={opt.disabled}
+										className="camply-combobox__option"
 										onMouseEnter={() => !opt.disabled && setActive(i)}
 										onMouseDown={(e) => e.preventDefault()}
 										onClick={() => pick(opt)}
 									>
 										<span>{opt.label}</span>
 										{isSelected && <Check size={15} className={"camply-combobox__tick"} />}
-									</li>
+									</ListboxOption>
 								);
 							})
 						)}
-					</ul>
+					</Listbox>
 				</Portal>
 			)}
 		</div>

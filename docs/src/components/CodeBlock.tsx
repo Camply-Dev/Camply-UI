@@ -37,9 +37,8 @@ export function CodeBlock({ children, lang = "text", title }: CodeBlockProps) {
 			</div>
 			<pre className="cu-code__pre">
 				<code>
-					{tokens.map((t, i) => (
-						// biome-ignore lint/suspicious/noArrayIndexKey: liste de tokens statique, non réordonnée
-						<span key={i} className={`cu-tok cu-tok--${t.type}`}>
+					{tokens.map((t) => (
+						<span key={`${t.start}:${t.type}`} className={`cu-tok cu-tok--${t.type}`}>
 							{t.value}
 						</span>
 					))}

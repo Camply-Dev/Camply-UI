@@ -31,11 +31,9 @@ export function Tree({
 	className,
 	style,
 }: TreeProps) {
-	const [selected, setSelected] = useControllable<string | undefined>(
-		selectedId,
-		defaultSelectedId,
-		onSelect as ((v: string | undefined) => void) | undefined,
-	);
+	const [selected, setSelected] = useControllable(selectedId, defaultSelectedId, onSelect, {
+		allowUndefined: true,
+	});
 	const [expanded, setExpanded] = useState<Set<string>>(() => new Set(defaultExpanded));
 
 	const toggle = (id: string) =>

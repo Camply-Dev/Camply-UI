@@ -1,6 +1,14 @@
-import { type CSSProperties, type KeyboardEvent, useCallback, useRef, useState } from "react";
+import {
+	type CSSProperties,
+	type KeyboardEvent,
+	useCallback,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { cn } from "../../lib/cn";
 import { Check, ChevronDown, X } from "../../lib/icons";
+import { Listbox, ListboxOption } from "../../lib/Listbox";
 import { Portal } from "../../lib/Portal";
 import { useAnchor } from "../../lib/useAnchor";
 import { useControllable } from "../../lib/useControllable";
@@ -42,7 +50,7 @@ export function MultiSelect<T extends string = string>({
 	const [selected, setSelected] = useControllable<T[]>(value, defaultValue, onChange);
 	const [open, setOpen] = useState(false);
 	const triggerRef = useRef<HTMLButtonElement>(null);
-	const listRef = useRef<HTMLUListElement>(null);
+	const listRef = useRef<HTMLDivElement>(null);
 	const listId = useId("multiselect");
 	const { active, setActive, moveActive } = useListboxNav(listRef, open, options);
 
@@ -55,9 +63,15 @@ export function MultiSelect<T extends string = string>({
 	const close = useCallback(() => setOpen(false), []);
 	useDismiss(open, close, [triggerRef, listRef]);
 
+	const selectedSet = useMemo(() => new Set(selected), [selected]);
+	const selectedOptions = useMemo(
+		() => options.filter((o) => selectedSet.has(o.value)),
+		[options, selectedSet],
+	);
+
 	const toggle = (opt: MultiSelectOption<T>) => {
 		if (opt.disabled) return;
-		if (selected.includes(opt.value)) {
+		if (selectedSet.has(opt.value)) {
 			setSelected(selected.filter((v) => v !== opt.value));
 		} else {
 			if (max != null && selected.length >= max) return;
@@ -66,7 +80,6 @@ export function MultiSelect<T extends string = string>({
 	};
 
 	const remove = (val: T) => setSelected(selected.filter((v) => v !== val));
-	const selectedOptions = options.filter((o) => selected.includes(o.value));
 
 	const onKeyDown = (e: KeyboardEvent) => {
 		if (disabled) return;
@@ -150,33 +163,26 @@ export function MultiSelect<T extends string = string>({
 
 			{open && (
 				<Portal>
-					<ul
-						ref={listRef}
+					<Listbox
+						listRef={listRef}
 						id={listId}
-						// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: ul+role="listbox" est le pattern ARIA canonique
-						role="listbox"
-						aria-multiselectable="true"
+						multiselectable
 						className="camply-floating-surface camply-floating-list camply-multiselect__list"
 						style={floatStyle}
 					>
 						{options.map((opt, i) => {
-							const isSelected = selected.includes(opt.value);
+							const isSelected = selectedSet.has(opt.value);
 							const blocked = !isSelected && max != null && selected.length >= max;
 							return (
-								// biome-ignore lint/a11y/useFocusableInteractive: les options ne prennent pas le focus — piloté par aria-activedescendant
-								// biome-ignore lint/a11y/useKeyWithClickEvents: clavier géré au niveau du trigger (↑/↓/Enter/Espace)
-								<li
+								<ListboxOption
 									key={opt.value}
 									id={`${listId}-opt-${i}`}
-									// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: li+role="option" est le pattern ARIA canonique
-									role="option"
-									aria-selected={isSelected}
-									aria-disabled={opt.disabled || blocked || undefined}
+									active={i === active}
+									selected={isSelected}
+									disabled={opt.disabled || blocked}
 									className={cn(
-										"camply-listbox-option camply-multiselect__option",
+										"camply-multiselect__option",
 										isSelected && "camply-multiselect__selected",
-										i === active && "camply-listbox-option--active",
-										(opt.disabled || blocked) && "camply-listbox-option--disabled",
 									)}
 									onMouseEnter={() => !opt.disabled && setActive(i)}
 									onClick={() => toggle(opt)}
@@ -190,10 +196,10 @@ export function MultiSelect<T extends string = string>({
 										{isSelected && <Check size={12} />}
 									</span>
 									<span>{opt.label}</span>
-								</li>
+								</ListboxOption>
 							);
 						})}
-					</ul>
+					</Listbox>
 				</Portal>
 			)}
 		</div>

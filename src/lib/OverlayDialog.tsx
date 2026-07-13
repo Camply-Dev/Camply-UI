@@ -11,6 +11,7 @@ export interface OverlayDialogProps {
 	panelClassName?: string;
 	as?: "div" | "aside";
 	focusPanel?: boolean;
+	ariaLabel?: string;
 	children: ReactNode;
 	style?: CSSProperties;
 }
@@ -23,6 +24,7 @@ export function OverlayDialog({
 	panelClassName,
 	as = "div",
 	focusPanel = true,
+	ariaLabel,
 	children,
 	style,
 }: OverlayDialogProps) {
@@ -42,6 +44,7 @@ export function OverlayDialog({
 		},
 		role: "dialog",
 		"aria-modal": true,
+		"aria-label": ariaLabel,
 		tabIndex: -1,
 		className: cn("camply-overlay-panel", panelClassName),
 		style,

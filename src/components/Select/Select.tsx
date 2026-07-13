@@ -1,6 +1,7 @@
 import { type CSSProperties, type KeyboardEvent, useCallback, useRef, useState } from "react";
 import { cn } from "../../lib/cn";
 import { Check, ChevronDown } from "../../lib/icons";
+import { Listbox, ListboxOption } from "../../lib/Listbox";
 import { Portal } from "../../lib/Portal";
 import { useAnchor } from "../../lib/useAnchor";
 import { useControllable } from "../../lib/useControllable";
@@ -39,15 +40,13 @@ export function Select<T extends string = string>({
 	className,
 	style,
 }: SelectProps<T>) {
-	const [selected, setSelected] = useControllable<T | undefined>(
-		value,
-		defaultValue,
-		onChange as ((v: T | undefined) => void) | undefined,
-	);
+	const [selected, setSelected] = useControllable(value, defaultValue, onChange, {
+		allowUndefined: true,
+	});
 	const [open, setOpen] = useState(false);
 
 	const triggerRef = useRef<HTMLButtonElement>(null);
-	const listRef = useRef<HTMLUListElement>(null);
+	const listRef = useRef<HTMLDivElement>(null);
 	const listId = useId("listbox");
 	const { active, setActive, moveActive } = useListboxNav(listRef, open, options);
 
@@ -145,42 +144,31 @@ export function Select<T extends string = string>({
 
 			{open && (
 				<Portal>
-					<ul
-						ref={listRef}
+					<Listbox
+						listRef={listRef}
 						id={listId}
-						// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: ul+role="listbox" est le pattern ARIA canonique
-						role="listbox"
-						tabIndex={-1}
 						className="camply-floating-surface camply-floating-list camply-select__list"
 						style={floatStyle}
 					>
 						{options.map((opt, i) => {
 							const isSelected = opt.value === selected;
 							return (
-								// biome-ignore lint/a11y/useFocusableInteractive: les options ne prennent pas le focus — piloté par aria-activedescendant depuis le trigger
-								// biome-ignore lint/a11y/useKeyWithClickEvents: clavier géré au niveau du trigger (↑/↓/Enter/Home/End)
-								<li
+								<ListboxOption
 									key={opt.value}
 									id={`${listId}-opt-${i}`}
-									// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: li+role="option" est le pattern ARIA canonique
-									role="option"
-									aria-selected={isSelected}
-									aria-disabled={opt.disabled || undefined}
-									className={cn(
-										"camply-listbox-option",
-										"camply-select__option",
-										i === active && "camply-listbox-option--active",
-										opt.disabled && "camply-listbox-option--disabled",
-									)}
+									active={i === active}
+									selected={isSelected}
+									disabled={opt.disabled}
+									className="camply-select__option"
 									onMouseEnter={() => !opt.disabled && setActive(i)}
 									onClick={() => pick(opt)}
 								>
 									<span>{opt.label}</span>
 									{isSelected && <Check size={15} className={"camply-select__tick"} />}
-								</li>
+								</ListboxOption>
 							);
 						})}
-					</ul>
+					</Listbox>
 				</Portal>
 			)}
 		</div>

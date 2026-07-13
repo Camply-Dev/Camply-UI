@@ -43,12 +43,11 @@ export function Sidebar({ active, onNavigate, onOpenPalette }: SidebarProps) {
 		return { fam: first.title, sub: subKey(first.title, first.subfamilies[0].title) };
 	});
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: resync uniquement sur changement du composant actif
 	useEffect(() => {
 		if (!activeIsComponent) return;
 		const entry = BY_ID[active];
 		if (entry) setOpen({ fam: entry.family, sub: subKey(entry.family, entry.subfamily) });
-	}, [active]);
+	}, [active, activeIsComponent]);
 
 	const famOpen = (family: Family) => (searching ? famHasMatch(family) : open.fam === family.title);
 	const subOpen = (family: Family, sub: Subfamily) =>

@@ -3,6 +3,7 @@ export type Lang = "ts" | "tsx" | "js" | "jsx" | "bash" | "sh" | "html" | "css" 
 export interface Token {
 	type: string;
 	value: string;
+	start: number;
 }
 
 type Rule = [type: string, re: RegExp];
@@ -74,7 +75,7 @@ const RULES: Record<string, Rule[]> = {
 
 export function highlight(code: string, lang: Lang): Token[] {
 	const rules = RULES[lang];
-	if (!rules) return [{ type: "plain", value: code }];
+	if (!rules) return [{ type: "plain", value: code, start: 0 }];
 
 	const tokens: Token[] = [];
 	let i = 0;
@@ -84,7 +85,7 @@ export function highlight(code: string, lang: Lang): Token[] {
 			re.lastIndex = i;
 			const m = re.exec(code);
 			if (m) {
-				tokens.push({ type, value: m[0] });
+				tokens.push({ type, value: m[0], start: i });
 				i += m[0].length || 1;
 				matched = true;
 				break;
@@ -93,7 +94,7 @@ export function highlight(code: string, lang: Lang): Token[] {
 		if (!matched) {
 			const last = tokens[tokens.length - 1];
 			if (last && last.type === "plain") last.value += code[i];
-			else tokens.push({ type: "plain", value: code[i] });
+			else tokens.push({ type: "plain", value: code[i], start: i });
 			i += 1;
 		}
 	}

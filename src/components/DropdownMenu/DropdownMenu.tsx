@@ -27,13 +27,12 @@ export function DropdownMenu({
 			{cloneTrigger(trigger, triggerProps(trigger, { "aria-haspopup": "menu" }))}
 			{open && (
 				<Portal>
-					{/* biome-ignore lint/a11y/useKeyWithClickEvents: délégation de fermeture au clic — les items sont de vrais boutons (clavier natif) et Échap ferme via useDismiss */}
 					<div
 						ref={floatRef}
 						role="menu"
 						className={cn("camply-floating-surface", "camply-dropdownmenu__menu", className)}
 						style={style}
-						onClick={close}
+						onPointerDown={close}
 					>
 						{children}
 					</div>

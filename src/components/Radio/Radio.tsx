@@ -32,11 +32,9 @@ export function RadioGroup({
 	style,
 	children,
 }: RadioGroupProps) {
-	const [current, setCurrent] = useControllable<string | undefined>(
-		value,
-		defaultValue,
-		onChange as ((v: string | undefined) => void) | undefined,
-	);
+	const [current, setCurrent] = useControllable(value, defaultValue, onChange, {
+		allowUndefined: true,
+	});
 	const autoName = useId("radio");
 
 	return (

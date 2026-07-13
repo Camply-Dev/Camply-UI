@@ -1,11 +1,13 @@
-import { type RefObject, useEffect } from "react";
+import { type RefObject, useEffect, useRef } from "react";
 
 export function useDismiss(
 	open: boolean,
 	onClose: () => void,
 	refs: Array<RefObject<HTMLElement | null>>,
 ) {
-	// biome-ignore lint/correctness/useExhaustiveDependencies: refs sont des RefObject stables ; on ne re-souscrit volontairement que sur open/onClose
+	const refsRef = useRef(refs);
+	refsRef.current = refs;
+
 	useEffect(() => {
 		if (!open) return;
 
@@ -14,7 +16,7 @@ export function useDismiss(
 		};
 		const onPointer = (e: PointerEvent) => {
 			const target = e.target as Node;
-			const inside = refs.some((r) => r.current?.contains(target));
+			const inside = refsRef.current.some((r) => r.current?.contains(target));
 			if (!inside) onClose();
 		};
 

@@ -1,4 +1,4 @@
-import { type RefObject, useEffect, useState } from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import { wrapIndex } from "./rovingIndex";
 
 type OptionLike = { disabled?: boolean };
@@ -14,11 +14,21 @@ export function useListboxNav(
 	listRef: RefObject<HTMLElement | null>,
 	open: boolean,
 	options: OptionLike[],
+	config?: { wrap?: boolean },
 ) {
+	const wrap = config?.wrap !== false;
 	const [active, setActive] = useState(0);
+	const listRefStable = useRef(listRef);
+	listRefStable.current = listRef;
 
 	const moveActive = (dir: 1 | -1) => {
 		setActive((prev) => {
+			if (!wrap) {
+				for (let next = prev + dir; next >= 0 && next < options.length; next += dir) {
+					if (!options[next].disabled) return next;
+				}
+				return prev;
+			}
 			let next = prev;
 			for (let i = 0; i < options.length; i++) {
 				next = wrapIndex(next + dir, options.length);
@@ -28,10 +38,9 @@ export function useListboxNav(
 		});
 	};
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: listRef est un RefObject stable
 	useEffect(() => {
 		if (!open) return;
-		const el = listRef.current?.children[active] as HTMLElement | undefined;
+		const el = listRefStable.current.current?.children[active] as HTMLElement | undefined;
 		el?.scrollIntoView({ block: "nearest" });
 	}, [active, open]);
 

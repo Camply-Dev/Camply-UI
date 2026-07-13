@@ -12,8 +12,8 @@ import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 import { filterCommands, groupCommands } from "../../lib/commandPalette";
 import { Search } from "../../lib/icons";
-import { Portal } from "../../lib/Portal";
-import { useEscapeAndScrollLock } from "../../lib/useEscapeAndScrollLock";
+import { OverlayDialog } from "../../lib/OverlayDialog";
+
 export interface Command {
 	id: string;
 	label: string;
@@ -67,8 +67,6 @@ export function CommandPalette({
 		[onClose],
 	);
 
-	useEscapeAndScrollLock(open, onClose);
-
 	const onKeyDown = (e: KeyboardEvent) => {
 		switch (e.key) {
 			case "ArrowDown":
@@ -91,75 +89,67 @@ export function CommandPalette({
 		(el as HTMLElement | null)?.scrollIntoView({ block: "nearest" });
 	}, [active]);
 
-	if (!open) return null;
-
 	return (
-		<Portal>
-			{/* biome-ignore lint/a11y/noStaticElementInteractions: fermeture au clic sur le backdrop — chemin clavier équivalent : Échap */}
-			<div
-				className={cn("camply-overlay-backdrop", "camply-commandpalette__backdrop")}
-				onMouseDown={(e) => e.target === e.currentTarget && onClose()}
-			>
-				<div
-					role="dialog"
-					aria-modal="true"
-					aria-label="Palette de commandes"
-					className={cn("camply-commandpalette__panel", className)}
-					style={style}
-				>
-					<div className={"camply-commandpalette__searchRow"}>
-						<Search size={18} className={"camply-commandpalette__searchIcon"} />
-						<input
-							ref={inputRef}
-							className={"camply-commandpalette__input"}
-							placeholder={placeholder}
-							value={query}
-							onChange={(e) => {
-								setQuery(e.target.value);
-								setActive(0);
-							}}
-							onKeyDown={onKeyDown}
-						/>
-						<kbd className={"camply-commandpalette__esc"}>Esc</kbd>
-					</div>
-
-					<div ref={listRef} className={"camply-commandpalette__list"}>
-						{groups.flat.length === 0 && (
-							<div className={"camply-commandpalette__empty"}>{emptyMessage}</div>
-						)}
-						{[...groups.byGroup.entries()].map(([group, cmds]) => (
-							<div key={group || "_"} className={"camply-commandpalette__group"}>
-								{group && <div className={"camply-commandpalette__groupLabel"}>{group}</div>}
-								{cmds.map((cmd) => {
-									const idx = groups.index.get(cmd) ?? 0;
-									return (
-										<button
-											key={cmd.id}
-											type="button"
-											data-index={idx}
-											className={cn(
-												"camply-commandpalette__item",
-												idx === active && "camply-commandpalette__active",
-											)}
-											onMouseEnter={() => setActive(idx)}
-											onClick={() => run(cmd)}
-										>
-											{cmd.icon && (
-												<span className={"camply-commandpalette__itemIcon"}>{cmd.icon}</span>
-											)}
-											<span className={"camply-commandpalette__itemLabel"}>{cmd.label}</span>
-											{cmd.shortcut && (
-												<kbd className={"camply-commandpalette__shortcut"}>{cmd.shortcut}</kbd>
-											)}
-										</button>
-									);
-								})}
-							</div>
-						))}
-					</div>
-				</div>
+		<OverlayDialog
+			open={open}
+			onClose={onClose}
+			backdropClassName="camply-commandpalette__backdrop"
+			panelClassName={cn("camply-commandpalette__panel", className)}
+			style={style}
+			focusPanel={false}
+			ariaLabel="Palette de commandes"
+		>
+			<div className={"camply-commandpalette__searchRow"}>
+				<Search size={18} className={"camply-commandpalette__searchIcon"} />
+				<input
+					ref={inputRef}
+					className={"camply-commandpalette__input"}
+					placeholder={placeholder}
+					value={query}
+					onChange={(e) => {
+						setQuery(e.target.value);
+						setActive(0);
+					}}
+					onKeyDown={onKeyDown}
+				/>
+				<kbd className={"camply-commandpalette__esc"}>Esc</kbd>
 			</div>
-		</Portal>
+
+			<div ref={listRef} className={"camply-commandpalette__list"}>
+				{groups.flat.length === 0 && (
+					<div className={"camply-commandpalette__empty"}>{emptyMessage}</div>
+				)}
+				{[...groups.byGroup.entries()].map(([group, cmds]) => (
+					<div key={group || "_"} className={"camply-commandpalette__group"}>
+						{group && <div className={"camply-commandpalette__groupLabel"}>{group}</div>}
+						{cmds.map((cmd) => {
+							const idx = groups.index.get(cmd) ?? 0;
+							return (
+								<button
+									key={cmd.id}
+									type="button"
+									data-index={idx}
+									className={cn(
+										"camply-commandpalette__item",
+										idx === active && "camply-commandpalette__active",
+									)}
+									onMouseEnter={() => setActive(idx)}
+									onClick={() => run(cmd)}
+								>
+									{cmd.icon && (
+										<span className={"camply-commandpalette__itemIcon"}>{cmd.icon}</span>
+									)}
+									<span className={"camply-commandpalette__itemLabel"}>{cmd.label}</span>
+									{cmd.shortcut && (
+										<kbd className={"camply-commandpalette__shortcut"}>{cmd.shortcut}</kbd>
+									)}
+								</button>
+							);
+						})}
+					</div>
+				))}
+			</div>
+		</OverlayDialog>
 	);
 }
 
