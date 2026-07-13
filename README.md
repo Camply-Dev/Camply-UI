@@ -29,7 +29,17 @@ export function Example() {
 }
 ```
 
-Le CSS de chaque composant est chargé automatiquement par le bundler (side-effects) : seul le CSS des composants réellement utilisés est inclus.
+Le CSS de chaque composant est chargé automatiquement par le bundler (side-effects) : **seul le CSS des composants réellement importés** est inclus dans le bundle final. Pas besoin d'importer manuellement `DatePicker.css` ou `ColorPicker.css` — importer `{ DatePicker }` depuis `@camply/ui` suffit ; si tu n'utilises pas ces composants, leur CSS n'est pas embarqué.
+
+```tsx
+// ✅ CSS de Button + Badge uniquement
+import { Button, Badge } from "@camply/ui";
+
+// ✅ CSS de DatePicker en plus (plus lourd — ~9 Ko JS + ~3 Ko CSS minifié)
+import { DatePicker } from "@camply/ui";
+```
+
+Les design tokens et utilitaires partagés (`.camply-field-shell`, `.camply-focus-ring`, overlays…) vivent dans `styles.css`, importé une fois au démarrage de l'app.
 
 ### Icônes
 

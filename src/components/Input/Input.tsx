@@ -23,16 +23,17 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 					<div
 						className={cn(
 							"camply-input__wrap",
-							`camply-input__${size}`,
-							error && "camply-input__hasError",
-							disabled && "camply-input__disabled",
+							"camply-field-shell",
+							`camply-field-shell--${size}`,
+							error && "camply-field-shell--error",
+							disabled && "camply-field-shell--disabled",
 						)}
 					>
 						{leftIcon && <span className={"camply-input__iconLeft"}>{leftIcon}</span>}
 						<input
 							ref={ref}
 							id={inputId}
-							className={"camply-input__input"}
+							className={"camply-field-control"}
 							aria-invalid={invalid}
 							aria-describedby={describedBy}
 							disabled={disabled}

@@ -1,62 +1,10 @@
-/* Ossature (field / label / desc) : .camply-field* dans tokens.css. */
+/* Ossature (field / label / desc / coquille) : tokens.css. */
 .camply-input__wrap {
-	--_h: 42px;
-	--_px: 13px;
-	display: flex;
-	align-items: center;
 	gap: 9px;
-	height: var(--_h);
-	padding: 0 var(--_px);
-	border: 1px solid var(--camply-border-strong);
-	border-radius: var(--camply-radius);
-	background: var(--camply-field-bg);
-	transition:
-		border-color var(--camply-duration),
-		box-shadow var(--camply-duration);
 }
-.camply-input__wrap:focus-within {
-	border-color: var(--camply-accent);
-}
-.camply-input__wrap.camply-input__hasError {
-	border-color: var(--camply-danger);
-}
-.camply-input__wrap.camply-input__hasError:focus-within {
-	box-shadow: var(--camply-danger-ring);
-}
-.camply-input__wrap.camply-input__disabled {
+.camply-input__wrap.camply-field-shell--disabled {
 	background: var(--camply-fill-1);
 	border-color: var(--camply-border);
-	cursor: not-allowed;
-}
-
-.camply-input__sm {
-	--_h: 34px;
-	--_px: 11px;
-}
-.camply-input__md {
-	--_h: 42px;
-}
-.camply-input__lg {
-	--_h: 50px;
-	--_px: 15px;
-}
-
-.camply-input__input {
-	flex: 1;
-	min-width: 0;
-	border: none;
-	outline: none;
-	background: transparent;
-	color: var(--camply-text);
-	font-family: inherit;
-	font-size: 14px;
-}
-.camply-input__input::placeholder {
-	color: var(--camply-text-muted-2);
-}
-.camply-input__input:disabled {
-	cursor: not-allowed;
-	color: var(--camply-text-disabled);
 }
 
 .camply-input__iconLeft,

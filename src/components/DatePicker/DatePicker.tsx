@@ -188,14 +188,14 @@ export function DatePicker({
 	const hasValue = mode === "single" ? selected != null : rangeStart != null;
 
 	return (
-		<div className={cn("camply-datepicker__root", className)} style={style}>
-			{label && <span className={"camply-datepicker__label"}>{label}</span>}
+		<div className={cn("camply-field", className)} style={style}>
+			{label && <span className={"camply-field__label"}>{label}</span>}
 			<div
 				ref={triggerRef}
 				className={cn(
-					"camply-datepicker__trigger",
-					open && "camply-datepicker__open",
-					disabled && "camply-datepicker__disabled",
+					"camply-field-shell",
+					open && "camply-field-shell--open",
+					disabled && "camply-field-shell--disabled",
 				)}
 			>
 				<button
@@ -205,14 +205,14 @@ export function DatePicker({
 					aria-expanded={open}
 					aria-controls={popId}
 					aria-label="Ouvrir le calendrier"
-					className={"camply-datepicker__calBtn"}
+					className={"camply-icon-ghost-btn"}
 					onClick={toggleCalendar}
 				>
 					<Calendar size={16} />
 				</button>
 				{mode === "single" ? (
 					<input
-						className={"camply-datepicker__input"}
+						className={"camply-field-control"}
 						value={draft ?? (selected ? formatInput(selected) : "")}
 						placeholder="JJ/MM/AAAA"
 						inputMode="numeric"
@@ -227,6 +227,7 @@ export function DatePicker({
 						type="button"
 						disabled={disabled}
 						className={cn(
+							"camply-field-control",
 							"camply-datepicker__valueBtn",
 							!hasValue && "camply-datepicker__placeholder",
 						)}
@@ -250,7 +251,7 @@ export function DatePicker({
 						<div className={"camply-datepicker__head"}>
 							<button
 								type="button"
-								className={"camply-datepicker__nav"}
+								className={"camply-round-btn camply-focus-ring"}
 								aria-label={yearView ? "Années précédentes" : "Mois précédent"}
 								onClick={() => shiftPage(-1)}
 							>
@@ -267,7 +268,7 @@ export function DatePicker({
 							</button>
 							<button
 								type="button"
-								className={"camply-datepicker__nav"}
+								className={"camply-round-btn camply-focus-ring"}
 								aria-label={yearView ? "Années suivantes" : "Mois suivant"}
 								onClick={() => shiftPage(1)}
 							>
@@ -283,6 +284,7 @@ export function DatePicker({
 										type="button"
 										disabled={yearDisabled(y)}
 										className={cn(
+											"camply-picker-cell",
 											"camply-datepicker__year",
 											y === view.getFullYear() && "camply-datepicker__yearCurrent",
 										)}
@@ -324,6 +326,7 @@ export function DatePicker({
 												type="button"
 												disabled={disabledDay}
 												className={cn(
+													"camply-picker-cell",
 													"camply-datepicker__day",
 													muted && "camply-datepicker__muted",
 													isToday && "camply-datepicker__today",
@@ -343,7 +346,7 @@ export function DatePicker({
 						<div className={"camply-datepicker__footer"}>
 							<button
 								type="button"
-								className={"camply-datepicker__todayBtn"}
+								className={"camply-text-btn camply-datepicker__todayBtn"}
 								onClick={() => {
 									setYearView(false);
 									setView(new Date());
@@ -353,7 +356,11 @@ export function DatePicker({
 								Aujourd'hui
 							</button>
 							{hasValue && (
-								<button type="button" className={"camply-datepicker__clearBtn"} onClick={clear}>
+								<button
+									type="button"
+									className={"camply-text-btn camply-datepicker__clearBtn"}
+									onClick={clear}
+								>
 									Effacer
 								</button>
 							)}

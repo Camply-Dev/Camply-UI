@@ -86,6 +86,7 @@
 
 	/* --- Surfaces & états partagés --- */
 	--camply-field-bg: rgba(0, 0, 0, 0.25); /* fond des champs (Input, Select, …) */
+	--camply-disabled-opacity: 0.55; /* champs et boutons désactivés */
 	--camply-danger-ring: 0 0 0 3px rgba(224, 138, 122, 0.28); /* halo focus en erreur */
 	--camply-danger-soft-hover: rgba(224, 138, 122, 0.22); /* survol d'action danger douce */
 
@@ -412,4 +413,185 @@
 }
 .camply-field__desc--error {
 	color: var(--camply-danger-hover);
+}
+
+/* Coquille de champ (Input, Select, Combobox, DatePicker, ColorPicker…) :
+   bordure, fond, hauteur et états focus / ouvert / erreur / désactivé. */
+.camply-field-shell {
+	--_h: 42px;
+	--_px: 13px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	min-width: 0;
+	height: var(--_h);
+	min-height: var(--_h);
+	padding: 0 var(--_px);
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius);
+	background: var(--camply-field-bg);
+	color: var(--camply-text);
+	font-family: var(--camply-font-sans);
+	font-size: 14px;
+	transition:
+		border-color var(--camply-duration),
+		box-shadow var(--camply-duration);
+}
+.camply-field-shell--sm {
+	--_h: 34px;
+	--_px: 11px;
+	font-size: 13px;
+}
+.camply-field-shell--md {
+	--_h: 42px;
+}
+.camply-field-shell--lg {
+	--_h: 50px;
+	--_px: 15px;
+}
+.camply-field-shell:hover:not(.camply-field-shell--disabled):not(:disabled) {
+	border-color: var(--camply-border-hover);
+}
+.camply-field-shell:focus-within,
+.camply-field-shell--open,
+.camply-field-shell:focus-visible:not(.camply-focus-ring) {
+	outline: none;
+	border-color: var(--camply-accent);
+}
+.camply-field-shell--error {
+	border-color: var(--camply-danger);
+}
+.camply-field-shell--error:focus-within {
+	box-shadow: var(--camply-danger-ring);
+}
+.camply-field-shell--disabled,
+.camply-field-shell:disabled {
+	opacity: var(--camply-disabled-opacity);
+	cursor: not-allowed;
+}
+.camply-field-shell--inert {
+	pointer-events: none;
+}
+
+/* Contrôle transparent à l'intérieur d'une coquille (input, bouton valeur…). */
+.camply-field-control {
+	flex: 1;
+	min-width: 0;
+	border: none;
+	outline: none;
+	background: transparent;
+	color: inherit;
+	font-family: inherit;
+	font-size: inherit;
+	text-align: left;
+}
+.camply-field-control::placeholder {
+	color: var(--camply-text-muted-2);
+}
+.camply-field-control:disabled {
+	cursor: not-allowed;
+	color: var(--camply-text-disabled);
+}
+
+/* Anneau de focus clavier réutilisable (boutons icône, déclencheurs compacts…). */
+.camply-focus-ring:focus-visible {
+	outline: none;
+	box-shadow: var(--camply-ring);
+}
+
+/* Bouton icône sans fond (calendrier, actions secondaires dans un champ). */
+.camply-icon-ghost-btn {
+	display: inline-flex;
+	align-items: center;
+	flex: none;
+	padding: 0;
+	border: none;
+	background: none;
+	color: var(--camply-text-muted-2);
+	cursor: pointer;
+}
+.camply-icon-ghost-btn:disabled {
+	cursor: not-allowed;
+}
+
+/* Bouton rond de navigation (flèches calendrier, carrousel…). */
+.camply-round-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border: none;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--camply-text-muted);
+	cursor: pointer;
+	transition:
+		background var(--camply-duration),
+		color var(--camply-duration);
+}
+.camply-round-btn:hover:not(:disabled) {
+	background: var(--camply-fill-2);
+	color: var(--camply-text);
+}
+.camply-round-btn:disabled {
+	cursor: not-allowed;
+}
+
+/* Cellule cliquable de grille (jour, année…). */
+.camply-picker-cell {
+	border: none;
+	border-radius: var(--camply-radius-sm);
+	background: transparent;
+	color: var(--camply-text);
+	font-family: inherit;
+	font-size: 13px;
+	cursor: pointer;
+	transition:
+		background var(--camply-duration),
+		color var(--camply-duration);
+}
+.camply-picker-cell:hover:not(:disabled) {
+	background: var(--camply-fill-3);
+}
+.camply-picker-cell:disabled {
+	color: var(--camply-text-disabled);
+	cursor: not-allowed;
+}
+
+/* Lien-bouton textuel (Aujourd'hui, Effacer…). */
+.camply-text-btn {
+	border: none;
+	background: none;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+/* Damier de transparence (pastilles couleur, curseur alpha). */
+.camply-checkerboard {
+	background-image:
+		linear-gradient(45deg, rgba(255, 255, 255, 0.14) 25%, transparent 25%),
+		linear-gradient(-45deg, rgba(255, 255, 255, 0.14) 25%, transparent 25%),
+		linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.14) 75%),
+		linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.14) 75%);
+	background-size: 10px 10px;
+	background-position:
+		0 0,
+		0 5px,
+		5px -5px,
+		-5px 0;
+	background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Chevron de déclencheur (Select, Combobox, ColorPicker…). */
+.camply-chevron {
+	flex: none;
+	color: var(--camply-text-muted-2);
+	transition: transform var(--camply-duration);
+}
+.camply-chevron--open {
+	transform: rotate(180deg);
 }

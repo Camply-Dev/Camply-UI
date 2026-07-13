@@ -1,61 +1,8 @@
-.camply-select__root {
-	display: flex;
-	flex-direction: column;
-	gap: 7px;
-	font-family: var(--camply-font-sans);
-}
-.camply-select__label {
-	font-size: 13px;
-	font-weight: 600;
-	color: var(--camply-text);
-}
-
+/* Ossature (field / label) : .camply-field* ; coquille : .camply-field-shell* dans tokens.css. */
 .camply-select__trigger {
-	--_h: 42px;
-	--_px: 13px;
-	display: flex;
-	align-items: center;
 	justify-content: space-between;
-	gap: 10px;
-	width: 100%;
-	height: var(--_h);
-	padding: 0 var(--_px);
-	border: 1px solid var(--camply-border-strong);
-	border-radius: var(--camply-radius);
-	background: var(--camply-field-bg);
-	color: var(--camply-text);
-	font-family: inherit;
-	font-size: 14px;
 	cursor: pointer;
 	text-align: left;
-	transition:
-		border-color var(--camply-duration),
-		box-shadow var(--camply-duration);
-}
-.camply-select__trigger:hover:not(:disabled) {
-	border-color: var(--camply-fill-4);
-}
-.camply-select__trigger:focus-visible,
-.camply-select__trigger.camply-select__open {
-	outline: none;
-	border-color: var(--camply-accent);
-}
-.camply-select__trigger:disabled {
-	cursor: not-allowed;
-	opacity: 0.55;
-}
-
-.camply-select__sm {
-	--_h: 34px;
-	--_px: 11px;
-	font-size: 13px;
-}
-.camply-select__md {
-	--_h: 42px;
-}
-.camply-select__lg {
-	--_h: 50px;
-	--_px: 15px;
 }
 
 .camply-select__value {
@@ -66,16 +13,7 @@
 .camply-select__placeholder {
 	color: var(--camply-text-muted-2);
 }
-.camply-select__chevron {
-	flex: none;
-	color: var(--camply-text-muted-2);
-	transition: transform var(--camply-duration);
-}
-.camply-select__open .camply-select__chevron {
-	transform: rotate(180deg);
-}
 
-/* Ossature de l'option : .camply-listbox-option* dans tokens.css. */
 .camply-select__option {
 	justify-content: space-between;
 }

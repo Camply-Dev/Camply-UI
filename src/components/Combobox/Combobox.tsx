@@ -139,14 +139,14 @@ export function Combobox<T extends string = string>({
 	};
 
 	return (
-		<div className={cn("camply-combobox__root", className)} style={style}>
-			{label && <span className={"camply-combobox__label"}>{label}</span>}
+		<div className={cn("camply-field", className)} style={style}>
+			{label && <span className={"camply-field__label"}>{label}</span>}
 			<div
 				ref={wrapRef}
 				className={cn(
-					"camply-combobox__control",
-					open && "camply-combobox__open",
-					disabled && "camply-combobox__disabled",
+					"camply-field-shell",
+					open && "camply-field-shell--open",
+					disabled && "camply-field-shell--disabled camply-field-shell--inert",
 				)}
 			>
 				<Search size={16} className={"camply-combobox__searchIcon"} />
@@ -158,7 +158,7 @@ export function Combobox<T extends string = string>({
 					aria-controls={listId}
 					aria-autocomplete="list"
 					aria-activedescendant={open && filtered[active] ? `${listId}-opt-${active}` : undefined}
-					className={"camply-combobox__input"}
+					className={"camply-field-control"}
 					placeholder={placeholder}
 					value={displayValue}
 					disabled={disabled}
@@ -170,10 +170,7 @@ export function Combobox<T extends string = string>({
 					}}
 					onKeyDown={onKeyDown}
 				/>
-				<ChevronDown
-					size={16}
-					className={cn("camply-combobox__chevron", open && "camply-combobox__chevronOpen")}
-				/>
+				<ChevronDown size={16} className={cn("camply-chevron", open && "camply-chevron--open")} />
 			</div>
 
 			{open && (

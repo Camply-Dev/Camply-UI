@@ -120,8 +120,8 @@ export function Select<T extends string = string>({
 	};
 
 	return (
-		<div className={cn("camply-select__root", className)} style={style}>
-			{label && <span className={"camply-select__label"}>{label}</span>}
+		<div className={cn("camply-field", className)} style={style}>
+			{label && <span className={"camply-field__label"}>{label}</span>}
 			<button
 				ref={triggerRef}
 				type="button"
@@ -132,9 +132,10 @@ export function Select<T extends string = string>({
 				aria-activedescendant={open ? `${listId}-opt-${active}` : undefined}
 				disabled={disabled}
 				className={cn(
+					"camply-field-shell",
 					"camply-select__trigger",
-					`camply-select__${size}`,
-					open && "camply-select__open",
+					`camply-field-shell--${size}`,
+					open && "camply-field-shell--open",
 				)}
 				onClick={() => (open ? setOpen(false) : openMenu())}
 				onKeyDown={onKeyDown}
@@ -144,7 +145,7 @@ export function Select<T extends string = string>({
 				>
 					{selectedOption ? selectedOption.label : placeholder}
 				</span>
-				<ChevronDown size={16} className={"camply-select__chevron"} />
+				<ChevronDown size={16} className={cn("camply-chevron", open && "camply-chevron--open")} />
 			</button>
 
 			{open && (

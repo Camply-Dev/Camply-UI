@@ -230,7 +230,11 @@ export function ColorPicker({
 				/>
 			</div>
 
-			<div ref={alphaRef} className={"camply-colorpicker__alpha"} onPointerDown={dragAlpha}>
+			<div
+				ref={alphaRef}
+				className={"camply-checkerboard camply-colorpicker__alpha"}
+				onPointerDown={dragAlpha}
+			>
 				<span
 					className={"camply-colorpicker__alphaFill"}
 					style={{ background: `linear-gradient(to right, transparent, ${solidHex})` }}
@@ -307,10 +311,15 @@ export function ColorPicker({
 	if (variant === "swatch") {
 		return (
 			<div
-				className={cn("camply-colorpicker__root", "camply-colorpicker__swatchOnly", className)}
+				className={cn(
+					"camply-field",
+					"camply-colorpicker__root",
+					"camply-colorpicker__swatchOnly",
+					className,
+				)}
 				style={style}
 			>
-				{label && <span className={"camply-colorpicker__label"}>{label}</span>}
+				{label && <span className={"camply-field__label"}>{label}</span>}
 				<button
 					ref={triggerRef}
 					type="button"
@@ -321,7 +330,12 @@ export function ColorPicker({
 							? `${label} : ${hasColor ? hexOut : "aucune"}`
 							: `Couleur ${hasColor ? hexOut : "aucune"}`
 					}
-					className={cn("camply-colorpicker__swatch", "camply-colorpicker__swatchTrigger")}
+					className={cn(
+						"camply-checkerboard",
+						"camply-focus-ring",
+						"camply-colorpicker__swatch",
+						"camply-colorpicker__swatchTrigger",
+					)}
 					onMouseEnter={openNow}
 					onMouseLeave={scheduleClose}
 					onFocus={openNow}
@@ -340,10 +354,15 @@ export function ColorPicker({
 	if (compact) {
 		return (
 			<div
-				className={cn("camply-colorpicker__root", "camply-colorpicker__compact", className)}
+				className={cn(
+					"camply-field",
+					"camply-colorpicker__root",
+					"camply-colorpicker__compact",
+					className,
+				)}
 				style={style}
 			>
-				{label && <span className={"camply-colorpicker__label"}>{label}</span>}
+				{label && <span className={"camply-field__label"}>{label}</span>}
 				<button
 					ref={triggerRef}
 					type="button"
@@ -354,13 +373,18 @@ export function ColorPicker({
 							? `${label} : ${hasColor ? hexOut : "aucune"}`
 							: `Couleur ${hasColor ? hexOut : "aucune"}`
 					}
-					className={cn("camply-colorpicker__trigger", open && "camply-colorpicker__trigger--open")}
+					className={cn(
+						"camply-field-shell",
+						"camply-focus-ring",
+						"camply-colorpicker__trigger",
+						open && "camply-field-shell--open",
+					)}
 					onMouseEnter={openNow}
 					onMouseLeave={scheduleClose}
 					onFocus={openNow}
 					onClick={openNow}
 				>
-					<span className={"camply-colorpicker__swatch"} aria-hidden="true">
+					<span className={"camply-checkerboard camply-colorpicker__swatch"} aria-hidden="true">
 						<span
 							className={"camply-colorpicker__swatchFill"}
 							style={{ background: hasColor ? rgbaFill : "transparent" }}
@@ -374,7 +398,7 @@ export function ColorPicker({
 					>
 						{hasColor ? hexOut : "Choisir une couleur"}
 					</span>
-					<span className={"camply-colorpicker__triggerChevron"} aria-hidden="true">
+					<span className={cn("camply-chevron", open && "camply-chevron--open")} aria-hidden="true">
 						<ChevronDown size={16} />
 					</span>
 				</button>
@@ -385,8 +409,8 @@ export function ColorPicker({
 
 	// Mode full : sélecteur en ligne + champs HEX / RGB éditables.
 	return (
-		<div className={cn("camply-colorpicker__root", className)} style={style}>
-			{label && <span className={"camply-colorpicker__label"}>{label}</span>}
+		<div className={cn("camply-field", "camply-colorpicker__root", className)} style={style}>
+			{label && <span className={"camply-field__label"}>{label}</span>}
 			{pickerCore}
 			{editFields}
 		</div>

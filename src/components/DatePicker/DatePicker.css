@@ -1,98 +1,3 @@
-.camply-datepicker__root {
-	display: flex;
-	flex-direction: column;
-	gap: 7px;
-	font-family: var(--camply-font-sans);
-}
-.camply-datepicker__label {
-	font-size: 13px;
-	font-weight: 600;
-	color: var(--camply-text);
-}
-
-.camply-datepicker__trigger {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	width: 100%;
-	height: 42px;
-	padding: 0 13px;
-	border: 1px solid var(--camply-border-strong);
-	border-radius: var(--camply-radius);
-	background: var(--camply-field-bg);
-	color: var(--camply-text);
-	font-family: inherit;
-	font-size: 14px;
-	transition:
-		border-color var(--camply-duration),
-		box-shadow var(--camply-duration);
-}
-.camply-datepicker__trigger:hover {
-	border-color: var(--camply-border-hover);
-}
-.camply-datepicker__trigger:focus-within,
-.camply-datepicker__open {
-	border-color: var(--camply-accent);
-}
-.camply-datepicker__disabled {
-	opacity: 0.55;
-}
-
-/* Bouton icône calendrier (ouvre le popover). */
-.camply-datepicker__calBtn {
-	display: inline-flex;
-	align-items: center;
-	flex: none;
-	padding: 0;
-	border: none;
-	background: none;
-	color: var(--camply-text-muted-2);
-	cursor: pointer;
-}
-.camply-datepicker__calBtn:disabled {
-	cursor: not-allowed;
-}
-
-/* Champ de saisie JJ/MM/AAAA (mode single). */
-.camply-datepicker__input {
-	flex: 1;
-	min-width: 0;
-	border: none;
-	outline: none;
-	background: transparent;
-	color: var(--camply-text);
-	font-family: inherit;
-	font-size: 14px;
-}
-.camply-datepicker__input::placeholder {
-	color: var(--camply-text-muted-2);
-}
-.camply-datepicker__input:disabled {
-	cursor: not-allowed;
-}
-
-/* Affichage de la valeur (mode range, ouvre le popover). */
-.camply-datepicker__valueBtn {
-	flex: 1;
-	min-width: 0;
-	border: none;
-	background: none;
-	color: var(--camply-text);
-	font-family: inherit;
-	font-size: 14px;
-	text-align: left;
-	cursor: pointer;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-.camply-datepicker__valueBtn:disabled {
-	cursor: not-allowed;
-}
-.camply-datepicker__placeholder {
-	color: var(--camply-text-muted-2);
-}
-
 .camply-datepicker__pop {
 	width: 296px;
 	padding: 14px;
@@ -104,23 +9,7 @@
 	justify-content: space-between;
 	margin-bottom: 12px;
 }
-.camply-datepicker__nav {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 28px;
-	height: 28px;
-	border: none;
-	border-radius: 50%;
-	background: transparent;
-	color: var(--camply-text-muted);
-	cursor: pointer;
-	transition: background var(--camply-duration);
-}
-.camply-datepicker__nav:hover {
-	background: var(--camply-fill-2);
-	color: var(--camply-text);
-}
+
 .camply-datepicker__monthLabel {
 	padding: 4px 10px;
 	border: none;
@@ -138,7 +27,6 @@
 	background: var(--camply-fill-2);
 }
 
-/* Grille de sélection d'année (12 par page). */
 .camply-datepicker__years {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
@@ -146,23 +34,6 @@
 }
 .camply-datepicker__year {
 	padding: 12px 0;
-	border: none;
-	border-radius: var(--camply-radius-sm);
-	background: transparent;
-	color: var(--camply-text);
-	font-family: inherit;
-	font-size: 13px;
-	cursor: pointer;
-	transition:
-		background var(--camply-duration),
-		color var(--camply-duration);
-}
-.camply-datepicker__year:hover:not(:disabled) {
-	background: var(--camply-fill-3);
-}
-.camply-datepicker__year:disabled {
-	color: var(--camply-text-disabled);
-	cursor: not-allowed;
 }
 .camply-datepicker__yearCurrent {
 	background: var(--camply-accent);
@@ -192,24 +63,8 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	border: none;
-	border-radius: var(--camply-radius-sm);
-	background: transparent;
-	color: var(--camply-text);
-	font-family: inherit;
-	font-size: 13px;
-	cursor: pointer;
-	transition:
-		background var(--camply-duration),
-		color var(--camply-duration);
 }
-.camply-datepicker__day:hover:not(:disabled) {
-	background: var(--camply-fill-3);
-}
-.camply-datepicker__day:disabled {
-	color: var(--camply-text-disabled);
-	cursor: not-allowed;
-}
+
 .camply-datepicker__muted {
 	color: var(--camply-text-muted-2);
 }
@@ -238,15 +93,6 @@
 	padding-top: 12px;
 	border-top: 1px solid var(--camply-border);
 }
-.camply-datepicker__todayBtn,
-.camply-datepicker__clearBtn {
-	border: none;
-	background: none;
-	font-family: inherit;
-	font-size: 13px;
-	font-weight: 600;
-	cursor: pointer;
-}
 .camply-datepicker__todayBtn {
 	color: var(--camply-accent-hover);
 }
@@ -255,4 +101,14 @@
 }
 .camply-datepicker__clearBtn:hover {
 	color: var(--camply-danger-hover);
+}
+
+.camply-datepicker__valueBtn {
+	cursor: pointer;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.camply-datepicker__placeholder {
+	color: var(--camply-text-muted-2);
 }
