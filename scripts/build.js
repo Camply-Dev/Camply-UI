@@ -36,21 +36,20 @@ function addUseClient() {
 	}
 }
 
-function collectJsFiles(dir) {
+function collectFiles(dir, suffix) {
 	const files = [];
 	for (const name of readdirSync(dir)) {
 		const path = join(dir, name);
 		if (statSync(path).isDirectory()) {
-			files.push(...collectJsFiles(path));
+			files.push(...collectFiles(path, suffix));
 			continue;
 		}
-		if (name.endsWith(".js")) files.push(path);
+		if (path.endsWith(suffix)) files.push(path);
 	}
 	return files;
 }
 
-async function minifyJsFiles() {
-	const files = collectJsFiles(dist);
+async function minifyFiles(files, buildOptions) {
 	if (files.length === 0) return;
 
 	await esbuild.build({
@@ -59,9 +58,7 @@ async function minifyJsFiles() {
 		outbase: dist,
 		allowOverwrite: true,
 		minify: true,
-		format: "esm",
-		platform: "neutral",
-		target: "es2022",
+		...buildOptions,
 	});
 }
 
@@ -73,6 +70,11 @@ if (tsc.exitCode !== 0) process.exit(tsc.exitCode ?? 1);
 
 copyCssFiles();
 addUseClient();
-await minifyJsFiles();
+await minifyFiles(collectFiles(dist, ".js"), {
+	format: "esm",
+	platform: "neutral",
+	target: "es2022",
+});
+await minifyFiles(collectFiles(dist, ".css"), {});
 
 console.log("Build complete");
