@@ -277,7 +277,7 @@
 		"dev": "bun --cwd docs dev",
 		"docs:dev": "bun --cwd docs dev",
 		"docs:build": "bun --cwd docs build",
-		"build": "tsup && bun scripts/post-build.ts",
+		"build": "bunx --bun tsup && bun scripts/post-build.ts",
 		"typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p docs/tsconfig.json",
 		"check": "biome check .",
 		"lint": "biome lint .",
