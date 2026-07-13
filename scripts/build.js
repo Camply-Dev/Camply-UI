@@ -3,6 +3,7 @@ import {
 	mkdirSync,
 	readdirSync,
 	readFileSync,
+	rmSync,
 	statSync,
 	writeFileSync,
 } from "node:fs";
@@ -11,6 +12,10 @@ import * as esbuild from "esbuild";
 
 const root = resolve(import.meta.dirname, "..");
 const dist = join(root, "dist");
+
+const tsEntrypoints = [
+	...new Bun.Glob("src/**/*.{ts,tsx}").scanSync({ cwd: root, onlyFiles: true }),
+];
 
 function copyCssFiles() {
 	for (const path of new Bun.Glob("src/**/*.css").scanSync({ cwd: root, onlyFiles: true })) {
@@ -49,7 +54,8 @@ function collectFiles(dir, suffix) {
 	return files;
 }
 
-async function minifyFiles(files, buildOptions) {
+async function minifyCss() {
+	const files = collectFiles(dist, ".css");
 	if (files.length === 0) return;
 
 	await esbuild.build({
@@ -58,23 +64,47 @@ async function minifyFiles(files, buildOptions) {
 		outbase: dist,
 		allowOverwrite: true,
 		minify: true,
-		...buildOptions,
 	});
 }
 
-const tsc = Bun.spawnSync(["tsc"], {
-	cwd: root,
-	stdio: ["inherit", "inherit", "inherit"],
-});
-if (tsc.exitCode !== 0) process.exit(tsc.exitCode ?? 1);
+/** JS : esbuild (rapide, imports préservés). Types : tsc --emitDeclarationOnly en parallèle. */
+async function emitJavaScript() {
+	await esbuild.build({
+		entryPoints: tsEntrypoints,
+		outdir: dist,
+		outbase: join(root, "src"),
+		format: "esm",
+		platform: "neutral",
+		target: "es2022",
+		minify: true,
+		packages: "external",
+		jsx: "automatic",
+	});
+}
+
+function emitDeclarations() {
+	const tsc = Bun.spawnSync(["tsc", "--emitDeclarationOnly"], {
+		cwd: root,
+		stdio: ["inherit", "inherit", "inherit"],
+	});
+	if (tsc.exitCode !== 0) process.exit(tsc.exitCode ?? 1);
+}
+
+function bundleDeclarations() {
+	const bundleDts = Bun.spawnSync(["node", join(root, "scripts/bundle-dts.cjs")], {
+		cwd: root,
+		stdio: ["inherit", "inherit", "inherit"],
+	});
+	if (bundleDts.exitCode !== 0) process.exit(bundleDts.exitCode ?? 1);
+}
+
+rmSync(dist, { recursive: true, force: true });
+
+await Promise.all([emitJavaScript(), Promise.resolve().then(emitDeclarations)]);
 
 copyCssFiles();
 addUseClient();
-await minifyFiles(collectFiles(dist, ".js"), {
-	format: "esm",
-	platform: "neutral",
-	target: "es2022",
-});
-await minifyFiles(collectFiles(dist, ".css"), {});
+
+await Promise.all([minifyCss(), Promise.resolve().then(bundleDeclarations)]);
 
 console.log("Build complete");

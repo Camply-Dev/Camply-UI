@@ -14,6 +14,7 @@
 		"types": ["bun"],
 		"declaration": true,
 		"declarationMap": false,
+		"emitDeclarationOnly": true,
 		"outDir": "dist",
 		"rootDir": "src",
 		"paths": {
