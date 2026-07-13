@@ -4,7 +4,6 @@ import { ChevronRight } from "../../lib/icons";
 export interface Crumb {
 	label: ReactNode;
 	href?: string;
-	/** Navigation applicative (SPA) : rend le crumb cliquable sans URL. Ignoré sur le dernier crumb. */
 	onClick?: () => void;
 }
 
@@ -25,7 +24,6 @@ export function Breadcrumbs({ items, separator, className, style }: BreadcrumbsP
 			<ol className={"camply-breadcrumbs__list"}>
 				{items.map((item, i) => {
 					const isLast = i === items.length - 1;
-					// href ou label textuel comme clé ; repli positionnel pour les crumbs purement visuels
 					const key = item.href ?? (typeof item.label === "string" ? item.label : i);
 					return (
 						<Fragment key={key}>

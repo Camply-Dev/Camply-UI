@@ -3,7 +3,6 @@ import { cn } from "../../lib/cn";
 import { X } from "../../lib/icons";
 
 export interface TagProps extends HTMLAttributes<HTMLSpanElement> {
-	/** when provided, renders a remove (×) button */
 	onRemove?: () => void;
 	removeLabel?: string;
 	children: ReactNode;

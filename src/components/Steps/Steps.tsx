@@ -8,7 +8,6 @@ export interface Step {
 
 export interface StepsProps {
 	steps: Step[];
-	/** index of the current (in-progress) step, 0-based */
 	current: number;
 	orientation?: "horizontal" | "vertical";
 	className?: string;
@@ -28,7 +27,6 @@ export function Steps({
 			style={style}
 			aria-label="Progression par étapes"
 		>
-			{/* étapes déclaratives ordonnées — la position est l'identité */}
 			{steps.map((step, i) => {
 				const state = i < current ? "done" : i === current ? "current" : "upcoming";
 				const isLast = i === steps.length - 1;

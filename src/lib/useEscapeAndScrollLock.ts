@@ -1,7 +1,5 @@
 import { useEffect } from "react";
 
-/** Tant que `open` est vrai : ferme sur Échap et verrouille le défilement de la
- *  page (restauré à la fermeture). Partagé par Modal, Drawer et Sheet. */
 export function useEscapeAndScrollLock(open: boolean, onClose: () => void) {
 	useEffect(() => {
 		if (!open) return;

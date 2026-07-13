@@ -2,14 +2,11 @@ import type { CSSProperties, ReactNode } from "react";
 import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 export interface RadialProgressProps {
-	/** 0–100 */
 	value: number;
 	size?: number;
 	thickness?: number;
 	tone?: "accent" | "info" | "warn" | "danger";
-	/** show the numeric percentage in the middle */
 	showValue?: boolean;
-	/** custom center content (overrides showValue) */
 	children?: ReactNode;
 	className?: string;
 	style?: CSSProperties;

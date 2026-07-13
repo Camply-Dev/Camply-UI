@@ -6,7 +6,6 @@ export interface TimelineItem {
 	title: ReactNode;
 	time?: ReactNode;
 	description?: ReactNode;
-	/** custom node inside the dot (e.g. an icon) */
 	icon?: ReactNode;
 	tone?: TimelineTone;
 }

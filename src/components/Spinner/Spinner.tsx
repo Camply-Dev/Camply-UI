@@ -2,7 +2,6 @@ import type { CSSProperties } from "react";
 import { cn } from "../../lib/cn";
 export interface SpinnerProps {
 	size?: number;
-	/** stroke thickness in px */
 	thickness?: number;
 	label?: string;
 	className?: string;

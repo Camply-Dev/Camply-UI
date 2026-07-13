@@ -14,8 +14,6 @@ export interface HoverCardProps {
 	style?: CSSProperties;
 }
 
-/** Rich content shown on hover/focus (user cards, previews). Portalled and
- *  anchored; stays open while the pointer is over the card. */
 export function HoverCard({
 	trigger,
 	children,

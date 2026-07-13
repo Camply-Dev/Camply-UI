@@ -10,9 +10,7 @@ interface AccordionContextValue {
 const AccordionContext = createContext<AccordionContextValue | null>(null);
 
 export interface AccordionProps {
-	/** allow multiple panels open at once */
 	multiple?: boolean;
-	/** initially open value(s) */
 	defaultValue?: string | string[];
 	className?: string;
 	style?: CSSProperties;
@@ -82,7 +80,7 @@ export function AccordionItem({ value, title, children, disabled }: AccordionIte
 					className={cn("camply-accordion__chevron", open && "camply-accordion__chevronOpen")}
 				/>
 			</button>
-			{/* <section> nommé par le trigger = région ARIA (pattern APG accordion). */}
+
 			<section
 				id={panelId}
 				aria-labelledby={triggerId}

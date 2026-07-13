@@ -1,4 +1,3 @@
-// Configs playground — famille Navigation.
 import {
 	Accordion,
 	AccordionItem,

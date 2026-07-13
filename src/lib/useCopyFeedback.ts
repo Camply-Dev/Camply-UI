@@ -1,8 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 
-/** État « copié » avec retour visuel temporaire. `copy(text)` écrit dans le
- *  presse-papiers, passe `copied` à true, puis le remet à false après `resetMs`.
- *  Le timer est nettoyé au démontage et à chaque nouvelle copie. */
 export function useCopyFeedback(resetMs = 1400) {
 	const [copied, setCopied] = useState(false);
 	const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -15,9 +12,7 @@ export function useCopyFeedback(resetMs = 1400) {
 			setCopied(true);
 			clearTimeout(timer.current);
 			timer.current = setTimeout(() => setCopied(false), resetMs);
-		} catch {
-			/* presse-papiers indisponible */
-		}
+		} catch {}
 	};
 
 	return { copied, copy };

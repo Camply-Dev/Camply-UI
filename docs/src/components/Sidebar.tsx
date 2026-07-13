@@ -36,8 +36,6 @@ export function Sidebar({ active, onNavigate, onOpenPalette }: SidebarProps) {
 		family.subfamilies.some((s) => s.items.some((i) => matches(i.label)));
 	const subHasMatch = (sub: Subfamily) => sub.items.some((i) => matches(i.label));
 
-	// Accordéon : UNE seule famille et UNE seule sous-famille ouvertes à la fois.
-	// Par défaut : la famille/sous-famille du composant actif, sinon la première.
 	const [open, setOpen] = useState<{ fam: string; sub: string }>(() => {
 		const entry = activeIsComponent ? BY_ID[active] : undefined;
 		if (entry) return { fam: entry.family, sub: subKey(entry.family, entry.subfamily) };
@@ -45,8 +43,6 @@ export function Sidebar({ active, onNavigate, onOpenPalette }: SidebarProps) {
 		return { fam: first.title, sub: subKey(first.title, first.subfamilies[0].title) };
 	});
 
-	// Naviguer vers un composant (sidebar ou palette) ouvre sa famille + sa
-	// sous-famille et referme toutes les autres.
 	// biome-ignore lint/correctness/useExhaustiveDependencies: resync uniquement sur changement du composant actif
 	useEffect(() => {
 		if (!activeIsComponent) return;
@@ -58,8 +54,6 @@ export function Sidebar({ active, onNavigate, onOpenPalette }: SidebarProps) {
 	const subOpen = (family: Family, sub: Subfamily) =>
 		searching ? subHasMatch(sub) : open.sub === subKey(family.title, sub.title);
 
-	// Ouvrir une famille referme les autres (et ouvre sa 1re sous-famille) ;
-	// recliquer la famille ouverte referme tout.
 	const toggleFam = (family: Family) => {
 		setOpen((cur) =>
 			cur.fam === family.title
@@ -68,7 +62,6 @@ export function Sidebar({ active, onNavigate, onOpenPalette }: SidebarProps) {
 		);
 	};
 
-	// Ouvrir une sous-famille referme les autres ; recliquer la referme.
 	const toggleSub = (family: Family, sub: Subfamily) => {
 		const key = subKey(family.title, sub.title);
 		setOpen((cur) => ({ fam: family.title, sub: cur.sub === key ? "" : key }));

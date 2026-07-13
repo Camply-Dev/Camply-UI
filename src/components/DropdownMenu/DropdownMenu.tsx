@@ -5,7 +5,6 @@ import { Portal } from "../../lib/Portal";
 import type { Placement } from "../../lib/useAnchor";
 import { useClickDisclosure } from "../../lib/useClickDisclosure";
 export interface DropdownMenuProps {
-	/** the clickable element that toggles the menu */
 	trigger: ReactElement;
 	children: ReactNode;
 	placement?: Placement;
@@ -50,7 +49,6 @@ export interface MenuItemProps {
 	onSelect?: () => void;
 	danger?: boolean;
 	disabled?: boolean;
-	/** trailing hint, e.g. a keyboard shortcut */
 	shortcut?: string;
 	className?: string;
 	style?: CSSProperties;

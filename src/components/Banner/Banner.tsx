@@ -8,7 +8,6 @@ export type BannerTone = "info" | "success" | "warn" | "danger" | "accent";
 export interface BannerProps {
 	tone?: BannerTone;
 	children: ReactNode;
-	/** trailing action(s), e.g. a Button or link */
 	action?: ReactNode;
 	dismissible?: boolean;
 	onDismiss?: () => void;
@@ -19,7 +18,6 @@ export interface BannerProps {
 
 const ICONS = { ...STATUS_ICONS, accent: Info } as const;
 
-/** Full-width notification bar for page- or section-level messages. */
 export function Banner({
 	tone = "accent",
 	children,

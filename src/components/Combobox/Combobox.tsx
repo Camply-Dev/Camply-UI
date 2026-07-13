@@ -32,17 +32,12 @@ export interface ComboboxProps<T extends string = string> {
 	disabled?: boolean;
 	className?: string;
 	style?: CSSProperties;
-	/** custom filter; defaults to case-insensitive "includes" */
 	filter?: (option: ComboboxOption<T>, query: string) => boolean;
 }
 
 const defaultFilter = <T extends string>(option: ComboboxOption<T>, query: string) =>
 	option.label.toLowerCase().includes(query.toLowerCase());
 
-/**
- * Autocomplete: a text input that filters a list of options. The list is
- * portalled + anchored so it is never clipped, and fully keyboard-navigable.
- */
 export function Combobox<T extends string = string>({
 	options,
 	value,
@@ -84,18 +79,13 @@ export function Combobox<T extends string = string>({
 		() => (query ? options.filter((o) => filter(o, query)) : options),
 		[options, query, filter],
 	);
-	// Combobox garde ses propres flèches (sans boucle) : on ne reprend du hook que
-	// l'index actif et le défilement automatique de l'option active.
 	const { active, setActive } = useListboxNav(listRef, open, filtered);
 
-	// À chaque nouvelle liste filtrée, place l'actif sur la première option activable
-	// (sinon Enter sur une première option désactivée ne ferait rien).
 	useEffect(() => {
 		const first = firstEnabledIndex(filtered);
 		setActive(first < 0 ? 0 : first);
 	}, [filtered, setActive]);
 
-	// Déplace l'option active en sautant les désactivées, sans boucler.
 	const moveActive = (dir: 1 | -1) => {
 		setActive((prev) => {
 			for (let next = prev + dir; next >= 0 && next < filtered.length; next += dir) {
@@ -134,7 +124,6 @@ export function Combobox<T extends string = string>({
 				e.preventDefault();
 				if (filtered[active]) pick(filtered[active]);
 				break;
-			// Échap est déjà géré par useDismiss (écoute au niveau document).
 		}
 	};
 
@@ -175,8 +164,6 @@ export function Combobox<T extends string = string>({
 
 			{open && (
 				<Portal>
-					{/* Pattern combobox ARIA : le focus reste dans l'input, qui gère le clavier
-					    et pointe l'option active via aria-activedescendant. */}
 					<ul
 						ref={listRef}
 						id={listId}

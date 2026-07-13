@@ -22,15 +22,12 @@ export interface RangeSliderProps {
 	label?: string;
 	showValue?: boolean;
 	formatValue?: (value: number) => string;
-	/** keep at least this gap between the two handles */
 	minGap?: number;
 	disabled?: boolean;
 	className?: string;
 	style?: CSSProperties;
 }
 
-/** Dual-handle slider producing a [min, max] range. Handles can't cross;
- *  keyboard-accessible on each thumb. */
 export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function RangeSlider(
 	{
 		value,

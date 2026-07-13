@@ -12,7 +12,6 @@ export interface NumberInputProps {
 	min?: number;
 	max?: number;
 	step?: number;
-	/** decimal places to display */
 	precision?: number;
 	label?: string;
 	hint?: string;
@@ -26,8 +25,6 @@ export interface NumberInputProps {
 	style?: CSSProperties;
 }
 
-/** Numeric field with +/- steppers, clamping, keyboard (↑/↓, PageUp/Down) and
- *  optional precision, prefix/suffix. Fully controllable. */
 export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(function NumberInput(
 	{
 		value,
@@ -51,14 +48,10 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 	ref,
 ) {
 	const [val, setVal] = useControllable<number>(value, defaultValue, onChange);
-	// Brouillon de saisie : tant que le champ est focalisé, on affiche le texte brut
-	// (pour pouvoir taper « 1. », « - », « 1,5 »…). `val` suit dès qu'une valeur est
-	// analysable ; on resynchronise l'affichage à la validation/sortie.
 	const [draft, setDraft] = useState<string | null>(null);
 
 	const round = (n: number) => (precision != null ? parseFloat(n.toFixed(precision)) : n);
 
-	// Borne + arrondit, puis efface le brouillon pour réafficher la valeur canonique.
 	const commit = (n: number) => {
 		setVal(round(clamp(n, min, max)));
 		setDraft(null);
@@ -134,7 +127,6 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 								const raw = e.target.value;
 								setDraft(raw);
 								const norm = raw.replace(",", ".");
-								// Saisie partielle ("" ou "-") : on garde `val`, on validera à la sortie.
 								if (norm === "" || norm === "-") return;
 								const parsed = parseFloat(norm);
 								if (!Number.isNaN(parsed)) setVal(parsed);

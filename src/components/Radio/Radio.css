@@ -1,4 +1,3 @@
-/* Ossature (wrap / box / input masqué / label / focus) : .camply-control__* dans tokens.css. */
 .camply-radio__group {
 	display: flex;
 	flex-direction: column;

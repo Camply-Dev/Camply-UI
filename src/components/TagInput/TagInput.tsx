@@ -10,19 +10,14 @@ export interface TagInputProps {
 	placeholder?: string;
 	label?: string;
 	hint?: string;
-	/** max number of tags */
 	max?: number;
-	/** reject a candidate tag (return false to block) */
 	validate?: (tag: string) => boolean;
-	/** disallow duplicate tags (default true) */
 	unique?: boolean;
 	disabled?: boolean;
 	className?: string;
 	style?: CSSProperties;
 }
 
-/** Chip/token input: type + Enter (or comma) to add, Backspace to remove the
- *  last, × to remove any. Fully controllable via value/onChange. */
 export function TagInput({
 	value,
 	defaultValue = [],
@@ -63,7 +58,6 @@ export function TagInput({
 
 	const full = max != null && tags.length >= max;
 
-	// Clé stable par tag ; en cas de doublons (unique=false), suffixe d'occurrence.
 	const seen = new Map<string, number>();
 	const keyed = tags.map((tag, i) => {
 		const n = (seen.get(tag) ?? 0) + 1;
@@ -74,7 +68,7 @@ export function TagInput({
 	return (
 		<div className={cn("camply-field", className)} style={style}>
 			{label && <span className={"camply-field__label"}>{label}</span>}
-			{/* label : cliquer n'importe où dans la zone focus l'input, nativement */}
+
 			<label
 				className={cn(
 					"camply-field-shell",

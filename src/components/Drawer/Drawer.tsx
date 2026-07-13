@@ -11,9 +11,7 @@ export interface DrawerProps {
 	side?: "left" | "right";
 	width?: number | string;
 	showClose?: boolean;
-	/** clic sur le voile pour fermer (défaut true) */
 	closeOnBackdrop?: boolean;
-	/** applied to the drawer panel */
 	className?: string;
 	style?: CSSProperties;
 }

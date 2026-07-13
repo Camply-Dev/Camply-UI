@@ -1,9 +1,6 @@
 import { Card } from "@camply/ui";
 import type { ReactNode } from "react";
 
-/** Carte cliquable ET accessible au clavier (Entrée / Espace) — factorise le
- *  boilerplate role="button" + tabIndex + onKeyDown répété dans HomeView et
- *  RoadmapView. */
 export function ClickableCard({
 	onActivate,
 	className,

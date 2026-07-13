@@ -19,7 +19,6 @@ interface GuideViewProps {
 	onNavigate: (id: string) => void;
 }
 
-/** Section de la page : titre + contenu, espacés uniformément. */
 function Section({ title, children }: { title: string; children: ReactNode }) {
 	return (
 		<section className="cu-guide__section">
@@ -29,7 +28,6 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 	);
 }
 
-/** Petit encadré "aperçu" présentant de vrais composants rendus. */
 function Preview({ label = "Rendu", children }: { label?: string; children: ReactNode }) {
 	return (
 		<div className="cu-guide__preview">
@@ -39,7 +37,6 @@ function Preview({ label = "Rendu", children }: { label?: string; children: Reac
 	);
 }
 
-/** Démo Toast auto-contenue : englobe son propre ToastProvider (l'app docs n'en a pas). */
 function ToastDemo() {
 	return (
 		<ToastProvider position="bottom-right">
@@ -60,7 +57,6 @@ function ToastTrigger() {
 	);
 }
 
-/** Démo CommandPalette : ouverte au bouton (state local, pas de second ⌘K global). */
 function PaletteDemo({ onNavigate }: GuideViewProps) {
 	const [open, setOpen] = useState(false);
 	return (
@@ -91,7 +87,6 @@ function PaletteDemo({ onNavigate }: GuideViewProps) {
 	);
 }
 
-// Scope re-thématisé : surcharge locale d'un token, sans toucher au :root global.
 const VIOLET_SCOPE = { "--camply-accent": "#8b5cf6" } as CSSProperties;
 
 export function GuideView({ onNavigate }: GuideViewProps) {
@@ -303,7 +298,6 @@ type MonBouton = Pick<ButtonProps, "variant" | "leftIcon">;`}</CodeBlock>
   --camply-accent: #8b5cf6;
 }
 
-/* Ou localement, sur un scope isolé */
 .zone-promo {
   --camply-accent: #f97316;
 }`}</CodeBlock>
@@ -354,7 +348,6 @@ type MonBouton = Pick<ButtonProps, "variant" | "leftIcon">;`}</CodeBlock>
 				<CodeBlock lang="tsx">{`"use client";
 import { ToastProvider, useToast, Button } from "@camply/ui";
 
-// 1. Englober l'app (une fois, en haut de l'arbre)
 function App() {
   return (
     <ToastProvider position="bottom-right">
@@ -363,7 +356,6 @@ function App() {
   );
 }
 
-// 2. Déclencher depuis n'importe quel composant client
 function Page() {
   const { toast } = useToast();
   return (
@@ -391,7 +383,6 @@ function Page() {
 				</p>
 				<CodeBlock lang="tsx">{`"use client";
 import { CommandPalette, useCommandPalette } from "@camply/ui";
-// styles.css est importé UNE fois dans app/layout.tsx
 
 export function Palette() {
   const [open, setOpen] = useCommandPalette();

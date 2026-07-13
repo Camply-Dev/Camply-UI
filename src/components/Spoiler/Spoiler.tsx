@@ -4,15 +4,12 @@ import { ChevronDown } from "../../lib/icons";
 
 export interface SpoilerProps extends HTMLAttributes<HTMLDivElement> {
 	children: ReactNode;
-	/** collapsed height in px */
 	maxHeight?: number;
 	showLabel?: string;
 	hideLabel?: string;
 	defaultOpen?: boolean;
 }
 
-/** Truncates long content to a max height with a fade, and a "show more /
- *  less" toggle. */
 export const Spoiler = forwardRef<HTMLDivElement, SpoilerProps>(
 	(
 		{

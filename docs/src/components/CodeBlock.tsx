@@ -5,9 +5,7 @@ import { highlight, type Lang } from "../lib/highlight";
 
 interface CodeBlockProps {
 	children: string;
-	/** langage, façon fence markdown : ts, tsx, js, bash, html, css, json… */
 	lang?: Lang;
-	/** nom de fichier optionnel affiché à côté du chip langage */
 	title?: string;
 }
 

@@ -17,9 +17,7 @@ export interface RatingProps extends Omit<HTMLAttributes<HTMLDivElement>, "onCha
 	size?: number;
 	readOnly?: boolean;
 	disabled?: boolean;
-	/** click the current value again to reset to 0 */
 	allowClear?: boolean;
-	/** custom icon; defaults to a star */
 	icon?: ReactNode;
 }
 
@@ -50,8 +48,6 @@ export const Rating = forwardRef<HTMLDivElement, RatingProps>(
 			setVal(allowClear && n === val ? 0 : n);
 		};
 
-		// Piste focalisable (rôle slider) : ←/↓ et →/↑ décrémentent/incrémentent la
-		// note, Home/End vont aux bornes (0 si allowClear, sinon 1 … max).
 		const setRating = (n: number) => setVal(Math.max(allowClear ? 0 : 1, Math.min(n, max)));
 		const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
 			if (!interactive) return;
@@ -70,7 +66,6 @@ export const Rating = forwardRef<HTMLDivElement, RatingProps>(
 			}
 		};
 
-		// Interactif : piste slider focalisable et opérable au clavier ; sinon : image.
 		const ariaLabel = `Note : ${val} sur ${max}`;
 		const rootA11y = interactive
 			? {

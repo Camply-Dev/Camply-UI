@@ -9,7 +9,6 @@ export interface PaginationProps {
 	page?: number;
 	defaultPage?: number;
 	onChange?: (page: number) => void;
-	/** how many page buttons to show around the current one */
 	siblings?: number;
 	className?: string;
 	style?: CSSProperties;

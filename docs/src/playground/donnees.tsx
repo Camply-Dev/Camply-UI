@@ -1,4 +1,3 @@
-// Configs playground — famille Données.
 import {
 	Avatar,
 	AvatarGroup,
@@ -23,7 +22,6 @@ const TABLE_ROWS = [
 	{ id: 3, name: "Chloé Nord", role: "Produit", projects: 5 },
 ];
 
-// Diapositives de démo — vraies Card @camply/ui (dogfooding).
 const CAROUSEL_SLIDES = ["Rapide", "Accessible", "Thémable", "Léger", "Zéro dépendance"];
 
 function CommandPalettePreview() {

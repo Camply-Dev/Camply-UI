@@ -1,9 +1,6 @@
-/* Ossature (field / shell) : .camply-field* dans tokens.css. */
 .camply-taginput__wrap {
 	cursor: text;
 }
-
-/* Les puces sont des composants <Tag> (styles fournis par Tag.css). */
 
 .camply-taginput__input {
 	min-width: 80px;

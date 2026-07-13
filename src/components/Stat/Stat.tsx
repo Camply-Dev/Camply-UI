@@ -4,10 +4,8 @@ import { TrendDown, TrendUp } from "../../lib/icons";
 export interface StatProps {
 	label: ReactNode;
 	value: ReactNode;
-	/** signed delta, e.g. +18 or -4.2 */
 	delta?: number;
 	deltaSuffix?: string;
-	/** what "up" means — usually up is good (accent), sometimes bad */
 	invertDelta?: boolean;
 	icon?: ReactNode;
 	hint?: ReactNode;

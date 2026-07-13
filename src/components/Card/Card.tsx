@@ -2,7 +2,6 @@ import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
-	/** subtle lift + accent border on hover */
 	interactive?: boolean;
 	padding?: "none" | "sm" | "md" | "lg";
 	children: ReactNode;

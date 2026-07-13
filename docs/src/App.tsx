@@ -19,8 +19,6 @@ export function App() {
 		setPaletteOpen(false);
 	};
 
-	// Fil d'Ariane : racine "Camply UI" toujours présente et cliquable (→ Accueil),
-	// puis le chemin courant. Pour un composant : Camply UI → Famille → Composant.
 	const crumbs: Crumb[] = [{ label: "Camply UI", onClick: () => go(HOME) }];
 	if (active === GUIDE) {
 		crumbs.push({ label: "Guide d'utilisation" });
@@ -38,7 +36,6 @@ export function App() {
 		crumbs.push({ label: "Accueil" });
 	}
 
-	// La vitrine se pilote avec le CommandPalette de la lib (⌘K) — dogfooding.
 	const commands = [
 		{ id: HOME, label: "Accueil", group: "Navigation", onRun: () => go(HOME) },
 		{ id: GUIDE, label: "Guide d'utilisation", group: "Navigation", onRun: () => go(GUIDE) },

@@ -6,27 +6,15 @@ import { useEscapeAndScrollLock } from "./useEscapeAndScrollLock";
 export interface OverlayDialogProps {
 	open: boolean;
 	onClose: () => void;
-	/** clic sur le voile pour fermer (défaut true) */
 	closeOnBackdrop?: boolean;
-	/** classe de disposition du voile (centrage, padding…), propre au composant */
 	backdropClassName?: string;
-	/** classe(s) du panneau (taille, côté, animation…), propres au composant */
 	panelClassName?: string;
-	/** élément du panneau : div (défaut) ou aside (Drawer) */
 	as?: "div" | "aside";
-	/** déplace le focus dans le panneau à l'ouverture (défaut true) */
 	focusPanel?: boolean;
 	children: ReactNode;
-	/** style inline appliqué au panneau */
 	style?: CSSProperties;
 }
 
-/**
- * Coquille commune des overlays modaux (Modal, Drawer, Sheet). Possède le Portal,
- * le voile + la fermeture au clic (guardée par `closeOnBackdrop`), Échap + verrou
- * de défilement, et le focus-on-open du panneau. Le contenu (en-tête, corps, pied)
- * est fourni par chaque composant, qui garde ses propres classes de disposition.
- */
 export function OverlayDialog({
 	open,
 	onClose,
@@ -42,9 +30,6 @@ export function OverlayDialog({
 
 	useEscapeAndScrollLock(open, onClose);
 
-	// Le focus-on-open vit ici (le panelRef est dans la coquille) et NON dans le
-	// hook Échap/scroll — que CommandPalette partage mais qui doit focaliser son
-	// input, pas un panneau.
 	useEffect(() => {
 		if (open && focusPanel) panelRef.current?.focus();
 	}, [open, focusPanel]);

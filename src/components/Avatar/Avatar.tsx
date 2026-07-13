@@ -5,9 +5,7 @@ export type AvatarStatus = "online" | "away" | "busy" | "offline";
 
 export interface AvatarProps {
 	src?: string;
-	/** used for alt text and to derive initials */
 	name?: string;
-	/** override the derived initials */
 	initials?: string;
 	size?: number;
 	status?: AvatarStatus;
@@ -15,7 +13,6 @@ export interface AvatarProps {
 	style?: CSSProperties;
 }
 
-// Dégradé déterministe depuis le nom, pour qu'un avatar garde sa couleur.
 const GRADIENTS = [
 	"linear-gradient(150deg,#7dd3fc,#38bdf8)",
 	"linear-gradient(150deg,#7ab6e0,#4f86b0)",
@@ -64,7 +61,6 @@ export function Avatar({ src, name, initials, size = 52, status, className, styl
 export interface AvatarGroupProps {
 	avatars: AvatarProps[];
 	size?: number;
-	/** max shown before a +N chip */
 	max?: number;
 	className?: string;
 }

@@ -5,18 +5,13 @@ import { useCopyFeedback } from "../../lib/useCopyFeedback";
 import { IconButton } from "../IconButton";
 
 export interface SnippetProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-	/** the text to display and copy */
 	children: string;
-	/** show a shell-style prompt symbol before the text */
 	prompt?: boolean;
-	/** wrap long content instead of scrolling */
 	wrap?: boolean;
-	/** override what gets copied (defaults to children) */
 	copyText?: string;
 	label?: ReactNode;
 }
 
-/** Inline/block code with a one-click copy button. */
 export const Snippet = forwardRef<HTMLDivElement, SnippetProps>(
 	({ children, prompt = false, wrap = false, copyText, label, className, ...props }, ref) => {
 		const { copied, copy } = useCopyFeedback();

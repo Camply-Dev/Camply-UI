@@ -1,15 +1,9 @@
-/** Arithmétique d'index bouclé, partagée par les groupes navigables au clavier. */
-
 export type Orientation = "horizontal" | "vertical";
 
-/** Ramène un index dans [0, length) en bouclant (gère les valeurs négatives). */
 export function wrapIndex(value: number, length: number): number {
 	return ((value % length) + length) % length;
 }
 
-/** Prochain index d'un roving-tabindex selon la touche : flèche → voisin bouclé
- *  (axe selon `orientation`), Home → 0, End → count-1. `null` si la touche n'est
- *  pas une touche de navigation. */
 export function nextRovingIndex(
 	key: string,
 	current: number,

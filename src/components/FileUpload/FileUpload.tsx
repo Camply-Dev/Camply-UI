@@ -9,7 +9,6 @@ export interface FileUploadProps {
 	onChange?: (files: File[]) => void;
 	accept?: string;
 	multiple?: boolean;
-	/** max size per file, in bytes */
 	maxSize?: number;
 	disabled?: boolean;
 	hint?: string;
@@ -25,14 +24,9 @@ interface FileItem {
 	status: UploadStatus;
 }
 
-// Cadence de la progression simulée (retour visuel ; le vrai upload est côté conso).
 const TICK = 80;
 const STEP = 0.07;
 
-/** Drag-and-drop upload zone. The zone itself reflects the state: prompt → live
- *  progress (loader + bar) → uploaded confirmation (✓ + file names). Emits real
- *  File objects through onChange — wire them to your own upload logic. The zone is
- *  a native label wrapping the file input: click and keyboard come for free. */
 export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 	(
 		{ onChange, accept, multiple = false, maxSize, disabled = false, hint, className, style },
@@ -45,7 +39,6 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 
 		const uploading = items.some((it) => it.status === "uploading");
 
-		// Fait avancer la progression des fichiers "uploading" jusqu'à 100 %, puis "done".
 		useEffect(() => {
 			if (!uploading) return;
 			const id = setInterval(() => {
@@ -95,7 +88,6 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 		};
 
 		const count = items.length;
-		// 1 fichier → son nom ; plusieurs → le nombre.
 		const summary = multiple
 			? `${count} fichier${count > 1 ? "s" : ""}`
 			: (items[0]?.file.name ?? "");

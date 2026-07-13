@@ -50,7 +50,6 @@
 	justify-content: center;
 }
 
-/* --- sizes --- */
 .camply-button__sm {
 	--_h: 32px;
 	--_px: 13px;
@@ -70,7 +69,6 @@
 	--_radius: var(--camply-radius-lg);
 }
 
-/* --- variants --- */
 .camply-button__primary {
 	background: var(--camply-accent);
 	color: var(--camply-accent-contrast);

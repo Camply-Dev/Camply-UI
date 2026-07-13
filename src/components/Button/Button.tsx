@@ -7,9 +7,7 @@ export type ButtonSize = "sm" | "md" | "lg";
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	variant?: ButtonVariant;
 	size?: ButtonSize;
-	/** stretch to container width */
 	fullWidth?: boolean;
-	/** shows a spinner and disables the button */
 	loading?: boolean;
 	leftIcon?: ReactNode;
 	rightIcon?: ReactNode;

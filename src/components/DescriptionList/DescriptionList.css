@@ -23,7 +23,6 @@
 	font-size: 14px;
 }
 
-/* row layout: term left, description right */
 .camply-descriptionlist__list.camply-descriptionlist__row .camply-descriptionlist__row {
 	display: grid;
 	grid-template-columns: minmax(120px, 34%) 1fr;
@@ -31,7 +30,6 @@
 	align-items: baseline;
 }
 
-/* stacked layout: term above description */
 .camply-descriptionlist__list.camply-descriptionlist__stacked .camply-descriptionlist__term {
 	margin-bottom: 3px;
 }

@@ -31,15 +31,9 @@ export interface MenubarProps {
 	style?: CSSProperties;
 }
 
-// Intention de survol : petit délai avant d'ouvrir (évite les ouvertures au simple
-// passage de la souris) ; fermeture différée pour franchir l'espace barre → menu.
 const OPEN_DELAY = 110;
 const CLOSE_DELAY = 180;
 
-/** A classic application menu bar (File / Edit / View…). Hovering a top menu opens
- *  it (after a short intent delay); once open, hovering across the bar switches
- *  menus instantly. Clicking still toggles (touch / deliberate). Menus are
- *  portalled so they never clip. */
 export function Menubar({ menus, className, style: styleProp }: MenubarProps) {
 	const [openIndex, setOpenIndex] = useState<number | null>(null);
 	const barRef = useRef<HTMLDivElement>(null);
@@ -48,10 +42,6 @@ export function Menubar({ menus, className, style: styleProp }: MenubarProps) {
 	const openTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 	const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-	// A STABLE ref object pointed at whichever top trigger is currently open.
-	// (A fresh `{ get current() }` object each render would make useAnchor's
-	// `update` unstable, re-run its effect every render, and — since setStyle
-	// produced a new object each time — spin into "Maximum update depth".)
 	const anchorRef = useRef<HTMLElement | null>(null);
 	anchorRef.current = openIndex != null ? triggerRefs.current[openIndex] : null;
 
@@ -73,7 +63,6 @@ export function Menubar({ menus, className, style: styleProp }: MenubarProps) {
 		[],
 	);
 
-	// Survol d'un menu : ouvre (après délai si rien n'est ouvert, sinon bascule tout de suite).
 	const hoverOpen = (i: number) => {
 		clearTimeout(closeTimer.current);
 		clearTimeout(openTimer.current);

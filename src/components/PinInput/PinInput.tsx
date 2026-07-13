@@ -7,10 +7,8 @@ export interface PinInputProps {
 	value?: string;
 	defaultValue?: string;
 	onChange?: (value: string) => void;
-	/** fired when all cells are filled */
 	onComplete?: (value: string) => void;
 	type?: "number" | "alphanumeric";
-	/** hide characters (password-style) */
 	mask?: boolean;
 	disabled?: boolean;
 	autoFocus?: boolean;
@@ -19,8 +17,6 @@ export interface PinInputProps {
 	style?: CSSProperties;
 }
 
-/** One box per character. Handles paste, backspace navigation, arrow keys and
- *  auto-advance. Emits onComplete when full. */
 export function PinInput({
 	length = 6,
 	value,

@@ -11,7 +11,6 @@
 	vertical-align: middle;
 }
 
-/* Sizes */
 .camply-badge--sm {
 	padding: 0.125rem 0.5rem;
 	font-size: 0.75rem;
@@ -22,7 +21,6 @@
 	font-size: 0.8125rem;
 }
 
-/* Tones — définissent les variables locales consommées par les variantes */
 .camply-badge--accent {
 	--_fg: var(--camply-accent-hover);
 	--_bg: var(--camply-accent-soft);
@@ -71,7 +69,6 @@
 	--_solid-fg: var(--camply-info-contrast);
 }
 
-/* Variants — consomment les variables de ton */
 .camply-badge--soft {
 	background-color: var(--_bg);
 	color: var(--_fg);
@@ -88,7 +85,6 @@
 	border-color: var(--_border);
 }
 
-/* Icône optionnelle avant le contenu — se dimensionne sur la taille du badge */
 .camply-badge__icon {
 	display: inline-flex;
 	align-items: center;

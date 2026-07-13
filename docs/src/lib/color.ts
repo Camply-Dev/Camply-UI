@@ -1,9 +1,3 @@
-/**
- * Conversions couleur de la page Tokens (docs uniquement, pas la lib publiée).
- * parse (#hex3 / #hex6 / rgb / rgba) → { hex, alpha } et la transformation inverse.
- * Pur : testable sans monter TokensView.
- */
-
 export function parseColor(v: string): { hex: string; alpha: number } {
 	const s = v.trim();
 	const hex6 = /^#([0-9a-f]{6})$/i.exec(s);

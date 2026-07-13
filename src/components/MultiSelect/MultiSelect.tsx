@@ -21,16 +21,12 @@ export interface MultiSelectProps<T extends string = string> {
 	onChange?: (value: T[]) => void;
 	placeholder?: string;
 	label?: string;
-	/** max selectable */
 	max?: number;
 	disabled?: boolean;
 	className?: string;
 	style?: CSSProperties;
 }
 
-/** Multi-selection dropdown: chips in the trigger, checkable options in a
- *  portalled listbox (never clipped). Keyboard: ↑/↓ move, Enter/Space toggle,
- *  Backspace removes the last chip, Esc closes. */
 export function MultiSelect<T extends string = string>({
 	options,
 	value,
@@ -154,8 +150,6 @@ export function MultiSelect<T extends string = string>({
 
 			{open && (
 				<Portal>
-					{/* Pattern listbox ARIA : focus sur le trigger, clavier géré là-bas,
-					    option active pointée via aria-activedescendant. */}
 					<ul
 						ref={listRef}
 						id={listId}

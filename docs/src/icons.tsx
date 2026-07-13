@@ -22,9 +22,6 @@ import {
 	Shapes,
 } from "../../src/lib/icons";
 
-// La vitrine réutilise le pack d'icônes de la librairie (source unique). Ses noms
-// sémantiques de navigation pointent vers les composants du pack — plus aucun
-// tracé SVG dupliqué ici.
 const REGISTRY: Record<string, ComponentType<IconProps>> = {
 	home: Home,
 	book: Book,

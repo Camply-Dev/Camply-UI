@@ -8,22 +8,15 @@ export interface SheetProps {
 	title?: ReactNode;
 	children?: ReactNode;
 	footer?: ReactNode;
-	/** which edge the sheet slides from */
 	side?: "bottom" | "top";
-	/** cap the height (bottom/top sheets) */
 	height?: number | string;
 	showClose?: boolean;
-	/** show the drag handle affordance (bottom sheets) */
 	handle?: boolean;
-	/** clic sur le voile pour fermer (défaut true) */
 	closeOnBackdrop?: boolean;
-	/** applied to the sheet panel */
 	className?: string;
 	style?: CSSProperties;
 }
 
-/** An edge sheet — like a Drawer but sliding from the top or bottom, ideal for
- *  mobile-style pickers and quick panels. Portalled, Esc to close, scroll-locked. */
 export function Sheet({
 	open,
 	onClose,

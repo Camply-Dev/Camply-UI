@@ -5,9 +5,7 @@ import { nextSortState, type SortState, sortRows } from "../../lib/tableSort";
 export interface Column<Row> {
 	key: string;
 	header: ReactNode;
-	/** cell renderer; defaults to Row[key] */
 	cell?: (row: Row) => ReactNode;
-	/** value used for sorting; enables sorting on this column */
 	sortValue?: (row: Row) => string | number;
 	align?: "left" | "right" | "center";
 	width?: number | string;
@@ -18,7 +16,6 @@ export interface TableProps<Row> {
 	data: Row[];
 	rowKey: (row: Row, index: number) => string | number;
 	onRowClick?: (row: Row) => void;
-	/** zebra striping */
 	striped?: boolean;
 	className?: string;
 	style?: CSSProperties;

@@ -1,4 +1,3 @@
-/* Ossature (field / label / shell) : .camply-field* dans tokens.css. */
 .camply-multiselect__trigger {
 	justify-content: space-between;
 	cursor: pointer;
@@ -42,8 +41,6 @@
 	background: var(--camply-fill-4);
 }
 
-/* Ossature de l'option : .camply-listbox-option* dans tokens.css. MultiSelect garde
-   son propre marquage de sélection (case + texte plus clair), pas l'accent aria-selected. */
 .camply-multiselect__selected {
 	color: var(--camply-text);
 }

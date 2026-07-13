@@ -1,4 +1,3 @@
-/* Socle du voile : .camply-overlay-backdrop dans tokens.css — ici, la disposition. */
 .camply-sheet__backdrop {
 	display: flex;
 }

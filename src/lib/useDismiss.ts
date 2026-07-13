@@ -1,10 +1,5 @@
 import { type RefObject, useEffect } from "react";
 
-/**
- * Closes a floating layer on Escape and on pointer-down outside every
- * provided ref. Pass the trigger AND the floating element refs so clicking
- * the trigger doesn't immediately re-close.
- */
 export function useDismiss(
 	open: boolean,
 	onClose: () => void,

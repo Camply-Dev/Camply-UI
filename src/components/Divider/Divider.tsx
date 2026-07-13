@@ -3,7 +3,6 @@ import { cn } from "../../lib/cn";
 
 export interface DividerProps extends HTMLAttributes<HTMLElement> {
 	orientation?: "horizontal" | "vertical";
-	/** optional centered label (horizontal only) */
 	label?: ReactNode;
 	align?: "start" | "center" | "end";
 	variant?: "solid" | "dashed";

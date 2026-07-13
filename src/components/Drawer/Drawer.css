@@ -1,5 +1,3 @@
-/* Le voile utilise .camply-overlay-backdrop (tokens.css) ; le panneau est en
-   position absolue à l'intérieur, sans disposition supplémentaire sur le voile. */
 .camply-drawer__panel {
 	position: absolute;
 	top: 0;

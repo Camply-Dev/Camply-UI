@@ -4,17 +4,9 @@ import { useDismiss } from "./useDismiss";
 
 interface ClickDisclosureOptions {
 	placement?: Placement;
-	/** hauteur minimale conservée par useAnchor (défaut du hook d'ancrage sinon) */
 	minHeight?: number;
 }
 
-/**
- * Orchestration d'un panneau flottant déclenché au clic (Popover, DropdownMenu) :
- * état ouvert/fermé, ancrage positionné (useAnchor), fermeture Échap + clic-dehors
- * (useDismiss). `triggerProps(trigger, extra?)` produit les props à cloner sur le
- * déclencheur — ref d'ancrage, aria-expanded, et un onClick qui préserve celui du
- * trigger puis bascule l'ouverture (le cast un peu délicat vit ici, à un seul endroit).
- */
 export function useClickDisclosure({
 	placement = "bottom-start",
 	minHeight,

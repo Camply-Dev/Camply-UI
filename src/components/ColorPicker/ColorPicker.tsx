@@ -26,36 +26,18 @@ import { useDismiss } from "../../lib/useDismiss";
 import { Input } from "../Input";
 
 export interface ColorPickerProps {
-	/** controlled hex value, e.g. "#38bdf8" */
 	value?: string;
-	/** couleur initiale ; omise = aucune couleur (pastille vide en mode compact) */
 	defaultValue?: string;
 	onChange?: (hex: string) => void;
-	/** opacité contrôlée (0–1). `value` reste un hex #RRGGBB — l'alpha est géré à part. */
 	alpha?: number;
 	defaultAlpha?: number;
 	onAlphaChange?: (alpha: number) => void;
 	label?: string;
-	/**
-	 * "full" (défaut) : sélecteur affiché en ligne.
-	 * "compact" : un déclencheur (pastille + valeur + chevron) qui révèle le
-	 * sélecteur dans une palette flottante au survol / focus / clic.
-	 * "swatch" : uniquement le carré de couleur ; la même palette flottante
-	 * apparaît au survol / focus / clic.
-	 * Les trois variantes exposent les champs HEX & RGB éditables : taper une valeur
-	 * applique la couleur (hex 3/6/8 chiffres — 8 = avec opacité ; RGB "r, g, b"
-	 * ou "r, g, b, a").
-	 */
 	variant?: "full" | "compact" | "swatch";
 	className?: string;
 	style?: CSSProperties;
 }
 
-/**
- * Color picker : carré saturation/valeur + slider de teinte, avec lecture HEX &
- * RGB. Deux présentations via `variant` : "full" (en ligne) ou "compact"
- * (pastille + palette flottante au survol). Contrôlable via value/onChange.
- */
 export function ColorPicker({
 	value,
 	defaultValue,
@@ -69,13 +51,11 @@ export function ColorPicker({
 	style,
 }: ColorPickerProps) {
 	const [hex, setHex] = useControllable<string>(value, defaultValue ?? "", onChange);
-	// Pas de couleur -> on part d'un blanc neutre pour que le carré reste utilisable.
 	const [hsv, setHsv] = useState<[number, number, number]>(() => {
 		const rgb = parseHex(hex);
 		return rgb ? rgbToHsv(...rgb) : [0, 0, 1];
 	});
 	const [alpha, setAlpha] = useControllable<number>(alphaProp, defaultAlpha ?? 1, onAlphaChange);
-	// Saisie éditable HEX / RGB : null = affiche la valeur dérivée ; sinon texte tapé.
 	const [draftHex, setDraftHex] = useState<string | null>(null);
 	const [draftRgb, setDraftRgb] = useState<string | null>(null);
 	const svRef = useRef<HTMLDivElement>(null);
@@ -84,8 +64,6 @@ export function ColorPicker({
 
 	const hasColor = parseHex(hex) != null;
 
-	// Les commits internes posent ce drapeau pour que l'effet de synchro ne recalcule
-	// pas hsv depuis hex (redondant, et exécuté à chaque frame de glissé).
 	const internalCommit = useRef(false);
 
 	const commit = useCallback(
@@ -97,7 +75,6 @@ export function ColorPicker({
 		[setHex],
 	);
 
-	// Synchronise hsv ← hex uniquement quand la valeur arrive de l'extérieur (contrôlé).
 	useEffect(() => {
 		if (internalCommit.current) {
 			internalCommit.current = false;
@@ -107,7 +84,6 @@ export function ColorPicker({
 		if (rgb) setHsv(rgbToHsv(...rgb));
 	}, [hex]);
 
-	// --- palette flottante (modes compact & swatch) ---
 	const compact = variant === "compact";
 	const floating = variant === "compact" || variant === "swatch";
 	const [open, setOpen] = useState(false);
@@ -115,7 +91,6 @@ export function ColorPicker({
 	const panelRef = useRef<HTMLDivElement>(null);
 	const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 	const draggingRef = useRef(false);
-	// Champ éditable focus → on garde la palette ouverte (comme pendant un glissé).
 	const focusedRef = useRef(false);
 
 	const anchorStyle = useAnchor(triggerRef, panelRef, open, { placement: "bottom-start", gap: 8 });
@@ -126,9 +101,6 @@ export function ColorPicker({
 		clearTimeout(closeTimer.current);
 		setOpen(true);
 	};
-	// Referme après un court délai — mais jamais pendant un glissé (on repousse
-	// tant que draggingRef est vrai). Un survol de la pastille/palette annule le
-	// timer via openNow.
 	const scheduleClose = () => {
 		clearTimeout(closeTimer.current);
 		const tick = () => {
@@ -139,9 +111,6 @@ export function ColorPicker({
 	};
 	useEffect(() => () => clearTimeout(closeTimer.current), []);
 
-	// Suit un pointeur sur un élément et rappelle onMove avec des ratios x/y ∈ [0,1].
-	// Le rect est lu UNE seule fois au pointerdown (l'élément ne bouge pas pendant le
-	// glissé) → aucun reflow forcé à chaque pointermove.
 	const startDrag = useCallback(
 		(
 			ref: RefObject<HTMLDivElement | null>,
@@ -178,10 +147,7 @@ export function ColorPicker({
 	const [r, g, b] = hsvToRgb(h, s, v);
 	const hueHex = toHex(h, 1, 1);
 	const solidHex = toHex(h, s, v);
-	// Couleur affichée AVEC son opacité (au-dessus d'un damier de transparence).
 	const rgbaFill = `rgba(${r}, ${g}, ${b}, ${alpha})`;
-	// Valeurs copiables incluant l'opacité : dès qu'alpha < 1, hex → #RRGGBBAA et
-	// rgb → "r, g, b, a". À pleine opacité on garde la forme courte.
 	const alphaByte = Math.round(alpha * 255)
 		.toString(16)
 		.padStart(2, "0");
@@ -189,8 +155,6 @@ export function ColorPicker({
 	const hexOut = (alpha < 1 ? `${hex}${alphaByte}` : hex).toUpperCase();
 	const rgbOut = alpha < 1 ? `${r}, ${g}, ${b}, ${alphaRounded}` : `${r}, ${g}, ${b}`;
 
-	// Applique une couleur saisie (HEX ou RGB) dès qu'elle est valide ; l'opacité
-	// suit quand elle est fournie (hex 8 chiffres ou 4e canal RGB).
 	const applyColor = (parsed: { rgb: [number, number, number]; alpha?: number } | null) => {
 		if (!parsed) return;
 		commit(...rgbToHsv(...parsed.rgb));
@@ -206,7 +170,6 @@ export function ColorPicker({
 		applyColor(parseRgbInput(masked));
 	};
 
-	// Carré saturation/valeur + barre de teinte, partagés par les deux variantes.
 	const pickerCore = (
 		<>
 			<div
@@ -247,8 +210,6 @@ export function ColorPicker({
 		</>
 	);
 
-	// HEX & RGB éditables (composant Input), partagés full/compact. Taper une valeur
-	// applique la couleur ; on garde la palette ouverte tant qu'un champ est focus.
 	const editFields = (
 		<div className={"camply-colorpicker__fields"}>
 			<Input
@@ -289,7 +250,6 @@ export function ColorPicker({
 		</div>
 	);
 
-	// Palette flottante partagée par les modes compact & swatch.
 	const floatingPanel = open && (
 		<Portal>
 			<div
@@ -307,7 +267,6 @@ export function ColorPicker({
 		</Portal>
 	);
 
-	// Mode swatch : uniquement le carré de couleur ; la palette apparaît au survol.
 	if (variant === "swatch") {
 		return (
 			<div
@@ -407,7 +366,6 @@ export function ColorPicker({
 		);
 	}
 
-	// Mode full : sélecteur en ligne + champs HEX / RGB éditables.
 	return (
 		<div className={cn("camply-field", "camply-colorpicker__root", className)} style={style}>
 			{label && <span className={"camply-field__label"}>{label}</span>}

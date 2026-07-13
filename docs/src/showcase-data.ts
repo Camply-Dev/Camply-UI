@@ -1,7 +1,3 @@
-// Données de la vitrine (docs uniquement — PAS la librairie).
-// Source UNIQUE de navigation : familles → sous-familles → composants.
-// La disponibilité d'un composant est dérivée du registre des playgrounds.
-
 import { PLAYGROUNDS } from "./playground";
 
 type ComponentStatus = "available" | "upcoming";
@@ -15,15 +11,12 @@ export interface ComponentEntry {
 	description: string;
 }
 
-// Vues spéciales (non-composants) de la vitrine.
 export const HOME = "__home";
 export const GUIDE = "__guide";
 export const ICONS = "__icons";
 export const CSS = "__css";
 export const ROADMAP = "__roadmap";
 
-// Un composant est "disponible" dès qu'il possède un playground : une seule
-// source de vérité, impossible d'oublier de le lister à la main.
 const AVAILABLE_IDS = new Set(Object.keys(PLAYGROUNDS));
 
 const c = (
@@ -41,9 +34,7 @@ const c = (
 	description,
 });
 
-// Ordre = ordre d'affichage dans la sidebar (familles et sous-familles en dérivent).
 export const COMPONENTS: ComponentEntry[] = [
-	// ----- Primitifs -----
 	c(
 		"button",
 		"Button",
@@ -61,7 +52,6 @@ export const COMPONENTS: ComponentEntry[] = [
 	c("snippet", "Snippet", "Primitifs", "Mise en forme", "Bloc de code avec bouton copier."),
 	c("spoiler", "Spoiler", "Primitifs", "Mise en forme", "Contenu long tronqué et dépliable."),
 
-	// ----- Formulaires -----
 	c("input", "Input", "Formulaires", "Saisie", "Champ texte avec label, aide et erreur."),
 	c("numberinput", "NumberInput", "Formulaires", "Saisie", "Champ numérique avec steppers."),
 	c("pininput", "PinInput", "Formulaires", "Saisie", "Saisie de code à cases séparées."),
@@ -86,7 +76,6 @@ export const COMPONENTS: ComponentEntry[] = [
 	c("rating", "Rating", "Formulaires", "Curseurs", "Notation par étoiles cliquables."),
 	c("fileupload", "FileUpload", "Formulaires", "Fichiers", "Zone de dépôt de fichiers."),
 
-	// ----- Surfaces -----
 	c("card", "Card", "Surfaces", "Conteneurs", "Conteneur de contenu."),
 	c("alert", "Alert", "Surfaces", "Conteneurs", "Message d'alerte inline."),
 	c("banner", "Banner", "Surfaces", "Conteneurs", "Bandeau pleine largeur."),
@@ -98,7 +87,6 @@ export const COMPONENTS: ComponentEntry[] = [
 	c("popover", "Popover", "Surfaces", "Info-bulles", "Bulle ancrée à un déclencheur."),
 	c("hovercard", "HoverCard", "Surfaces", "Info-bulles", "Carte riche au survol."),
 
-	// ----- Navigation -----
 	c("tabs", "Tabs", "Navigation", "Onglets", "Onglets accessibles."),
 	c(
 		"segmentedcontrol",
@@ -114,7 +102,6 @@ export const COMPONENTS: ComponentEntry[] = [
 	c("steps", "Steps", "Navigation", "Progression", "Indicateur d'étapes."),
 	c("timeline", "Timeline", "Navigation", "Progression", "Chronologie verticale."),
 
-	// ----- Feedback -----
 	c("progress", "Progress", "Feedback", "Progression", "Barre de progression."),
 	c("radialprogress", "RadialProgress", "Feedback", "Progression", "Progression circulaire."),
 	c("meter", "Meter", "Feedback", "Progression", "Jauge de valeur bornée."),
@@ -122,7 +109,6 @@ export const COMPONENTS: ComponentEntry[] = [
 	c("skeleton", "Skeleton", "Feedback", "Chargement", "Placeholder de chargement."),
 	c("toast", "Toast", "Feedback", "Notifications", "Notification éphémère."),
 
-	// ----- Données -----
 	c("avatar", "Avatar", "Données", "Affichage", "Image ou initiales d'un utilisateur."),
 	c("stat", "Stat", "Données", "Affichage", "Statistique mise en avant (KPI)."),
 	c("descriptionlist", "DescriptionList", "Données", "Affichage", "Liste clé / valeur."),
@@ -144,7 +130,6 @@ export interface Family {
 	subfamilies: Subfamily[];
 }
 
-// Arbre familles → sous-familles, dérivé de COMPONENTS en conservant l'ordre.
 export const FAMILIES: Family[] = (() => {
 	const families: Family[] = [];
 	for (const entry of COMPONENTS) {

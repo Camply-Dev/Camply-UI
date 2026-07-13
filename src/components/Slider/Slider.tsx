@@ -18,7 +18,6 @@ export interface SliderProps {
 	max?: number;
 	step?: number;
 	label?: string;
-	/** show the numeric value, optionally formatted */
 	showValue?: boolean;
 	formatValue?: (value: number) => string;
 	disabled?: boolean;

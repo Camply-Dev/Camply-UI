@@ -1,4 +1,3 @@
-// Configs playground — famille Primitifs.
 import {
 	Badge,
 	Button,

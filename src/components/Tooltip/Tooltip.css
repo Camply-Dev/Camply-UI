@@ -1,5 +1,4 @@
 .camply-tooltip__tip {
-	/* Couleur pilotée par le ton ; la flèche la reprend via var(--_bg). */
 	--_bg: var(--camply-tooltip-bg);
 	--_fg: var(--camply-tooltip-fg);
 	display: flex;
@@ -25,7 +24,6 @@
 	}
 }
 
-/* Icône optionnelle (reprend la couleur du texte du ton). */
 .camply-tooltip__icon {
 	display: inline-flex;
 	align-items: center;
@@ -35,8 +33,6 @@
 	min-width: 0;
 }
 
-/* ---------- Tons ---------- */
-/* Sans fond : juste le texte (+ ombre pour rester lisible), pas de flèche. */
 .camply-tooltip__plain {
 	--_bg: transparent;
 	--_fg: var(--camply-text);
@@ -69,7 +65,6 @@
 	--_fg: var(--camply-info-contrast);
 }
 
-/* ---------- Flèche (reprend --_bg) ---------- */
 .camply-tooltip__arrow {
 	position: absolute;
 	width: 8px;
@@ -97,7 +92,7 @@
 	top: 50%;
 	margin-top: -4px;
 }
-/* Variante "plain" : sans flèche (déclaré après le bloc flèche pour la spécificité). */
+
 .camply-tooltip__plain .camply-tooltip__arrow {
 	display: none;
 }

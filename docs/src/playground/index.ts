@@ -1,4 +1,3 @@
-// Registre des playgrounds : id de composant → config déclarative.
 import { DONNEES } from "./donnees";
 import type { PlaygroundConfig } from "./engine";
 import { FEEDBACK } from "./feedback";

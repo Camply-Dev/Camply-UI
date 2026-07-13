@@ -3,9 +3,7 @@ import { cn } from "../../lib/cn";
 export interface SkeletonProps {
 	width?: number | string;
 	height?: number | string;
-	/** shape of the placeholder */
 	variant?: "text" | "rect" | "circle";
-	/** custom border radius (rect) */
 	radius?: number | string;
 	className?: string;
 	style?: CSSProperties;
@@ -19,7 +17,6 @@ export function Skeleton({
 	className,
 	style,
 }: SkeletonProps) {
-	// React ajoute automatiquement "px" aux valeurs numériques de style.
 	return (
 		<span
 			aria-hidden="true"
@@ -29,7 +26,6 @@ export function Skeleton({
 	);
 }
 
-/** Convenience multi-line text skeleton. */
 export function SkeletonText({ lines = 3, className }: { lines?: number; className?: string }) {
 	return (
 		<span className={cn("camply-skeleton__stack", className)}>

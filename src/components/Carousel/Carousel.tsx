@@ -17,27 +17,16 @@ export type CarouselEffect = "slide" | "fade";
 
 export interface CarouselProps {
 	children: ReactNode[];
-	/** show prev/next arrows */
 	arrows?: boolean;
-	/** show the indicator under the carousel */
 	dots?: boolean;
-	/** style de l'indicateur : points, barres ou compteur "n / N" */
 	indicator?: CarouselIndicator;
-	/** nombre de diapositives visibles à la fois (effet "slide" uniquement) */
 	slidesPerView?: number;
-	/** espace entre diapositives, en px */
 	gap?: number;
-	/** transition entre diapositives : glissement (défaut) ou fondu */
 	effect?: CarouselEffect;
-	/** auto-advance interval in ms (0 = off) */
 	autoPlay?: number;
-	/** met l'autoplay en pause au survol (défaut true) */
 	pauseOnHover?: boolean;
-	/** loop back to the start after the last slide */
 	loop?: boolean;
-	/** ratio du cadre, ex. "16 / 9" — fige la hauteur du viewport */
 	aspectRatio?: string;
-	/** index contrôlé */
 	index?: number;
 	defaultIndex?: number;
 	onIndexChange?: (index: number) => void;
@@ -45,10 +34,6 @@ export interface CarouselProps {
 	style?: CSSProperties;
 }
 
-/** Swipeable slide carousel with arrows, indicators, keyboard and optional
- *  autoplay. Customise it with `slidesPerView` + `gap` (multi-item), `effect`
- *  (slide / fade), `indicator` (dots / lines / count), `aspectRatio`, and
- *  controlled `index`. Pass each slide as a child. */
 export function Carousel({
 	children,
 	arrows = true,
@@ -70,16 +55,13 @@ export function Carousel({
 	const slides = Array.isArray(children) ? children : [children];
 	const count = slides.length;
 	const fade = effect === "fade";
-	// Le fondu n'affiche qu'une diapo ; sinon on borne à ce qui existe.
 	const perView = fade ? 1 : clamp(slidesPerView, 1, Math.max(1, count));
-	// Positions navigables : on s'arrête quand la dernière diapo est visible.
 	const pages = Math.max(1, count - perView + 1);
 
 	const [index, setIndex] = useControllable<number>(indexProp, defaultIndex, onIndexChange);
 	const [paused, setPaused] = useState(false);
 	const touchX = useRef<number | null>(null);
 
-	// Si le nombre de pages diminue (perView/count changent), on garde un index valide.
 	const active = clamp(index, 0, pages - 1);
 
 	const go = useCallback(

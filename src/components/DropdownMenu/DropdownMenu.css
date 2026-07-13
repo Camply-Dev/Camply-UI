@@ -4,7 +4,6 @@
 	font-family: var(--camply-font-sans);
 }
 
-/* Item / séparateur : .camply-menu-item* et .camply-menu-separator dans tokens.css. */
 .camply-dropdownmenu__menuLabel {
 	padding: 7px 11px 4px;
 	font-size: 11px;

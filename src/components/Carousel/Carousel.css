@@ -17,7 +17,6 @@
 	min-width: 0;
 }
 
-/* Effet fondu : diapos empilées (grille), l'active passe en opacité 1. */
 .camply-carousel__trackFade {
 	display: grid;
 	gap: 0;
@@ -35,7 +34,6 @@
 	pointer-events: auto;
 }
 
-/* Flèches : uniquement l'icône (ni bordure ni fond). */
 .camply-carousel__arrow {
 	position: absolute;
 	top: 50%;
@@ -94,7 +92,6 @@
 	background: var(--camply-accent);
 }
 
-/* Indicateur "barres" : traits d'égale largeur, l'actif en accent. */
 .camply-carousel__dotsLines .camply-carousel__dot {
 	width: 20px;
 	height: 3px;
@@ -105,7 +102,6 @@
 	background: var(--camply-accent);
 }
 
-/* Indicateur "compteur" : n / N. */
 .camply-carousel__count {
 	margin-top: 14px;
 	text-align: center;

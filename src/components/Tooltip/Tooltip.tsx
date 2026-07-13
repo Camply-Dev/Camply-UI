@@ -18,22 +18,14 @@ export type TooltipTone =
 export interface TooltipProps {
 	content: ReactNode;
 	children: ReactElement;
-	/** icône affichée avant le contenu */
 	icon?: ReactNode;
 	placement?: Placement;
-	/** habillage : clair (défaut), sans fond (plain), sombre ou coloré (accent / sémantique) */
 	tone?: TooltipTone;
-	/** delay before showing, ms */
 	delay?: number;
 	className?: string;
 	style?: CSSProperties;
 }
 
-/**
- * Hover/focus tooltip rendered in a Portal — positioned above the trigger by
- * default and flipped/clamped to stay on screen. Several looks via `tone`
- * (default light, dark, accent, success, warning, danger, info).
- */
 export function Tooltip({
 	content,
 	children,

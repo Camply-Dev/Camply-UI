@@ -7,15 +7,12 @@ export interface DescriptionItem {
 
 export interface DescriptionListProps {
 	items: DescriptionItem[];
-	/** side-by-side (default) or stacked term-over-description */
 	layout?: "row" | "stacked";
-	/** draw a divider between rows */
 	divided?: boolean;
 	className?: string;
 	style?: CSSProperties;
 }
 
-/** Key/value pairs for detail panels, profiles and summaries. */
 export function DescriptionList({
 	items,
 	layout = "row",

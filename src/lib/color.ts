@@ -1,10 +1,3 @@
-/**
- * Maths couleur pures et parsing/masque de saisie du ColorPicker.
- * Aucune dépendance React : conversions HSV↔RGB↔HEX, parsing de saisie
- * (hex 3/6/8 chiffres, "r, g, b[, a]") et masque de saisie RGB à auto-virgule.
- * Isolé ici pour être testable indépendamment du composant.
- */
-
 export type Rgb = [number, number, number];
 export interface ParsedColor {
 	rgb: Rgb;
@@ -71,7 +64,6 @@ export function parseHex(hex: string): Rgb | null {
 	return [(int >> 16) & 255, (int >> 8) & 255, int & 255];
 }
 
-// Saisie utilisateur : hex 3, 6 ou 8 chiffres (# optionnel). 8 chiffres → alpha inclus.
 export function parseColorInput(text: string): ParsedColor | null {
 	let s = text.trim().replace(/^#/, "").toLowerCase();
 	if (/^[0-9a-f]{3}$/.test(s)) {
@@ -94,10 +86,8 @@ export function parseColorInput(text: string): ParsedColor | null {
 	return null;
 }
 
-// Saisie "r, g, b" ou "r, g, b, a" (0–255 ; a en 0–1). 4e canal → opacité.
 export function parseRgbInput(text: string): ParsedColor | null {
 	let parts = text.split(",").map((p) => p.trim());
-	// Virgule finale en cours de saisie ("56, 189, 248, ") : on l'ignore.
 	if (parts.length > 0 && parts[parts.length - 1] === "") parts = parts.slice(0, -1);
 	if (parts.length < 3 || parts.length > 4 || parts.some((p) => p === "")) return null;
 	const nums = parts.map(Number);
@@ -112,14 +102,11 @@ export function parseRgbInput(text: string): ParsedColor | null {
 	return { rgb };
 }
 
-// Canal figé (séparé par une virgule) : un seul nombre, 3 chiffres max, clampé à 255.
 function clampChannel(digits: string): string {
 	const d = digits.slice(0, 3);
 	return d !== "" && Number(d) > 255 ? "255" : d;
 }
 
-// Découpe une suite de chiffres en canaux (auto-virgule sur 3 chiffres / >255) ;
-// le 3e canal est clampé à 255 au lieu de déborder. Utilisé pour le segment actif.
 function packChannels(digits: string, channels: string[]): void {
 	let cur = "";
 	for (const ch of digits) {
@@ -138,10 +125,6 @@ function packChannels(digits: string, channels: string[]): void {
 	if (cur !== "" && channels.length < 3) channels.push(cur);
 }
 
-// Masque de saisie RGB : les ", " s'insèrent automatiquement. Respecte les virgules
-// déjà présentes comme frontières fermes — seul le dernier segment (celui qu'on tape)
-// se découpe/déborde ; éditer un canal du milieu ne décale donc plus les autres.
-// 4e segment (virgule explicite après 3 canaux) = alpha décimal (0–1).
 export function maskRgb(raw: string): string {
 	const segs = raw.split(",");
 	const channels: string[] = [];

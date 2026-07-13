@@ -8,7 +8,7 @@
 	align-items: center;
 	justify-content: center;
 	gap: 8px;
-	/* Hauteur figée : identique avant / pendant / après upload. */
+
 	min-height: 172px;
 	padding: 24px 22px;
 	border: 1.5px dashed var(--camply-border-strong);
@@ -61,8 +61,7 @@
 	font-size: 12.5px;
 	color: var(--camply-text-muted-2);
 }
-/* Masqué visuellement mais focusable : Tab l'atteint, Entrée/Espace ouvrent
-   le sélecteur nativement ; le halo s'affiche via :focus-within sur la zone. */
+
 .camply-fileupload__input {
 	position: absolute;
 	width: 1px;
@@ -81,7 +80,6 @@
 	color: var(--camply-danger-hover);
 }
 
-/* Zone après upload réussi : bordure pleine teintée succès. */
 .camply-fileupload__uploaded,
 .camply-fileupload__uploaded:hover,
 .camply-fileupload__uploaded:focus-within {
@@ -94,12 +92,10 @@
 	color: var(--camply-success);
 }
 
-/* Barre de progression = composant Progress @camply/ui ; largeur cadrée ici. */
 .camply-fileupload__bar {
 	max-width: 220px;
 }
 
-/* Bouton effacer (état uploadé). */
 .camply-fileupload__clear {
 	display: inline-flex;
 	align-items: center;

@@ -12,7 +12,6 @@ export interface PopoverProps {
 	style?: CSSProperties;
 }
 
-/** Click-triggered floating panel for rich content (forms, pickers, cards). */
 export function Popover({
 	trigger,
 	children,

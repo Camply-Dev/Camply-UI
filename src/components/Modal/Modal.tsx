@@ -8,13 +8,10 @@ export interface ModalProps {
 	title?: ReactNode;
 	description?: ReactNode;
 	children?: ReactNode;
-	/** rendered in the footer, right-aligned */
 	footer?: ReactNode;
 	size?: "sm" | "md" | "lg";
-	/** clicking the backdrop closes (default true) */
 	closeOnBackdrop?: boolean;
 	showClose?: boolean;
-	/** applied to the dialog panel */
 	className?: string;
 	style?: CSSProperties;
 }

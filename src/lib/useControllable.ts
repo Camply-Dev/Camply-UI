@@ -1,10 +1,5 @@
 import { useCallback, useState } from "react";
 
-/**
- * Supports both controlled and uncontrolled usage of a value.
- * - Controlled: pass `value` (+ usually `onChange`).
- * - Uncontrolled: omit `value`, pass `defaultValue`; state lives internally.
- */
 export function useControllable<T>(
 	value: T | undefined,
 	defaultValue: T,

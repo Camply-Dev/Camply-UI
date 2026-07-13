@@ -29,7 +29,6 @@ export interface TabsProps {
 	value?: string;
 	defaultValue: string;
 	onChange?: (value: string) => void;
-	/** underline tabs (default) or a soft pill group */
 	variant?: TabsVariant;
 	className?: string;
 	style?: CSSProperties;
@@ -60,10 +59,6 @@ export function TabList({ children, className }: { children: ReactNode; classNam
 	const { variant } = useTabs();
 	const ref = useRef<HTMLDivElement>(null);
 
-	// Navigation clavier APG : ←/→ (+ Home/End) déplacent le focus entre onglets
-	// actifs et activent au passage (activation automatique — le focus suit la
-	// sélection via le tabIndex mobile). On interroge le DOM car TabList ne connaît
-	// pas la liste des valeurs (les onglets sont des enfants libres).
 	const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
 		const tabs = Array.from(
 			ref.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]:not([disabled])') ?? [],

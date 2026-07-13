@@ -21,33 +21,24 @@ import { useId } from "../../lib/useId";
 export type DateRange = [Date | null, Date | null];
 
 export interface DatePickerProps {
-	/** date simple (mode "single") */
 	value?: Date | null;
 	defaultValue?: Date | null;
 	onChange?: (date: Date | null) => void;
-	/** plage [début, fin] (mode "range") */
 	rangeValue?: DateRange;
 	defaultRangeValue?: DateRange;
 	onRangeChange?: (range: DateRange) => void;
-	/** date simple (défaut) ou plage de dates */
 	mode?: "single" | "range";
 	min?: Date;
 	max?: Date;
 	placeholder?: string;
 	label?: string;
 	disabled?: boolean;
-	/** Intl locale for month/day names */
 	locale?: string;
-	/** first day of week: 0 = Sunday, 1 = Monday (default) */
 	weekStartsOn?: 0 | 1;
 	className?: string;
 	style?: CSSProperties;
 }
 
-/** Date field with a portalled month calendar. Navigate months with the arrows,
- *  jump to any year via the year grid (click the month/year label), pick a day
- *  (or a start/end range with mode="range"), respects min/max. In single mode the
- *  field is typable in JJ/MM/AAAA. Fully controllable. */
 export function DatePicker({
 	value,
 	defaultValue = null,
@@ -74,9 +65,7 @@ export function DatePicker({
 	);
 	const [open, setOpen] = useState(false);
 	const [view, setView] = useState<Date>(() => selected ?? range[0] ?? new Date());
-	// Saisie éditable (mode single) : null = affiche la date formatée ; sinon texte tapé.
 	const [draft, setDraft] = useState<string | null>(null);
-	// Vue de sélection d'année (grille) vs. calendrier des jours.
 	const [yearView, setYearView] = useState(false);
 
 	const triggerRef = useRef<HTMLDivElement>(null);
@@ -120,8 +109,6 @@ export function DatePicker({
 			setOpen(false);
 			return;
 		}
-		// Plage : 1er clic = début ; clic avant/sur le début = nouveau début ;
-		// clic après = fin (et fermeture) ; recommencer une fois complète.
 		if (!rangeStart || rangeEnd || d <= startOfDay(rangeStart)) {
 			setRange([d, null]);
 		} else {
@@ -143,7 +130,6 @@ export function DatePicker({
 				: new Date(view.getFullYear(), view.getMonth() + delta, 1),
 		);
 
-	// Ouverture / synchro de la vue sur la valeur courante.
 	const syncView = () => {
 		const focus = mode === "single" ? selected : range[0];
 		if (focus) setView(focus);
@@ -156,7 +142,6 @@ export function DatePicker({
 	};
 	const toggleCalendar = () => (open ? close() : openCalendar());
 
-	// Saisie éditable JJ/MM/AAAA (mode single) : masque + sélection si date valide.
 	const onType = (raw: string) => {
 		const masked = maskDate(raw);
 		setDraft(masked);

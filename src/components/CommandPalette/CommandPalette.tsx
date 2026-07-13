@@ -17,7 +17,6 @@ import { useEscapeAndScrollLock } from "../../lib/useEscapeAndScrollLock";
 export interface Command {
 	id: string;
 	label: string;
-	/** shown under / beside the label, and used for matching */
 	keywords?: string;
 	group?: string;
 	icon?: ReactNode;
@@ -31,13 +30,10 @@ export interface CommandPaletteProps {
 	commands: Command[];
 	placeholder?: string;
 	emptyMessage?: string;
-	/** applied to the palette panel */
 	className?: string;
 	style?: CSSProperties;
 }
 
-/** ⌘K-style command palette. Bind `open` to a global shortcut yourself, or
- *  use the exported `useCommandPalette` helper below. */
 export function CommandPalette({
 	open,
 	onClose,
@@ -59,7 +55,6 @@ export function CommandPalette({
 		if (open) {
 			setQuery("");
 			setActive(0);
-			// focus after the portal paints
 			requestAnimationFrame(() => inputRef.current?.focus());
 		}
 	}, [open]);
@@ -72,8 +67,6 @@ export function CommandPalette({
 		[onClose],
 	);
 
-	// Échap + verrou de défilement au niveau document (l'input gardait un Échap
-	// local, mort dès que le focus quittait le champ — retiré ci-dessous).
 	useEscapeAndScrollLock(open, onClose);
 
 	const onKeyDown = (e: KeyboardEvent) => {
@@ -170,7 +163,6 @@ export function CommandPalette({
 	);
 }
 
-/** Opens the palette on ⌘K / Ctrl-K. Returns [open, setOpen]. */
 export function useCommandPalette(): [boolean, (open: boolean) => void] {
 	const [open, setOpen] = useState(false);
 	useEffect(() => {

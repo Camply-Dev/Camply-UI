@@ -2,7 +2,6 @@ import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "../../lib/cn";
 
 export interface KbdProps extends HTMLAttributes<HTMLElement> {
-	/** render a sequence of keys, e.g. ["⌘", "K"] */
 	keys?: string[];
 	size?: "sm" | "md";
 	children?: ReactNode;

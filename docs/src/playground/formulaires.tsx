@@ -1,4 +1,3 @@
-// Configs playground — famille Formulaires.
 import {
 	Checkbox,
 	ColorPicker,
@@ -36,7 +35,6 @@ const FRAMEWORKS = [
 	{ value: "svelte", label: "Svelte" },
 ];
 
-// Sérialise un tableau d'options en code copiable, aligné sur l'aperçu.
 const optionsCode = (options: { value: string; label: string }[]) =>
 	`const options = [\n${options
 		.map((o) => `  { value: "${o.value}", label: "${o.label}" },`)

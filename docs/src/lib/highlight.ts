@@ -1,8 +1,3 @@
-// Coloration syntaxique minimaliste et sans dépendance pour la vitrine.
-// Tokenizer par règles ordonnées (regex « sticky ») : on essaie chaque règle à
-// la position courante ; rien ne matche → un caractère « plain ». Suffisant pour
-// des extraits de doc (ts/tsx/js, bash, css, html, json) — pas un vrai parseur.
-
 export type Lang = "ts" | "tsx" | "js" | "jsx" | "bash" | "sh" | "html" | "css" | "json" | "text";
 
 export interface Token {
@@ -96,7 +91,6 @@ export function highlight(code: string, lang: Lang): Token[] {
 			}
 		}
 		if (!matched) {
-			// aucun token reconnu : on empile le caractère dans le « plain » courant.
 			const last = tokens[tokens.length - 1];
 			if (last && last.type === "plain") last.value += code[i];
 			else tokens.push({ type: "plain", value: code[i] });

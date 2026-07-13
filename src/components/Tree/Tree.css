@@ -51,7 +51,6 @@
 	white-space: nowrap;
 }
 
-/* guides: indent nested groups with a connecting vertical line */
 .camply-tree__guided {
 	margin-left: 15px;
 	padding-left: 8px;

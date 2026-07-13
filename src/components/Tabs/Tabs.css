@@ -42,7 +42,6 @@
 	border-radius: var(--camply-radius-xs);
 }
 
-/* line variant — underline indicator */
 .camply-tabs__tab-line {
 	padding: 11px 15px;
 	margin-bottom: -1px;
@@ -53,7 +52,6 @@
 	border-bottom-color: var(--camply-accent);
 }
 
-/* soft variant — pill group */
 .camply-tabs__tab-soft {
 	padding: 8px 15px;
 	border-radius: var(--camply-radius-sm);

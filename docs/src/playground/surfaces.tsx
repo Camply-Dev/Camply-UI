@@ -1,4 +1,3 @@
-// Configs playground — famille Surfaces.
 import {
 	Alert,
 	Banner,
@@ -23,7 +22,6 @@ import { Icon } from "../icons";
 import { useDisclosure } from "../lib/useDisclosure";
 import { bool, type PlaygroundConfig, str, type Values } from "./engine";
 
-// ---------- Aperçus à état (overlays) ----------
 function ModalPreview(p: Values) {
 	const { open, onOpen, onClose } = useDisclosure();
 	return (

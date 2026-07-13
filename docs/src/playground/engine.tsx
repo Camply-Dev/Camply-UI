@@ -1,20 +1,13 @@
-// Moteur de playground générique : chaque composant fournit une config
-// déclarative (contrôles, rendu, props) et le moteur fait le reste —
-// état, panneau de contrôles (composants @camply/ui), code généré, table des props.
 import { Input, SegmentedControl, Switch, Table } from "@camply/ui";
 import { type ReactNode, useState } from "react";
 import { CodeBlock } from "../components/CodeBlock";
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-// ---------- Conversions des valeurs de contrôle ----------
-// Le défaut `= string` fait que TypeScript infère T depuis la prop cible,
-// ce qui évite d'écrire `as never` à chaque appel côté configs.
 export const str = <T = string>(v: unknown): T => String(v) as unknown as T;
 export const bool = (v: unknown) => Boolean(v);
 export const num = (v: unknown) => Number(v);
 
-// ---------- Types ----------
 export type ControlValue = string | boolean;
 export type Values = Record<string, ControlValue>;
 
@@ -27,23 +20,17 @@ type Control = { key: string; label: string } & (
 type PropRow = [name: string, type: string, description: string];
 
 export interface PlaygroundConfig {
-	/** nom du composant dans le code généré, ex. "Button" */
 	component: string;
-	/** symboles à importer si différents de [component] */
 	imports?: string[];
 	controls: Control[];
 	defaults: Values;
-	/** clé du contrôle texte utilisé comme children dans le code généré */
 	childrenKey?: string;
-	/** lignes d'attributs statiques ajoutées au code généré, ex. 'onClick={…}' */
 	extraAttrs?: string[];
 	render: (p: Values) => ReactNode;
-	/** code sur mesure — sinon généré automatiquement depuis les contrôles */
 	code?: (p: Values) => string;
 	props: PropRow[];
 }
 
-// ---------- Code généré ----------
 function genCode(cfg: PlaygroundConfig, p: Values): string {
 	if (cfg.code) return cfg.code(p);
 	const attrs: string[] = [];
@@ -53,7 +40,6 @@ function genCode(cfg: PlaygroundConfig, p: Values): string {
 		if (c.type === "toggle") {
 			if (v) attrs.push(`  ${c.key}`);
 		} else if (c.type === "seg" || v) {
-			// seg : toujours émis ; texte : seulement s'il est non vide
 			attrs.push(`  ${c.key}="${v}"`);
 		}
 	}
@@ -67,7 +53,6 @@ function genCode(cfg: PlaygroundConfig, p: Values): string {
 	return `import { ${imports} } from "@camply/ui";\n\n${jsx}`;
 }
 
-// ---------- Blocs ----------
 function UsageBlock({ code }: { code: string }) {
 	return (
 		<section className="cu-usage">
@@ -112,7 +97,6 @@ function PropsTable({ rows }: { rows: PropRow[] }) {
 	);
 }
 
-// ---------- Contrôles (dogfoodés @camply/ui) ----------
 function ControlRow({
 	control,
 	value,
@@ -157,7 +141,6 @@ function ControlRow({
 	);
 }
 
-// ---------- Vue ----------
 export function PlaygroundView({ config }: { config: PlaygroundConfig }) {
 	const [values, setValues] = useState<Values>(config.defaults);
 	const set = (key: string) => (v: ControlValue) => setValues((prev) => ({ ...prev, [key]: v }));

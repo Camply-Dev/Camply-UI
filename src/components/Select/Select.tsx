@@ -27,11 +27,6 @@ export interface SelectProps<T extends string = string> {
 	style?: CSSProperties;
 }
 
-/**
- * Fully custom select — no native <select>. The listbox is rendered in a
- * Portal with viewport-aware positioning, so it is never clipped by parent
- * overflow. Keyboard: ↑/↓ move, Enter/Space select, Esc closes, Home/End jump.
- */
 export function Select<T extends string = string>({
 	options,
 	value,
@@ -150,8 +145,6 @@ export function Select<T extends string = string>({
 
 			{open && (
 				<Portal>
-					{/* Pattern listbox ARIA : le focus reste sur le trigger (combobox), qui gère
-					    tout le clavier et pointe l'option active via aria-activedescendant. */}
 					<ul
 						ref={listRef}
 						id={listId}

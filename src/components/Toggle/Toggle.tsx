@@ -10,8 +10,6 @@ export interface ToggleProps
 	children: ReactNode;
 }
 
-/** A single two-state pressable button (aria-pressed). Great for toolbar
- *  actions like bold/italic or show/hide. */
 export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
 	(
 		{ pressed, defaultPressed = false, onChange, size = "md", className, children, ...props },

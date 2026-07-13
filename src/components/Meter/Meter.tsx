@@ -7,8 +7,6 @@ export interface MeterProps {
 	value: number;
 	min?: number;
 	max?: number;
-	/** thresholds: value below `low` is danger, below `high` is warn, else ok.
-	 *  Set `optimum: "low"` if smaller is better (e.g. disk usage). */
 	low?: number;
 	high?: number;
 	optimum?: "high" | "low";
@@ -20,8 +18,6 @@ export interface MeterProps {
 	style?: CSSProperties;
 }
 
-/** A gauge for a measurement within a known range, coloured by how good the
- *  current value is (unlike Progress, which is neutral task completion). */
 export function Meter({
 	value,
 	min = 0,
@@ -31,9 +27,6 @@ export function Meter({
 	optimum = "high",
 	label,
 	showValue = true,
-	// Le pourcentage se lit sur l'étendue [min, max], pas sur max seul — sinon
-	// avec min=50/max=100/value=75 le libellé affiche 75 % alors que la barre
-	// se remplit à 50 %.
 	formatValue = (v, m) => `${Math.round(valueToPercent(v, min, m))}%`,
 	size = "md",
 	className,

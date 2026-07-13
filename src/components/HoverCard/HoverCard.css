@@ -1,5 +1,4 @@
 .camply-hovercard__card {
-	/* passe au-dessus des dropdowns et anime un peu plus lentement */
 	--camply-float-z: var(--camply-z-tooltip);
 	--camply-float-dur: 0.16s;
 	width: 280px;

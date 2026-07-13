@@ -9,10 +9,8 @@ export interface AlertProps {
 	tone?: AlertTone;
 	title?: ReactNode;
 	children?: ReactNode;
-	/** show a dismiss button */
 	dismissible?: boolean;
 	onDismiss?: () => void;
-	/** override the default tone icon; pass null to hide */
 	icon?: ReactNode | null;
 	className?: string;
 	style?: CSSProperties;

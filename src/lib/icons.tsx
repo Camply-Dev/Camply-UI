@@ -21,8 +21,6 @@ function Base({ size = 16, children, ...props }: IconProps) {
 	);
 }
 
-// Pack d'icônes Camply : tracés copiés pour rester sans dépendance runtime.
-// Enveloppe <Base> commune (viewBox 24, stroke 2, currentColor). Licences : THIRD-PARTY-LICENSES.md.
 export const Check = (p: IconProps) => (
 	<Base {...p}>
 		<path d="M20 6 9 17l-5-5" />
@@ -137,7 +135,6 @@ export const Upload = (p: IconProps) => (
 	</Base>
 );
 
-// --- Icônes de navigation / UI (pack unifié, ex-icônes de la vitrine) ---
 export const Home = (p: IconProps) => (
 	<Base {...p}>
 		<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
@@ -233,7 +230,6 @@ export const Database = (p: IconProps) => (
 	</Base>
 );
 
-// --- Pack d'icônes (tracés copiés — voir THIRD-PARTY-LICENSES.md) ---
 export const AArrowDown = (p: IconProps) => (
 	<Base {...p}>
 		<path d="m14 12 4 4 4-4" />
@@ -14035,7 +14031,6 @@ export const ZoomOut = (p: IconProps) => (
 	</Base>
 );
 
-// --- Icônes de marques (pack Camply) ---
 export const Brand4chan = (p: IconProps) => (
 	<Base {...p}>
 		<path d="M14 11s6.054 -1.05 6 -4.5c-.038 -2.324 -2.485 -3.19 -3.016 -1.5c0 0 -.502 -2 -2.01 -2c-1.508 0 -2.984 3 -.974 8" />

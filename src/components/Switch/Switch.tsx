@@ -2,7 +2,6 @@ import { forwardRef, type InputHTMLAttributes } from "react";
 import { cn } from "../../lib/cn";
 export interface SwitchProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "size"> {
 	label?: string;
-	/** label on the left, control on the right, filling the row */
 	spread?: boolean;
 	size?: "sm" | "md";
 }

@@ -5,7 +5,6 @@ import { Icon } from "../icons";
 
 type IconComponent = ComponentType<{ size?: number }>;
 
-// Le pack complet, dérivé du module (composants) ; STATUS_ICONS (objet) écarté.
 const ICON_LIST: { name: string; Cmp: IconComponent }[] = (
 	Object.entries(LibIcons) as [string, unknown][]
 )

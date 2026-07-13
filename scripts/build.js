@@ -35,9 +35,7 @@ function addUseClient() {
 			if (!content.startsWith('"use client"')) {
 				writeFileSync(file, `"use client";\n${content}`);
 			}
-		} catch {
-			// pas de fichier racine pour ce composant
-		}
+		} catch {}
 	}
 }
 
@@ -67,7 +65,6 @@ async function minifyCss() {
 	});
 }
 
-/** JS : esbuild (rapide, imports préservés). Types : tsc --emitDeclarationOnly (un .d.ts par module). */
 async function emitJavaScript() {
 	await esbuild.build({
 		entryPoints: tsEntrypoints,

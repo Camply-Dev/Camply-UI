@@ -3,9 +3,7 @@ import { cn } from "../../lib/cn";
 import { Field } from "../../lib/Field";
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
 	label?: string;
-	/** helper text shown under the field */
 	hint?: string;
-	/** error message — overrides hint and styles the field red */
 	error?: string;
 	leftIcon?: ReactNode;
 	rightIcon?: ReactNode;

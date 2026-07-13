@@ -7,10 +7,8 @@ export type BadgeSize = "sm" | "md";
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 	variant?: BadgeVariant;
-	/** ton sémantique ; `"warning"` est un alias déprécié de `"warn"` */
 	tone?: BadgeTone | "warning";
 	size?: BadgeSize;
-	/** icône affichée avant le contenu (n'importe quel ReactNode) */
 	icon?: ReactNode;
 	children?: ReactNode;
 }
@@ -20,7 +18,6 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
 		{ children, variant = "soft", tone = "accent", size = "md", icon, className, ...props },
 		ref,
 	) => {
-		// "warning" reste accepté mais canonicalisé sur "warn".
 		const resolvedTone = tone === "warning" ? "warn" : tone;
 		return (
 			<span

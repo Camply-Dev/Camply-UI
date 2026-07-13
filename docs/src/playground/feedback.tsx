@@ -1,4 +1,3 @@
-// Configs playground — famille Feedback.
 import {
 	Button,
 	Meter,

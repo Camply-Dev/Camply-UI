@@ -6,7 +6,6 @@ import { parseColor, toCss } from "../lib/color";
 import { buildTokensCss } from "../lib/tokensFile";
 import { TOKEN_GROUPS } from "../showcase-data";
 
-/** Swatch ColorPicker piloté par la valeur du token (entièrement contrôlé). */
 function TokenSwatch({ value, onChange }: { value: string; onChange: (v: string) => void }) {
 	const { hex, alpha } = parseColor(value);
 	return (
@@ -21,10 +20,6 @@ function TokenSwatch({ value, onChange }: { value: string; onChange: (v: string)
 }
 
 export function TokensView() {
-	// Surcharges appliquées : token → valeur. Vide = valeurs par défaut du thème.
-	// Source de vérité = les variables inline sur :root (elles persistent après
-	// navigation) ; on les relit au montage pour que les swatches et le bouton
-	// Réinitialiser reflètent l'état réel du site (et non un état React perdu).
 	const [overrides, setOverrides] = useState<Record<string, string>>(() => {
 		if (typeof document === "undefined") return {};
 		const init: Record<string, string> = {};
@@ -40,7 +35,6 @@ export function TokensView() {
 
 	const tokenValue = (name: string, fallback: string) => overrides[name] ?? fallback;
 
-	// Écrit la variable sur :root (inline > feuille de styles) → tout le site suit en direct.
 	const setToken = (name: string, value: string) => {
 		setOverrides((prev) => ({ ...prev, [name]: value }));
 		document.documentElement.style.setProperty(name, value);
@@ -55,7 +49,6 @@ export function TokensView() {
 		setOverrides({});
 	};
 
-	// Génère un tokens.css complet = le vrai fichier avec les valeurs surchargées injectées.
 	const download = () => {
 		const out = buildTokensCss(tokensRaw, overrides);
 		const url = URL.createObjectURL(new Blob([out], { type: "text/css" }));

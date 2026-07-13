@@ -3,13 +3,10 @@ import { cn } from "../../lib/cn";
 
 export interface ButtonGroupProps extends HTMLAttributes<HTMLDivElement> {
 	orientation?: "horizontal" | "vertical";
-	/** visually attach children (shared borders) */
 	attached?: boolean;
 	children: ReactNode;
 }
 
-/** Groups Buttons/IconButtons. When `attached`, children share borders and
- *  only the outer corners are rounded. Otherwise it's a spaced cluster. */
 export const ButtonGroup = forwardRef<HTMLDivElement, ButtonGroupProps>(
 	({ orientation = "horizontal", attached = true, className, children, ...props }, ref) => {
 		return (

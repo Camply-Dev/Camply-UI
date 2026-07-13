@@ -17,7 +17,6 @@ export interface ToastOptions {
 	title: ReactNode;
 	description?: ReactNode;
 	tone?: ToastTone;
-	/** ms before auto-dismiss; 0 to keep until dismissed */
 	duration?: number;
 }
 
@@ -34,7 +33,6 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
-/** Access the imperative toast API from any client component. */
 export function useToast(): ToastContextValue {
 	const ctx = useContext(ToastContext);
 	if (!ctx) throw new Error("useToast must be used within <ToastProvider>");
@@ -46,7 +44,6 @@ const TONE_ICON = { ...STATUS_ICONS, default: Info } as const;
 export interface ToastProviderProps {
 	children: ReactNode;
 	position?: Corner;
-	/** default auto-dismiss duration, ms */
 	duration?: number;
 }
 

@@ -2,7 +2,6 @@ import type { CSSProperties } from "react";
 import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 export interface ProgressProps {
-	/** 0–100; omit for an indeterminate bar */
 	value?: number;
 	tone?: "accent" | "info" | "warn" | "danger";
 	size?: "sm" | "md";

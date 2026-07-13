@@ -39,9 +39,6 @@ export function SegmentedControl<T extends string = string>({
 		options.findIndex((o) => o.value === current),
 	);
 
-	// La pilule est positionnée sur le bouton actif MESURÉ (offsetLeft/Width),
-	// pas sur une fraction calculée — les segments peuvent avoir des largeurs
-	// différentes sans jamais désaligner la pilule.
 	const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 	const [thumb, setThumb] = useState<{ left: number; width: number } | null>(null);
 
@@ -55,8 +52,6 @@ export function SegmentedControl<T extends string = string>({
 		return () => ro?.disconnect();
 	}, [activeIndex]);
 
-	// Un seul arrêt de tabulation (tabIndex mobile) ; ←/→/↑/↓ + Home/End déplacent
-	// et sélectionnent (activation automatique).
 	const select = (index: number) => {
 		const next = wrapIndex(index, options.length);
 		setCurrent(options[next].value);

@@ -6,29 +6,21 @@ import { useControllable } from "../../lib/useControllable";
 export interface TreeNode {
 	id: string;
 	label: ReactNode;
-	/** leading icon (e.g. a folder/file glyph) */
 	icon?: ReactNode;
 	children?: TreeNode[];
 }
 
 export interface TreeProps {
 	nodes: TreeNode[];
-	/** controlled selected node id */
 	selectedId?: string;
 	defaultSelectedId?: string;
 	onSelect?: (id: string) => void;
-	/** ids expanded by default */
 	defaultExpanded?: string[];
-	/** draw vertical guide lines connecting nested levels */
 	guides?: boolean;
 	className?: string;
 	style?: CSSProperties;
 }
 
-/** Collapsible hierarchical tree (file explorers, nav, categories). Expand
- *  state is internal; selection is controllable. Keyboard: Tab reaches each
- *  row, Enter/Space selects and toggles. Set `guides` for the
- *  indented-with-lines look used in sidebars. */
 export function Tree({
 	nodes,
 	selectedId,
