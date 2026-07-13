@@ -13,18 +13,10 @@ import { type CSSProperties, type ReactNode, useState } from "react";
 import { Icon } from "../icons";
 import { CSS } from "../showcase-data";
 import { ClickableCard } from "./ClickableCard";
+import { CodeBlock } from "./CodeBlock";
 
 interface GuideViewProps {
 	onNavigate: (id: string) => void;
-}
-
-/** Bloc de code multi-lignes = Snippet @camply/ui (dogfooding), stylé "pre". */
-function Code({ children, label }: { children: string; label?: string }) {
-	return (
-		<div className="cu-usage__snippet">
-			<Snippet label={label}>{children}</Snippet>
-		</div>
-	);
 }
 
 /** Section de la page : titre + contenu, espacés uniformément. */
@@ -176,8 +168,8 @@ export function GuideView({ onNavigate }: GuideViewProps) {
 					Importez-la <strong>une seule fois</strong>, tout en haut du point d'entrée de votre
 					application (<code>main.tsx</code> avec Vite, <code>app/layout.tsx</code> avec Next.js).
 				</p>
-				<Code label="main.tsx">{`// Une seule fois, à l'entrée de l'app
-import "@camply/ui/styles.css";`}</Code>
+				<CodeBlock lang="ts" title="main.tsx">{`// Une seule fois, à l'entrée de l'app
+import "@camply/ui/styles.css";`}</CodeBlock>
 				<Banner tone="warn" className="cu-guide__banner">
 					Sans cette ligne, vos composants s'affichent mais totalement non stylés. Si un composant
 					paraît cassé, vérifiez-la en premier.
@@ -213,12 +205,12 @@ import "@camply/ui/styles.css";`}</Code>
 							Envoi…
 						</Button>
 					</Preview>
-					<Code>{`import "@camply/ui/styles.css";
+					<CodeBlock lang="tsx">{`import "@camply/ui/styles.css";
 import { Button } from "@camply/ui";
 
 export default function App() {
   return <Button variant="primary">Bonjour Camply</Button>;
-}`}</Code>
+}`}</CodeBlock>
 				</div>
 				<ul className="cu-guide__list">
 					<li>
@@ -238,12 +230,12 @@ export default function App() {
 					vous n'utilisez pas. L'import par sous-chemin existe pour un contrôle maximal du bundle :
 					votre bundler ne charge que le fichier ciblé.
 				</p>
-				<Code>{`// Import nommé (recommandé, le plus simple)
+				<CodeBlock lang="ts">{`// Import nommé (recommandé, le plus simple)
 import { Button, Badge } from "@camply/ui";
 
 // Import par sous-chemin (bundle minimal, contrôle max)
 import { Button } from "@camply/ui/button";
-import { ColorPicker } from "@camply/ui/colorpicker";`}</Code>
+import { ColorPicker } from "@camply/ui/colorpicker";`}</CodeBlock>
 				<Preview label="Garanties du paquet">
 					<Badge tone="accent">ESM</Badge>
 					<Badge tone="info" variant="soft">
@@ -275,11 +267,11 @@ import { ColorPicker } from "@camply/ui/colorpicker";`}</Code>
 					composant sont exportées via <code>import type</code>, pour typer vos wrappers ou vos
 					objets de configuration. Aucune config TS supplémentaire.
 				</p>
-				<Code>{`import { Button } from "@camply/ui";
+				<CodeBlock lang="ts">{`import { Button } from "@camply/ui";
 import type { ButtonProps } from "@camply/ui";
 
 const cta: ButtonProps = { variant: "primary", size: "sm" };
-type MonBouton = Pick<ButtonProps, "variant" | "leftIcon">;`}</Code>
+type MonBouton = Pick<ButtonProps, "variant" | "leftIcon">;`}</CodeBlock>
 				<ul className="cu-guide__list">
 					<li>
 						Convention : <code>&lt;NomDuComposant&gt;Props</code> (<code>ButtonProps</code>,{" "}
@@ -312,7 +304,7 @@ type MonBouton = Pick<ButtonProps, "variant" | "leftIcon">;`}</Code>
 						</div>
 					</div>
 				</div>
-				<Code>{`/* Globalement, sur toute l'app */
+				<CodeBlock lang="css">{`/* Globalement, sur toute l'app */
 :root {
   --camply-accent: #8b5cf6;
 }
@@ -320,7 +312,7 @@ type MonBouton = Pick<ButtonProps, "variant" | "leftIcon">;`}</Code>
 /* Ou localement, sur un scope isolé */
 .zone-promo {
   --camply-accent: #f97316;
-}`}</Code>
+}`}</CodeBlock>
 				<div className="cu-guide__inline-cta">
 					<Button
 						variant="ghost"
@@ -343,9 +335,9 @@ type MonBouton = Pick<ButtonProps, "variant" | "leftIcon">;`}</Code>
 					<Preview>
 						<Button style={{ borderRadius: 999 }}>Continuer</Button>
 					</Preview>
-					<Code>{`<Button className="w-full" style={{ borderRadius: 999 }}>
+					<CodeBlock lang="tsx">{`<Button className="w-full" style={{ borderRadius: 999 }}>
   Continuer
-</Button>`}</Code>
+</Button>`}</CodeBlock>
 				</div>
 				<ul className="cu-guide__list">
 					<li>
@@ -365,7 +357,7 @@ type MonBouton = Pick<ButtonProps, "variant" | "leftIcon">;`}</Code>
 					<code>CommandPalette</code> + <code>useCommandPalette</code>). Englobez l'app une fois,
 					puis pilotez depuis n'importe quel composant client.
 				</p>
-				<Code>{`"use client";
+				<CodeBlock lang="tsx">{`"use client";
 import { ToastProvider, useToast, Button } from "@camply/ui";
 
 // 1. Englober l'app (une fois, en haut de l'arbre)
@@ -385,7 +377,7 @@ function Page() {
       Sauvegarder
     </Button>
   );
-}`}</Code>
+}`}</CodeBlock>
 				<div className="cu-guide__demo">
 					<ToastDemo />
 					<PaletteDemo onNavigate={onNavigate} />
@@ -403,7 +395,7 @@ function Page() {
 					Client Components : ajoutez <code>"use client"</code> en tête du fichier qui les utilise,
 					et gardez l'import des styles dans <code>app/layout.tsx</code>.
 				</p>
-				<Code>{`"use client";
+				<CodeBlock lang="tsx">{`"use client";
 import { CommandPalette, useCommandPalette } from "@camply/ui";
 // styles.css est importé UNE fois dans app/layout.tsx
 
@@ -416,7 +408,7 @@ export function Palette() {
       commands={[{ id: "home", label: "Accueil", onRun: () => {} }]}
     />
   );
-}`}</Code>
+}`}</CodeBlock>
 				<ul className="cu-guide__list">
 					<li>
 						<code>styles.css</code> → toujours dans le layout racine, une seule fois.

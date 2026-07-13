@@ -104,6 +104,11 @@
 	--camply-tooltip-fg: var(--camply-surface); /* texte sombre de la tooltip */
 	--camply-tooltip-dark: #1a2636; /* variante sombre de tooltip */
 
+	/* --- Barres de défilement --- */
+	--camply-scrollbar-size: 10px;
+	--camply-scrollbar-thumb: rgba(148, 176, 216, 0.24);
+	--camply-scrollbar-thumb-hover: rgba(148, 176, 216, 0.4);
+
 	/* --- Dégradés de remplissage (barres de progression / jauges / sliders) --- */
 	--camply-gradient-accent: linear-gradient(90deg, #0284c7, var(--camply-accent));
 	--camply-gradient-info: linear-gradient(90deg, #6366f1, var(--camply-info));
@@ -176,6 +181,81 @@
 	padding: 6px;
 	list-style: none;
 	overflow-y: auto;
+}
+
+/* Barres de défilement — cohérentes sur toutes les surfaces scrollables de la
+   librairie, cross-navigateur, et SCOPÉES aux conteneurs Camply : la librairie
+   ne touche jamais les scrollbars globales de l'application hôte.
+   Firefox → scrollbar-width/color ; WebKit & Blink → pseudo-éléments. Le pouce
+   « flotte » (bordure transparente + background-clip) donc il s'adapte à
+   n'importe quel fond de conteneur. */
+.camply-floating-list,
+.camply-commandpalette__list,
+.camply-modal__panel,
+.camply-drawer__content,
+.camply-sheet__content,
+.camply-table__wrap,
+.camply-snippet__code,
+.camply-textarea__area {
+	scrollbar-width: thin;
+	scrollbar-color: var(--camply-scrollbar-thumb) transparent;
+}
+
+.camply-floating-list::-webkit-scrollbar,
+.camply-commandpalette__list::-webkit-scrollbar,
+.camply-modal__panel::-webkit-scrollbar,
+.camply-drawer__content::-webkit-scrollbar,
+.camply-sheet__content::-webkit-scrollbar,
+.camply-table__wrap::-webkit-scrollbar,
+.camply-snippet__code::-webkit-scrollbar,
+.camply-textarea__area::-webkit-scrollbar {
+	width: var(--camply-scrollbar-size);
+	height: var(--camply-scrollbar-size);
+}
+
+.camply-floating-list::-webkit-scrollbar-track,
+.camply-commandpalette__list::-webkit-scrollbar-track,
+.camply-modal__panel::-webkit-scrollbar-track,
+.camply-drawer__content::-webkit-scrollbar-track,
+.camply-sheet__content::-webkit-scrollbar-track,
+.camply-table__wrap::-webkit-scrollbar-track,
+.camply-snippet__code::-webkit-scrollbar-track,
+.camply-textarea__area::-webkit-scrollbar-track,
+.camply-floating-list::-webkit-scrollbar-corner,
+.camply-commandpalette__list::-webkit-scrollbar-corner,
+.camply-modal__panel::-webkit-scrollbar-corner,
+.camply-drawer__content::-webkit-scrollbar-corner,
+.camply-sheet__content::-webkit-scrollbar-corner,
+.camply-table__wrap::-webkit-scrollbar-corner,
+.camply-snippet__code::-webkit-scrollbar-corner,
+.camply-textarea__area::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+.camply-floating-list::-webkit-scrollbar-thumb,
+.camply-commandpalette__list::-webkit-scrollbar-thumb,
+.camply-modal__panel::-webkit-scrollbar-thumb,
+.camply-drawer__content::-webkit-scrollbar-thumb,
+.camply-sheet__content::-webkit-scrollbar-thumb,
+.camply-table__wrap::-webkit-scrollbar-thumb,
+.camply-snippet__code::-webkit-scrollbar-thumb,
+.camply-textarea__area::-webkit-scrollbar-thumb {
+	background: var(--camply-scrollbar-thumb);
+	border: 2px solid transparent;
+	border-radius: var(--camply-radius-pill);
+	background-clip: padding-box;
+}
+
+.camply-floating-list::-webkit-scrollbar-thumb:hover,
+.camply-commandpalette__list::-webkit-scrollbar-thumb:hover,
+.camply-modal__panel::-webkit-scrollbar-thumb:hover,
+.camply-drawer__content::-webkit-scrollbar-thumb:hover,
+.camply-sheet__content::-webkit-scrollbar-thumb:hover,
+.camply-table__wrap::-webkit-scrollbar-thumb:hover,
+.camply-snippet__code::-webkit-scrollbar-thumb:hover,
+.camply-textarea__area::-webkit-scrollbar-thumb:hover {
+	background: var(--camply-scrollbar-thumb-hover);
+	background-clip: padding-box;
 }
 
 /* Ossature commune des contrôles à input natif masqué (Checkbox, Radio, Switch) :

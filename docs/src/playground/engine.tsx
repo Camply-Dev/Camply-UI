@@ -1,8 +1,9 @@
 // Moteur de playground générique : chaque composant fournit une config
 // déclarative (contrôles, rendu, props) et le moteur fait le reste —
 // état, panneau de contrôles (composants @camply/ui), code généré, table des props.
-import { Input, SegmentedControl, Snippet, Switch, Table } from "@camply/ui";
+import { Input, SegmentedControl, Switch, Table } from "@camply/ui";
 import { type ReactNode, useState } from "react";
+import { CodeBlock } from "../components/CodeBlock";
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -71,9 +72,7 @@ function UsageBlock({ code }: { code: string }) {
 	return (
 		<section className="cu-usage">
 			<h2 className="cu-usage__title">Utilisation</h2>
-			<Snippet copyText={code} className="cu-usage__snippet">
-				{code}
-			</Snippet>
+			<CodeBlock lang="tsx">{code}</CodeBlock>
 		</section>
 	);
 }

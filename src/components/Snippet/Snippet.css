@@ -26,7 +26,6 @@
 	font-family: var(--camply-font-mono);
 	font-size: 13px;
 	color: var(--camply-text);
-	scrollbar-width: thin;
 }
 .camply-snippet__code.camply-snippet__wrap {
 	white-space: pre-wrap;

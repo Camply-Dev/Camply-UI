@@ -52,15 +52,35 @@ h3 {
 	color: #04121e;
 }
 
+/* Barres de défilement de la vitrine — globales (c'est une app, pas la lib) et
+   cross-navigateur : Firefox via scrollbar-*, WebKit/Blink via les pseudo-éléments.
+   Pouce « flottant » (bordure transparente + background-clip) → même rendu sur le
+   fond principal comme dans la sidebar. */
+html {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(148, 176, 216, 0.28) transparent;
+}
+
 ::-webkit-scrollbar {
 	width: 11px;
 	height: 11px;
 }
 
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
 ::-webkit-scrollbar-thumb {
-	background: rgba(148, 176, 216, 0.16);
-	border: 3px solid var(--sc-bg);
-	border-radius: 8px;
+	background: rgba(148, 176, 216, 0.2);
+	border: 3px solid transparent;
+	border-radius: 999px;
+	background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: rgba(148, 176, 216, 0.34);
+	background-clip: padding-box;
 }
 
 /* ---------- Shell ---------- */
@@ -789,14 +809,94 @@ h3 {
 	font-weight: 700;
 }
 
-/* Bloc de code = Snippet @camply/ui, mis en forme "pre" multi-lignes. */
-.cu-usage__snippet .camply-snippet__code {
-	white-space: pre;
+/* Bloc de code façon markdown : barre (chip langage + copie) + coloration. */
+.cu-code {
+	margin: 0 0 14px;
+	overflow: hidden;
+	border: 1px solid var(--sc-line);
+	border-radius: 12px;
+	background: #0a0f18;
+}
+
+.cu-code__bar {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 6px 8px 6px 14px;
+	border-bottom: 1px solid var(--sc-line-soft);
+	background: rgba(255, 255, 255, 0.02);
+}
+
+.cu-code__lang {
+	padding: 2px 8px;
+	border-radius: 6px;
+	background: var(--sc-accent-soft);
+	color: var(--sc-accent-hi);
+	font-family: var(--sc-font-mono);
+	font-size: 10.5px;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+}
+
+.cu-code__title {
+	font-family: var(--sc-font-mono);
+	font-size: 12px;
+	color: var(--sc-muted);
+}
+
+.cu-code__copy {
+	margin-left: auto;
+}
+
+.cu-code__pre {
+	margin: 0;
+	padding: 14px 16px;
 	overflow-x: auto;
-	padding: 8px 4px;
+	font-family: var(--sc-font-mono);
 	font-size: 13px;
 	line-height: 1.7;
+}
+
+.cu-code__pre code {
+	font-family: inherit;
 	color: #cdd9e6;
+	white-space: pre;
+}
+
+/* Jetons de coloration syntaxique */
+.cu-tok--comment {
+	color: #5f7186;
+	font-style: italic;
+}
+.cu-tok--keyword,
+.cu-tok--atrule,
+.cu-tok--flag {
+	color: #c39cf3;
+}
+.cu-tok--string {
+	color: #9bd17c;
+}
+.cu-tok--number,
+.cu-tok--boolean {
+	color: #e6a267;
+}
+.cu-tok--type,
+.cu-tok--property,
+.cu-tok--attr,
+.cu-tok--variable,
+.cu-tok--builtin {
+	color: #7dd3fc;
+}
+.cu-tok--function,
+.cu-tok--selector {
+	color: #82aaff;
+}
+.cu-tok--tag {
+	color: #e5849b;
+}
+.cu-tok--punct {
+	color: #8091a6;
 }
 
 .cu-perso__sub {
