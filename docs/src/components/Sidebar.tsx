@@ -7,7 +7,9 @@ import {
 	CSS,
 	FAMILIES,
 	type Family,
+	GUIDE,
 	HOME,
+	ICONS,
 	ROADMAP,
 	type Subfamily,
 	TOTAL,
@@ -26,7 +28,8 @@ export function Sidebar({ active, onNavigate, onOpenPalette }: SidebarProps) {
 
 	const q = query.trim().toLowerCase();
 	const searching = q.length > 0;
-	const activeIsComponent = active !== HOME && active !== CSS && active !== ROADMAP;
+	const activeIsComponent =
+		active !== HOME && active !== GUIDE && active !== ICONS && active !== CSS && active !== ROADMAP;
 
 	const matches = (label: string) => label.toLowerCase().includes(q);
 	const famHasMatch = (family: Family) =>
@@ -109,6 +112,22 @@ export function Sidebar({ active, onNavigate, onOpenPalette }: SidebarProps) {
 				>
 					<Icon name="home" size={15} />
 					Accueil
+				</button>
+				<button
+					type="button"
+					className={active === GUIDE ? "cu-link cu-link--active" : "cu-link"}
+					onClick={() => onNavigate(GUIDE)}
+				>
+					<Icon name="book" size={15} />
+					Guide d'utilisation
+				</button>
+				<button
+					type="button"
+					className={active === ICONS ? "cu-link cu-link--active" : "cu-link"}
+					onClick={() => onNavigate(ICONS)}
+				>
+					<Icon name="shapes" size={15} />
+					Icônes
 				</button>
 				<button
 					type="button"

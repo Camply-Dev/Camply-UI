@@ -1,11 +1,13 @@
 import { Breadcrumbs, CommandPalette, type Crumb, Kbd, useCommandPalette } from "@camply/ui";
 import { useState } from "react";
 import { ComponentPage } from "./components/ComponentPage";
+import { GuideView } from "./components/GuideView";
 import { HomeView } from "./components/HomeView";
+import { IconsView } from "./components/IconsView";
 import { RoadmapView } from "./components/RoadmapView";
 import { Sidebar } from "./components/Sidebar";
 import { TokensView } from "./components/TokensView";
-import { BY_ID, COMPONENTS, CSS, HOME, ROADMAP } from "./showcase-data";
+import { BY_ID, COMPONENTS, CSS, GUIDE, HOME, ICONS, ROADMAP } from "./showcase-data";
 
 export function App() {
 	const [active, setActive] = useState<string>(HOME);
@@ -20,7 +22,11 @@ export function App() {
 	// Fil d'Ariane : racine "Camply UI" toujours présente et cliquable (→ Accueil),
 	// puis le chemin courant. Pour un composant : Camply UI → Famille → Composant.
 	const crumbs: Crumb[] = [{ label: "Camply UI", onClick: () => go(HOME) }];
-	if (active === CSS) {
+	if (active === GUIDE) {
+		crumbs.push({ label: "Guide d'utilisation" });
+	} else if (active === ICONS) {
+		crumbs.push({ label: "Icônes" });
+	} else if (active === CSS) {
 		crumbs.push({ label: "CSS par défaut" });
 	} else if (active === ROADMAP) {
 		crumbs.push({ label: "Roadmap" });
@@ -35,6 +41,8 @@ export function App() {
 	// La vitrine se pilote avec le CommandPalette de la lib (⌘K) — dogfooding.
 	const commands = [
 		{ id: HOME, label: "Accueil", group: "Navigation", onRun: () => go(HOME) },
+		{ id: GUIDE, label: "Guide d'utilisation", group: "Navigation", onRun: () => go(GUIDE) },
+		{ id: ICONS, label: "Icônes", group: "Navigation", onRun: () => go(ICONS) },
 		{ id: CSS, label: "CSS par défaut", group: "Navigation", onRun: () => go(CSS) },
 		{ id: ROADMAP, label: "Roadmap", group: "Navigation", onRun: () => go(ROADMAP) },
 		...COMPONENTS.map((c) => ({
@@ -64,6 +72,8 @@ export function App() {
 				</header>
 				<div className="cu-view">
 					{active === HOME && <HomeView onNavigate={setActive} />}
+					{active === GUIDE && <GuideView onNavigate={setActive} />}
+					{active === ICONS && <IconsView />}
 					{active === CSS && <TokensView />}
 					{active === ROADMAP && <RoadmapView onNavigate={setActive} />}
 					{entry && <ComponentPage entry={entry} onNavigate={setActive} />}

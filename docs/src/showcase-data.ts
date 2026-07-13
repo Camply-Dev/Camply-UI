@@ -17,6 +17,8 @@ export interface ComponentEntry {
 
 // Vues spéciales (non-composants) de la vitrine.
 export const HOME = "__home";
+export const GUIDE = "__guide";
+export const ICONS = "__icons";
 export const CSS = "__css";
 export const ROADMAP = "__roadmap";
 
