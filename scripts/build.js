@@ -67,7 +67,7 @@ async function minifyCss() {
 	});
 }
 
-/** JS : esbuild (rapide, imports préservés). Types : tsc --emitDeclarationOnly en parallèle. */
+/** JS : esbuild (rapide, imports préservés). Types : tsc --emitDeclarationOnly (un .d.ts par module). */
 async function emitJavaScript() {
 	await esbuild.build({
 		entryPoints: tsEntrypoints,
@@ -90,14 +90,6 @@ function emitDeclarations() {
 	if (tsc.exitCode !== 0) process.exit(tsc.exitCode ?? 1);
 }
 
-function bundleDeclarations() {
-	const bundleDts = Bun.spawnSync(["node", join(root, "scripts/bundle-dts.cjs")], {
-		cwd: root,
-		stdio: ["inherit", "inherit", "inherit"],
-	});
-	if (bundleDts.exitCode !== 0) process.exit(bundleDts.exitCode ?? 1);
-}
-
 rmSync(dist, { recursive: true, force: true });
 
 await Promise.all([emitJavaScript(), Promise.resolve().then(emitDeclarations)]);
@@ -105,6 +97,6 @@ await Promise.all([emitJavaScript(), Promise.resolve().then(emitDeclarations)]);
 copyCssFiles();
 addUseClient();
 
-await Promise.all([minifyCss(), Promise.resolve().then(bundleDeclarations)]);
+await minifyCss();
 
 console.log("Build complete");
