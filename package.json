@@ -34,240 +34,8 @@
 		},
 		"./styles.css": "./dist/styles.css",
 		"./icons": {
-			"types": "./dist/icons.d.ts",
-			"import": "./dist/icons.js"
-		},
-		"./accordion": {
-			"types": "./dist/accordion.d.ts",
-			"import": "./dist/accordion.js"
-		},
-		"./alert": {
-			"types": "./dist/alert.d.ts",
-			"import": "./dist/alert.js"
-		},
-		"./avatar": {
-			"types": "./dist/avatar.d.ts",
-			"import": "./dist/avatar.js"
-		},
-		"./badge": {
-			"types": "./dist/badge.d.ts",
-			"import": "./dist/badge.js"
-		},
-		"./banner": {
-			"types": "./dist/banner.d.ts",
-			"import": "./dist/banner.js"
-		},
-		"./breadcrumbs": {
-			"types": "./dist/breadcrumbs.d.ts",
-			"import": "./dist/breadcrumbs.js"
-		},
-		"./button": {
-			"types": "./dist/button.d.ts",
-			"import": "./dist/button.js"
-		},
-		"./buttongroup": {
-			"types": "./dist/buttongroup.d.ts",
-			"import": "./dist/buttongroup.js"
-		},
-		"./card": {
-			"types": "./dist/card.d.ts",
-			"import": "./dist/card.js"
-		},
-		"./carousel": {
-			"types": "./dist/carousel.d.ts",
-			"import": "./dist/carousel.js"
-		},
-		"./checkbox": {
-			"types": "./dist/checkbox.d.ts",
-			"import": "./dist/checkbox.js"
-		},
-		"./colorpicker": {
-			"types": "./dist/colorpicker.d.ts",
-			"import": "./dist/colorpicker.js"
-		},
-		"./combobox": {
-			"types": "./dist/combobox.d.ts",
-			"import": "./dist/combobox.js"
-		},
-		"./commandpalette": {
-			"types": "./dist/commandpalette.d.ts",
-			"import": "./dist/commandpalette.js"
-		},
-		"./datepicker": {
-			"types": "./dist/datepicker.d.ts",
-			"import": "./dist/datepicker.js"
-		},
-		"./descriptionlist": {
-			"types": "./dist/descriptionlist.d.ts",
-			"import": "./dist/descriptionlist.js"
-		},
-		"./divider": {
-			"types": "./dist/divider.d.ts",
-			"import": "./dist/divider.js"
-		},
-		"./drawer": {
-			"types": "./dist/drawer.d.ts",
-			"import": "./dist/drawer.js"
-		},
-		"./dropdownmenu": {
-			"types": "./dist/dropdownmenu.d.ts",
-			"import": "./dist/dropdownmenu.js"
-		},
-		"./fileupload": {
-			"types": "./dist/fileupload.d.ts",
-			"import": "./dist/fileupload.js"
-		},
-		"./hovercard": {
-			"types": "./dist/hovercard.d.ts",
-			"import": "./dist/hovercard.js"
-		},
-		"./iconbutton": {
-			"types": "./dist/iconbutton.d.ts",
-			"import": "./dist/iconbutton.js"
-		},
-		"./input": {
-			"types": "./dist/input.d.ts",
-			"import": "./dist/input.js"
-		},
-		"./kbd": {
-			"types": "./dist/kbd.d.ts",
-			"import": "./dist/kbd.js"
-		},
-		"./menubar": {
-			"types": "./dist/menubar.d.ts",
-			"import": "./dist/menubar.js"
-		},
-		"./meter": {
-			"types": "./dist/meter.d.ts",
-			"import": "./dist/meter.js"
-		},
-		"./modal": {
-			"types": "./dist/modal.d.ts",
-			"import": "./dist/modal.js"
-		},
-		"./multiselect": {
-			"types": "./dist/multiselect.d.ts",
-			"import": "./dist/multiselect.js"
-		},
-		"./numberinput": {
-			"types": "./dist/numberinput.d.ts",
-			"import": "./dist/numberinput.js"
-		},
-		"./pagination": {
-			"types": "./dist/pagination.d.ts",
-			"import": "./dist/pagination.js"
-		},
-		"./pininput": {
-			"types": "./dist/pininput.d.ts",
-			"import": "./dist/pininput.js"
-		},
-		"./popover": {
-			"types": "./dist/popover.d.ts",
-			"import": "./dist/popover.js"
-		},
-		"./progress": {
-			"types": "./dist/progress.d.ts",
-			"import": "./dist/progress.js"
-		},
-		"./radialprogress": {
-			"types": "./dist/radialprogress.d.ts",
-			"import": "./dist/radialprogress.js"
-		},
-		"./radio": {
-			"types": "./dist/radio.d.ts",
-			"import": "./dist/radio.js"
-		},
-		"./rangeslider": {
-			"types": "./dist/rangeslider.d.ts",
-			"import": "./dist/rangeslider.js"
-		},
-		"./rating": {
-			"types": "./dist/rating.d.ts",
-			"import": "./dist/rating.js"
-		},
-		"./segmentedcontrol": {
-			"types": "./dist/segmentedcontrol.d.ts",
-			"import": "./dist/segmentedcontrol.js"
-		},
-		"./select": {
-			"types": "./dist/select.d.ts",
-			"import": "./dist/select.js"
-		},
-		"./sheet": {
-			"types": "./dist/sheet.d.ts",
-			"import": "./dist/sheet.js"
-		},
-		"./skeleton": {
-			"types": "./dist/skeleton.d.ts",
-			"import": "./dist/skeleton.js"
-		},
-		"./slider": {
-			"types": "./dist/slider.d.ts",
-			"import": "./dist/slider.js"
-		},
-		"./snippet": {
-			"types": "./dist/snippet.d.ts",
-			"import": "./dist/snippet.js"
-		},
-		"./spinner": {
-			"types": "./dist/spinner.d.ts",
-			"import": "./dist/spinner.js"
-		},
-		"./spoiler": {
-			"types": "./dist/spoiler.d.ts",
-			"import": "./dist/spoiler.js"
-		},
-		"./stat": {
-			"types": "./dist/stat.d.ts",
-			"import": "./dist/stat.js"
-		},
-		"./steps": {
-			"types": "./dist/steps.d.ts",
-			"import": "./dist/steps.js"
-		},
-		"./switch": {
-			"types": "./dist/switch.d.ts",
-			"import": "./dist/switch.js"
-		},
-		"./table": {
-			"types": "./dist/table.d.ts",
-			"import": "./dist/table.js"
-		},
-		"./tabs": {
-			"types": "./dist/tabs.d.ts",
-			"import": "./dist/tabs.js"
-		},
-		"./tag": {
-			"types": "./dist/tag.d.ts",
-			"import": "./dist/tag.js"
-		},
-		"./taginput": {
-			"types": "./dist/taginput.d.ts",
-			"import": "./dist/taginput.js"
-		},
-		"./textarea": {
-			"types": "./dist/textarea.d.ts",
-			"import": "./dist/textarea.js"
-		},
-		"./timeline": {
-			"types": "./dist/timeline.d.ts",
-			"import": "./dist/timeline.js"
-		},
-		"./toast": {
-			"types": "./dist/toast.d.ts",
-			"import": "./dist/toast.js"
-		},
-		"./toggle": {
-			"types": "./dist/toggle.d.ts",
-			"import": "./dist/toggle.js"
-		},
-		"./tooltip": {
-			"types": "./dist/tooltip.d.ts",
-			"import": "./dist/tooltip.js"
-		},
-		"./tree": {
-			"types": "./dist/tree.d.ts",
-			"import": "./dist/tree.js"
+			"types": "./dist/lib/icons.d.ts",
+			"import": "./dist/lib/icons.js"
 		}
 	},
 	"files": [
@@ -280,14 +48,12 @@
 	},
 	"scripts": {
 		"dev": "bun --cwd docs dev",
-		"docs:dev": "bun --cwd docs dev",
 		"docs:build": "bun --cwd docs build",
-		"build": "bunx --bun tsup && bun scripts/post-build.ts",
-		"typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p docs/tsconfig.json",
+		"build": "bun scripts/build.js",
+		"typecheck": "tsc --noEmit && tsc --noEmit -p docs/tsconfig.json",
 		"check": "biome check .",
-		"lint": "biome lint .",
-		"format": "biome format --write .",
-		"lint:fix": "biome check --write .",
+		"fix": "biome check --write .",
+		"sync": "bun scripts/sync-src-barrel.js",
 		"prepublishOnly": "bun run build"
 	},
 	"peerDependencies": {
@@ -301,7 +67,6 @@
 		"@types/react-dom": "^19.2.3",
 		"react": "^19.2.7",
 		"react-dom": "^19.2.7",
-		"tsup": "^8.5.1",
-		"typescript": "^5.9.3"
+		"typescript": "^7.0.2"
 	}
 }

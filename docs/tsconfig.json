@@ -9,7 +9,6 @@
 		"skipLibCheck": true,
 		"noEmit": true,
 		"isolatedModules": true,
-		"baseUrl": ".",
 		"paths": {
 			"@camply/ui": ["../src/index.ts"],
 			"react": ["../node_modules/@types/react"],

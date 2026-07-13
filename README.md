@@ -29,11 +29,7 @@ export function Example() {
 }
 ```
 
-Le CSS de chaque composant est chargé automatiquement par le bundler (side-effects) : seul le CSS des composants réellement utilisés est inclus. Import par composant possible pour un contrôle maximal :
-
-```tsx
-import { Button } from "@camply/ui/button";
-```
+Le CSS de chaque composant est chargé automatiquement par le bundler (side-effects) : seul le CSS des composants réellement utilisés est inclus.
 
 ### Icônes
 
@@ -62,7 +58,7 @@ Chaque composant accepte aussi `className` et `style`.
 ## Développement
 
 - **Bun** — runtime et gestionnaire de paquets
-- **TypeScript** strict · **tsup** (build ESM + `.d.ts`) · **Biome** (lint/format) · **Vite** (vitrine `docs/`)
+- **TypeScript** strict · **tsc** (build `dist/`, TS 7) · **Biome** · **Vite** (docs)
 
 ```bash
 bun install          # dépendances
@@ -80,17 +76,16 @@ src/
   lib/              # helpers internes (cn, Portal, icons, useAnchor…)
   styles/tokens.css # design tokens (source de @camply/ui/styles.css)
 docs/               # vitrine / documentation visuelle (Vite)
-scripts/            # build (post-build, sync des exports npm)
+scripts/            # build (tsc + post-steps), sync barrel
 dist/               # sortie du build (généré)
 ```
 
 ### Ajouter un composant
 
 1. Créer `src/components/MonComposant/` avec `MonComposant.tsx`, `MonComposant.css` et `index.ts` (qui importe le CSS et ré-exporte les symboles)
-2. L'exporter depuis `src/index.ts`
-3. Synchroniser les exports npm : `bun scripts/sync-package-exports.ts`
-4. `bun run build` (vérifie que les exports sont synchronisés, sinon échoue)
-5. Vérifier le rendu dans la vitrine (`bun run dev`)
+2. `bun run sync` (régénère `src/index.ts`)
+3. `bun run build`
+4. Vérifier le rendu dans la vitrine (`bun run dev`)
 
 ### Conventions
 

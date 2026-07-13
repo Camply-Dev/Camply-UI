@@ -224,18 +224,12 @@ export default function App() {
 				</ul>
 			</Section>
 
-			<Section title="Deux façons d'importer">
+			<Section title="Importer">
 				<p className="cu-guide__p">
-					L'import nommé depuis la racine suffit à 99 % des cas — le tree-shaking élimine ce que
-					vous n'utilisez pas. L'import par sous-chemin existe pour un contrôle maximal du bundle :
-					votre bundler ne charge que le fichier ciblé.
+					Import nommé depuis la racine du paquet. Le tree-shaking du bundler de ton app élimine ce
+					que tu n'utilises pas.
 				</p>
-				<CodeBlock lang="ts">{`// Import nommé (recommandé, le plus simple)
-import { Button, Badge } from "@camply/ui";
-
-// Import par sous-chemin (bundle minimal, contrôle max)
-import { Button } from "@camply/ui/button";
-import { ColorPicker } from "@camply/ui/colorpicker";`}</CodeBlock>
+				<CodeBlock lang="ts">{`import { Button, Badge, ColorPicker } from "@camply/ui";`}</CodeBlock>
 				<Preview label="Garanties du paquet">
 					<Badge tone="accent">ESM</Badge>
 					<Badge tone="info" variant="soft">
