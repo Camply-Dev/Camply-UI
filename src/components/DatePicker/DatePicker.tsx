@@ -42,7 +42,8 @@ const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDat
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
 /** Date → "JJ/MM/AAAA" (format de saisie). */
-const formatInput = (d: Date) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
+const formatInput = (d: Date) =>
+	`${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
 
 /** Masque de saisie JJ/MM/AAAA : "/" insérés automatiquement. Respecte les "/"
  *  déjà présents comme frontières fermes : seul le dernier segment (celui qu'on

@@ -71,6 +71,6 @@
 	transition: background var(--camply-duration);
 }
 .camply-banner__close:hover {
-	background: var(--camply-surface-soft);
+	background: var(--camply-fill-3);
 	color: var(--camply-text);
 }

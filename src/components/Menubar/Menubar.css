@@ -5,7 +5,7 @@
 	padding: 4px;
 	border: 1px solid var(--camply-border);
 	border-radius: var(--camply-radius);
-	background: rgba(255, 255, 255, 0.02);
+	background: var(--camply-fill-1);
 	font-family: var(--camply-font-sans);
 }
 .camply-menubar__trigger {
@@ -23,7 +23,7 @@
 		color var(--camply-duration);
 }
 .camply-menubar__trigger:hover {
-	background: rgba(255, 255, 255, 0.05);
+	background: var(--camply-fill-2);
 	color: var(--camply-text);
 }
 .camply-menubar__triggerOpen {

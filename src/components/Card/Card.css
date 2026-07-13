@@ -1,7 +1,7 @@
 .camply-card__card {
 	border: 1px solid var(--camply-border);
 	border-radius: var(--camply-radius-lg);
-	background: rgba(255, 255, 255, 0.025);
+	background: var(--camply-fill-1);
 	font-family: var(--camply-font-sans);
 	color: var(--camply-text);
 }
@@ -28,7 +28,7 @@
 .camply-card__interactive:hover {
 	transform: translateY(-4px);
 	border-color: var(--camply-accent-border);
-	background: rgba(255, 255, 255, 0.035);
+	background: var(--camply-fill-2);
 }
 
 .camply-card__header {

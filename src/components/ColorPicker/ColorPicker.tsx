@@ -31,11 +31,13 @@ export interface ColorPickerProps {
 	 * "full" (défaut) : sélecteur affiché en ligne.
 	 * "compact" : un déclencheur (pastille + valeur + chevron) qui révèle le
 	 * sélecteur dans une palette flottante au survol / focus / clic.
-	 * Les deux variantes exposent les champs HEX & RGB éditables : taper une valeur
+	 * "swatch" : uniquement le carré de couleur ; la même palette flottante
+	 * apparaît au survol / focus / clic.
+	 * Les trois variantes exposent les champs HEX & RGB éditables : taper une valeur
 	 * applique la couleur (hex 3/6/8 chiffres — 8 = avec opacité ; RGB "r, g, b"
 	 * ou "r, g, b, a").
 	 */
-	variant?: "full" | "compact";
+	variant?: "full" | "compact" | "swatch";
 	className?: string;
 	style?: CSSProperties;
 }
@@ -171,7 +173,10 @@ function maskRgb(raw: string): string {
 	let alpha: string | null = null;
 	for (let i = 0; i < segs.length; i++) {
 		if (channels.length >= 3) {
-			const a = segs.slice(i).join("").replace(/[^0-9.]/g, "");
+			const a = segs
+				.slice(i)
+				.join("")
+				.replace(/[^0-9.]/g, "");
 			const dot = a.indexOf(".");
 			alpha = dot === -1 ? a : a.slice(0, dot + 1) + a.slice(dot + 1).replace(/\./g, "");
 			break;
@@ -242,8 +247,9 @@ export function ColorPicker({
 		if (rgb) setHsv(rgbToHsv(...rgb));
 	}, [hex]);
 
-	// --- palette flottante (mode compact) ---
+	// --- palette flottante (modes compact & swatch) ---
 	const compact = variant === "compact";
+	const floating = variant === "compact" || variant === "swatch";
 	const [open, setOpen] = useState(false);
 	const triggerRef = useRef<HTMLButtonElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
@@ -254,7 +260,7 @@ export function ColorPicker({
 
 	const anchorStyle = useAnchor(triggerRef, panelRef, open, { placement: "bottom-start", gap: 8 });
 	const close = useCallback(() => setOpen(false), []);
-	useDismiss(open && compact, close, [triggerRef, panelRef]);
+	useDismiss(open && floating, close, [triggerRef, panelRef]);
 
 	const openNow = () => {
 		clearTimeout(closeTimer.current);
@@ -287,7 +293,10 @@ export function ColorPicker({
 			const rect = el.getBoundingClientRect();
 			draggingRef.current = true;
 			const apply = (cx: number, cy: number) =>
-				onMove(clamp((cx - rect.left) / rect.width, 0, 1), clamp((cy - rect.top) / rect.height, 0, 1));
+				onMove(
+					clamp((cx - rect.left) / rect.width, 0, 1),
+					clamp((cy - rect.top) / rect.height, 0, 1),
+				);
 			apply(e.clientX, e.clientY);
 			const move = (ev: globalThis.PointerEvent) => apply(ev.clientX, ev.clientY);
 			const up = () => {
@@ -386,14 +395,6 @@ export function ColorPicker({
 				spellCheck={false}
 				autoComplete="off"
 				maxLength={9}
-				leftIcon={
-					<span className={"camply-colorpicker__swatch"}>
-						<span
-							className={"camply-colorpicker__swatchFill"}
-							style={{ background: hasColor ? rgbaFill : "transparent" }}
-						/>
-					</span>
-				}
 				onChange={(e) => onHexInput(e.target.value)}
 				onFocus={() => {
 					focusedRef.current = true;
@@ -424,6 +425,58 @@ export function ColorPicker({
 		</div>
 	);
 
+	// Palette flottante partagée par les modes compact & swatch.
+	const floatingPanel = open && (
+		<Portal>
+			<div
+				ref={panelRef}
+				role="dialog"
+				aria-label="Sélecteur de couleur"
+				className="camply-floating-surface camply-colorpicker__pop"
+				style={anchorStyle}
+				onMouseEnter={openNow}
+				onMouseLeave={scheduleClose}
+			>
+				{pickerCore}
+				{editFields}
+			</div>
+		</Portal>
+	);
+
+	// Mode swatch : uniquement le carré de couleur ; la palette apparaît au survol.
+	if (variant === "swatch") {
+		return (
+			<div
+				className={cn("camply-colorpicker__root", "camply-colorpicker__swatchOnly", className)}
+				style={style}
+			>
+				{label && <span className={"camply-colorpicker__label"}>{label}</span>}
+				<button
+					ref={triggerRef}
+					type="button"
+					aria-haspopup="dialog"
+					aria-expanded={open}
+					aria-label={
+						label
+							? `${label} : ${hasColor ? hexOut : "aucune"}`
+							: `Couleur ${hasColor ? hexOut : "aucune"}`
+					}
+					className={cn("camply-colorpicker__swatch", "camply-colorpicker__swatchTrigger")}
+					onMouseEnter={openNow}
+					onMouseLeave={scheduleClose}
+					onFocus={openNow}
+					onClick={openNow}
+				>
+					<span
+						className={"camply-colorpicker__swatchFill"}
+						style={{ background: hasColor ? rgbaFill : "transparent" }}
+					/>
+				</button>
+				{floatingPanel}
+			</div>
+		);
+	}
+
 	if (compact) {
 		return (
 			<div
@@ -441,10 +494,7 @@ export function ColorPicker({
 							? `${label} : ${hasColor ? hexOut : "aucune"}`
 							: `Couleur ${hasColor ? hexOut : "aucune"}`
 					}
-					className={cn(
-						"camply-colorpicker__trigger",
-						open && "camply-colorpicker__trigger--open",
-					)}
+					className={cn("camply-colorpicker__trigger", open && "camply-colorpicker__trigger--open")}
 					onMouseEnter={openNow}
 					onMouseLeave={scheduleClose}
 					onFocus={openNow}
@@ -468,22 +518,7 @@ export function ColorPicker({
 						<ChevronDown size={16} />
 					</span>
 				</button>
-				{open && (
-					<Portal>
-						<div
-							ref={panelRef}
-							role="dialog"
-							aria-label="Sélecteur de couleur"
-							className="camply-floating-surface camply-colorpicker__pop"
-							style={anchorStyle}
-							onMouseEnter={openNow}
-							onMouseLeave={scheduleClose}
-						>
-							{pickerCore}
-							{editFields}
-						</div>
-					</Portal>
-				)}
+				{floatingPanel}
 			</div>
 		);
 	}

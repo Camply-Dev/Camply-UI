@@ -19,7 +19,7 @@
 	letter-spacing: 0.4px;
 	text-transform: uppercase;
 	color: var(--camply-text-muted-2);
-	background: rgba(255, 255, 255, 0.03);
+	background: var(--camply-fill-1);
 	white-space: nowrap;
 }
 .camply-table__sortable {
@@ -62,14 +62,14 @@ button.camply-table__thInner:focus-visible {
 	vertical-align: middle;
 }
 .camply-table__striped {
-	background: rgba(255, 255, 255, 0.015);
+	background: var(--camply-fill-1);
 }
 .camply-table__clickable {
 	cursor: pointer;
 	transition: background var(--camply-duration);
 }
 .camply-table__clickable:hover {
-	background: rgba(255, 255, 255, 0.03);
+	background: var(--camply-fill-2);
 }
 
 .camply-table__align-left {

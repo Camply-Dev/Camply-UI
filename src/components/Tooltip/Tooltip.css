@@ -1,7 +1,7 @@
 .camply-tooltip__tip {
 	/* Couleur pilotée par le ton ; la flèche la reprend via var(--_bg). */
-	--_bg: #e8eef5;
-	--_fg: #0a1019;
+	--_bg: var(--camply-tooltip-bg);
+	--_fg: var(--camply-tooltip-fg);
 	display: flex;
 	align-items: center;
 	gap: 6px;
@@ -44,11 +44,8 @@
 	box-shadow: none;
 	text-shadow: 0 1px 4px rgba(4, 8, 14, 0.75);
 }
-.camply-tooltip__plain .camply-tooltip__arrow {
-	display: none;
-}
 .camply-tooltip__dark {
-	--_bg: #1a2636;
+	--_bg: var(--camply-tooltip-dark);
 	--_fg: var(--camply-text-strong);
 }
 .camply-tooltip__accent {
@@ -99,4 +96,8 @@
 	left: -3px;
 	top: 50%;
 	margin-top: -4px;
+}
+/* Variante "plain" : sans flèche (déclaré après le bloc flèche pour la spécificité). */
+.camply-tooltip__plain .camply-tooltip__arrow {
+	display: none;
 }

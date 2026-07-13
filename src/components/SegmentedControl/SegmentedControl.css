@@ -4,7 +4,7 @@
 	padding: 3px;
 	border: 1px solid var(--camply-border);
 	border-radius: var(--camply-radius-lg);
-	background: rgba(0, 0, 0, 0.28);
+	background: var(--camply-field-bg);
 	font-family: var(--camply-font-sans);
 }
 .camply-segmentedcontrol__fullWidth {

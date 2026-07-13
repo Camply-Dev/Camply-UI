@@ -12,7 +12,7 @@
 	height: 36px;
 	border: 1px solid var(--camply-border-strong);
 	border-radius: var(--camply-radius-sm);
-	background: rgba(255, 255, 255, 0.03);
+	background: var(--camply-fill-1);
 	color: var(--camply-text-muted);
 	font-family: inherit;
 	font-size: 14px;
@@ -32,7 +32,7 @@
 }
 .camply-pagination__arrow:hover:not(:disabled),
 .camply-pagination__page:hover:not(.camply-pagination__active) {
-	background: rgba(255, 255, 255, 0.07);
+	background: var(--camply-fill-3);
 	color: var(--camply-text);
 }
 .camply-pagination__arrow:disabled {

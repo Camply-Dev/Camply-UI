@@ -13,13 +13,13 @@
 .camply-drawer__right {
 	right: 0;
 	border-left: 1px solid var(--camply-border-strong);
-	box-shadow: -20px 0 60px rgba(0, 0, 0, 0.5);
+	box-shadow: -20px 0 60px rgba(2, 8, 18, 0.55);
 	animation: camply-drawer-r 0.28s var(--camply-ease);
 }
 .camply-drawer__left {
 	left: 0;
 	border-right: 1px solid var(--camply-border-strong);
-	box-shadow: 20px 0 60px rgba(0, 0, 0, 0.5);
+	box-shadow: 20px 0 60px rgba(2, 8, 18, 0.55);
 	animation: camply-drawer-l 0.28s var(--camply-ease);
 }
 @keyframes camply-drawer-r {
@@ -57,13 +57,13 @@
 	height: 30px;
 	border: none;
 	border-radius: var(--camply-radius-sm);
-	background: rgba(255, 255, 255, 0.05);
+	background: var(--camply-fill-2);
 	color: var(--camply-text-muted);
 	cursor: pointer;
 	transition: background var(--camply-duration);
 }
 .camply-drawer__close:hover {
-	background: rgba(255, 255, 255, 0.1);
+	background: var(--camply-fill-3);
 	color: var(--camply-text);
 }
 

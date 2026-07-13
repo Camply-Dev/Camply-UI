@@ -109,6 +109,6 @@
 		color var(--camply-duration);
 }
 .camply-toast__close:hover {
-	background: var(--camply-surface-soft);
+	background: var(--camply-fill-3);
 	color: var(--camply-text);
 }

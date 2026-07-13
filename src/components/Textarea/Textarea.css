@@ -23,7 +23,7 @@
 }
 .camply-textarea__area:disabled {
 	cursor: not-allowed;
-	background: rgba(255, 255, 255, 0.02);
+	background: var(--camply-fill-1);
 	border-color: var(--camply-border);
 	color: var(--camply-text-disabled);
 }

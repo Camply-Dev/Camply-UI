@@ -70,13 +70,13 @@
 	height: 30px;
 	border: none;
 	border-radius: var(--camply-radius-sm);
-	background: rgba(255, 255, 255, 0.05);
+	background: var(--camply-fill-2);
 	color: var(--camply-text-muted);
 	cursor: pointer;
 	transition: background var(--camply-duration);
 }
 .camply-sheet__close:hover {
-	background: rgba(255, 255, 255, 0.1);
+	background: var(--camply-fill-3);
 	color: var(--camply-text);
 }
 .camply-sheet__content {

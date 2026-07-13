@@ -56,7 +56,7 @@
 .camply-avatar__overflow {
 	align-items: center;
 	justify-content: center;
-	background: var(--camply-surface-soft);
+	background: var(--camply-fill-3);
 	color: var(--camply-text-muted);
 	font-family: var(--camply-font-sans);
 	font-weight: 700;

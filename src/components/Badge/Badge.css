@@ -35,7 +35,7 @@
 	--_fg: var(--camply-text-muted);
 	--_bg: var(--camply-border-soft);
 	--_border: var(--camply-border-strong);
-	--_solid-bg: #cdd9e6;
+	--_solid-bg: var(--camply-neutral-solid);
 	--_solid-fg: var(--camply-accent-contrast);
 }
 

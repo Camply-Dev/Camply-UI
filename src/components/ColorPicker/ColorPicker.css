@@ -132,13 +132,34 @@
 	transform: rotate(180deg);
 }
 
-/* Pastille de couleur (déclencheur + préfixe du champ HEX). */
+/* Pastille de couleur (déclencheur compact + préfixe du champ HEX). */
 .camply-colorpicker__swatch {
 	width: 22px;
 	height: 22px;
 	flex: none;
 	border-radius: var(--camply-radius-sm);
 	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+/* ---------- Mode swatch : uniquement le carré (ouvre la palette au survol) ---------- */
+.camply-colorpicker__swatchOnly {
+	width: fit-content;
+	max-width: none;
+	gap: 7px;
+}
+.camply-colorpicker__swatchTrigger {
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	border: none;
+	border-radius: var(--camply-radius);
+	box-shadow: none;
+	cursor: pointer;
+	transition: box-shadow var(--camply-duration);
+}
+.camply-colorpicker__swatchTrigger:focus-visible {
+	outline: none;
+	box-shadow: var(--camply-ring);
 }
 
 /* La palette flottante (portalée, positionnée par useAnchor). */

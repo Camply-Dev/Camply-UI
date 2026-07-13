@@ -35,13 +35,13 @@ export function HomeView({ onNavigate }: HomeViewProps) {
 				<div className="cu-hero__cta">
 					<Button
 						variant="primary"
-						size="lg"
+						size="sm"
 						rightIcon={<Icon name="arrow" />}
 						onClick={() => onNavigate("button")}
 					>
 						Explorer les composants
 					</Button>
-					<Button variant="secondary" size="lg" onClick={() => onNavigate(CSS)}>
+					<Button variant="secondary" size="sm" onClick={() => onNavigate(CSS)}>
 						Voir le CSS par défaut
 					</Button>
 				</div>

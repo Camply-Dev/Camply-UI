@@ -20,7 +20,7 @@
 .camply-meter__track {
 	width: 100%;
 	border-radius: var(--camply-radius-pill);
-	background: rgba(255, 255, 255, 0.09);
+	background: var(--camply-fill-3);
 	overflow: hidden;
 }
 .camply-meter__md {

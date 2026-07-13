@@ -86,13 +86,13 @@
 }
 
 .camply-button__secondary {
-	background: rgba(255, 255, 255, 0.04);
+	background: var(--camply-fill-2);
 	border-color: var(--camply-border-strong);
 	color: var(--camply-text);
 }
 
 .camply-button__secondary:hover:not(:disabled) {
-	background: var(--camply-surface-soft);
+	background: var(--camply-fill-3);
 }
 
 .camply-button__ghost {
@@ -101,7 +101,7 @@
 }
 
 .camply-button__ghost:hover:not(:disabled) {
-	background: rgba(255, 255, 255, 0.05);
+	background: var(--camply-fill-2);
 	color: var(--camply-text);
 }
 

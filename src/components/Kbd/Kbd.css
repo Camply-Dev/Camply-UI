@@ -10,7 +10,7 @@
 	border: 1px solid var(--camply-border-strong);
 	border-bottom-width: 2px;
 	border-radius: var(--camply-radius-xs);
-	background: rgba(255, 255, 255, 0.04);
+	background: var(--camply-fill-2);
 	color: var(--camply-text-muted);
 	font-family: var(--camply-font-mono);
 	font-weight: 500;

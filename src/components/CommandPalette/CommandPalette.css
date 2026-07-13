@@ -56,7 +56,7 @@
 	padding: 3px 7px;
 	border: 1px solid var(--camply-border-strong);
 	border-radius: var(--camply-radius-xs);
-	background: rgba(255, 255, 255, 0.03);
+	background: var(--camply-fill-1);
 	color: var(--camply-text-muted-2);
 	font-family: var(--camply-font-mono);
 	font-size: 11px;
@@ -94,7 +94,7 @@
 	cursor: pointer;
 }
 .camply-commandpalette__active {
-	background: rgba(255, 255, 255, 0.06);
+	background: var(--camply-fill-2);
 	color: var(--camply-text);
 }
 .camply-commandpalette__itemIcon {

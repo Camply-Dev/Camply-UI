@@ -16,7 +16,7 @@
 	padding: 10px 10px 10px 14px;
 	border: 1px solid var(--camply-border);
 	border-radius: var(--camply-radius);
-	background: rgba(0, 0, 0, 0.28);
+	background: var(--camply-field-bg);
 }
 .camply-snippet__code {
 	flex: 1;

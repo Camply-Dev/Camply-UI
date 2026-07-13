@@ -1,4 +1,10 @@
-import { forwardRef, type HTMLAttributes, type KeyboardEvent, type ReactNode, useState } from "react";
+import {
+	forwardRef,
+	type HTMLAttributes,
+	type KeyboardEvent,
+	type ReactNode,
+	useState,
+} from "react";
 import { cn } from "../../lib/cn";
 import { Star } from "../../lib/icons";
 import { useControllable } from "../../lib/useControllable";

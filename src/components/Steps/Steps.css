@@ -15,7 +15,7 @@
 
 .camply-steps__step {
 	--_c: var(--camply-text-muted-2);
-	--_bubble-bg: rgba(255, 255, 255, 0.05);
+	--_bubble-bg: var(--camply-fill-2);
 	--_bubble-bd: var(--camply-border-strong);
 	--_bubble-fg: var(--camply-text-muted-2);
 	--_line: var(--camply-border-strong);

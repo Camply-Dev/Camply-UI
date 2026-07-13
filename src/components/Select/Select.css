@@ -33,7 +33,7 @@
 		box-shadow var(--camply-duration);
 }
 .camply-select__trigger:hover:not(:disabled) {
-	border-color: rgba(255, 255, 255, 0.22);
+	border-color: var(--camply-fill-4);
 }
 .camply-select__trigger:focus-visible,
 .camply-select__trigger.camply-select__open {

@@ -1,4 +1,11 @@
-import { type CSSProperties, type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import {
+	type CSSProperties,
+	type ReactNode,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
 import { useAnchor } from "../../lib/useAnchor";

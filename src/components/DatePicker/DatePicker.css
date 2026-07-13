@@ -28,7 +28,7 @@
 		box-shadow var(--camply-duration);
 }
 .camply-datepicker__trigger:hover {
-	border-color: rgba(148, 176, 216, 0.32);
+	border-color: var(--camply-border-hover);
 }
 .camply-datepicker__trigger:focus-within,
 .camply-datepicker__open {
@@ -118,7 +118,7 @@
 	transition: background var(--camply-duration);
 }
 .camply-datepicker__nav:hover {
-	background: rgba(255, 255, 255, 0.06);
+	background: var(--camply-fill-2);
 	color: var(--camply-text);
 }
 .camply-datepicker__monthLabel {
@@ -135,7 +135,7 @@
 	transition: background var(--camply-duration);
 }
 .camply-datepicker__monthLabel:hover {
-	background: rgba(255, 255, 255, 0.06);
+	background: var(--camply-fill-2);
 }
 
 /* Grille de sélection d'année (12 par page). */
@@ -158,7 +158,7 @@
 		color var(--camply-duration);
 }
 .camply-datepicker__year:hover:not(:disabled) {
-	background: rgba(255, 255, 255, 0.07);
+	background: var(--camply-fill-3);
 }
 .camply-datepicker__year:disabled {
 	color: var(--camply-text-disabled);
@@ -204,7 +204,7 @@
 		color var(--camply-duration);
 }
 .camply-datepicker__day:hover:not(:disabled) {
-	background: rgba(255, 255, 255, 0.07);
+	background: var(--camply-fill-3);
 }
 .camply-datepicker__day:disabled {
 	color: var(--camply-text-disabled);

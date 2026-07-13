@@ -2,7 +2,7 @@
 	padding: 20px 22px;
 	border: 1px solid var(--camply-border);
 	border-radius: var(--camply-radius-lg);
-	background: rgba(255, 255, 255, 0.025);
+	background: var(--camply-fill-1);
 	font-family: var(--camply-font-sans);
 }
 .camply-stat__top {

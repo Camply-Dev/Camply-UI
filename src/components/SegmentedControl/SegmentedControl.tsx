@@ -62,7 +62,12 @@ export function SegmentedControl<T extends string = string>({
 		buttonRefs.current[next]?.focus();
 	};
 	const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-		const deltas: Record<string, number> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+		const deltas: Record<string, number> = {
+			ArrowRight: 1,
+			ArrowDown: 1,
+			ArrowLeft: -1,
+			ArrowUp: -1,
+		};
 		if (e.key in deltas) {
 			e.preventDefault();
 			select(activeIndex + deltas[e.key]);

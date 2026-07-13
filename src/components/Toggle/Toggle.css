@@ -10,7 +10,7 @@
 	padding: 0 var(--_px);
 	border: 1px solid var(--camply-border-strong);
 	border-radius: var(--camply-radius);
-	background: rgba(255, 255, 255, 0.03);
+	background: var(--camply-fill-1);
 	color: var(--camply-text-muted);
 	font-family: var(--camply-font-sans);
 	font-size: 14px;
@@ -23,7 +23,7 @@
 		transform 0.12s var(--camply-ease-spring);
 }
 .camply-toggle__toggle:hover:not(.camply-toggle__on) {
-	background: rgba(255, 255, 255, 0.06);
+	background: var(--camply-fill-2);
 	color: var(--camply-text);
 }
 .camply-toggle__toggle:active {

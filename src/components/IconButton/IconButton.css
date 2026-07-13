@@ -48,18 +48,18 @@
 	background: var(--camply-accent-hover);
 }
 .camply-iconbutton__secondary {
-	background: rgba(255, 255, 255, 0.04);
+	background: var(--camply-fill-2);
 	border-color: var(--camply-border-strong);
 }
 .camply-iconbutton__secondary:hover:not(:disabled) {
-	background: var(--camply-surface-soft);
+	background: var(--camply-fill-3);
 }
 .camply-iconbutton__ghost {
 	background: transparent;
 	color: var(--camply-text-muted);
 }
 .camply-iconbutton__ghost:hover:not(:disabled) {
-	background: rgba(255, 255, 255, 0.05);
+	background: var(--camply-fill-2);
 	color: var(--camply-text);
 }
 .camply-iconbutton__soft {

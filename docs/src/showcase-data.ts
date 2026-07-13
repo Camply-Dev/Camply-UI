@@ -227,6 +227,26 @@ export const TOKEN_GROUPS: TokenGroup[] = [
 		],
 	},
 	{
+		title: "Films & élévation",
+		rows: [
+			{ name: "--camply-fill-1", value: "rgba(255,255,255,.02)", color: true },
+			{ name: "--camply-fill-2", value: "rgba(255,255,255,.05)", color: true },
+			{ name: "--camply-fill-3", value: "rgba(255,255,255,.1)", color: true },
+			{ name: "--camply-fill-4", value: "rgba(255,255,255,.2)", color: true },
+		],
+	},
+	{
+		title: "Contrôles & tooltip",
+		rows: [
+			{ name: "--camply-field-bg", value: "rgba(0,0,0,.25)", color: true },
+			{ name: "--camply-border-hover", value: "rgba(148,176,216,.32)", color: true },
+			{ name: "--camply-neutral-solid", value: "#cdd9e6", color: true },
+			{ name: "--camply-knob", value: "#e8eef5", color: true },
+			{ name: "--camply-tooltip-bg", value: "#e8eef5", color: true },
+			{ name: "--camply-tooltip-dark", value: "#1a2636", color: true },
+		],
+	},
+	{
 		title: "Rayons",
 		rows: [
 			{ name: "--camply-radius-sm", value: "8px" },

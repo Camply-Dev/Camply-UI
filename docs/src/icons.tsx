@@ -10,6 +10,8 @@ const PATHS: Record<string, string> = {
 	check: "M20 6 9 17l-5-5",
 	plus: "M12 5v14M5 12h14",
 	search: "M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20.5 20.5 16.7 16.7",
+	download: "M12 3v12M8 11l4 4 4-4M4 20h16",
+	reset: "M4 12a8 8 0 1 0 3-6.2M4 4v4h4",
 	clock: "M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8v4l2.5 1.5",
 	form: "M4 5h16M4 12h16M4 19h10",
 	surface: "M3 5h18v14H3zM3 10h18",

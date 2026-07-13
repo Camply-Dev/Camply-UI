@@ -293,7 +293,7 @@ export const FORMULAIRES: Record<string, PlaygroundConfig> = {
 	colorpicker: {
 		component: "ColorPicker",
 		controls: [
-			{ key: "variant", label: "Variante", type: "seg", options: ["full", "compact"] },
+			{ key: "variant", label: "Variante", type: "seg", options: ["full", "compact", "swatch"] },
 			{ key: "label", label: "Label", type: "text" },
 		],
 		defaults: { variant: "full", label: "" },
@@ -314,7 +314,11 @@ export const FORMULAIRES: Record<string, PlaygroundConfig> = {
 			return `import { ColorPicker } from "@camply/ui";\n\n<ColorPicker\n${lines.join("\n")}\n/>`;
 		},
 		props: [
-			["variant", "enum", "full (en ligne) · compact (pastille + palette au survol)"],
+			[
+				"variant",
+				"enum",
+				"full (en ligne) · compact (pastille + valeur) · swatch (carré seul) — palette au survol",
+			],
 			["value / defaultValue", "string", 'hex contrôlé / initial, ex. "#38bdf8"'],
 			["onChange", "(hex: string) => void", "changement"],
 			["alpha / defaultAlpha", "number", "opacité 0–1 (éditable via HEX #RRGGBBAA ou RGBA)"],

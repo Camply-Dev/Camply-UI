@@ -13,7 +13,7 @@
 	padding: 24px 22px;
 	border: 1.5px dashed var(--camply-border-strong);
 	border-radius: var(--camply-radius-lg);
-	background: rgba(255, 255, 255, 0.015);
+	background: var(--camply-fill-1);
 	text-align: center;
 	cursor: pointer;
 	transition:
@@ -108,7 +108,7 @@
 	padding: 5px 10px;
 	border: none;
 	border-radius: var(--camply-radius-sm);
-	background: rgba(255, 255, 255, 0.05);
+	background: var(--camply-fill-2);
 	color: var(--camply-text-muted);
 	font-family: inherit;
 	font-size: 12.5px;

@@ -490,7 +490,7 @@ h3 {
 
 /* Snippet d'install (hero) = composant @camply/ui ; largeur cadrée ici. */
 .cu-hero__install {
-	width: 100%;
+	width: fit-content;
 	max-width: 420px;
 }
 
@@ -689,6 +689,29 @@ h3 {
 	flex: none;
 	border-radius: 6px;
 	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+/* Boutons Réinitialiser / Télécharger sous le sous-titre de la page tokens. */
+.cu-tokens__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 20px;
+}
+
+/* Swatch éditable (ColorPicker variant="swatch") compacté dans les lignes de tokens. */
+.cu-token .camply-colorpicker__swatchTrigger {
+	width: 28px;
+	height: 28px;
+	border-radius: 7px;
+}
+
+.cu-tokens__hint {
+	margin-top: 20px;
+}
+.cu-tokens__hint code {
+	font-family: var(--sc-font-mono);
+	font-size: 12px;
 }
 
 .cu-token__name {

@@ -24,7 +24,7 @@
 	box-shadow: var(--camply-danger-ring);
 }
 .camply-input__wrap.camply-input__disabled {
-	background: rgba(255, 255, 255, 0.02);
+	background: var(--camply-fill-1);
 	border-color: var(--camply-border);
 	cursor: not-allowed;
 }

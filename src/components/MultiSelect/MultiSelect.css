@@ -31,7 +31,7 @@
 		box-shadow var(--camply-duration);
 }
 .camply-multiselect__trigger:hover:not(:disabled) {
-	border-color: rgba(148, 176, 216, 0.32);
+	border-color: var(--camply-border-hover);
 }
 .camply-multiselect__trigger:focus-visible,
 .camply-multiselect__open {
@@ -72,11 +72,11 @@
 	width: 15px;
 	height: 15px;
 	border-radius: 4px;
-	background: var(--camply-surface-soft);
+	background: var(--camply-fill-3);
 	cursor: pointer;
 }
 .camply-multiselect__chipX:hover {
-	background: rgba(255, 255, 255, 0.18);
+	background: var(--camply-fill-4);
 }
 .camply-multiselect__chevron {
 	flex: none;

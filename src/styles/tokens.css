@@ -86,10 +86,23 @@
 
 	/* --- Surfaces & états partagés --- */
 	--camply-field-bg: rgba(0, 0, 0, 0.25); /* fond des champs (Input, Select, …) */
-	--camply-hover-soft: rgba(255, 255, 255, 0.06); /* survol d'items menu / options listbox */
-	--camply-surface-soft: rgba(255, 255, 255, 0.08); /* petite surface claire (chips, survols) */
 	--camply-danger-ring: 0 0 0 3px rgba(224, 138, 122, 0.28); /* halo focus en erreur */
 	--camply-danger-soft-hover: rgba(224, 138, 122, 0.22); /* survol d'action danger douce */
+
+	/* --- Films clairs superposés (échelle d'élévation, 4 niveaux) --- */
+	--camply-fill-1: rgba(255, 255, 255, 0.02); /* panneau très discret */
+	--camply-fill-2: rgba(255, 255, 255, 0.05); /* fill au repos / survol léger */
+	--camply-fill-3: rgba(255, 255, 255, 0.1); /* piste / fond appuyé */
+	--camply-fill-4: rgba(255, 255, 255, 0.2); /* survol très marqué */
+
+	/* --- Contrôles & surfaces spécifiques --- */
+	--camply-border-hover: rgba(148, 176, 216, 0.32); /* survol de bordure de champ */
+	--camply-neutral-solid: #cdd9e6; /* puce neutre pleine (Badge) */
+	--camply-knob: #e8eef5; /* poignée claire (Slider, RangeSlider) */
+	--camply-sheen: rgba(148, 176, 216, 0.14); /* reflet du shimmer (Skeleton) */
+	--camply-tooltip-bg: #e8eef5; /* fond clair de la tooltip */
+	--camply-tooltip-fg: var(--camply-surface); /* texte sombre de la tooltip */
+	--camply-tooltip-dark: #1a2636; /* variante sombre de tooltip */
 
 	/* --- Dégradés de remplissage (barres de progression / jauges / sliders) --- */
 	--camply-gradient-accent: linear-gradient(90deg, #0284c7, var(--camply-accent));

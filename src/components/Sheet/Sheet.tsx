@@ -48,9 +48,7 @@ export function Sheet({
 			panelClassName={cn("camply-sheet__sheet", `camply-sheet__${side}`, className)}
 			style={{ height, ...style }}
 		>
-			{handle && side === "bottom" && (
-				<div className={"camply-sheet__handle"} aria-hidden="true" />
-			)}
+			{handle && side === "bottom" && <div className={"camply-sheet__handle"} aria-hidden="true" />}
 			{(title || showClose) && (
 				<div className={"camply-sheet__header"}>
 					{title && <h2 className={"camply-sheet__title"}>{title}</h2>}

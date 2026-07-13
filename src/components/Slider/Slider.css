@@ -26,7 +26,7 @@
 	position: relative;
 	height: 6px;
 	border-radius: var(--camply-radius-pill);
-	background: rgba(255, 255, 255, 0.1);
+	background: var(--camply-fill-3);
 	cursor: pointer;
 	touch-action: none;
 }
@@ -46,7 +46,7 @@
 	width: 18px;
 	height: 18px;
 	border-radius: 50%;
-	background: #e8e6df;
+	background: var(--camply-knob);
 	box-shadow: var(--camply-shadow-sm);
 	cursor: grab;
 	transition: box-shadow var(--camply-duration);

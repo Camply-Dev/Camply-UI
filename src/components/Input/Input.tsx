@@ -18,14 +18,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 		ref,
 	) => {
 		return (
-			<Field
-				label={label}
-				hint={hint}
-				error={error}
-				id={id}
-				idPrefix="input"
-				className={className}
-			>
+			<Field label={label} hint={hint} error={error} id={id} idPrefix="input" className={className}>
 				{({ id: inputId, describedBy, invalid }) => (
 					<div
 						className={cn(
