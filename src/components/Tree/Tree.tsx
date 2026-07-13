@@ -71,7 +71,11 @@ export function Tree({
 						tabIndex={0}
 						aria-expanded={hasChildren ? isOpen : undefined}
 						aria-selected={isSelected}
-						className={cn("camply-tree__row", isSelected && "camply-tree__selected")}
+						className={cn(
+							"camply-tree__row",
+							"camply-focus-ring",
+							isSelected && "camply-tree__selected",
+						)}
 						style={{ paddingLeft: guides ? 8 : 8 + depth * 18 }}
 						onClick={(e) => {
 							e.stopPropagation();

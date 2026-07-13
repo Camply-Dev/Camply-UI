@@ -22,6 +22,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
 				title={label}
 				className={cn(
 					"camply-iconbutton__btn",
+					"camply-focus-ring",
 					`camply-iconbutton__${variant}`,
 					`camply-iconbutton__${size}`,
 					className,

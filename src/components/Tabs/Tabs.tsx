@@ -113,6 +113,7 @@ export function Tab({
 			disabled={disabled}
 			className={cn(
 				"camply-tabs__tab",
+				"camply-focus-ring",
 				`camply-tabs__tab-${variant}`,
 				selected && "camply-tabs__selected",
 			)}

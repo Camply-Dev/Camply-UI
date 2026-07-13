@@ -54,7 +54,3 @@
 .camply-slider__knob:active {
 	cursor: grabbing;
 }
-.camply-slider__knob:focus-visible {
-	outline: none;
-	box-shadow: var(--camply-ring), var(--camply-shadow-sm);
-}

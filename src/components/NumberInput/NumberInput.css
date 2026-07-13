@@ -1,35 +1,4 @@
-/* Ossature (field / label / desc) : .camply-field* dans tokens.css. */
-.camply-numberinput__wrap {
-	--_h: 42px;
-	display: flex;
-	align-items: center;
-	height: var(--_h);
-	border: 1px solid var(--camply-border-strong);
-	border-radius: var(--camply-radius);
-	background: var(--camply-field-bg);
-	transition:
-		border-color var(--camply-duration),
-		box-shadow var(--camply-duration);
-}
-.camply-numberinput__wrap:focus-within {
-	border-color: var(--camply-accent);
-}
-.camply-numberinput__hasError {
-	border-color: var(--camply-danger);
-}
-.camply-numberinput__disabled {
-	opacity: 0.55;
-	pointer-events: none;
-}
-.camply-numberinput__sm {
-	--_h: 34px;
-}
-.camply-numberinput__md {
-	--_h: 42px;
-}
-.camply-numberinput__lg {
-	--_h: 50px;
-}
+/* Ossature (field / shell) : .camply-field* dans tokens.css. */
 
 .camply-numberinput__step {
 	display: inline-flex;
@@ -72,16 +41,5 @@
 	flex: none;
 }
 .camply-numberinput__input {
-	width: 100%;
-	min-width: 0;
-	border: none;
-	outline: none;
-	background: transparent;
-	color: var(--camply-text);
-	font-family: inherit;
-	font-size: 14px;
 	text-align: center;
-}
-.camply-numberinput__input::placeholder {
-	color: var(--camply-text-muted-2);
 }

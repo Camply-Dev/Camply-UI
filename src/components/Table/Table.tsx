@@ -86,7 +86,7 @@ export function Table<Row>({
 									{col.sortValue ? (
 										<button
 											type="button"
-											className={"camply-table__thInner"}
+											className={"camply-table__thInner camply-focus-ring"}
 											onClick={() => toggleSort(col)}
 										>
 											{inner}

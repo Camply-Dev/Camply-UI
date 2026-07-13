@@ -197,7 +197,7 @@
 .camply-sheet__content,
 .camply-table__wrap,
 .camply-snippet__code,
-.camply-textarea__area {
+.camply-field-block {
 	scrollbar-width: thin;
 	scrollbar-color: var(--camply-scrollbar-thumb) transparent;
 }
@@ -209,7 +209,7 @@
 .camply-sheet__content::-webkit-scrollbar,
 .camply-table__wrap::-webkit-scrollbar,
 .camply-snippet__code::-webkit-scrollbar,
-.camply-textarea__area::-webkit-scrollbar {
+.camply-field-block::-webkit-scrollbar {
 	width: var(--camply-scrollbar-size);
 	height: var(--camply-scrollbar-size);
 }
@@ -221,7 +221,7 @@
 .camply-sheet__content::-webkit-scrollbar-track,
 .camply-table__wrap::-webkit-scrollbar-track,
 .camply-snippet__code::-webkit-scrollbar-track,
-.camply-textarea__area::-webkit-scrollbar-track,
+.camply-field-block::-webkit-scrollbar-track,
 .camply-floating-list::-webkit-scrollbar-corner,
 .camply-commandpalette__list::-webkit-scrollbar-corner,
 .camply-modal__panel::-webkit-scrollbar-corner,
@@ -229,7 +229,7 @@
 .camply-sheet__content::-webkit-scrollbar-corner,
 .camply-table__wrap::-webkit-scrollbar-corner,
 .camply-snippet__code::-webkit-scrollbar-corner,
-.camply-textarea__area::-webkit-scrollbar-corner {
+.camply-field-block::-webkit-scrollbar-corner {
 	background: transparent;
 }
 
@@ -240,7 +240,7 @@
 .camply-sheet__content::-webkit-scrollbar-thumb,
 .camply-table__wrap::-webkit-scrollbar-thumb,
 .camply-snippet__code::-webkit-scrollbar-thumb,
-.camply-textarea__area::-webkit-scrollbar-thumb {
+.camply-field-block::-webkit-scrollbar-thumb {
 	background: var(--camply-scrollbar-thumb);
 	border: 2px solid transparent;
 	border-radius: var(--camply-radius-pill);
@@ -254,7 +254,7 @@
 .camply-sheet__content::-webkit-scrollbar-thumb:hover,
 .camply-table__wrap::-webkit-scrollbar-thumb:hover,
 .camply-snippet__code::-webkit-scrollbar-thumb:hover,
-.camply-textarea__area::-webkit-scrollbar-thumb:hover {
+.camply-field-block::-webkit-scrollbar-thumb:hover {
 	background: var(--camply-scrollbar-thumb-hover);
 	background-clip: padding-box;
 }
@@ -473,6 +473,55 @@
 .camply-field-shell--inert {
 	pointer-events: none;
 }
+/* Coquille multi-lignes (chips, tags) : hauteur auto, padding vertical. */
+.camply-field-shell--wrap {
+	height: auto;
+	min-height: var(--_h);
+	padding: 6px var(--_px);
+	flex-wrap: wrap;
+	align-content: center;
+}
+/* Coquille sans padding interne (steppers NumberInput). */
+.camply-field-shell--flush {
+	padding: 0;
+	gap: 0;
+}
+
+/* Champ bloc autonome (textarea) — pas de coquille flex. */
+.camply-field-block {
+	display: block;
+	width: 100%;
+	padding: 11px 13px;
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius);
+	background: var(--camply-field-bg);
+	color: var(--camply-text);
+	font-family: var(--camply-font-sans);
+	font-size: 14px;
+	line-height: 1.55;
+	outline: none;
+	transition:
+		border-color var(--camply-duration),
+		box-shadow var(--camply-duration);
+}
+.camply-field-block::placeholder {
+	color: var(--camply-text-muted-2);
+}
+.camply-field-block:focus {
+	border-color: var(--camply-accent);
+}
+.camply-field-block--error {
+	border-color: var(--camply-danger);
+}
+.camply-field-block--error:focus {
+	box-shadow: var(--camply-danger-ring);
+}
+.camply-field-block:disabled {
+	cursor: not-allowed;
+	background: var(--camply-fill-1);
+	border-color: var(--camply-border);
+	color: var(--camply-text-disabled);
+}
 
 /* Contrôle transparent à l'intérieur d'une coquille (input, bouton valeur…). */
 .camply-field-control {
@@ -498,6 +547,36 @@
 .camply-focus-ring:focus-visible {
 	outline: none;
 	box-shadow: var(--camply-ring);
+}
+/* Anneau + ombre portée (poignées Slider / RangeSlider). */
+.camply-focus-ring--raised:focus-visible {
+	box-shadow: var(--camply-ring), var(--camply-shadow-sm);
+}
+
+/* Cellule PIN (une case par caractère). */
+.camply-pin-cell {
+	width: var(--_s, 48px);
+	height: var(--_s, 48px);
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius);
+	background: var(--camply-field-bg);
+	color: var(--camply-text);
+	font-family: var(--camply-font-display);
+	font-size: var(--_fs, 19px);
+	font-weight: 600;
+	text-align: center;
+	outline: none;
+	transition:
+		border-color var(--camply-duration),
+		box-shadow var(--camply-duration),
+		background var(--camply-duration);
+}
+.camply-pin-cell:focus {
+	border-color: var(--camply-accent);
+}
+.camply-pin-cell--filled {
+	border-color: var(--camply-accent-border);
+	background: var(--camply-accent-soft);
 }
 
 /* Bouton icône sans fond (calendrier, actions secondaires dans un champ). */

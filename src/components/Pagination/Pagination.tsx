@@ -32,7 +32,7 @@ export function Pagination({
 		<nav aria-label="Pagination" className={cn("camply-pagination__nav", className)} style={style}>
 			<button
 				type="button"
-				className={"camply-pagination__arrow"}
+				className={"camply-pagination__arrow camply-focus-ring"}
 				aria-label="Page précédente"
 				disabled={current === 1}
 				onClick={() => go(current - 1)}
@@ -49,7 +49,11 @@ export function Pagination({
 					<button
 						key={p}
 						type="button"
-						className={cn("camply-pagination__page", p === current && "camply-pagination__active")}
+						className={cn(
+							"camply-pagination__page",
+							"camply-focus-ring",
+							p === current && "camply-pagination__active",
+						)}
 						aria-current={p === current ? "page" : undefined}
 						onClick={() => go(p)}
 					>
@@ -59,7 +63,7 @@ export function Pagination({
 			)}
 			<button
 				type="button"
-				className={"camply-pagination__arrow"}
+				className={"camply-pagination__arrow camply-focus-ring"}
 				aria-label="Page suivante"
 				disabled={current === total}
 				onClick={() => go(current + 1)}

@@ -139,7 +139,7 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 						aria-valuemax={max}
 						aria-valuenow={range[i]}
 						aria-label={label ? `${label} ${i === 0 ? "minimum" : "maximum"}` : undefined}
-						className={"camply-rangeslider__knob"}
+						className={"camply-rangeslider__knob camply-focus-ring camply-focus-ring--raised"}
 						style={{ left: `${pct(range[i])}%` }}
 						onPointerDown={onPointerDown(i)}
 						onKeyDown={onKey(i)}

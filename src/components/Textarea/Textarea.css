@@ -1,35 +1,4 @@
-/* Ossature (field / label / desc) : .camply-field* dans tokens.css. */
+/* Ossature (field / block) : .camply-field* dans tokens.css. */
 .camply-textarea__area {
-	width: 100%;
-	padding: 11px 13px;
-	border: 1px solid var(--camply-border-strong);
-	border-radius: var(--camply-radius);
-	background: var(--camply-field-bg);
-	color: var(--camply-text);
-	font-family: inherit;
-	font-size: 14px;
-	line-height: 1.55;
 	resize: vertical;
-	outline: none;
-	transition:
-		border-color var(--camply-duration),
-		box-shadow var(--camply-duration);
-}
-.camply-textarea__area::placeholder {
-	color: var(--camply-text-muted-2);
-}
-.camply-textarea__area:focus {
-	border-color: var(--camply-accent);
-}
-.camply-textarea__area:disabled {
-	cursor: not-allowed;
-	background: var(--camply-fill-1);
-	border-color: var(--camply-border);
-	color: var(--camply-text-disabled);
-}
-.camply-textarea__hasError {
-	border-color: var(--camply-danger);
-}
-.camply-textarea__hasError:focus {
-	box-shadow: var(--camply-danger-ring);
 }

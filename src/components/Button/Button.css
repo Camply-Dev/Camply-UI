@@ -26,14 +26,9 @@
 		transform 0.12s var(--camply-ease-spring);
 }
 
-.camply-button__btn:focus-visible {
-	outline: none;
-	box-shadow: var(--camply-ring);
-}
-
 .camply-button__btn:disabled {
 	cursor: not-allowed;
-	opacity: 0.55;
+	opacity: var(--camply-disabled-opacity);
 }
 
 .camply-button__btn.camply-button__loading {

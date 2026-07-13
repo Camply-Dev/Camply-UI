@@ -38,6 +38,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 				type={type}
 				className={cn(
 					"camply-button__btn",
+					"camply-focus-ring",
 					`camply-button__${variant}`,
 					`camply-button__${size}`,
 					fullWidth && "camply-button__fullWidth",

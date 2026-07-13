@@ -107,8 +107,8 @@ export function MultiSelect<T extends string = string>({
 	};
 
 	return (
-		<div className={cn("camply-multiselect__root", className)} style={style}>
-			{label && <span className={"camply-multiselect__label"}>{label}</span>}
+		<div className={cn("camply-field", className)} style={style}>
+			{label && <span className={"camply-field__label"}>{label}</span>}
 			<button
 				ref={triggerRef}
 				type="button"
@@ -118,7 +118,13 @@ export function MultiSelect<T extends string = string>({
 				aria-controls={listId}
 				aria-activedescendant={open ? `${listId}-opt-${active}` : undefined}
 				disabled={disabled}
-				className={cn("camply-multiselect__trigger", open && "camply-multiselect__open")}
+				className={cn(
+					"camply-field-shell",
+					"camply-field-shell--wrap",
+					"camply-multiselect__trigger",
+					open && "camply-field-shell--open",
+					disabled && "camply-field-shell--disabled",
+				)}
 				onClick={() => setOpen((o) => !o)}
 				onKeyDown={onKeyDown}
 			>
@@ -143,7 +149,7 @@ export function MultiSelect<T extends string = string>({
 						))
 					)}
 				</span>
-				<ChevronDown size={16} className={"camply-multiselect__chevron"} />
+				<ChevronDown size={16} className={cn("camply-chevron", open && "camply-chevron--open")} />
 			</button>
 
 			{open && (

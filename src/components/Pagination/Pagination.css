@@ -39,11 +39,6 @@
 	opacity: 0.4;
 	cursor: not-allowed;
 }
-.camply-pagination__arrow:focus-visible,
-.camply-pagination__page:focus-visible {
-	outline: none;
-	box-shadow: var(--camply-ring);
-}
 .camply-pagination__active {
 	background: var(--camply-accent);
 	border-color: var(--camply-accent);

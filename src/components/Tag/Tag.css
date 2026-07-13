@@ -34,7 +34,3 @@
 	background: var(--camply-danger-soft);
 	color: var(--camply-danger-hover);
 }
-.camply-tag__remove:focus-visible {
-	outline: none;
-	box-shadow: var(--camply-ring);
-}

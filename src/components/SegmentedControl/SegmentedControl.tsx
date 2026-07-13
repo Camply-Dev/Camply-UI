@@ -114,6 +114,7 @@ export function SegmentedControl<T extends string = string>({
 						tabIndex={active ? 0 : -1}
 						className={cn(
 							"camply-segmentedcontrol__segment",
+							"camply-focus-ring",
 							active && "camply-segmentedcontrol__active",
 						)}
 						onClick={() => setCurrent(opt.value)}

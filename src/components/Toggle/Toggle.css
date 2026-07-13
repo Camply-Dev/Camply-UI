@@ -29,10 +29,6 @@
 .camply-toggle__toggle:active {
 	transform: scale(0.95);
 }
-.camply-toggle__toggle:focus-visible {
-	outline: none;
-	box-shadow: var(--camply-ring);
-}
 .camply-toggle__on {
 	background: var(--camply-accent-soft);
 	border-color: var(--camply-accent-border);

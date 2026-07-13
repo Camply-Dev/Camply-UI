@@ -116,7 +116,7 @@ export function PinInput({
 					ref={(el) => {
 						refs.current[i] = el;
 					}}
-					className={cn("camply-pininput__cell", c && "camply-pininput__filled")}
+					className={cn("camply-pin-cell", c && "camply-pin-cell--filled")}
 					type={mask && c ? "password" : "text"}
 					inputMode={type === "number" ? "numeric" : "text"}
 					maxLength={1}

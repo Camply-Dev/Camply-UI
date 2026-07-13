@@ -49,10 +49,6 @@
 .camply-segmentedcontrol__segment:hover:not(.camply-segmentedcontrol__active) {
 	color: var(--camply-text);
 }
-.camply-segmentedcontrol__segment:focus-visible {
-	outline: none;
-	box-shadow: var(--camply-ring);
-}
 .camply-segmentedcontrol__active {
 	color: var(--camply-accent-contrast);
 }

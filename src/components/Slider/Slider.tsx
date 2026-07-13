@@ -133,7 +133,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
 					aria-valuemax={max}
 					aria-valuenow={val}
 					aria-label={label}
-					className={"camply-slider__knob"}
+					className={"camply-slider__knob camply-focus-ring camply-focus-ring--raised"}
 					style={{ left: `${pct}%` }}
 					onKeyDown={onKeyDown}
 				/>

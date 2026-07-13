@@ -70,7 +70,7 @@ export function AccordionItem({ value, title, children, disabled }: AccordionIte
 			<button
 				type="button"
 				id={triggerId}
-				className={"camply-accordion__trigger"}
+				className={"camply-accordion__trigger camply-focus-ring"}
 				aria-expanded={open}
 				aria-controls={panelId}
 				disabled={disabled}

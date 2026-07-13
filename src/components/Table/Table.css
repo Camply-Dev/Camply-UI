@@ -42,10 +42,8 @@
 	color: inherit;
 	cursor: inherit;
 }
-button.camply-table__thInner:focus-visible {
-	outline: none;
+button.camply-table__thInner.camply-focus-ring:focus-visible {
 	border-radius: var(--camply-radius-xs);
-	box-shadow: var(--camply-ring);
 }
 .camply-table__sortIcon {
 	display: inline-flex;

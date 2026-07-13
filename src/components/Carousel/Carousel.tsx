@@ -159,7 +159,7 @@ export function Carousel({
 					<>
 						<button
 							type="button"
-							className={cn("camply-carousel__arrow", "camply-carousel__prev")}
+							className={cn("camply-carousel__arrow", "camply-focus-ring", "camply-carousel__prev")}
 							aria-label="Précédent"
 							disabled={!canPrev}
 							onClick={() => go(active - 1)}
@@ -168,7 +168,7 @@ export function Carousel({
 						</button>
 						<button
 							type="button"
-							className={cn("camply-carousel__arrow", "camply-carousel__next")}
+							className={cn("camply-carousel__arrow", "camply-focus-ring", "camply-carousel__next")}
 							aria-label="Suivant"
 							disabled={!canNext}
 							onClick={() => go(active + 1)}
@@ -199,7 +199,11 @@ export function Carousel({
 								type="button"
 								aria-label={`Diapositive ${i + 1}`}
 								aria-current={i === active}
-								className={cn("camply-carousel__dot", i === active && "camply-carousel__dotActive")}
+								className={cn(
+									"camply-carousel__dot",
+									"camply-focus-ring",
+									i === active && "camply-carousel__dotActive",
+								)}
 								onClick={() => setIndex(i)}
 							/>
 						))}

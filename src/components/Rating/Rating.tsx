@@ -90,6 +90,7 @@ export const Rating = forwardRef<HTMLDivElement, RatingProps>(
 				ref={ref}
 				className={cn(
 					"camply-rating__root",
+					"camply-focus-ring",
 					interactive && "camply-rating__interactive",
 					disabled && "camply-rating__disabled",
 					className,

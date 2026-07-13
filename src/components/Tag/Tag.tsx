@@ -17,7 +17,7 @@ export const Tag = forwardRef<HTMLSpanElement, TagProps>(
 				{onRemove && (
 					<button
 						type="button"
-						className={"camply-tag__remove"}
+						className={"camply-tag__remove camply-focus-ring"}
 						aria-label={removeLabel}
 						onClick={(e) => {
 							e.stopPropagation();

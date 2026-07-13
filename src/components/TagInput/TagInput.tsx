@@ -75,14 +75,21 @@ export function TagInput({
 		<div className={cn("camply-field", className)} style={style}>
 			{label && <span className={"camply-field__label"}>{label}</span>}
 			{/* label : cliquer n'importe où dans la zone focus l'input, nativement */}
-			<label className={cn("camply-taginput__wrap", disabled && "camply-taginput__disabled")}>
+			<label
+				className={cn(
+					"camply-field-shell",
+					"camply-field-shell--wrap",
+					"camply-taginput__wrap",
+					disabled && "camply-field-shell--disabled",
+				)}
+			>
 				{keyed.map(({ tag, i, key }) => (
 					<Tag key={key} onRemove={() => removeAt(i)} removeLabel={`Retirer ${tag}`}>
 						{tag}
 					</Tag>
 				))}
 				<input
-					className={"camply-taginput__input"}
+					className={"camply-field-control camply-taginput__input"}
 					value={draft}
 					placeholder={tags.length === 0 ? placeholder : ""}
 					disabled={disabled || full}

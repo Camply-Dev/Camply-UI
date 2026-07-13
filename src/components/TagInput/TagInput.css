@@ -1,40 +1,11 @@
-/* Ossature (field / label) : .camply-field* dans tokens.css. */
+/* Ossature (field / shell) : .camply-field* dans tokens.css. */
 .camply-taginput__wrap {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 7px;
-	min-height: 42px;
-	padding: 6px 8px;
-	border: 1px solid var(--camply-border-strong);
-	border-radius: var(--camply-radius);
-	background: var(--camply-field-bg);
 	cursor: text;
-	transition:
-		border-color var(--camply-duration),
-		box-shadow var(--camply-duration);
-}
-.camply-taginput__wrap:focus-within {
-	border-color: var(--camply-accent);
-}
-.camply-taginput__disabled {
-	opacity: 0.55;
-	pointer-events: none;
 }
 
 /* Les puces sont des composants <Tag> (styles fournis par Tag.css). */
 
 .camply-taginput__input {
-	flex: 1;
 	min-width: 80px;
-	border: none;
-	outline: none;
-	background: transparent;
-	color: var(--camply-text);
-	font-family: inherit;
-	font-size: 14px;
 	padding: 4px;
-}
-.camply-taginput__input::placeholder {
-	color: var(--camply-text-muted-2);
 }

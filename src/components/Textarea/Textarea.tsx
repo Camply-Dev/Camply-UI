@@ -26,7 +26,11 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
 						disabled={disabled}
 						aria-invalid={invalid}
 						aria-describedby={describedBy}
-						className={cn("camply-textarea__area", error && "camply-textarea__hasError")}
+						className={cn(
+							"camply-field-block",
+							error && "camply-field-block--error",
+							"camply-textarea__area",
+						)}
 						{...props}
 					/>
 				)}

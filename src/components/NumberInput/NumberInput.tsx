@@ -100,10 +100,12 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 			{({ id: inputId, describedBy, invalid }) => (
 				<div
 					className={cn(
+						"camply-field-shell",
+						"camply-field-shell--flush",
+						`camply-field-shell--${size}`,
 						"camply-numberinput__wrap",
-						`camply-numberinput__${size}`,
-						error && "camply-numberinput__hasError",
-						disabled && "camply-numberinput__disabled",
+						error && "camply-field-shell--error",
+						disabled && "camply-field-shell--disabled",
 					)}
 				>
 					<button
@@ -122,7 +124,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 							ref={ref}
 							id={inputId}
 							inputMode="decimal"
-							className={"camply-numberinput__input"}
+							className={"camply-field-control camply-numberinput__input"}
 							value={draft ?? display}
 							placeholder={placeholder}
 							disabled={disabled}

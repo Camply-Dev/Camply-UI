@@ -31,7 +31,7 @@
 	background: var(--camply-accent-soft-hover);
 }
 .camply-fileupload__disabled {
-	opacity: 0.55;
+	opacity: var(--camply-disabled-opacity);
 	pointer-events: none;
 }
 

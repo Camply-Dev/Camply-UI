@@ -22,10 +22,6 @@
 	background: var(--camply-fill-2);
 	color: var(--camply-text);
 }
-.camply-tree__row:focus-visible {
-	outline: none;
-	box-shadow: var(--camply-ring);
-}
 .camply-tree__selected {
 	background: var(--camply-accent-soft);
 	color: var(--camply-accent-hover);

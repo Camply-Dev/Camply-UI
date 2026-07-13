@@ -25,11 +25,6 @@
 .camply-rating__interactive .camply-rating__star:hover {
 	transform: scale(1.12);
 }
-.camply-rating__star:focus-visible {
-	outline: none;
-	border-radius: var(--camply-radius-xs);
-	box-shadow: var(--camply-ring);
-}
 .camply-rating__on {
 	color: var(--camply-warning);
 }

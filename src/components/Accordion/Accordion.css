@@ -34,9 +34,7 @@
 	opacity: 0.45;
 	cursor: not-allowed;
 }
-.camply-accordion__trigger:focus-visible {
-	outline: none;
-	box-shadow: var(--camply-ring);
+.camply-accordion__trigger.camply-focus-ring:focus-visible {
 	border-radius: var(--camply-radius);
 }
 .camply-accordion__title {

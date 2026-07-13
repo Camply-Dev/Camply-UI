@@ -60,10 +60,6 @@
 	opacity: 0.3;
 	cursor: not-allowed;
 }
-.camply-carousel__arrow:focus-visible {
-	outline: none;
-	box-shadow: var(--camply-ring);
-}
 .camply-carousel__prev {
 	left: 6px;
 }
@@ -96,10 +92,6 @@
 	width: 22px;
 	border-radius: 999px;
 	background: var(--camply-accent);
-}
-.camply-carousel__dot:focus-visible {
-	outline: none;
-	box-shadow: var(--camply-ring);
 }
 
 /* Indicateur "barres" : traits d'égale largeur, l'actif en accent. */

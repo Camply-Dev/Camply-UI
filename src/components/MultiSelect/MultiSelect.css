@@ -1,46 +1,9 @@
-.camply-multiselect__root {
-	display: flex;
-	flex-direction: column;
-	gap: 7px;
-	font-family: var(--camply-font-sans);
-}
-.camply-multiselect__label {
-	font-size: 13px;
-	font-weight: 600;
-	color: var(--camply-text);
-}
-
+/* Ossature (field / label / shell) : .camply-field* dans tokens.css. */
 .camply-multiselect__trigger {
-	display: flex;
-	align-items: center;
 	justify-content: space-between;
-	gap: 10px;
-	width: 100%;
-	min-height: 42px;
-	padding: 6px 12px;
-	border: 1px solid var(--camply-border-strong);
-	border-radius: var(--camply-radius);
-	background: var(--camply-field-bg);
-	color: var(--camply-text);
-	font-family: inherit;
-	font-size: 14px;
 	cursor: pointer;
 	text-align: left;
-	transition:
-		border-color var(--camply-duration),
-		box-shadow var(--camply-duration);
-}
-.camply-multiselect__trigger:hover:not(:disabled) {
-	border-color: var(--camply-border-hover);
-}
-.camply-multiselect__trigger:focus-visible,
-.camply-multiselect__open {
-	outline: none;
-	border-color: var(--camply-accent);
-}
-.camply-multiselect__trigger:disabled {
-	opacity: 0.55;
-	cursor: not-allowed;
+	font-family: inherit;
 }
 
 .camply-multiselect__values {
@@ -77,14 +40,6 @@
 }
 .camply-multiselect__chipX:hover {
 	background: var(--camply-fill-4);
-}
-.camply-multiselect__chevron {
-	flex: none;
-	color: var(--camply-text-muted-2);
-	transition: transform var(--camply-duration);
-}
-.camply-multiselect__open .camply-multiselect__chevron {
-	transform: rotate(180deg);
 }
 
 /* Ossature de l'option : .camply-listbox-option* dans tokens.css. MultiSelect garde

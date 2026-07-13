@@ -16,10 +16,6 @@
 		color var(--camply-duration),
 		transform 0.12s var(--camply-ease-spring);
 }
-.camply-iconbutton__btn:focus-visible {
-	outline: none;
-	box-shadow: var(--camply-ring);
-}
 .camply-iconbutton__btn:active:not(:disabled) {
 	transform: scale(0.94);
 }
