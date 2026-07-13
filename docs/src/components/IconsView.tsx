@@ -27,9 +27,9 @@ export function IconsView() {
 				</Badge>
 				<h1 className="cu-pagehead__title">Icônes</h1>
 				<p className="cu-pagehead__sub">
-					Le pack d'icônes de Camply UI — {ICON_LIST.length} pictogrammes (tracés{" "}
-					<code>Lucide</code>, trait 2px, 24×24, <code>currentColor</code>). Réutilisables dans ton
-					app : <code>{`import { Home } from "@camply/ui/icons"`}</code>.
+					Le pack d'icônes de Camply UI — {ICON_LIST.length} pictogrammes ( trait 2px, grille 24×24,{" "}
+					<code>currentColor</code>). Réutilisables dans ton app :{" "}
+					<code>{`import { Home } from "@camply/ui/icons"`}</code>.
 				</p>
 				<div className="cu-icons__toolbar">
 					<Input

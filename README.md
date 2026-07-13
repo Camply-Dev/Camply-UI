@@ -37,7 +37,7 @@ import { Button } from "@camply/ui/button";
 
 ### Icônes
 
-Un **pack de plus de 1700 icônes** (tout le set [Lucide](https://lucide.dev), tracés copiés, licence ISC) est fourni et réutilisable, tree-shakable, sans CSS à importer :
+Un **pack de plus de 2100 icônes** (tracés sous licence permissive — voir [`THIRD-PARTY-LICENSES.md`](THIRD-PARTY-LICENSES.md)) est fourni et réutilisable, tree-shakable, sans CSS à importer :
 
 ```tsx
 import { Home, Star, Search } from "@camply/ui/icons";
