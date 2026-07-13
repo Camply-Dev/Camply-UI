@@ -35,6 +35,18 @@ Le CSS de chaque composant est chargé automatiquement par le bundler (side-effe
 import { Button } from "@camply/ui/button";
 ```
 
+### Icônes
+
+Un **pack de plus de 1700 icônes** (tout le set [Lucide](https://lucide.dev), tracés copiés, licence ISC) est fourni et réutilisable, tree-shakable, sans CSS à importer :
+
+```tsx
+import { Home, Star, Search } from "@camply/ui/icons";
+
+<Home size={20} />;
+```
+
+Chaque icône accepte `size` (défaut 16) et tous les attributs SVG natifs (`className`, `stroke`, `onClick`…). Le type `IconProps` est exporté. Ce sont des composants purs (compatibles Server Components).
+
 ### Thémer
 
 Tous les composants lisent les variables `--camply-*` définies dans `styles.css`. Thémer = surcharger ces variables (globalement ou sur un scope) :

@@ -43,6 +43,11 @@ export function computeExports(components: Component[]): PackageExports {
 			import: "./dist/index.js",
 		},
 		"./styles.css": "./dist/styles.css",
+		// Pack d'icônes réutilisable, indépendant des composants (@camply/ui/icons).
+		"./icons": {
+			types: "./dist/icons.d.ts",
+			import: "./dist/icons.js",
+		},
 	};
 
 	for (const { slug } of components) {

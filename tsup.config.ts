@@ -17,7 +17,8 @@ function getComponentEntries(): Record<string, string> {
 }
 
 export default defineConfig({
-	entry: getComponentEntries(),
+	// une entrée par composant + le pack d'icônes réutilisable (@camply/ui/icons).
+	entry: { ...getComponentEntries(), icons: "src/lib/icons.tsx" },
 	format: ["esm"],
 	dts: true,
 	minify: true,

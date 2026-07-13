@@ -1,12 +1,11 @@
 import { Badge, Input } from "@camply/ui";
-import { type ComponentType, useMemo, useState } from "react";
+import { type ComponentType, useState } from "react";
 import * as LibIcons from "../../../src/lib/icons";
 import { Icon } from "../icons";
 
 type IconComponent = ComponentType<{ size?: number }>;
 
-// Toutes les icônes exportées par la lib, dérivées automatiquement du module :
-// on garde les composants (fonctions) et on écarte STATUS_ICONS (un objet).
+// Le pack complet, dérivé du module (composants) ; STATUS_ICONS (objet) écarté.
 const ICON_LIST: { name: string; Cmp: IconComponent }[] = (
 	Object.entries(LibIcons) as [string, unknown][]
 )
@@ -18,10 +17,7 @@ export function IconsView() {
 	const [query, setQuery] = useState("");
 
 	const q = query.trim().toLowerCase();
-	const shown = useMemo(
-		() => (q ? ICON_LIST.filter((i) => i.name.toLowerCase().includes(q)) : ICON_LIST),
-		[q],
-	);
+	const shown = q ? ICON_LIST.filter((i) => i.name.toLowerCase().includes(q)) : ICON_LIST;
 
 	return (
 		<div>
@@ -31,8 +27,9 @@ export function IconsView() {
 				</Badge>
 				<h1 className="cu-pagehead__title">Icônes</h1>
 				<p className="cu-pagehead__sub">
-					Le jeu d'icônes fourni avec Camply UI, basé sur <code>Lucide</code> — {ICON_LIST.length}{" "}
-					pictogrammes cohérents (trait 2px, grille 24×24, <code>currentColor</code>).
+					Le pack d'icônes de Camply UI — {ICON_LIST.length} pictogrammes (tracés{" "}
+					<code>Lucide</code>, trait 2px, 24×24, <code>currentColor</code>). Réutilisables dans ton
+					app : <code>{`import { Home } from "@camply/ui/icons"`}</code>.
 				</p>
 				<div className="cu-icons__toolbar">
 					<Input
@@ -41,7 +38,7 @@ export function IconsView() {
 						leftIcon={<Icon name="search" size={15} />}
 						value={query}
 						onChange={(e) => setQuery(e.target.value)}
-						placeholder="Rechercher une icône…"
+						placeholder="Rechercher parmi les icônes…"
 						aria-label="Rechercher une icône"
 					/>
 				</div>
