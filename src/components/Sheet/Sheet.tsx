@@ -1,8 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
+import { CloseButton } from "../../lib/CloseButton";
 import { cn } from "../../lib/cn";
-import { X } from "../../lib/icons";
 import { OverlayDialog } from "../../lib/OverlayDialog";
-import { IconButton } from "../IconButton";
 export interface SheetProps {
 	open: boolean;
 	onClose: () => void;
@@ -52,17 +51,7 @@ export function Sheet({
 			{(title || showClose) && (
 				<div className={"camply-sheet__header"}>
 					{title && <h2 className={"camply-sheet__title"}>{title}</h2>}
-					{showClose && (
-						<IconButton
-							label="Fermer"
-							variant="ghost"
-							size="sm"
-							className={"camply-sheet__close"}
-							onClick={onClose}
-						>
-							<X size={15} />
-						</IconButton>
-					)}
+					{showClose && <CloseButton className="camply-sheet__close" onClick={onClose} />}
 				</div>
 			)}
 			<div className={"camply-sheet__content"}>{children}</div>

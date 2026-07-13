@@ -1,5 +1,6 @@
 import { type CSSProperties, type DragEvent, forwardRef, useEffect, useRef, useState } from "react";
 import { cn } from "../../lib/cn";
+import { formatFileSize, isFileAccepted } from "../../lib/fileUtils";
 import { CheckCircle, Upload, X } from "../../lib/icons";
 import { Progress } from "../Progress";
 import { Spinner } from "../Spinner";
@@ -14,12 +15,6 @@ export interface FileUploadProps {
 	hint?: string;
 	className?: string;
 	style?: CSSProperties;
-}
-
-function formatSize(bytes: number): string {
-	if (bytes < 1024) return `${bytes} o`;
-	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} Ko`;
-	return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
 }
 
 type UploadStatus = "uploading" | "done";
@@ -65,27 +60,17 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 			return () => clearInterval(id);
 		}, [uploading]);
 
-		const isAccepted = (f: File) => {
-			if (!accept) return true;
-			const rules = accept.split(",").map((s) => s.trim());
-			return rules.some((r) =>
-				r.startsWith(".")
-					? f.name.toLowerCase().endsWith(r.toLowerCase())
-					: new RegExp(`^${r.replace("*", ".*")}$`).test(f.type),
-			);
-		};
-
 		const addFiles = (incoming: FileList | null) => {
 			if (!incoming) return;
 			setError(null);
 			const list: FileItem[] = [];
 			for (const f of Array.from(incoming)) {
-				if (!isAccepted(f)) {
+				if (!isFileAccepted(f, accept)) {
 					setError(`Type non accepté : ${f.name}`);
 					continue;
 				}
 				if (maxSize && f.size > maxSize) {
-					setError(`${f.name} dépasse ${formatSize(maxSize)}`);
+					setError(`${f.name} dépasse ${formatFileSize(maxSize)}`);
 					continue;
 				}
 				nextId.current += 1;

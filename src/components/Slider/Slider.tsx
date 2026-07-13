@@ -7,7 +7,7 @@ import {
 	useRef,
 } from "react";
 import { cn } from "../../lib/cn";
-import { ratioToValue, snapToStep } from "../../lib/sliderGeometry";
+import { ratioToValue, snapToStep, valueToPercent } from "../../lib/sliderGeometry";
 import { useControllable } from "../../lib/useControllable";
 
 export interface SliderProps {
@@ -104,7 +104,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
 		setVal(snapToStep(next, min, max, step));
 	};
 
-	const pct = ((val - min) / (max - min)) * 100;
+	const pct = valueToPercent(val, min, max);
 
 	return (
 		<div

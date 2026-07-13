@@ -1,8 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
+import { CloseButton } from "../../lib/CloseButton";
 import { cn } from "../../lib/cn";
-import { STATUS_ICONS, X } from "../../lib/icons";
+import { STATUS_ICONS } from "../../lib/icons";
 import { useDismissible } from "../../lib/useDismissible";
-import { IconButton } from "../IconButton";
 export type AlertTone = "info" | "success" | "warn" | "danger";
 
 export interface AlertProps {
@@ -45,17 +45,7 @@ export function Alert({
 				{title && <div className={"camply-alert__title"}>{title}</div>}
 				{children && <div className={"camply-alert__text"}>{children}</div>}
 			</div>
-			{dismissible && (
-				<IconButton
-					label="Fermer"
-					variant="ghost"
-					size="sm"
-					className={"camply-alert__close"}
-					onClick={dismiss}
-				>
-					<X size={15} />
-				</IconButton>
-			)}
+			{dismissible && <CloseButton className="camply-alert__close" onClick={dismiss} />}
 		</div>
 	);
 }

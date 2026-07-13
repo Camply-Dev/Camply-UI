@@ -19,10 +19,14 @@ export type Pkg = {
 	[key: string]: unknown;
 };
 
+/** Règle unique de slug d'un composant (nom de dossier → nom de fichier `dist`).
+ *  Partagée avec tsup.config pour que les bundles émis et les `exports` s'accordent. */
+export const toSlug = (name: string): string => name.toLowerCase();
+
 export function getComponents(): Component[] {
 	return readdirSync(join(root, "src/components")).map((name) => ({
 		name,
-		slug: name.toLowerCase(),
+		slug: toSlug(name),
 	}));
 }
 

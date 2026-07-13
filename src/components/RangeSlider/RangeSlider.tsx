@@ -7,7 +7,7 @@ import {
 	useRef,
 } from "react";
 import { cn } from "../../lib/cn";
-import { ratioToValue, snapToStep } from "../../lib/sliderGeometry";
+import { ratioToValue, snapToStep, valueToPercent } from "../../lib/sliderGeometry";
 import { useControllable } from "../../lib/useControllable";
 
 export type RangeValue = [number, number];
@@ -98,7 +98,7 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 		setHandle(index, range[index] + delta);
 	};
 
-	const pct = (v: number) => ((v - min) / (max - min)) * 100;
+	const pct = (v: number) => valueToPercent(v, min, max);
 
 	return (
 		<div

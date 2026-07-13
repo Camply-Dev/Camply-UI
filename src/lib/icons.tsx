@@ -123,12 +123,6 @@ export const Upload = (p: IconProps) => (
 		<path d="M12 15V3M8 7l4-4 4 4M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4" />
 	</Base>
 );
-export const File = (p: IconProps) => (
-	<Base {...p}>
-		<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-		<path d="M14 2v6h6" />
-	</Base>
-);
 
 /** Icône sémantique par tonalité de statut, partagée par Alert, Banner et Toast.
  *  Les composants qui ont des tonalités supplémentaires (accent, default) ajoutent

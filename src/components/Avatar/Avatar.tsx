@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { cn } from "../../lib/cn";
+import { deriveInitials, hashString } from "../../lib/initials";
 export type AvatarStatus = "online" | "away" | "busy" | "offline";
 
 export interface AvatarProps {
@@ -14,14 +15,7 @@ export interface AvatarProps {
 	style?: CSSProperties;
 }
 
-function deriveInitials(name?: string): string {
-	if (!name) return "?";
-	const parts = name.trim().split(/\s+/);
-	if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-	return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
-
-// Deterministic gradient from the name, so an avatar keeps its color.
+// Dégradé déterministe depuis le nom, pour qu'un avatar garde sa couleur.
 const GRADIENTS = [
 	"linear-gradient(150deg,#7dd3fc,#38bdf8)",
 	"linear-gradient(150deg,#7ab6e0,#4f86b0)",
@@ -29,11 +23,8 @@ const GRADIENTS = [
 	"linear-gradient(150deg,#e0a17a,#b06a4a)",
 	"linear-gradient(150deg,#b79ee0,#8467b0)",
 ];
-function gradientFor(seed: string): string {
-	let h = 0;
-	for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
-	return GRADIENTS[Math.abs(h) % GRADIENTS.length];
-}
+const gradientFor = (seed: string): string =>
+	GRADIENTS[Math.abs(hashString(seed)) % GRADIENTS.length];
 
 export function Avatar({ src, name, initials, size = 52, status, className, style }: AvatarProps) {
 	const label = initials ?? deriveInitials(name);

@@ -1,5 +1,6 @@
 import { type CSSProperties, type KeyboardEvent, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "../../lib/cn";
+import { wrapIndex } from "../../lib/rovingIndex";
 import { useControllable } from "../../lib/useControllable";
 
 export interface SegmentOption<T extends string = string> {
@@ -57,7 +58,7 @@ export function SegmentedControl<T extends string = string>({
 	// Un seul arrêt de tabulation (tabIndex mobile) ; ←/→/↑/↓ + Home/End déplacent
 	// et sélectionnent (activation automatique).
 	const select = (index: number) => {
-		const next = ((index % options.length) + options.length) % options.length;
+		const next = wrapIndex(index, options.length);
 		setCurrent(options[next].value);
 		buttonRefs.current[next]?.focus();
 	};

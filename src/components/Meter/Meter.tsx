@@ -1,6 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
 import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
+import { meterTone } from "../../lib/meter";
+import { valueToPercent } from "../../lib/sliderGeometry";
 export interface MeterProps {
 	value: number;
 	min?: number;
@@ -32,28 +34,14 @@ export function Meter({
 	// Le pourcentage se lit sur l'étendue [min, max], pas sur max seul — sinon
 	// avec min=50/max=100/value=75 le libellé affiche 75 % alors que la barre
 	// se remplit à 50 %.
-	formatValue = (v, m) => `${Math.round(((v - min) / (m - min)) * 100)}%`,
+	formatValue = (v, m) => `${Math.round(valueToPercent(v, min, m))}%`,
 	size = "md",
 	className,
 	style,
 }: MeterProps) {
 	const clamped = clamp(value, min, max);
-	const pct = ((clamped - min) / (max - min)) * 100;
-
-	// Decide the tone. With explicit low/high thresholds, colour by how good the
-	// value is; otherwise auto-colour by fill level (higher = worse, gauge style).
-	let tone: "ok" | "warn" | "danger" = "ok";
-	if (low != null && high != null) {
-		const inLow = clamped < low;
-		const inHigh = clamped >= high;
-		if (optimum === "high") {
-			tone = inLow ? "danger" : inHigh ? "ok" : "warn";
-		} else {
-			tone = inHigh ? "danger" : inLow ? "ok" : "warn";
-		}
-	} else {
-		tone = pct >= 85 ? "danger" : pct >= 60 ? "warn" : "ok";
-	}
+	const pct = valueToPercent(clamped, min, max);
+	const tone = meterTone(clamped, pct, { low, high, optimum });
 
 	return (
 		<div className={cn("camply-meter__root", className)} style={style}>

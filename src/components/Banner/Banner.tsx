@@ -1,8 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
+import { CloseButton } from "../../lib/CloseButton";
 import { cn } from "../../lib/cn";
-import { Info, STATUS_ICONS, X } from "../../lib/icons";
+import { Info, STATUS_ICONS } from "../../lib/icons";
 import { useDismissible } from "../../lib/useDismissible";
-import { IconButton } from "../IconButton";
 export type BannerTone = "info" | "success" | "warn" | "danger" | "accent";
 
 export interface BannerProps {
@@ -44,17 +44,7 @@ export function Banner({
 			{showIcon && <span className={"camply-banner__icon"}>{icon ?? <ToneIcon size={18} />}</span>}
 			<span className={"camply-banner__text"}>{children}</span>
 			{action && <span className={"camply-banner__action"}>{action}</span>}
-			{dismissible && (
-				<IconButton
-					label="Fermer"
-					variant="ghost"
-					size="sm"
-					className={"camply-banner__close"}
-					onClick={dismiss}
-				>
-					<X size={15} />
-				</IconButton>
-			)}
+			{dismissible && <CloseButton className="camply-banner__close" onClick={dismiss} />}
 		</div>
 	);
 }

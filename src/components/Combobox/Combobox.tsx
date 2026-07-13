@@ -14,7 +14,7 @@ import { useAnchor } from "../../lib/useAnchor";
 import { useControllable } from "../../lib/useControllable";
 import { useDismiss } from "../../lib/useDismiss";
 import { useId } from "../../lib/useId";
-import { useListboxNav } from "../../lib/useListboxNav";
+import { firstEnabledIndex, useListboxNav } from "../../lib/useListboxNav";
 export interface ComboboxOption<T extends string = string> {
 	value: T;
 	label: string;
@@ -91,7 +91,7 @@ export function Combobox<T extends string = string>({
 	// À chaque nouvelle liste filtrée, place l'actif sur la première option activable
 	// (sinon Enter sur une première option désactivée ne ferait rien).
 	useEffect(() => {
-		const first = filtered.findIndex((o) => !o.disabled);
+		const first = firstEnabledIndex(filtered);
 		setActive(first < 0 ? 0 : first);
 	}, [filtered, setActive]);
 

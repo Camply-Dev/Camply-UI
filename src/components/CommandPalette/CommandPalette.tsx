@@ -10,6 +10,7 @@ import {
 } from "react";
 import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
+import { filterCommands, groupCommands } from "../../lib/commandPalette";
 import { Search } from "../../lib/icons";
 import { Portal } from "../../lib/Portal";
 import { useEscapeAndScrollLock } from "../../lib/useEscapeAndScrollLock";
@@ -51,35 +52,8 @@ export function CommandPalette({
 	const inputRef = useRef<HTMLInputElement>(null);
 	const listRef = useRef<HTMLDivElement>(null);
 
-	const results = useMemo(() => {
-		const q = query.trim().toLowerCase();
-		if (!q) return commands;
-		return commands.filter((c) =>
-			`${c.label} ${c.keywords ?? ""} ${c.group ?? ""}`.toLowerCase().includes(q),
-		);
-	}, [commands, query]);
-
-	// Group results, preserving order of first appearance.
-	const groups = useMemo(() => {
-		const byGroup = new Map<string, Command[]>();
-		for (const cmd of results) {
-			const key = cmd.group ?? "";
-			const list = byGroup.get(key);
-			if (list) list.push(cmd);
-			else byGroup.set(key, [cmd]);
-		}
-		// flat index lookup for keyboard nav — un Map<Command, index> évite un
-		// indexOf (O(n)) par ligne rendue, soit O(n²) sur toute la liste.
-		const flat: Command[] = [];
-		const index = new Map<Command, number>();
-		for (const list of byGroup.values()) {
-			for (const cmd of list) {
-				index.set(cmd, flat.length);
-				flat.push(cmd);
-			}
-		}
-		return { byGroup, flat, index };
-	}, [results]);
+	const results = useMemo(() => filterCommands(commands, query), [commands, query]);
+	const groups = useMemo(() => groupCommands(results), [results]);
 
 	useEffect(() => {
 		if (open) {

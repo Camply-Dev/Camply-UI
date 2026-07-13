@@ -13,8 +13,8 @@ import {
 	Table,
 	Tree,
 } from "@camply/ui";
-import { useState } from "react";
 import { Icon } from "../icons";
+import { useDisclosure } from "../lib/useDisclosure";
 import { bool, num, type PlaygroundConfig, str } from "./engine";
 
 const TABLE_ROWS = [
@@ -27,15 +27,15 @@ const TABLE_ROWS = [
 const CAROUSEL_SLIDES = ["Rapide", "Accessible", "Thémable", "Léger", "Zéro dépendance"];
 
 function CommandPalettePreview() {
-	const [open, setOpen] = useState(false);
+	const { open, onOpen, onClose } = useDisclosure();
 	return (
 		<>
-			<Button variant="secondary" onClick={() => setOpen(true)}>
+			<Button variant="secondary" onClick={onOpen}>
 				Ouvrir la palette (⌘K)
 			</Button>
 			<CommandPalette
 				open={open}
-				onClose={() => setOpen(false)}
+				onClose={onClose}
 				commands={[
 					{
 						id: "new",
@@ -43,20 +43,20 @@ function CommandPalettePreview() {
 						group: "Actions",
 						shortcut: "⌘N",
 						icon: <Icon name="plus" size={15} />,
-						onRun: () => setOpen(false),
+						onRun: onClose,
 					},
 					{
 						id: "copy",
 						label: "Dupliquer le projet",
 						group: "Actions",
 						icon: <Icon name="copy" size={15} />,
-						onRun: () => setOpen(false),
+						onRun: onClose,
 					},
 					{
 						id: "docs",
 						label: "Ouvrir la documentation",
 						group: "Aide",
-						onRun: () => setOpen(false),
+						onRun: onClose,
 					},
 				]}
 			/>
@@ -316,7 +316,7 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 		defaults: {},
 		render: () => <CommandPalettePreview />,
 		code: () =>
-			`import { CommandPalette, useCommandPalette } from "@camply/ui";\n\nconst [open, setOpen] = useCommandPalette(); // ⌘K / Ctrl+K\n\n<CommandPalette\n  open={open}\n  onClose={() => setOpen(false)}\n  commands={[\n    { id: "new", label: "Nouveau projet", group: "Actions", shortcut: "⌘N", onRun: create },\n    { id: "docs", label: "Documentation", group: "Aide", onRun: openDocs },\n  ]}\n/>`,
+			`import { CommandPalette, useCommandPalette } from "@camply/ui";\n\nconst [open, setOpen] = useCommandPalette(); // ⌘K / Ctrl+K\n\n<CommandPalette\n  open={open}\n  onClose={onClose}\n  commands={[\n    { id: "new", label: "Nouveau projet", group: "Actions", shortcut: "⌘N", onRun: create },\n    { id: "docs", label: "Documentation", group: "Aide", onRun: openDocs },\n  ]}\n/>`,
 		props: [
 			["open / onClose", "boolean / fn", "visibilité contrôlée"],
 			["commands", "Command[]", "{ id, label, keywords?, group?, icon?, shortcut?, onRun }"],

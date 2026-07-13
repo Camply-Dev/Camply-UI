@@ -1,8 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
+import { CloseButton } from "../../lib/CloseButton";
 import { cn } from "../../lib/cn";
-import { X } from "../../lib/icons";
 import { OverlayDialog } from "../../lib/OverlayDialog";
-import { IconButton } from "../IconButton";
 export interface DrawerProps {
 	open: boolean;
 	onClose: () => void;
@@ -45,17 +44,7 @@ export function Drawer({
 			{(title || showClose) && (
 				<div className={"camply-drawer__header"}>
 					{title && <h2 className={"camply-drawer__title"}>{title}</h2>}
-					{showClose && (
-						<IconButton
-							label="Fermer"
-							variant="ghost"
-							size="sm"
-							className={"camply-drawer__close"}
-							onClick={onClose}
-						>
-							<X size={15} />
-						</IconButton>
-					)}
+					{showClose && <CloseButton className="camply-drawer__close" onClick={onClose} />}
 				</div>
 			)}
 			<div className={"camply-drawer__content"}>{children}</div>

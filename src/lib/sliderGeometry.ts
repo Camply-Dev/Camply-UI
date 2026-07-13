@@ -14,3 +14,10 @@ export function ratioToValue(clientX: number, rect: DOMRect, min: number, max: n
 	const ratio = (clientX - rect.left) / rect.width;
 	return min + ratio * (max - min);
 }
+
+/** Projette une valeur de l'échelle [min, max] vers un pourcentage 0–100 (inverse
+ *  de ratioToValue). L'appelant borne lui-même si nécessaire. Partagé par Slider,
+ *  RangeSlider et Meter. */
+export function valueToPercent(value: number, min: number, max: number): number {
+	return ((value - min) / (max - min)) * 100;
+}

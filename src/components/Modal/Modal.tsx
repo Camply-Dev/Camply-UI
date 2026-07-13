@@ -1,8 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
+import { CloseButton } from "../../lib/CloseButton";
 import { cn } from "../../lib/cn";
-import { X } from "../../lib/icons";
 import { OverlayDialog } from "../../lib/OverlayDialog";
-import { IconButton } from "../IconButton";
 export interface ModalProps {
 	open: boolean;
 	onClose: () => void;
@@ -48,17 +47,7 @@ export function Modal({
 						{title && <h2 className={"camply-modal__title"}>{title}</h2>}
 						{description && <p className={"camply-modal__desc"}>{description}</p>}
 					</div>
-					{showClose && (
-						<IconButton
-							label="Fermer"
-							variant="ghost"
-							size="sm"
-							className={"camply-modal__close"}
-							onClick={onClose}
-						>
-							<X size={15} />
-						</IconButton>
-					)}
+					{showClose && <CloseButton className="camply-modal__close" onClick={onClose} />}
 				</div>
 			)}
 			{children && <div className={"camply-modal__content"}>{children}</div>}

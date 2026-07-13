@@ -6,7 +6,7 @@ import { useAnchor } from "../../lib/useAnchor";
 import { useControllable } from "../../lib/useControllable";
 import { useDismiss } from "../../lib/useDismiss";
 import { useId } from "../../lib/useId";
-import { useListboxNav } from "../../lib/useListboxNav";
+import { firstEnabledIndex, lastEnabledIndex, useListboxNav } from "../../lib/useListboxNav";
 
 export interface SelectOption<T extends string = string> {
 	value: T;
@@ -102,16 +102,11 @@ export function Select<T extends string = string>({
 				break;
 			case "Home":
 				e.preventDefault();
-				setActive(options.findIndex((o) => !o.disabled));
+				setActive(firstEnabledIndex(options));
 				break;
 			case "End":
 				e.preventDefault();
-				for (let i = options.length - 1; i >= 0; i--) {
-					if (!options[i].disabled) {
-						setActive(i);
-						break;
-					}
-				}
+				setActive(lastEnabledIndex(options));
 				break;
 			case "Enter":
 			case " ":

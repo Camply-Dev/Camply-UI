@@ -2,38 +2,9 @@ import { Badge, Banner, Button, Card, ColorPicker } from "@camply/ui";
 import { useState } from "react";
 import tokensRaw from "../../../src/styles/tokens.css?raw";
 import { Icon } from "../icons";
+import { parseColor, toCss } from "../lib/color";
+import { buildTokensCss } from "../lib/tokensFile";
 import { TOKEN_GROUPS } from "../showcase-data";
-
-/* ---- couleur : parse (#hex / rgb / rgba) → hex + alpha, et retour ---- */
-function parseColor(v: string): { hex: string; alpha: number } {
-	const s = v.trim();
-	const hex6 = /^#([0-9a-f]{6})$/i.exec(s);
-	if (hex6) return { hex: `#${hex6[1].toLowerCase()}`, alpha: 1 };
-	const hex3 = /^#([0-9a-f]{3})$/i.exec(s);
-	if (hex3) {
-		const full = hex3[1]
-			.split("")
-			.map((c) => c + c)
-			.join("");
-		return { hex: `#${full.toLowerCase()}`, alpha: 1 };
-	}
-	const rgb = /^rgba?\(([^)]+)\)$/i.exec(s);
-	if (rgb) {
-		const parts = rgb[1].split(",").map((p) => p.trim());
-		const [r, g, b] = parts.map(Number);
-		const a = parts[3] != null ? Number(parts[3]) : 1;
-		const hex = `#${[r, g, b].map((n) => Math.round(n).toString(16).padStart(2, "0")).join("")}`;
-		return { hex, alpha: Number.isNaN(a) ? 1 : a };
-	}
-	return { hex: "#000000", alpha: 1 };
-}
-
-function toCss(hex: string, alpha: number): string {
-	if (alpha >= 1) return hex.toLowerCase();
-	const int = parseInt(hex.slice(1), 16);
-	const rounded = Math.round(alpha * 100) / 100;
-	return `rgba(${(int >> 16) & 255}, ${(int >> 8) & 255}, ${int & 255}, ${rounded})`;
-}
 
 /** Swatch ColorPicker piloté par la valeur du token (entièrement contrôlé). */
 function TokenSwatch({ value, onChange }: { value: string; onChange: (v: string) => void }) {
@@ -86,10 +57,7 @@ export function TokensView() {
 
 	// Génère un tokens.css complet = le vrai fichier avec les valeurs surchargées injectées.
 	const download = () => {
-		let out = tokensRaw;
-		for (const [name, value] of Object.entries(overrides)) {
-			out = out.replace(new RegExp(`(${name}\\s*:\\s*)([^;]+)(;)`), `$1${value}$3`);
-		}
+		const out = buildTokensCss(tokensRaw, overrides);
 		const url = URL.createObjectURL(new Blob([out], { type: "text/css" }));
 		const a = document.createElement("a");
 		a.href = url;

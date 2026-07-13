@@ -8,9 +8,9 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { Info, STATUS_ICONS, X } from "../../lib/icons";
+import { CloseButton } from "../../lib/CloseButton";
+import { Info, STATUS_ICONS } from "../../lib/icons";
 import { Portal } from "../../lib/Portal";
-import { IconButton } from "../IconButton";
 export type ToastTone = "default" | "success" | "info" | "warn" | "danger";
 
 export interface ToastOptions {
@@ -117,15 +117,11 @@ export function ToastProvider({
 									<div className={"camply-toast__title"}>{t.title}</div>
 									{t.description && <div className={"camply-toast__desc"}>{t.description}</div>}
 								</div>
-								<IconButton
-									label="Fermer"
-									variant="ghost"
-									size="sm"
-									className={"camply-toast__close"}
+								<CloseButton
+									className="camply-toast__close"
 									onClick={() => dismiss(t.id)}
-								>
-									<X size={14} />
-								</IconButton>
+									iconSize={14}
+								/>
 							</div>
 						);
 					})}

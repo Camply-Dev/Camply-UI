@@ -19,30 +19,30 @@ import {
 	Sheet,
 	Tooltip,
 } from "@camply/ui";
-import { useState } from "react";
 import { Icon } from "../icons";
+import { useDisclosure } from "../lib/useDisclosure";
 import { bool, type PlaygroundConfig, str, type Values } from "./engine";
 
 // ---------- Aperçus à état (overlays) ----------
 function ModalPreview(p: Values) {
-	const [open, setOpen] = useState(false);
+	const { open, onOpen, onClose } = useDisclosure();
 	return (
 		<>
-			<Button variant="primary" onClick={() => setOpen(true)}>
+			<Button variant="primary" onClick={onOpen}>
 				Ouvrir la modale
 			</Button>
 			<Modal
 				open={open}
-				onClose={() => setOpen(false)}
+				onClose={onClose}
 				size={str(p.size)}
 				title="Supprimer le projet"
 				description="Cette action est définitive et supprime toutes les données associées."
 				footer={
 					<>
-						<Button variant="ghost" onClick={() => setOpen(false)}>
+						<Button variant="ghost" onClick={onClose}>
 							Annuler
 						</Button>
-						<Button variant="danger" onClick={() => setOpen(false)}>
+						<Button variant="danger" onClick={onClose}>
 							Supprimer
 						</Button>
 					</>
@@ -55,17 +55,17 @@ function ModalPreview(p: Values) {
 }
 
 function DrawerPreview(p: Values) {
-	const [open, setOpen] = useState(false);
+	const { open, onOpen, onClose } = useDisclosure();
 	return (
 		<>
-			<Button onClick={() => setOpen(true)}>Ouvrir le panneau</Button>
+			<Button onClick={onOpen}>Ouvrir le panneau</Button>
 			<Drawer
 				open={open}
-				onClose={() => setOpen(false)}
+				onClose={onClose}
 				side={str(p.side)}
 				title="Filtres"
 				footer={
-					<Button variant="primary" onClick={() => setOpen(false)}>
+					<Button variant="primary" onClick={onClose}>
 						Appliquer
 					</Button>
 				}
@@ -79,13 +79,13 @@ function DrawerPreview(p: Values) {
 }
 
 function SheetPreview(p: Values) {
-	const [open, setOpen] = useState(false);
+	const { open, onOpen, onClose } = useDisclosure();
 	return (
 		<>
-			<Button onClick={() => setOpen(true)}>Ouvrir la feuille</Button>
+			<Button onClick={onOpen}>Ouvrir la feuille</Button>
 			<Sheet
 				open={open}
-				onClose={() => setOpen(false)}
+				onClose={onClose}
 				side={str(p.side)}
 				handle={bool(p.handle)}
 				title="Partager le projet"
@@ -218,7 +218,7 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 		defaults: { size: "md" },
 		render: (p) => <ModalPreview {...p} />,
 		code: (p) =>
-			`import { Modal } from "@camply/ui";\n\n<Modal\n  open={open}\n  onClose={() => setOpen(false)}\n  size="${p.size}"\n  title="Supprimer le projet"\n  footer={<Button variant="danger">Supprimer</Button>}\n>\n  Es-tu sûr de vouloir continuer ?\n</Modal>`,
+			`import { Modal } from "@camply/ui";\n\n<Modal\n  open={open}\n  onClose={onClose}\n  size="${p.size}"\n  title="Supprimer le projet"\n  footer={<Button variant="danger">Supprimer</Button>}\n>\n  Es-tu sûr de vouloir continuer ?\n</Modal>`,
 		props: [
 			["open / onClose", "boolean / fn", "visibilité contrôlée — Échap et backdrop ferment"],
 			["title / description", "ReactNode", "en-tête de la boîte"],
@@ -234,7 +234,7 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 		defaults: { side: "right" },
 		render: (p) => <DrawerPreview {...p} />,
 		code: (p) =>
-			`import { Drawer } from "@camply/ui";\n\n<Drawer\n  open={open}\n  onClose={() => setOpen(false)}\n  side="${p.side}"\n  title="Filtres"\n>\n  …\n</Drawer>`,
+			`import { Drawer } from "@camply/ui";\n\n<Drawer\n  open={open}\n  onClose={onClose}\n  side="${p.side}"\n  title="Filtres"\n>\n  …\n</Drawer>`,
 		props: [
 			["open / onClose", "boolean / fn", "visibilité contrôlée"],
 			["side", "enum", "left · right"],
@@ -252,7 +252,7 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 		defaults: { side: "bottom", handle: true },
 		render: (p) => <SheetPreview {...p} />,
 		code: (p) =>
-			`import { Sheet } from "@camply/ui";\n\n<Sheet\n  open={open}\n  onClose={() => setOpen(false)}\n  side="${p.side}"${
+			`import { Sheet } from "@camply/ui";\n\n<Sheet\n  open={open}\n  onClose={onClose}\n  side="${p.side}"${
 				p.handle ? "" : "\n  handle={false}"
 			}\n  title="Partager"\n>\n  …\n</Sheet>`,
 		props: [
@@ -327,7 +327,11 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 		props: [
 			["content", "ReactNode", "contenu de l'infobulle"],
 			["icon", "ReactNode", "icône avant le contenu"],
-			["tone", "enum", "default · plain (sans fond) · dark · accent · success · warning · danger · info"],
+			[
+				"tone",
+				"enum",
+				"default · plain (sans fond) · dark · accent · success · warning · danger · info",
+			],
 			["placement", "Placement", "top · bottom · left · right (+ variantes -start/-end)"],
 			["delay", "number", "délai d'apparition en ms (défaut 200)"],
 		],

@@ -1,4 +1,15 @@
 import { type RefObject, useEffect, useState } from "react";
+import { wrapIndex } from "./rovingIndex";
+
+type OptionLike = { disabled?: boolean };
+
+/** Index de la première / dernière option activable (-1 si aucune). */
+export const firstEnabledIndex = (options: OptionLike[]): number =>
+	options.findIndex((o) => !o.disabled);
+export const lastEnabledIndex = (options: OptionLike[]): number => {
+	for (let i = options.length - 1; i >= 0; i--) if (!options[i].disabled) return i;
+	return -1;
+};
 
 /** Navigation clavier partagée d'une listbox (Select, MultiSelect, Combobox) :
  *  garde l'index de l'option active, le déplace en sautant les options
@@ -6,7 +17,7 @@ import { type RefObject, useEffect, useState } from "react";
 export function useListboxNav(
 	listRef: RefObject<HTMLElement | null>,
 	open: boolean,
-	options: { disabled?: boolean }[],
+	options: OptionLike[],
 ) {
 	const [active, setActive] = useState(0);
 
@@ -15,7 +26,7 @@ export function useListboxNav(
 		setActive((prev) => {
 			let next = prev;
 			for (let i = 0; i < options.length; i++) {
-				next = (next + dir + options.length) % options.length;
+				next = wrapIndex(next + dir, options.length);
 				if (!options[next].disabled) break;
 			}
 			return next;

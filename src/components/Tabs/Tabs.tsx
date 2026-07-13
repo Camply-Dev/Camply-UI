@@ -7,6 +7,7 @@ import {
 	useRef,
 } from "react";
 import { cn } from "../../lib/cn";
+import { nextRovingIndex } from "../../lib/rovingIndex";
 import { useControllable } from "../../lib/useControllable";
 import { useId } from "../../lib/useId";
 
@@ -64,18 +65,14 @@ export function TabList({ children, className }: { children: ReactNode; classNam
 	// sélection via le tabIndex mobile). On interroge le DOM car TabList ne connaît
 	// pas la liste des valeurs (les onglets sont des enfants libres).
 	const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-		if (!["ArrowRight", "ArrowLeft", "Home", "End"].includes(e.key)) return;
 		const tabs = Array.from(
 			ref.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]:not([disabled])') ?? [],
 		);
 		if (tabs.length === 0) return;
-		e.preventDefault();
 		const at = tabs.indexOf(document.activeElement as HTMLButtonElement);
-		let next = at;
-		if (e.key === "ArrowRight") next = at < 0 ? 0 : (at + 1) % tabs.length;
-		else if (e.key === "ArrowLeft") next = at < 0 ? 0 : (at - 1 + tabs.length) % tabs.length;
-		else if (e.key === "Home") next = 0;
-		else next = tabs.length - 1;
+		const next = nextRovingIndex(e.key, Math.max(0, at), tabs.length);
+		if (next == null) return;
+		e.preventDefault();
 		tabs[next].focus();
 		tabs[next].click();
 	};

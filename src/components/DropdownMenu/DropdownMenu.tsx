@@ -1,17 +1,9 @@
-import {
-	type CSSProperties,
-	forwardRef,
-	type ReactElement,
-	type ReactNode,
-	useCallback,
-	useRef,
-	useState,
-} from "react";
+import { type CSSProperties, forwardRef, type ReactElement, type ReactNode } from "react";
 import { cloneTrigger } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { Portal } from "../../lib/Portal";
-import { type Placement, useAnchor } from "../../lib/useAnchor";
-import { useDismiss } from "../../lib/useDismiss";
+import type { Placement } from "../../lib/useAnchor";
+import { useClickDisclosure } from "../../lib/useClickDisclosure";
 export interface DropdownMenuProps {
 	/** the clickable element that toggles the menu */
 	trigger: ReactElement;
@@ -26,41 +18,23 @@ export function DropdownMenu({
 	placement = "bottom-start",
 	className,
 }: DropdownMenuProps) {
-	const [open, setOpen] = useState(false);
-	const anchorRef = useRef<HTMLElement>(null);
-	const menuRef = useRef<HTMLDivElement>(null);
-
-	const style = useAnchor(anchorRef, menuRef, open, {
+	const { open, close, floatRef, style, triggerProps } = useClickDisclosure({
 		placement,
-		gap: 8,
-		constrainHeight: true,
 		minHeight: 100,
-	});
-	const close = useCallback(() => setOpen(false), []);
-	useDismiss(open, close, [anchorRef, menuRef]);
-
-	const triggerEl = cloneTrigger(trigger, {
-		ref: anchorRef,
-		onClick: (e: React.MouseEvent) => {
-			(trigger.props as { onClick?: (e: React.MouseEvent) => void }).onClick?.(e);
-			setOpen((o) => !o);
-		},
-		"aria-haspopup": "menu",
-		"aria-expanded": open,
 	});
 
 	return (
 		<>
-			{triggerEl}
+			{cloneTrigger(trigger, triggerProps(trigger, { "aria-haspopup": "menu" }))}
 			{open && (
 				<Portal>
 					{/* biome-ignore lint/a11y/useKeyWithClickEvents: délégation de fermeture au clic — les items sont de vrais boutons (clavier natif) et Échap ferme via useDismiss */}
 					<div
-						ref={menuRef}
+						ref={floatRef}
 						role="menu"
 						className={cn("camply-floating-surface", "camply-dropdownmenu__menu", className)}
 						style={style}
-						onClick={() => setOpen(false)}
+						onClick={close}
 					>
 						{children}
 					</div>

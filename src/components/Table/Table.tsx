@@ -1,6 +1,7 @@
 import { type CSSProperties, type ReactNode, useMemo, useState } from "react";
 import { cn } from "../../lib/cn";
 import { ChevronDown, ChevronUp } from "../../lib/icons";
+import { nextSortState, type SortState, sortRows } from "../../lib/tableSort";
 export interface Column<Row> {
 	key: string;
 	header: ReactNode;
@@ -34,29 +35,17 @@ export function Table<Row>({
 	style,
 	emptyState,
 }: TableProps<Row>) {
-	const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" } | null>(null);
+	const [sort, setSort] = useState<SortState | null>(null);
 
 	const sorted = useMemo(() => {
 		if (!sort) return data;
 		const sortValue = columns.find((c) => c.key === sort.key)?.sortValue;
-		if (!sortValue) return data;
-		const factor = sort.dir === "asc" ? 1 : -1;
-		return [...data].sort((a, b) => {
-			const va = sortValue(a);
-			const vb = sortValue(b);
-			if (va < vb) return -1 * factor;
-			if (va > vb) return 1 * factor;
-			return 0;
-		});
+		return sortValue ? sortRows(data, sortValue, sort.dir) : data;
 	}, [data, sort, columns]);
 
 	const toggleSort = (col: Column<Row>) => {
 		if (!col.sortValue) return;
-		setSort((prev) => {
-			if (prev?.key !== col.key) return { key: col.key, dir: "asc" };
-			if (prev.dir === "asc") return { key: col.key, dir: "desc" };
-			return null;
-		});
+		setSort((prev) => nextSortState(prev, col.key));
 	};
 
 	return (
