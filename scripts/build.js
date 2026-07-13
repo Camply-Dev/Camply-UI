@@ -1,5 +1,13 @@
-import { copyFileSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+	copyFileSync,
+	mkdirSync,
+	readdirSync,
+	readFileSync,
+	statSync,
+	writeFileSync,
+} from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import * as esbuild from "esbuild";
 
 const root = resolve(import.meta.dirname, "..");
 const dist = join(root, "dist");
@@ -28,6 +36,35 @@ function addUseClient() {
 	}
 }
 
+function collectJsFiles(dir) {
+	const files = [];
+	for (const name of readdirSync(dir)) {
+		const path = join(dir, name);
+		if (statSync(path).isDirectory()) {
+			files.push(...collectJsFiles(path));
+			continue;
+		}
+		if (name.endsWith(".js")) files.push(path);
+	}
+	return files;
+}
+
+async function minifyJsFiles() {
+	const files = collectJsFiles(dist);
+	if (files.length === 0) return;
+
+	await esbuild.build({
+		entryPoints: files,
+		outdir: dist,
+		outbase: dist,
+		allowOverwrite: true,
+		minify: true,
+		format: "esm",
+		platform: "neutral",
+		target: "es2022",
+	});
+}
+
 const tsc = Bun.spawnSync(["tsc"], {
 	cwd: root,
 	stdio: ["inherit", "inherit", "inherit"],
@@ -36,5 +73,6 @@ if (tsc.exitCode !== 0) process.exit(tsc.exitCode ?? 1);
 
 copyCssFiles();
 addUseClient();
+await minifyJsFiles();
 
 console.log("Build complete");
