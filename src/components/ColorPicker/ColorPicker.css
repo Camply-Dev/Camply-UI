@@ -1,16 +1,33 @@
 .camply-colorpicker__root {
-	gap: 14px;
 	width: 100%;
 	max-width: 340px;
 }
-.camply-colorpicker__compact {
-	gap: 7px;
+.camply-colorpicker__root--compact {
 	max-width: 240px;
 }
-.camply-colorpicker__swatchOnly {
+.camply-colorpicker__root--swatch {
 	width: fit-content;
 	max-width: none;
+}
+
+/* .camply-field interne : porte le label, l'aide/erreur et le corps du sélecteur. */
+.camply-colorpicker__field {
+	gap: 14px;
+}
+.camply-colorpicker__root--compact .camply-colorpicker__field,
+.camply-colorpicker__root--swatch .camply-colorpicker__field {
 	gap: 7px;
+}
+
+/* <fieldset> : groupe les trois surfaces sous le label, styles UA remis à zéro. */
+.camply-colorpicker__core {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	min-inline-size: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
 }
 
 .camply-colorpicker__square {

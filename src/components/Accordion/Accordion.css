@@ -51,7 +51,19 @@
 
 .camply-accordion__panel {
 	display: grid;
-	transition: grid-template-rows 0.24s var(--camply-ease);
+	grid-template-rows: 0fr;
+	visibility: hidden;
+	/* Le masquage n'intervient qu'à la fin du repli, sinon l'animation saute. */
+	transition:
+		grid-template-rows 0.24s var(--camply-ease),
+		visibility 0s linear 0.24s;
+}
+.camply-accordion__panelOpen {
+	grid-template-rows: 1fr;
+	visibility: visible;
+	transition:
+		grid-template-rows 0.24s var(--camply-ease),
+		visibility 0s;
 }
 .camply-accordion__panelInner {
 	overflow: hidden;

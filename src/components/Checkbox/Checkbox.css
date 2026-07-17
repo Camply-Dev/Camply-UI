@@ -1,3 +1,9 @@
+/* Le Field est une colonne flex : sans ça, le <label> s'étirerait sur toute la
+   largeur et la zone cliquable déborderait du contenu. */
+.camply-checkbox__field {
+	align-items: flex-start;
+}
+
 .camply-checkbox__control {
 	display: inline-flex;
 	align-items: center;
@@ -27,4 +33,7 @@
 .camply-control__input:checked + .camply-checkbox__control .camply-checkbox__tick {
 	opacity: 1;
 	transform: scale(1);
+}
+.camply-control__input[aria-invalid="true"]:not(:checked) + .camply-checkbox__control {
+	border-color: var(--camply-danger);
 }

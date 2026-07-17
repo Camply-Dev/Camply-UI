@@ -1,6 +1,7 @@
 import { forwardRef, type HTMLAttributes, type ReactNode, useState } from "react";
 import { cn } from "../../lib/cn";
 import { ChevronDown } from "../../lib/icons";
+import { useId } from "../../lib/useId";
 
 export interface SpoilerProps extends HTMLAttributes<HTMLDivElement> {
 	children: ReactNode;
@@ -24,17 +25,23 @@ export const Spoiler = forwardRef<HTMLDivElement, SpoilerProps>(
 		ref,
 	) => {
 		const [open, setOpen] = useState(defaultOpen);
+		const contentId = useId("camply-spoiler");
 
 		return (
 			<div ref={ref} className={cn("camply-spoiler__root", className)} {...props}>
-				<div className={"camply-spoiler__content"} style={{ maxHeight: open ? "none" : maxHeight }}>
+				<div
+					id={contentId}
+					className={"camply-spoiler__content"}
+					style={{ maxHeight: open ? "none" : maxHeight }}
+				>
 					{children}
 					{!open && <div className={"camply-spoiler__fade"} aria-hidden="true" />}
 				</div>
 				<button
 					type="button"
-					className={"camply-spoiler__toggle"}
+					className={"camply-spoiler__toggle camply-focus-ring"}
 					aria-expanded={open}
+					aria-controls={contentId}
 					onClick={() => setOpen((o) => !o)}
 				>
 					{open ? hideLabel : showLabel}

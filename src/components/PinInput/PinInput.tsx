@@ -1,8 +1,18 @@
-import { type ClipboardEvent, type CSSProperties, type KeyboardEvent, useRef } from "react";
+import {
+	type ClipboardEvent,
+	type CSSProperties,
+	forwardRef,
+	type HTMLAttributes,
+	type KeyboardEvent,
+	useRef,
+} from "react";
 import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
+import { Field } from "../../lib/Field";
 import { useControllable } from "../../lib/useControllable";
-export interface PinInputProps {
+
+export interface PinInputProps
+	extends Omit<HTMLAttributes<HTMLFieldSetElement>, "onChange" | "defaultValue" | "children"> {
 	length?: number;
 	value?: string;
 	defaultValue?: string;
@@ -11,29 +21,52 @@ export interface PinInputProps {
 	type?: "number" | "alphanumeric";
 	mask?: boolean;
 	disabled?: boolean;
-	autoFocus?: boolean;
+	readOnly?: boolean;
+	/** Soumis dans un formulaire via un <input type="hidden"> portant le code complet. */
+	name?: string;
+	/** Chaque cellule devient obligatoire : le code doit être complet pour soumettre. */
+	required?: boolean;
+	label?: string;
+	hint?: string;
+	error?: string;
+	/** Nom accessible d'une cellule (défaut : « <label> <position> »). */
+	cellLabel?: (index: number) => string;
 	size?: "sm" | "md" | "lg";
 	className?: string;
 	style?: CSSProperties;
 }
 
-export function PinInput({
-	length = 6,
-	value,
-	defaultValue = "",
-	onChange,
-	onComplete,
-	type = "number",
-	mask = false,
-	disabled = false,
-	autoFocus = false,
-	size = "md",
-	className,
-	style,
-}: PinInputProps) {
+export const PinInput = forwardRef<HTMLFieldSetElement, PinInputProps>(function PinInput(
+	{
+		length = 6,
+		value,
+		defaultValue = "",
+		onChange,
+		onComplete,
+		type = "number",
+		mask = false,
+		disabled = false,
+		readOnly = false,
+		autoFocus = false,
+		name,
+		required,
+		label,
+		hint,
+		error,
+		cellLabel,
+		size = "md",
+		className,
+		style,
+		id,
+		onPaste,
+		...rest
+	},
+	ref,
+) {
 	const [val, setVal] = useControllable<string>(value, defaultValue, onChange);
 	const refs = useRef<(HTMLInputElement | null)[]>([]);
 	const chars = Array.from({ length }, (_, i) => val[i] ?? "");
+	const locked = disabled || readOnly;
 
 	const pattern = type === "number" ? /[0-9]/ : /[a-zA-Z0-9]/;
 
@@ -63,25 +96,33 @@ export function PinInput({
 	};
 
 	const onKeyDown = (i: number, e: KeyboardEvent) => {
+		if (e.key === "ArrowLeft") {
+			e.preventDefault();
+			focusCell(i - 1);
+			return;
+		}
+		if (e.key === "ArrowRight") {
+			e.preventDefault();
+			focusCell(i + 1);
+			return;
+		}
 		if (e.key === "Backspace") {
 			e.preventDefault();
+			if (locked) return;
 			if (chars[i]) {
 				setCharAt(i, "");
 			} else if (i > 0) {
 				focusCell(i - 1);
 				setCharAt(i - 1, "");
 			}
-		} else if (e.key === "ArrowLeft") {
-			e.preventDefault();
-			focusCell(i - 1);
-		} else if (e.key === "ArrowRight") {
-			e.preventDefault();
-			focusCell(i + 1);
 		}
 	};
 
-	const onPaste = (e: ClipboardEvent) => {
+	const handlePaste = (e: ClipboardEvent<HTMLFieldSetElement>) => {
+		onPaste?.(e);
+		if (e.defaultPrevented) return;
 		e.preventDefault();
+		if (locked) return;
 		const text = e.clipboardData
 			.getData("text")
 			.split("")
@@ -94,38 +135,61 @@ export function PinInput({
 		}
 	};
 
+	const nameOf = (i: number) => cellLabel?.(i) ?? (label ? `${label} ${i + 1}` : `${i + 1}`);
+
 	return (
-		<div
-			className={cn(
-				"camply-pininput__root",
-				`camply-pininput__${size}`,
-				disabled && "camply-pininput__disabled",
-				className,
-			)}
+		<Field
+			label={label}
+			hint={hint}
+			error={error}
+			required={required}
+			id={id}
+			idPrefix="pin"
+			className={cn("camply-pininput__field", className)}
 			style={style}
-			onPaste={onPaste}
 		>
-			{chars.map((c, i) => (
-				<input
-					// biome-ignore lint/suspicious/noArrayIndexKey: cellules à position fixe — l'index EST l'identité
-					key={i}
-					ref={(el) => {
-						refs.current[i] = el;
-					}}
-					className={cn("camply-pin-cell", c && "camply-pin-cell--filled")}
-					type={mask && c ? "password" : "text"}
-					inputMode={type === "number" ? "numeric" : "text"}
-					maxLength={1}
-					value={c}
-					disabled={disabled}
-					// biome-ignore lint/a11y/noAutofocus: opt-in explicite via la prop autoFocus (cas OTP)
-					autoFocus={autoFocus && i === 0}
-					aria-label={`Chiffre ${i + 1}`}
-					onChange={(e) => onCellChange(i, e.target.value)}
-					onKeyDown={(e) => onKeyDown(i, e)}
-					onFocus={(e) => e.target.select()}
-				/>
-			))}
-		</div>
+			{({ id: firstId, labelId, describedBy, invalid, required: isRequired }) => (
+				// <fieldset> : groupe natif (role=group) nommé par le label du Field.
+				<fieldset
+					ref={ref}
+					aria-labelledby={labelId}
+					className={cn(
+						"camply-pininput__root",
+						`camply-pininput__${size}`,
+						disabled && "camply-pininput__disabled",
+					)}
+					onPaste={handlePaste}
+					{...rest}
+				>
+					{name && <input type="hidden" name={name} value={val} disabled={disabled} />}
+					{chars.map((c, i) => (
+						<input
+							// biome-ignore lint/suspicious/noArrayIndexKey: cellules à position fixe — l'index EST l'identité
+							key={i}
+							ref={(el) => {
+								refs.current[i] = el;
+							}}
+							id={i === 0 ? firstId : undefined}
+							className={cn("camply-pin-cell", c && "camply-pin-cell--filled")}
+							type={mask && c ? "password" : "text"}
+							inputMode={type === "number" ? "numeric" : "text"}
+							maxLength={1}
+							value={c}
+							disabled={disabled}
+							readOnly={readOnly}
+							required={isRequired}
+							// biome-ignore lint/a11y/noAutofocus: opt-in explicite via la prop autoFocus (cas OTP)
+							autoFocus={autoFocus && i === 0}
+							aria-label={nameOf(i)}
+							aria-invalid={invalid}
+							aria-describedby={describedBy}
+							onChange={(e) => onCellChange(i, e.target.value)}
+							onKeyDown={(e) => onKeyDown(i, e)}
+							onFocus={(e) => e.target.select()}
+						/>
+					))}
+				</fieldset>
+			)}
+		</Field>
 	);
-}
+});

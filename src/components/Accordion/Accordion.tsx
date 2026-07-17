@@ -1,4 +1,11 @@
-import { type CSSProperties, createContext, type ReactNode, useContext, useState } from "react";
+import {
+	createContext,
+	forwardRef,
+	type HTMLAttributes,
+	type ReactNode,
+	useContext,
+	useState,
+} from "react";
 import { cn } from "../../lib/cn";
 import { ChevronDown } from "../../lib/icons";
 import { useId } from "../../lib/useId";
@@ -9,21 +16,16 @@ interface AccordionContextValue {
 }
 const AccordionContext = createContext<AccordionContextValue | null>(null);
 
-export interface AccordionProps {
+export interface AccordionProps extends Omit<HTMLAttributes<HTMLDivElement>, "defaultValue"> {
 	multiple?: boolean;
 	defaultValue?: string | string[];
-	className?: string;
-	style?: CSSProperties;
 	children: ReactNode;
 }
 
-export function Accordion({
-	multiple = false,
-	defaultValue,
-	className,
-	style,
-	children,
-}: AccordionProps) {
+export const Accordion = forwardRef<HTMLDivElement, AccordionProps>(function Accordion(
+	{ multiple = false, defaultValue, className, children, ...rest },
+	ref,
+) {
 	const [open, setOpen] = useState<Set<string>>(
 		() =>
 			new Set(
@@ -42,21 +44,24 @@ export function Accordion({
 
 	return (
 		<AccordionContext.Provider value={{ isOpen: (v) => open.has(v), toggle }}>
-			<div className={cn("camply-accordion__root", className)} style={style}>
+			<div ref={ref} className={cn("camply-accordion__root", className)} {...rest}>
 				{children}
 			</div>
 		</AccordionContext.Provider>
 	);
-}
+});
 
-export interface AccordionItemProps {
+export interface AccordionItemProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
 	value: string;
 	title: ReactNode;
 	children: ReactNode;
 	disabled?: boolean;
 }
 
-export function AccordionItem({ value, title, children, disabled }: AccordionItemProps) {
+export const AccordionItem = forwardRef<HTMLDivElement, AccordionItemProps>(function AccordionItem(
+	{ value, title, children, disabled, className, ...rest },
+	ref,
+) {
 	const ctx = useContext(AccordionContext);
 	if (!ctx) throw new Error("<AccordionItem> must be used within <Accordion>");
 	const open = ctx.isOpen(value);
@@ -64,7 +69,11 @@ export function AccordionItem({ value, title, children, disabled }: AccordionIte
 	const panelId = useId("accordion-panel");
 
 	return (
-		<div className={cn("camply-accordion__item", open && "camply-accordion__itemOpen")}>
+		<div
+			ref={ref}
+			className={cn("camply-accordion__item", open && "camply-accordion__itemOpen", className)}
+			{...rest}
+		>
 			<button
 				type="button"
 				id={triggerId}
@@ -81,11 +90,11 @@ export function AccordionItem({ value, title, children, disabled }: AccordionIte
 				/>
 			</button>
 
+			{/* Replié, le panneau passe en visibility:hidden : ni focusable, ni lu par les lecteurs d'écran. */}
 			<section
 				id={panelId}
 				aria-labelledby={triggerId}
-				className={"camply-accordion__panel"}
-				style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
+				className={cn("camply-accordion__panel", open && "camply-accordion__panelOpen")}
 			>
 				<div className={"camply-accordion__panelInner"}>
 					<div className={"camply-accordion__body"}>{children}</div>
@@ -93,4 +102,4 @@ export function AccordionItem({ value, title, children, disabled }: AccordionIte
 			</section>
 		</div>
 	);
-}
+});

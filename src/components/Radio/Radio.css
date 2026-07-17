@@ -29,3 +29,6 @@
 .camply-control__input:checked + .camply-radio__control .camply-radio__dot {
 	transform: scale(1);
 }
+.camply-control__input[aria-invalid="true"]:not(:checked) + .camply-radio__control {
+	border-color: var(--camply-danger);
+}

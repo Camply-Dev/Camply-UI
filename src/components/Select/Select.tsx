@@ -1,5 +1,13 @@
-import { type CSSProperties, type KeyboardEvent, useCallback, useRef, useState } from "react";
+import {
+	type ButtonHTMLAttributes,
+	type KeyboardEvent,
+	type MouseEvent,
+	useCallback,
+	useRef,
+	useState,
+} from "react";
 import { cn } from "../../lib/cn";
+import { Field } from "../../lib/Field";
 import { Check, ChevronDown } from "../../lib/icons";
 import { Listbox, ListboxOption } from "../../lib/Listbox";
 import { Portal } from "../../lib/Portal";
@@ -15,17 +23,33 @@ export interface SelectOption<T extends string = string> {
 	disabled?: boolean;
 }
 
-export interface SelectProps<T extends string = string> {
+export interface SelectProps<T extends string = string>
+	extends Omit<
+		ButtonHTMLAttributes<HTMLButtonElement>,
+		"value" | "defaultValue" | "onChange" | "type" | "name"
+	> {
 	options: SelectOption<T>[];
 	value?: T;
 	defaultValue?: T;
 	onChange?: (value: T) => void;
 	placeholder?: string;
 	label?: string;
+	/** Texte d'aide affiché sous le champ. */
+	hint?: string;
+	/** Message d'erreur : remplace l'aide, colore le champ et pose aria-invalid. */
+	error?: string;
+	/**
+	 * Nom soumis avec le formulaire. La valeur part dans un <input type="hidden">,
+	 * le trigger étant un <button>.
+	 */
+	name?: string;
+	/**
+	 * Marque le champ obligatoire (astérisque + aria-required). Un input caché
+	 * n'étant pas soumis à la validation native, l'erreur passe par `error`.
+	 */
+	required?: boolean;
 	disabled?: boolean;
 	size?: "sm" | "md" | "lg";
-	className?: string;
-	style?: CSSProperties;
 }
 
 export function Select<T extends string = string>({
@@ -35,10 +59,18 @@ export function Select<T extends string = string>({
 	onChange,
 	placeholder = "Sélectionner…",
 	label,
+	hint,
+	error,
+	name,
+	required,
 	disabled = false,
 	size = "md",
+	id,
 	className,
 	style,
+	onClick: onClickProp,
+	onKeyDown: onKeyDownProp,
+	...rest
 }: SelectProps<T>) {
 	const [selected, setSelected] = useControllable(value, defaultValue, onChange, {
 		allowUndefined: true,
@@ -50,7 +82,7 @@ export function Select<T extends string = string>({
 	const listId = useId("listbox");
 	const { active, setActive, moveActive } = useListboxNav(listRef, open, options);
 
-	const floatStyle = useAnchor(triggerRef, listRef, open, {
+	const { style: floatStyle } = useAnchor(triggerRef, listRef, open, {
 		placement: "bottom-start",
 		gap: 6,
 		matchWidth: true,
@@ -76,8 +108,16 @@ export function Select<T extends string = string>({
 		triggerRef.current?.focus();
 	};
 
-	const onKeyDown = (e: KeyboardEvent) => {
-		if (disabled) return;
+	const onClick = (e: MouseEvent<HTMLButtonElement>) => {
+		onClickProp?.(e);
+		if (e.defaultPrevented || disabled) return;
+		if (open) setOpen(false);
+		else openMenu();
+	};
+
+	const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+		onKeyDownProp?.(e);
+		if (e.defaultPrevented || disabled) return;
 		if (!open) {
 			if (["ArrowDown", "ArrowUp", "Enter", " "].includes(e.key)) {
 				e.preventDefault();
@@ -114,63 +154,90 @@ export function Select<T extends string = string>({
 	};
 
 	return (
-		<div className={cn("camply-field", className)} style={style}>
-			{label && <span className={"camply-field__label"}>{label}</span>}
-			<button
-				ref={triggerRef}
-				type="button"
-				role="combobox"
-				aria-expanded={open}
-				aria-haspopup="listbox"
-				aria-controls={listId}
-				aria-activedescendant={open ? `${listId}-opt-${active}` : undefined}
-				disabled={disabled}
-				className={cn(
-					"camply-field-shell",
-					"camply-select__trigger",
-					`camply-field-shell--${size}`,
-					open && "camply-field-shell--open",
-				)}
-				onClick={() => (open ? setOpen(false) : openMenu())}
-				onKeyDown={onKeyDown}
-			>
-				<span
-					className={cn("camply-select__value", !selectedOption && "camply-select__placeholder")}
-				>
-					{selectedOption ? selectedOption.label : placeholder}
-				</span>
-				<ChevronDown size={16} className={cn("camply-chevron", open && "camply-chevron--open")} />
-			</button>
-
-			{open && (
-				<Portal>
-					<Listbox
-						listRef={listRef}
-						id={listId}
-						className="camply-floating-surface camply-floating-list camply-select__list"
-						style={floatStyle}
+		<Field
+			label={label}
+			hint={hint}
+			error={error}
+			required={required}
+			id={id}
+			idPrefix="select"
+			className={className}
+			style={style}
+		>
+			{({ id: triggerId, labelId, describedBy, invalid }) => (
+				<>
+					<button
+						ref={triggerRef}
+						id={triggerId}
+						type="button"
+						role="combobox"
+						aria-expanded={open}
+						aria-haspopup="listbox"
+						aria-controls={listId}
+						aria-labelledby={labelId}
+						aria-describedby={describedBy}
+						aria-invalid={invalid}
+						aria-required={required || undefined}
+						aria-activedescendant={open ? `${listId}-opt-${active}` : undefined}
+						disabled={disabled}
+						className={cn(
+							"camply-field-shell",
+							"camply-select__trigger",
+							`camply-field-shell--${size}`,
+							error && "camply-field-shell--error",
+							open && "camply-field-shell--open",
+						)}
+						{...rest}
+						onClick={onClick}
+						onKeyDown={onKeyDown}
 					>
-						{options.map((opt, i) => {
-							const isSelected = opt.value === selected;
-							return (
-								<ListboxOption
-									key={opt.value}
-									id={`${listId}-opt-${i}`}
-									active={i === active}
-									selected={isSelected}
-									disabled={opt.disabled}
-									className="camply-select__option"
-									onMouseEnter={() => !opt.disabled && setActive(i)}
-									onClick={() => pick(opt)}
-								>
-									<span>{opt.label}</span>
-									{isSelected && <Check size={15} className={"camply-select__tick"} />}
-								</ListboxOption>
-							);
-						})}
-					</Listbox>
-				</Portal>
+						<span
+							className={cn(
+								"camply-select__value",
+								!selectedOption && "camply-select__placeholder",
+							)}
+						>
+							{selectedOption ? selectedOption.label : placeholder}
+						</span>
+						<ChevronDown
+							size={16}
+							className={cn("camply-chevron", open && "camply-chevron--open")}
+						/>
+					</button>
+
+					{name && <input type="hidden" name={name} value={selected ?? ""} />}
+
+					{open && (
+						<Portal>
+							<Listbox
+								listRef={listRef}
+								id={listId}
+								className="camply-floating-surface camply-floating-list camply-select__list"
+								style={floatStyle}
+							>
+								{options.map((opt, i) => {
+									const isSelected = opt.value === selected;
+									return (
+										<ListboxOption
+											key={opt.value}
+											id={`${listId}-opt-${i}`}
+											active={i === active}
+											selected={isSelected}
+											disabled={opt.disabled}
+											className="camply-select__option"
+											onMouseEnter={() => !opt.disabled && setActive(i)}
+											onClick={() => pick(opt)}
+										>
+											<span>{opt.label}</span>
+											{isSelected && <Check size={15} className={"camply-select__tick"} />}
+										</ListboxOption>
+									);
+								})}
+							</Listbox>
+						</Portal>
+					)}
+				</>
 			)}
-		</div>
+		</Field>
 	);
 }

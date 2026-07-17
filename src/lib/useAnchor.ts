@@ -6,8 +6,12 @@ import {
 	useLayoutEffect,
 	useState,
 } from "react";
+import { clamp } from "./clamp";
 
-export type Placement = "bottom-start" | "bottom" | "bottom-end" | "top-start" | "top" | "top-end";
+type Side = "top" | "bottom" | "left" | "right";
+type Align = "start" | "end";
+/** "bottom", "bottom-start"… — le côté, éventuellement aligné sur un bord de l'ancre. */
+export type Placement = Side | `${Side}-${Align}`;
 
 interface AnchorOptions {
 	placement?: Placement;
@@ -16,6 +20,13 @@ interface AnchorOptions {
 	padding?: number;
 	constrainHeight?: boolean;
 	minHeight?: number;
+}
+
+export interface AnchorResult {
+	style: CSSProperties;
+	/** Placement RÉELLEMENT appliqué (après flip) — pour orienter une flèche. */
+	placement: Placement;
+	side: Side;
 }
 
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -31,16 +42,24 @@ const STYLE_KEYS = [
 	"overflowY",
 ] as const;
 
-function styleEqual(a: CSSProperties, b: CSSProperties): boolean {
-	return STYLE_KEYS.every((k) => a[k] === b[k]);
-}
+const styleEqual = (a: CSSProperties, b: CSSProperties) => STYLE_KEYS.every((k) => a[k] === b[k]);
+
+const OPPOSITE: Record<Side, Side> = { top: "bottom", bottom: "top", left: "right", right: "left" };
+
+const HIDDEN: CSSProperties = {
+	position: "fixed",
+	top: 0,
+	left: 0,
+	opacity: 0,
+	pointerEvents: "none",
+};
 
 export function useAnchor(
 	anchorRef: RefObject<HTMLElement | null>,
 	floatRef: RefObject<HTMLElement | null>,
 	open: boolean,
 	options: AnchorOptions = {},
-): CSSProperties {
+): AnchorResult {
 	const {
 		placement = "bottom-start",
 		gap = 8,
@@ -50,12 +69,9 @@ export function useAnchor(
 		minHeight = 120,
 	} = options;
 
-	const [style, setStyle] = useState<CSSProperties>({
-		position: "fixed",
-		top: 0,
-		left: 0,
-		opacity: 0,
-		pointerEvents: "none",
+	const [state, setState] = useState<{ style: CSSProperties; placement: Placement }>({
+		style: HIDDEN,
+		placement,
 	});
 
 	const update = useCallback(() => {
@@ -69,47 +85,68 @@ export function useAnchor(
 		const vw = window.innerWidth;
 		const vh = window.innerHeight;
 
-		const [requested, align] = placement.split("-") as [
-			"top" | "bottom",
-			"start" | "end" | undefined,
-		];
+		const [requested, align] = placement.split("-") as [Side, Align | undefined];
 
-		const spaceBelow = vh - a.bottom - gap - padding;
-		const spaceAbove = a.top - gap - padding;
+		// Place disponible de chaque côté de l'ancre.
+		const room: Record<Side, number> = {
+			top: a.top - gap - padding,
+			bottom: vh - a.bottom - gap - padding,
+			left: a.left - gap - padding,
+			right: vw - a.right - gap - padding,
+		};
+		// Taille du flottant sur l'axe principal du côté demandé.
+		const needed = (s: Side) => (s === "top" || s === "bottom" ? fh : fw);
 
+		// Flip : on bascule seulement si ça ne rentre pas ET que l'autre côté est mieux.
 		let side = requested;
-		if (requested === "bottom" && fh > spaceBelow && spaceAbove > spaceBelow) {
-			side = "top";
-		} else if (requested === "top" && fh > spaceAbove && spaceBelow > spaceAbove) {
-			side = "bottom";
+		const opposite = OPPOSITE[requested];
+		if (needed(requested) > room[requested] && room[opposite] > room[requested]) {
+			side = opposite;
 		}
 
-		const avail = side === "bottom" ? spaceBelow : spaceAbove;
-		const usedH = constrainHeight ? Math.min(fh, Math.max(minHeight, avail)) : fh;
+		const vertical = side === "top" || side === "bottom";
+		const avail = room[side];
+		const usedH = constrainHeight && vertical ? Math.min(fh, Math.max(minHeight, avail)) : fh;
 
-		let top = side === "bottom" ? a.bottom + gap : a.top - gap - usedH;
-
+		let top: number;
 		let left: number;
-		if (align === "end") left = a.right - fw;
-		else if (align === "start") left = a.left;
-		else left = a.left + a.width / 2 - fw / 2;
 
-		left = Math.max(padding, Math.min(left, vw - fw - padding));
-		top = Math.max(padding, Math.min(top, vh - usedH - padding));
+		if (vertical) {
+			top = side === "bottom" ? a.bottom + gap : a.top - gap - usedH;
+			if (align === "start") left = a.left;
+			else if (align === "end") left = a.right - fw;
+			else left = a.left + a.width / 2 - fw / 2;
+		} else {
+			left = side === "right" ? a.right + gap : a.left - gap - fw;
+			if (align === "start") top = a.top;
+			else if (align === "end") top = a.bottom - fh;
+			else top = a.top + a.height / 2 - fh / 2;
+		}
 
-		const next: CSSProperties = {
+		// Recadrage dans le viewport.
+		left = clamp(left, padding, Math.max(padding, vw - fw - padding));
+		top = clamp(top, padding, Math.max(padding, vh - usedH - padding));
+
+		const style: CSSProperties = {
 			position: "fixed",
 			top: Math.round(top),
 			left: Math.round(left),
 			opacity: 1,
 			pointerEvents: "auto",
 		};
-		if (matchWidth) next.width = Math.round(a.width);
-		if (constrainHeight) {
-			next.maxHeight = Math.round(Math.max(minHeight, avail));
-			next.overflowY = "auto";
+		if (matchWidth) style.width = Math.round(a.width);
+		if (constrainHeight && vertical) {
+			style.maxHeight = Math.round(Math.max(minHeight, avail));
+			style.overflowY = "auto";
 		}
-		setStyle((prev) => (styleEqual(prev, next) ? prev : next));
+
+		const resolved = (align ? `${side}-${align}` : side) as Placement;
+
+		setState((prev) =>
+			styleEqual(prev.style, style) && prev.placement === resolved
+				? prev
+				: { style, placement: resolved },
+		);
 	}, [anchorRef, floatRef, placement, gap, matchWidth, padding, constrainHeight, minHeight]);
 
 	useIsoLayoutEffect(() => {
@@ -137,5 +174,9 @@ export function useAnchor(
 		};
 	}, [open, update, floatRef, anchorRef]);
 
-	return style;
+	return {
+		style: state.style,
+		placement: state.placement,
+		side: state.placement.split("-")[0] as Side,
+	};
 }

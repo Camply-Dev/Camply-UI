@@ -1,48 +1,60 @@
-import type { CSSProperties } from "react";
+import { forwardRef, type HTMLAttributes } from "react";
 import { cn } from "../../lib/cn";
-export interface SpinnerProps {
+
+/**
+ * Avec un label le spinner annonce le chargement (région live) ; sans label il est purement
+ * décoratif et doit rester muet — un `aria-label` sur un `<span>` sans rôle serait ignoré.
+ */
+function loadingA11y(label: string | undefined) {
+	return label
+		? ({ role: "status", "aria-label": label } as const)
+		: ({ "aria-hidden": true } as const);
+}
+
+export interface SpinnerProps extends Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
 	size?: number;
 	thickness?: number;
+	/** Nom accessible du chargement. Sans label, le spinner est décoratif (aria-hidden). */
 	label?: string;
-	className?: string;
-	style?: CSSProperties;
 }
 
-export function Spinner({
-	size = 24,
-	thickness = 3,
-	label = "Chargement",
-	className,
-	style,
-}: SpinnerProps) {
-	return (
-		<span
-			role="status"
-			aria-label={label}
-			className={cn("camply-spinner__spinner", className)}
-			style={{ width: size, height: size, borderWidth: thickness, ...style }}
-		/>
-	);
-}
+export const Spinner = forwardRef<HTMLSpanElement, SpinnerProps>(
+	({ size = 24, thickness = 3, label, className, style, ...props }, ref) => {
+		return (
+			<span
+				ref={ref}
+				className={cn("camply-spinner__spinner", className)}
+				style={{ width: size, height: size, borderWidth: thickness, ...style }}
+				{...loadingA11y(label)}
+				{...props}
+			/>
+		);
+	},
+);
 
-export interface DotsProps {
+Spinner.displayName = "Spinner";
+
+export interface DotsProps extends Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
 	size?: number;
+	/** Nom accessible du chargement. Sans label, les points sont décoratifs (aria-hidden). */
 	label?: string;
-	className?: string;
-	style?: CSSProperties;
 }
 
-export function Dots({ size = 9, label = "Chargement", className, style }: DotsProps) {
-	return (
-		<span
-			role="status"
-			aria-label={label}
-			className={cn("camply-spinner__dots", className)}
-			style={style}
-		>
-			<span style={{ width: size, height: size }} />
-			<span style={{ width: size, height: size }} />
-			<span style={{ width: size, height: size }} />
-		</span>
-	);
-}
+export const Dots = forwardRef<HTMLSpanElement, DotsProps>(
+	({ size = 9, label, className, ...props }, ref) => {
+		return (
+			<span
+				ref={ref}
+				className={cn("camply-spinner__dots", className)}
+				{...loadingA11y(label)}
+				{...props}
+			>
+				<span style={{ width: size, height: size }} />
+				<span style={{ width: size, height: size }} />
+				<span style={{ width: size, height: size }} />
+			</span>
+		);
+	},
+);
+
+Dots.displayName = "Dots";

@@ -12,12 +12,32 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
 	(
-		{ label, hint, error, leftIcon, rightIcon, size = "md", className, id, disabled, ...props },
+		{
+			label,
+			hint,
+			error,
+			leftIcon,
+			rightIcon,
+			size = "md",
+			className,
+			id,
+			disabled,
+			required,
+			...props
+		},
 		ref,
 	) => {
 		return (
-			<Field label={label} hint={hint} error={error} id={id} idPrefix="input" className={className}>
-				{({ id: inputId, describedBy, invalid }) => (
+			<Field
+				label={label}
+				hint={hint}
+				error={error}
+				required={required}
+				id={id}
+				idPrefix="input"
+				className={className}
+			>
+				{({ id: inputId, describedBy, invalid, required: isRequired }) => (
 					<div
 						className={cn(
 							"camply-input__wrap",
@@ -35,6 +55,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 							aria-invalid={invalid}
 							aria-describedby={describedBy}
 							disabled={disabled}
+							required={isRequired}
 							{...props}
 						/>
 						{rightIcon && <span className={"camply-input__iconRight"}>{rightIcon}</span>}

@@ -1,11 +1,33 @@
-import { type CSSProperties, forwardRef, type KeyboardEvent, useState } from "react";
+import {
+	type CSSProperties,
+	forwardRef,
+	type InputHTMLAttributes,
+	type KeyboardEvent,
+	useState,
+} from "react";
 import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 import { Field } from "../../lib/Field";
+import { useLabels } from "../../lib/i18n";
 import { Minus, Plus } from "../../lib/icons";
 import { useControllable } from "../../lib/useControllable";
 
-export interface NumberInputProps {
+/** Attributs natifs de l'input, moins ceux dont NumberInput redéfinit le sens. */
+type NumberInputBase = Omit<
+	InputHTMLAttributes<HTMLInputElement>,
+	| "value"
+	| "defaultValue"
+	| "onChange"
+	| "size"
+	| "min"
+	| "max"
+	| "step"
+	| "prefix"
+	| "type"
+	| "children"
+>;
+
+export interface NumberInputProps extends NumberInputBase {
 	value?: number;
 	defaultValue?: number;
 	onChange?: (value: number) => void;
@@ -18,8 +40,6 @@ export interface NumberInputProps {
 	error?: string;
 	prefix?: string;
 	suffix?: string;
-	placeholder?: string;
-	disabled?: boolean;
 	size?: "sm" | "md" | "lg";
 	className?: string;
 	style?: CSSProperties;
@@ -39,16 +59,23 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 		error,
 		prefix,
 		suffix,
-		placeholder,
 		disabled = false,
+		readOnly = false,
+		required,
 		size = "md",
 		className,
 		style,
+		id,
+		onBlur,
+		onKeyDown,
+		...rest
 	},
 	ref,
 ) {
+	const labels = useLabels();
 	const [val, setVal] = useControllable<number>(value, defaultValue, onChange);
 	const [draft, setDraft] = useState<string | null>(null);
+	const locked = disabled || readOnly;
 
 	const round = (n: number) => (precision != null ? parseFloat(n.toFixed(precision)) : n);
 
@@ -58,12 +85,14 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 	};
 
 	const bump = (dir: 1 | -1, big = false) => {
+		if (locked) return;
 		const amount = step * (big ? 10 : 1) * dir;
 		commit((val || 0) + amount);
 	};
 
-	const onKeyDown = (e: KeyboardEvent) => {
-		if (disabled) return;
+	const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+		onKeyDown?.(e);
+		if (locked || e.defaultPrevented) return;
 		if (e.key === "ArrowUp") {
 			e.preventDefault();
 			bump(1);
@@ -86,11 +115,13 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 			label={label}
 			hint={hint}
 			error={error}
+			required={required}
+			id={id}
 			idPrefix="number"
 			className={className}
 			style={style}
 		>
-			{({ id: inputId, describedBy, invalid }) => (
+			{({ id: inputId, describedBy, invalid, required: isRequired }) => (
 				<div
 					className={cn(
 						"camply-field-shell",
@@ -104,9 +135,9 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 					<button
 						type="button"
 						className={"camply-numberinput__step"}
-						aria-label="Diminuer"
+						aria-label={labels.decrease}
 						tabIndex={-1}
-						disabled={disabled || val <= min}
+						disabled={locked || val <= min}
 						onClick={() => bump(-1)}
 					>
 						<Minus size={15} />
@@ -119,8 +150,9 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 							inputMode="decimal"
 							className={"camply-field-control camply-numberinput__input"}
 							value={draft ?? display}
-							placeholder={placeholder}
 							disabled={disabled}
+							readOnly={readOnly}
+							required={isRequired}
 							aria-invalid={invalid}
 							aria-describedby={describedBy}
 							onChange={(e) => {
@@ -131,17 +163,21 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 								const parsed = parseFloat(norm);
 								if (!Number.isNaN(parsed)) setVal(parsed);
 							}}
-							onBlur={() => commit(val || 0)}
-							onKeyDown={onKeyDown}
+							onBlur={(e) => {
+								commit(val || 0);
+								onBlur?.(e);
+							}}
+							onKeyDown={handleKeyDown}
+							{...rest}
 						/>
 						{suffix && <span className={"camply-numberinput__affix"}>{suffix}</span>}
 					</div>
 					<button
 						type="button"
 						className={"camply-numberinput__step"}
-						aria-label="Augmenter"
+						aria-label={labels.increase}
 						tabIndex={-1}
-						disabled={disabled || val >= max}
+						disabled={locked || val >= max}
 						onClick={() => bump(1)}
 					>
 						<Plus size={15} />

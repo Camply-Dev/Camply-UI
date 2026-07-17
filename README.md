@@ -8,7 +8,7 @@ Bibliothèque de **58 composants React** pour Camply — thème sombre premium, 
 bun add @camply/ui   # ou npm i @camply/ui
 ```
 
-Importer les design tokens **une seule fois** (entrée de l'app) :
+Importer la feuille de styles **une seule fois** (entrée de l'app) :
 
 ```tsx
 import "@camply/ui/styles.css";
@@ -23,23 +23,59 @@ export function Example() {
 	return (
 		<>
 			<Button variant="primary">Cliquer</Button>
-			<Badge tone="accent" dot>Actif</Badge>
+			<Badge tone="accent" icon={<Check />}>Actif</Badge>
 		</>
 	);
 }
 ```
 
-Le CSS de chaque composant est chargé automatiquement par le bundler (side-effects) : **seul le CSS des composants réellement importés** est inclus dans le bundle final. Pas besoin d'importer manuellement `DatePicker.css` ou `ColorPicker.css` — importer `{ DatePicker }` depuis `@camply/ui` suffit ; si tu n'utilises pas ces composants, leur CSS n'est pas embarqué.
+### Le CSS n'est PAS importé par le JS
+
+C'est délibéré : si `Button/index.js` importait sa feuille, le graphe de modules du barrel
+tirerait les **58** feuilles pour un seul composant importé (75 Ko de CSS pour un `Button`
+dont la feuille pèse 2 Ko). Le CSS est donc découplé du JS, et tu l'importes toi-même.
+
+Deux façons, au choix :
 
 ```tsx
-// ✅ CSS de Button + Badge uniquement
-import { Button, Badge } from "@camply/ui";
+// A. Tout, une fois (recommandé) — tokens + utilitaires + 58 composants
+import "@camply/ui/styles.css";
 
-// ✅ CSS de DatePicker en plus (plus lourd — ~9 Ko JS + ~3 Ko CSS minifié)
-import { DatePicker } from "@camply/ui";
+// B. Au composant près, si tu n'en utilises qu'une poignée
+import "@camply/ui/styles.css";              // tokens + utilitaires : toujours requis
+import "@camply/ui/DatePicker/styles.css";   // …puis la feuille voulue
 ```
 
-Les design tokens et utilitaires partagés (`.camply-field-shell`, `.camply-focus-ring`, overlays…) vivent dans `styles.css`, importé une fois au démarrage de l'app.
+Le **JS**, lui, est tree-shakable dans les deux cas : importer `{ Button }` n'embarque
+que Button. Un sous-chemin dédié existe si tu veux court-circuiter le barrel :
+
+```tsx
+import { Button } from "@camply/ui/Button";
+```
+
+Les design tokens et utilitaires partagés (`.camply-field-shell`, `.camply-focus-ring`,
+overlays…) vivent dans `styles.css` : il est requis dans tous les cas.
+
+### Textes et locale
+
+Par défaut, les libellés internes (`Fermer`, `Page suivante`, `aria-label`…) sont en
+français. `CamplyProvider` les surcharge — il est optionnel :
+
+```tsx
+import { CamplyProvider } from "@camply/ui";
+
+<CamplyProvider locale="en-US" labels={{ close: "Close", next: "Next" }}>
+	<App />
+</CamplyProvider>;
+```
+
+### Thème clair
+
+Le sombre est le défaut. Le thème clair s'active sur n'importe quel conteneur :
+
+```tsx
+<div data-camply-theme="light">…</div>
+```
 
 ### Icônes
 
@@ -75,6 +111,7 @@ bun install          # dépendances
 bun run dev          # vitrine docs (http://localhost:5173)
 bun run build        # build de la lib dans dist/
 bun run typecheck    # TypeScript sans emit
+bun run test         # vitest (helpers purs de src/lib)
 bun run check        # Biome (lint + format)
 ```
 
@@ -92,16 +129,17 @@ dist/               # sortie du build (généré)
 
 ### Ajouter un composant
 
-1. Créer `src/components/MonComposant/` avec `MonComposant.tsx`, `MonComposant.css` et `index.ts` (qui importe le CSS et ré-exporte les symboles)
-2. `bun run sync` (régénère `src/index.ts`)
+1. Créer `src/components/MonComposant/` avec `MonComposant.tsx`, `MonComposant.css` et `index.ts` (qui ré-exporte les symboles — **sans importer le CSS**, voir plus haut)
+2. `bun run sync` (régénère `src/index.ts` **et** la map `exports` du `package.json`)
 3. `bun run build`
 4. Vérifier le rendu dans la vitrine (`bun run dev`)
 
 ### Conventions
 
 - Classes CSS : `camply-<slug>__<élément>` ; aucune couleur en dur, tout passe par les tokens `--camply-*`
-- Composant à racine DOM unique → `forwardRef` + `displayName` ; tous acceptent `className` + `style`
+- Composant à racine DOM unique → `forwardRef` + `displayName` ; tous acceptent `className`, `style` et les attributs natifs de leur racine
 - a11y : patterns WAI-ARIA (listbox pilotée par `aria-activedescendant`, Échap ferme les overlays…) ; toute suppression Biome est inline et justifiée
+- Aucun texte en dur dans un composant : passer par `useLabels()` (voir `src/lib/i18n.tsx`) ou une prop
 
 ## Publication
 

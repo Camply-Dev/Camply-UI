@@ -1,6 +1,16 @@
-import { type CSSProperties, type KeyboardEvent, useLayoutEffect, useRef, useState } from "react";
+import {
+	type ComponentPropsWithoutRef,
+	type ForwardedRef,
+	forwardRef,
+	type KeyboardEvent,
+	type ReactNode,
+	type RefAttributes,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from "react";
 import { cn } from "../../lib/cn";
-import { wrapIndex } from "../../lib/rovingIndex";
+import { nextRovingIndex } from "../../lib/rovingIndex";
 import { useControllable } from "../../lib/useControllable";
 
 export interface SegmentOption<T extends string = string> {
@@ -8,27 +18,42 @@ export interface SegmentOption<T extends string = string> {
 	label: string;
 }
 
-export interface SegmentedControlProps<T extends string = string> {
+export interface SegmentedControlProps<T extends string = string>
+	extends Omit<ComponentPropsWithoutRef<"div">, "onChange" | "defaultValue"> {
 	options: SegmentOption<T>[];
 	value?: T;
 	defaultValue?: T;
 	onChange?: (value: T) => void;
 	size?: "sm" | "md";
 	fullWidth?: boolean;
-	className?: string;
-	style?: CSSProperties;
+	/** Nom soumis avec le formulaire : la valeur part dans un <input type="hidden">. */
+	name?: string;
+	/**
+	 * Marque le champ obligatoire (aria-required). Un input caché n'étant pas soumis
+	 * à la validation native, la contrainte reste indicative — un segment est toujours
+	 * sélectionné.
+	 */
+	required?: boolean;
+	/** Sélection figée : le segment actif reste focusable mais ne change plus. */
+	readOnly?: boolean;
 }
 
-export function SegmentedControl<T extends string = string>({
-	options,
-	value,
-	defaultValue,
-	onChange,
-	size = "md",
-	fullWidth,
-	className,
-	style,
-}: SegmentedControlProps<T>) {
+const SegmentedControlBase = forwardRef(function SegmentedControl<T extends string>(
+	{
+		options,
+		value,
+		defaultValue,
+		onChange,
+		size = "md",
+		fullWidth,
+		name,
+		required,
+		readOnly = false,
+		className,
+		...rest
+	}: SegmentedControlProps<T>,
+	ref: ForwardedRef<HTMLDivElement>,
+) {
 	const [current, setCurrent] = useControllable<T>(
 		value,
 		defaultValue ?? options[0]?.value,
@@ -53,39 +78,38 @@ export function SegmentedControl<T extends string = string>({
 	}, [activeIndex]);
 
 	const select = (index: number) => {
-		const next = wrapIndex(index, options.length);
-		setCurrent(options[next].value);
-		buttonRefs.current[next]?.focus();
+		const option = options[index];
+		if (!option) return;
+		setCurrent(option.value);
+		buttonRefs.current[index]?.focus();
 	};
+
 	const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-		const deltas: Record<string, number> = {
-			ArrowRight: 1,
-			ArrowDown: 1,
-			ArrowLeft: -1,
-			ArrowUp: -1,
-		};
-		if (e.key in deltas) {
-			e.preventDefault();
-			select(activeIndex + deltas[e.key]);
-		} else if (e.key === "Home") {
-			e.preventDefault();
-			select(0);
-		} else if (e.key === "End") {
-			e.preventDefault();
-			select(options.length - 1);
-		}
+		if (readOnly || options.length === 0) return;
+		// La lib ne connaît que des segments horizontaux, mais un radiogroup accepte
+		// aussi les flèches verticales : on tente les deux axes.
+		const next =
+			nextRovingIndex(e.key, activeIndex, options.length) ??
+			nextRovingIndex(e.key, activeIndex, options.length, "vertical");
+		if (next === null) return;
+		e.preventDefault();
+		select(next);
 	};
 
 	return (
 		<div
-			role="tablist"
+			ref={ref}
+			{...rest}
+			role="radiogroup"
+			aria-orientation="horizontal"
+			aria-readonly={readOnly || undefined}
+			aria-required={required || undefined}
 			className={cn(
 				"camply-segmentedcontrol__root",
 				`camply-segmentedcontrol__${size}`,
 				fullWidth && "camply-segmentedcontrol__fullWidth",
 				className,
 			)}
-			style={style}
 			onKeyDown={onKeyDown}
 		>
 			{thumb && (
@@ -95,29 +119,39 @@ export function SegmentedControl<T extends string = string>({
 					style={{ left: thumb.left, width: thumb.width }}
 				/>
 			)}
-			{options.map((opt, i) => {
-				const active = current === opt.value;
-				return (
-					<button
-						key={opt.value}
-						ref={(el) => {
-							buttonRefs.current[i] = el;
-						}}
-						type="button"
-						role="tab"
-						aria-selected={active}
-						tabIndex={active ? 0 : -1}
-						className={cn(
-							"camply-segmentedcontrol__segment",
-							"camply-focus-ring",
-							active && "camply-segmentedcontrol__active",
-						)}
-						onClick={() => setCurrent(opt.value)}
-					>
-						{opt.label}
-					</button>
-				);
-			})}
+			{options.map((opt, i) => (
+				// biome-ignore lint/a11y/useSemanticElements: <input type="radio"> n'est pas stylable en segment (thumb animé) — bouton + role="radio" est le pattern APG
+				<button
+					key={opt.value}
+					ref={(el) => {
+						buttonRefs.current[i] = el;
+					}}
+					type="button"
+					role="radio"
+					aria-checked={current === opt.value}
+					tabIndex={i === activeIndex ? 0 : -1}
+					className={cn(
+						"camply-segmentedcontrol__segment",
+						"camply-focus-ring",
+						current === opt.value && "camply-segmentedcontrol__active",
+					)}
+					onClick={() => {
+						if (!readOnly) setCurrent(opt.value);
+					}}
+				>
+					{opt.label}
+				</button>
+			))}
+			{name && <input type="hidden" name={name} value={current ?? ""} />}
 		</div>
 	);
-}
+});
+
+/**
+ * Groupe de segments exclusifs (pattern radiogroup : tabindex mouvant + flèches).
+ * `forwardRef` efface le paramètre générique : on le restaure par un cast pour que
+ * `T` continue d'être inféré depuis `options`.
+ */
+export const SegmentedControl = SegmentedControlBase as <T extends string = string>(
+	props: SegmentedControlProps<T> & RefAttributes<HTMLDivElement>,
+) => ReactNode;

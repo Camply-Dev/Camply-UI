@@ -1,4 +1,4 @@
-import type { HTMLAttributes, ReactNode } from "react";
+import { forwardRef, type HTMLAttributes, type ReactNode, type Ref } from "react";
 import { cn } from "../../lib/cn";
 
 export interface DividerProps extends HTMLAttributes<HTMLElement> {
@@ -8,41 +8,52 @@ export interface DividerProps extends HTMLAttributes<HTMLElement> {
 	variant?: "solid" | "dashed";
 }
 
-export function Divider({
-	orientation = "horizontal",
-	label,
-	align = "center",
-	variant = "solid",
-	className,
-	...props
-}: DividerProps) {
-	if (orientation === "vertical") {
+export const Divider = forwardRef<HTMLElement, DividerProps>(
+	(
+		{ orientation = "horizontal", label, align = "center", variant = "solid", className, ...props },
+		ref,
+	) => {
+		if (orientation === "vertical") {
+			return (
+				<span
+					ref={ref as Ref<HTMLSpanElement>}
+					aria-hidden="true"
+					className={cn("camply-divider__vertical", `camply-divider__${variant}`, className)}
+					{...props}
+				/>
+			);
+		}
+
+		// Le libellé doit rester lisible par un lecteur d'écran : on garde un conteneur
+		// neutre (un role="separator" masquerait son contenu) et on cache les traits.
+		if (label) {
+			return (
+				<div
+					ref={ref as Ref<HTMLDivElement>}
+					className={cn("camply-divider__labelled", `camply-divider__align-${align}`, className)}
+					{...props}
+				>
+					<span
+						aria-hidden="true"
+						className={cn("camply-divider__line", `camply-divider__${variant}`)}
+					/>
+					<span className={"camply-divider__label"}>{label}</span>
+					<span
+						aria-hidden="true"
+						className={cn("camply-divider__line", `camply-divider__${variant}`)}
+					/>
+				</div>
+			);
+		}
+
 		return (
-			<span
-				aria-hidden="true"
-				className={cn("camply-divider__vertical", `camply-divider__${variant}`, className)}
+			<hr
+				ref={ref as Ref<HTMLHRElement>}
+				className={cn("camply-divider__horizontal", `camply-divider__${variant}`, className)}
 				{...props}
 			/>
 		);
-	}
+	},
+);
 
-	if (label) {
-		return (
-			<div
-				className={cn("camply-divider__labelled", `camply-divider__align-${align}`, className)}
-				{...props}
-			>
-				<span className={cn("camply-divider__line", `camply-divider__${variant}`)} />
-				<span className={"camply-divider__label"}>{label}</span>
-				<span className={cn("camply-divider__line", `camply-divider__${variant}`)} />
-			</div>
-		);
-	}
-
-	return (
-		<hr
-			className={cn("camply-divider__horizontal", `camply-divider__${variant}`, className)}
-			{...props}
-		/>
-	);
-}
+Divider.displayName = "Divider";

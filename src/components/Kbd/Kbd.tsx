@@ -1,4 +1,4 @@
-import type { HTMLAttributes, ReactNode } from "react";
+import { forwardRef, type HTMLAttributes, type ReactNode, type Ref } from "react";
 import { cn } from "../../lib/cn";
 
 export interface KbdProps extends HTMLAttributes<HTMLElement> {
@@ -7,21 +7,29 @@ export interface KbdProps extends HTMLAttributes<HTMLElement> {
 	children?: ReactNode;
 }
 
-export function Kbd({ keys, size = "md", children, className, ...props }: KbdProps) {
-	if (keys) {
+export const Kbd = forwardRef<HTMLElement, KbdProps>(
+	({ keys, size = "md", children, className, ...props }, ref) => {
+		if (keys) {
+			return (
+				<span
+					ref={ref as Ref<HTMLSpanElement>}
+					className={cn("camply-kbd__group", className)}
+					{...props}
+				>
+					{keys.map((k) => (
+						<kbd key={k} className={cn("camply-kbd__kbd", `camply-kbd__${size}`)}>
+							{k}
+						</kbd>
+					))}
+				</span>
+			);
+		}
 		return (
-			<span className={cn("camply-kbd__group", className)} {...props}>
-				{keys.map((k) => (
-					<kbd key={k} className={cn("camply-kbd__kbd", `camply-kbd__${size}`)}>
-						{k}
-					</kbd>
-				))}
-			</span>
+			<kbd ref={ref} className={cn("camply-kbd__kbd", `camply-kbd__${size}`, className)} {...props}>
+				{children}
+			</kbd>
 		);
-	}
-	return (
-		<kbd className={cn("camply-kbd__kbd", `camply-kbd__${size}`, className)} {...props}>
-			{children}
-		</kbd>
-	);
-}
+	},
+);
+
+Kbd.displayName = "Kbd";

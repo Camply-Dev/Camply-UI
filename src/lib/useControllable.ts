@@ -1,5 +1,14 @@
 import { useCallback, useState } from "react";
 
+/** Le trio ouvert/fermé que tout overlay expose. Absent = l'overlay gère son état. */
+export interface Controllable {
+	/** Ouverture pilotée par le parent. */
+	open?: boolean;
+	/** État initial en mode non contrôlé. */
+	defaultOpen?: boolean;
+	onOpenChange?: (open: boolean) => void;
+}
+
 export function useControllable<T>(
 	value: T | undefined,
 	defaultValue: T,

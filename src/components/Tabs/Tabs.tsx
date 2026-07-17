@@ -1,10 +1,11 @@
 import {
-	type CSSProperties,
+	type ButtonHTMLAttributes,
 	createContext,
+	forwardRef,
+	type HTMLAttributes,
 	type KeyboardEvent,
 	type ReactNode,
 	useContext,
-	useRef,
 } from "react";
 import { cn } from "../../lib/cn";
 import { nextRovingIndex } from "../../lib/rovingIndex";
@@ -25,47 +26,51 @@ const useTabs = () => {
 	return ctx;
 };
 
-export interface TabsProps {
+export interface TabsProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "onChange" | "defaultValue"> {
 	value?: string;
 	defaultValue: string;
 	onChange?: (value: string) => void;
 	variant?: TabsVariant;
-	className?: string;
-	style?: CSSProperties;
 	children: ReactNode;
 }
 
-export function Tabs({
-	value,
-	defaultValue,
-	onChange,
-	variant = "line",
-	className,
-	style,
-	children,
-}: TabsProps) {
+export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
+	{ value, defaultValue, onChange, variant = "line", className, children, ...rest },
+	ref,
+) {
 	const [current, setCurrent] = useControllable<string>(value, defaultValue, onChange);
 	const idBase = useId("tabs");
 	return (
 		<TabsContext.Provider value={{ value: current, setValue: setCurrent, idBase, variant }}>
-			<div className={cn("camply-tabs__root", className)} style={style}>
+			<div ref={ref} className={cn("camply-tabs__root", className)} {...rest}>
 				{children}
 			</div>
 		</TabsContext.Provider>
 	);
+});
+
+export interface TabListProps extends HTMLAttributes<HTMLDivElement> {
+	children: ReactNode;
 }
 
-export function TabList({ children, className }: { children: ReactNode; className?: string }) {
+export const TabList = forwardRef<HTMLDivElement, TabListProps>(function TabList(
+	{ children, className, onKeyDown, ...rest },
+	ref,
+) {
 	const { variant } = useTabs();
-	const ref = useRef<HTMLDivElement>(null);
 
-	const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+	// APG : ←/→ entre onglets (avec bouclage), Home/End aux extrémités, activation immédiate.
+	const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+		onKeyDown?.(e);
+		if (e.defaultPrevented) return;
 		const tabs = Array.from(
-			ref.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]:not([disabled])') ?? [],
+			e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]:not([disabled])'),
 		);
-		if (tabs.length === 0) return;
 		const at = tabs.indexOf(document.activeElement as HTMLButtonElement);
-		const next = nextRovingIndex(e.key, Math.max(0, at), tabs.length);
+		// Focus hors des onglets (contenu libre du bandeau) : on ne détourne rien.
+		if (at < 0) return;
+		const next = nextRovingIndex(e.key, at, tabs.length);
 		if (next == null) return;
 		e.preventDefault();
 		tabs[next].focus();
@@ -76,34 +81,37 @@ export function TabList({ children, className }: { children: ReactNode; classNam
 		<div
 			ref={ref}
 			role="tablist"
+			aria-orientation="horizontal"
 			className={cn("camply-tabs__list", `camply-tabs__list-${variant}`, className)}
-			onKeyDown={onKeyDown}
+			{...rest}
+			onKeyDown={handleKeyDown}
 		>
 			{children}
 		</div>
 	);
-}
+});
 
-export function Tab({
-	value,
-	children,
-	icon,
-	disabled,
-}: {
+export interface TabProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "value"> {
 	value: string;
 	children: ReactNode;
 	icon?: ReactNode;
-	disabled?: boolean;
-}) {
+}
+
+export const Tab = forwardRef<HTMLButtonElement, TabProps>(function Tab(
+	{ value, children, icon, disabled, className, onClick, ...rest },
+	ref,
+) {
 	const { value: active, setValue, idBase, variant } = useTabs();
 	const selected = active === value;
 	return (
 		<button
+			ref={ref}
 			type="button"
 			role="tab"
 			id={`${idBase}-tab-${value}`}
 			aria-selected={selected}
 			aria-controls={`${idBase}-panel-${value}`}
+			// Roving tabindex : un seul onglet dans l'ordre de tabulation.
 			tabIndex={selected ? 0 : -1}
 			disabled={disabled}
 			className={cn(
@@ -111,34 +119,41 @@ export function Tab({
 				"camply-focus-ring",
 				`camply-tabs__tab-${variant}`,
 				selected && "camply-tabs__selected",
+				className,
 			)}
-			onClick={() => setValue(value)}
+			{...rest}
+			onClick={(e) => {
+				onClick?.(e);
+				setValue(value);
+			}}
 		>
 			{icon && <span className={"camply-tabs__tabIcon"}>{icon}</span>}
 			{children}
 		</button>
 	);
-}
+});
 
-export function TabPanel({
-	value,
-	children,
-	className,
-}: {
+export interface TabPanelProps extends HTMLAttributes<HTMLDivElement> {
 	value: string;
 	children: ReactNode;
-	className?: string;
-}) {
+}
+
+export const TabPanel = forwardRef<HTMLDivElement, TabPanelProps>(function TabPanel(
+	{ value, children, className, ...rest },
+	ref,
+) {
 	const { value: active, idBase } = useTabs();
 	if (active !== value) return null;
 	return (
 		<div
+			ref={ref}
 			role="tabpanel"
 			id={`${idBase}-panel-${value}`}
 			aria-labelledby={`${idBase}-tab-${value}`}
 			className={cn("camply-tabs__panel", className)}
+			{...rest}
 		>
 			{children}
 		</div>
 	);
-}
+});

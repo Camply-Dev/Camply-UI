@@ -1,176 +1,360 @@
-import { type CSSProperties, type DragEvent, forwardRef, useEffect, useRef, useState } from "react";
+import {
+	type DragEvent,
+	forwardRef,
+	type HTMLAttributes,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
+import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
+import { Field } from "../../lib/Field";
 import { formatFileSize, isFileAccepted } from "../../lib/fileUtils";
-import { CheckCircle, Upload, X } from "../../lib/icons";
-import { Progress } from "../Progress";
-import { Spinner } from "../Spinner";
+import { useLabels } from "../../lib/i18n";
+import { AlertCircle, Check, Upload, X } from "../../lib/icons";
+import { useControllable } from "../../lib/useControllable";
+import { useId } from "../../lib/useId";
 
-export interface FileUploadProps {
+export type UploadStatus = "pending" | "uploading" | "done" | "error";
+
+/**
+ * Un fichier de la liste. `status` et `progress` décrivent un upload RÉEL :
+ * la librairie ne les fait jamais avancer toute seule — c'est le consommateur
+ * (ou `onUpload`) qui les pilote.
+ */
+export interface UploadFile {
+	id: string;
+	file: File;
+	/** Progression réelle en pourcentage (0 → 100). Absente = inconnue. */
+	progress?: number;
+	status: UploadStatus;
+	error?: string;
+}
+
+export interface FileUploadProps extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
+	/** Liste contrôlée. */
+	files?: UploadFile[];
+	/** Liste initiale en mode non contrôlé. */
+	defaultFiles?: UploadFile[];
+	onFilesChange?: (files: UploadFile[]) => void;
+	/** Raccourci : notifié avec les `File` bruts à chaque changement de liste. */
 	onChange?: (files: File[]) => void;
+	/**
+	 * Uploader fourni par le consommateur : appelé pour chaque nouveau fichier,
+	 * il rapporte sa progression via `onProgress` (0 → 100). Sans lui, aucun
+	 * upload n'a lieu : les fichiers restent en "pending" et aucune barre de
+	 * progression n'est affichée.
+	 */
+	onUpload?: (file: File, onProgress: (percent: number) => void) => Promise<void>;
 	accept?: string;
 	multiple?: boolean;
+	/** Taille maximale par fichier, en octets. */
 	maxSize?: number;
 	disabled?: boolean;
+	label?: string;
 	hint?: string;
-	className?: string;
-	style?: CSSProperties;
+	error?: string;
+	required?: boolean;
+	/** Nom du champ pour la soumission native du formulaire. */
+	name?: string;
+	id?: string;
 }
 
-type UploadStatus = "uploading" | "done";
-interface FileItem {
-	id: number;
-	file: File;
-	progress: number; // 0 → 1
-	status: UploadStatus;
-}
-
-const TICK = 80;
-const STEP = 0.07;
+const EMPTY: UploadFile[] = [];
 
 export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 	(
-		{ onChange, accept, multiple = false, maxSize, disabled = false, hint, className, style },
+		{
+			files,
+			defaultFiles,
+			onFilesChange,
+			onChange,
+			onUpload,
+			accept,
+			multiple = false,
+			maxSize,
+			disabled = false,
+			label,
+			hint,
+			error,
+			required,
+			name,
+			id,
+			className,
+			...rest
+		},
 		ref,
 	) => {
-		const [items, setItems] = useState<FileItem[]>([]);
+		const labels = useLabels();
+		const [items, setItems] = useControllable<UploadFile[]>(
+			files,
+			defaultFiles ?? EMPTY,
+			onFilesChange,
+		);
+		const [rejected, setRejected] = useState<string[]>([]);
 		const [dragging, setDragging] = useState(false);
-		const [error, setError] = useState<string | null>(null);
-		const nextId = useRef(0);
 
-		const uploading = items.some((it) => it.status === "uploading");
+		const inputRef = useRef<HTMLInputElement>(null);
+		const uid = useId("camply-file");
+		const seq = useRef(0);
+
+		// Miroirs synchrones : les callbacks de progression tombent hors rendu, et
+		// plusieurs mises à jour peuvent s'enchaîner dans le même tick.
+		const itemsRef = useRef(items);
+		itemsRef.current = items;
+		const setItemsRef = useRef(setItems);
+		setItemsRef.current = setItems;
+		const onChangeRef = useRef(onChange);
+		onChangeRef.current = onChange;
+		const onUploadRef = useRef(onUpload);
+		onUploadRef.current = onUpload;
+
+		const commit = useCallback((next: UploadFile[]) => {
+			itemsRef.current = next;
+			setItemsRef.current(next);
+			onChangeRef.current?.(next.map((it) => it.file));
+		}, []);
+
+		/** Met à jour un fichier ; sans effet s'il a été retiré entre-temps. */
+		const patch = useCallback(
+			(fileId: string, update: (item: UploadFile) => UploadFile) => {
+				commit(itemsRef.current.map((it) => (it.id === fileId ? update(it) : it)));
+			},
+			[commit],
+		);
+
+		/**
+		 * Recopie la liste dans le `<input type="file">` : le glisser-déposer et les
+		 * retraits ne passent pas par lui, sans ça la soumission native du
+		 * formulaire (et `required`) enverrait autre chose que ce qui est affiché.
+		 */
+		const syncInput = useCallback((list: UploadFile[]) => {
+			const input = inputRef.current;
+			if (!input || typeof DataTransfer === "undefined") return;
+			const transfer = new DataTransfer();
+			for (const it of list) transfer.items.add(it.file);
+			input.files = transfer.files;
+		}, []);
 
 		useEffect(() => {
-			if (!uploading) return;
-			const id = setInterval(() => {
-				setItems((prev) =>
-					prev.map((it) => {
-						if (it.status !== "uploading") return it;
-						const p = it.progress + STEP;
-						return p >= 1 ? { ...it, progress: 1, status: "done" } : { ...it, progress: p };
-					}),
-				);
-			}, TICK);
-			return () => clearInterval(id);
-		}, [uploading]);
+			syncInput(items);
+		}, [items, syncInput]);
 
-		const addFiles = (incoming: FileList | null) => {
-			if (!incoming) return;
-			setError(null);
-			const list: FileItem[] = [];
-			for (const f of Array.from(incoming)) {
-				if (!isFileAccepted(f, accept)) {
-					setError(`Type non accepté : ${f.name}`);
-					continue;
+		const runUpload = useCallback(
+			async (item: UploadFile) => {
+				const upload = onUploadRef.current;
+				if (!upload) return;
+				patch(item.id, (it) => ({ ...it, status: "uploading", progress: 0, error: undefined }));
+				try {
+					await upload(item.file, (percent) => {
+						patch(item.id, (it) =>
+							it.status === "uploading" ? { ...it, progress: clamp(percent, 0, 100) } : it,
+						);
+					});
+					patch(item.id, (it) => ({ ...it, status: "done", progress: 100, error: undefined }));
+				} catch (err) {
+					patch(item.id, (it) => ({
+						...it,
+						status: "error",
+						error: err instanceof Error ? err.message : String(err),
+					}));
 				}
-				if (maxSize && f.size > maxSize) {
-					setError(`${f.name} dépasse ${formatFileSize(maxSize)}`);
-					continue;
+			},
+			[patch],
+		);
+
+		const receive = (incoming: FileList | null) => {
+			if (incoming && incoming.length > 0) {
+				const errors: string[] = [];
+				const accepted: UploadFile[] = [];
+
+				for (const file of Array.from(incoming)) {
+					if (!isFileAccepted(file, accept)) {
+						errors.push(`Type non accepté : ${file.name}`);
+						continue;
+					}
+					if (maxSize != null && file.size > maxSize) {
+						errors.push(`${file.name} dépasse ${formatFileSize(maxSize)}`);
+						continue;
+					}
+					seq.current += 1;
+					accepted.push({ id: `${uid}-${seq.current}`, file, status: "pending" });
 				}
-				nextId.current += 1;
-				list.push({ id: nextId.current, file: f, progress: 0, status: "uploading" });
+
+				setRejected([...new Set(errors)]);
+
+				const added = multiple ? accepted : accepted.slice(0, 1);
+				if (added.length > 0) {
+					commit(multiple ? [...itemsRef.current, ...added] : added);
+					if (onUploadRef.current) for (const item of added) void runUpload(item);
+				}
 			}
-			if (list.length === 0) return;
-			const next = multiple ? [...items, ...list] : list.slice(0, 1);
-			setItems(next);
-			onChange?.(next.map((it) => it.file));
+			// Les fichiers refusés ne doivent pas rester dans l'input (ils partiraient
+			// avec le formulaire) : on le remet en phase avec la liste réelle.
+			syncInput(itemsRef.current);
+		};
+
+		const remove = (fileId: string) => {
+			commit(itemsRef.current.filter((it) => it.id !== fileId));
 		};
 
 		const clear = () => {
-			setItems([]);
-			setError(null);
-			onChange?.([]);
+			setRejected([]);
+			commit([]);
 		};
 
-		const onDrop = (e: DragEvent) => {
+		const onDrop = (e: DragEvent<HTMLLabelElement>) => {
 			e.preventDefault();
 			setDragging(false);
-			if (!disabled) addFiles(e.dataTransfer.files);
+			if (!disabled) receive(e.dataTransfer.files);
 		};
 
-		const count = items.length;
-		const summary = multiple
-			? `${count} fichier${count > 1 ? "s" : ""}`
-			: (items[0]?.file.name ?? "");
-		const pending = items.filter((it) => it.status === "uploading");
-		const percent = pending.length
-			? Math.round((pending.reduce((s, it) => s + it.progress, 0) / pending.length) * 100)
-			: 100;
+		const uploading = items.some((it) => it.status === "uploading");
 
 		return (
-			<div ref={ref} className={cn("camply-fileupload__root", className)} style={style}>
-				<label
-					className={cn(
-						"camply-fileupload__zone",
-						dragging && "camply-fileupload__dragging",
-						disabled && "camply-fileupload__disabled",
-						count > 0 && !uploading && "camply-fileupload__uploaded",
-					)}
-					onDragOver={(e) => {
-						e.preventDefault();
-						if (!disabled) setDragging(true);
-					}}
-					onDragLeave={() => setDragging(false)}
-					onDrop={onDrop}
+			<div
+				ref={ref}
+				className={cn("camply-fileupload__root", className)}
+				aria-busy={uploading || undefined}
+				{...rest}
+			>
+				<Field
+					label={label}
+					hint={hint}
+					error={error}
+					required={required}
+					id={id}
+					idPrefix="fileupload"
 				>
-					<input
-						type="file"
-						accept={accept}
-						multiple={multiple}
-						disabled={disabled}
-						className={"camply-fileupload__input"}
-						onChange={(e) => {
-							addFiles(e.target.files);
-							e.target.value = "";
-						}}
-					/>
-
-					{count === 0 ? (
-						<>
+					{({ id: inputId, labelId, describedBy, invalid, required: isRequired }) => (
+						<label
+							className={cn(
+								"camply-fileupload__zone",
+								dragging && "camply-fileupload__dragging",
+								disabled && "camply-fileupload__disabled",
+							)}
+							onDragOver={(e) => {
+								e.preventDefault();
+								if (!disabled) setDragging(true);
+							}}
+							onDragLeave={(e) => {
+								// dragleave se déclenche aussi en passant sur un enfant : on ignore.
+								if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+								setDragging(false);
+							}}
+							onDrop={onDrop}
+						>
+							<input
+								ref={inputRef}
+								id={inputId}
+								name={name}
+								type="file"
+								accept={accept}
+								multiple={multiple}
+								disabled={disabled}
+								required={isRequired}
+								// aria-labelledby l'emporte sur le <label> englobant : le nom
+								// accessible reste celui du champ quand `label` est fourni.
+								aria-labelledby={labelId}
+								aria-describedby={describedBy}
+								aria-invalid={invalid}
+								className={"camply-fileupload__input"}
+								onChange={(e) => receive(e.target.files)}
+							/>
 							<span className={"camply-fileupload__icon"}>
 								<Upload size={22} />
 							</span>
 							<span className={"camply-fileupload__primary"}>
 								Glisse tes fichiers ou <span className={"camply-fileupload__link"}>parcours</span>
 							</span>
-							{hint && <span className={"camply-fileupload__hint"}>{hint}</span>}
-						</>
-					) : uploading ? (
-						<>
-							<span className={"camply-fileupload__icon"}>
-								<Spinner size={22} thickness={2.5} label="Upload en cours" />
-							</span>
-							<span className={"camply-fileupload__primary"}>{summary}</span>
-							<Progress
-								value={percent}
-								size="sm"
-								showValue
-								label="Envoi…"
-								className={"camply-fileupload__bar"}
-							/>
-						</>
-					) : (
-						<>
-							<span className={"camply-fileupload__icon camply-fileupload__iconDone"}>
-								<CheckCircle size={24} />
-							</span>
-							<span className={"camply-fileupload__primary"}>{summary}</span>
-							<button
-								type="button"
-								className={"camply-fileupload__clear"}
-								onClick={(e) => {
-									e.preventDefault();
-									e.stopPropagation();
-									clear();
-								}}
-							>
-								<X size={13} />
-								Effacer
-							</button>
-						</>
+						</label>
 					)}
-				</label>
+				</Field>
 
-				{error && <div className={"camply-fileupload__error"}>{error}</div>}
+				{items.length > 0 && (
+					<ul className={"camply-fileupload__list"}>
+						{items.map((it) => {
+							const percent = it.progress == null ? null : Math.round(clamp(it.progress, 0, 100));
+							return (
+								<li key={it.id} className={"camply-fileupload__item"}>
+									<span className={"camply-fileupload__body"}>
+										<span className={"camply-fileupload__name"} title={it.file.name}>
+											{it.file.name}
+										</span>
+										<span className={"camply-fileupload__meta"}>
+											{formatFileSize(it.file.size)}
+											{it.status === "uploading" &&
+												` · ${labels.uploading}${percent == null ? "" : ` ${percent} %`}`}
+										</span>
+										{it.status === "uploading" && (
+											<span
+												className={"camply-fileupload__bar"}
+												role="progressbar"
+												aria-label={labels.uploading}
+												aria-valuemin={0}
+												aria-valuemax={100}
+												aria-valuenow={percent ?? undefined}
+											>
+												<span
+													className={cn(
+														"camply-fileupload__barFill",
+														percent == null && "camply-fileupload__barPending",
+													)}
+													style={percent == null ? undefined : { width: `${percent}%` }}
+												/>
+											</span>
+										)}
+										{it.status === "error" && it.error && (
+											<span role="alert" className={"camply-fileupload__itemError"}>
+												{it.error}
+											</span>
+										)}
+									</span>
+
+									{it.status === "done" && (
+										<span className={"camply-fileupload__done"}>
+											<Check size={14} />
+										</span>
+									)}
+									{it.status === "error" && (
+										<span className={"camply-fileupload__failed"}>
+											<AlertCircle size={14} />
+										</span>
+									)}
+
+									<button
+										type="button"
+										className={"camply-fileupload__remove"}
+										aria-label={`${labels.remove} ${it.file.name}`}
+										disabled={disabled}
+										onClick={() => remove(it.id)}
+									>
+										<X size={13} />
+									</button>
+								</li>
+							);
+						})}
+					</ul>
+				)}
+
+				<div className={"camply-fileupload__error"} role="alert">
+					{rejected.map((message) => (
+						<span key={message}>{message}</span>
+					))}
+				</div>
+
+				{items.length > 0 && (
+					<button
+						type="button"
+						className={"camply-fileupload__clear"}
+						disabled={disabled}
+						onClick={clear}
+					>
+						<X size={13} />
+						{labels.clear}
+					</button>
+				)}
 			</div>
 		);
 	},

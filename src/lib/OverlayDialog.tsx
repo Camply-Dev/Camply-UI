@@ -1,5 +1,6 @@
 import { type CSSProperties, type ReactNode, useEffect, useRef } from "react";
 import { cn } from "./cn";
+import { focusableWithin, trapTab } from "./focusTrap";
 import { Portal } from "./Portal";
 import { useEscapeAndScrollLock } from "./useEscapeAndScrollLock";
 
@@ -11,11 +12,19 @@ export interface OverlayDialogProps {
 	panelClassName?: string;
 	as?: "div" | "aside";
 	focusPanel?: boolean;
+	/** Nom accessible explicite (si le dialogue n'a pas de titre visible). */
 	ariaLabel?: string;
+	/** id du titre visible — donne son nom accessible au dialogue (à préférer). */
+	ariaLabelledBy?: string;
 	children: ReactNode;
 	style?: CSSProperties;
 }
 
+/**
+ * Socle commun des dialogues modaux (Modal, Drawer, Sheet, CommandPalette).
+ * Implémente ce qu'`aria-modal="true"` promet : le focus entre dans le
+ * dialogue, y reste (piège Tab), et revient au déclencheur à la fermeture.
+ */
 export function OverlayDialog({
 	open,
 	onClose,
@@ -25,6 +34,7 @@ export function OverlayDialog({
 	as = "div",
 	focusPanel = true,
 	ariaLabel,
+	ariaLabelledBy,
 	children,
 	style,
 }: OverlayDialogProps) {
@@ -32,9 +42,32 @@ export function OverlayDialog({
 
 	useEscapeAndScrollLock(open, onClose);
 
+	// Mémorise le focus d'origine et le restaure à la fermeture.
 	useEffect(() => {
-		if (open && focusPanel) panelRef.current?.focus();
+		if (!open) return;
+		const previous = document.activeElement as HTMLElement | null;
+		return () => previous?.focus?.();
+	}, [open]);
+
+	// Entrée du focus dans le dialogue : premier élément focalisable, sinon le panneau.
+	useEffect(() => {
+		if (!open || !focusPanel) return;
+		const panel = panelRef.current;
+		if (!panel) return;
+		const [first] = focusableWithin(panel);
+		(first ?? panel).focus();
 	}, [open, focusPanel]);
+
+	// Piège Tab : le focus ne peut pas sortir derrière le voile.
+	useEffect(() => {
+		if (!open) return;
+		const onKeyDown = (e: KeyboardEvent) => {
+			const panel = panelRef.current;
+			if (panel) trapTab(e, panel);
+		};
+		document.addEventListener("keydown", onKeyDown, true);
+		return () => document.removeEventListener("keydown", onKeyDown, true);
+	}, [open]);
 
 	if (!open) return null;
 
@@ -44,7 +77,8 @@ export function OverlayDialog({
 		},
 		role: "dialog",
 		"aria-modal": true,
-		"aria-label": ariaLabel,
+		"aria-label": ariaLabelledBy ? undefined : ariaLabel,
+		"aria-labelledby": ariaLabelledBy,
 		tabIndex: -1,
 		className: cn("camply-overlay-panel", panelClassName),
 		style,

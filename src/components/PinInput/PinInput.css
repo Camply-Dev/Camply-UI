@@ -1,9 +1,18 @@
+.camply-pininput__field {
+	width: fit-content;
+}
+
 .camply-pininput__root {
 	--_s: 48px;
 	--_fs: 19px;
 	display: inline-flex;
 	gap: 10px;
 	font-family: var(--camply-font-sans);
+	/* remise à zéro des styles UA du <fieldset> */
+	margin: 0;
+	padding: 0;
+	border: 0;
+	min-width: 0;
 }
 .camply-pininput__sm {
 	--_s: 38px;

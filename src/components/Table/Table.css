@@ -69,6 +69,32 @@ button.camply-table__thInner.camply-focus-ring:focus-visible {
 .camply-table__clickable:hover {
 	background: var(--camply-fill-2);
 }
+/* box-shadow n'est pas peint sur un <tr> en border-collapse : on cadre la ligne à l'outline. */
+.camply-table__clickable:focus-visible {
+	outline: 2px solid var(--camply-accent);
+	outline-offset: -2px;
+}
+.camply-table__selectedRow {
+	background: var(--camply-accent-soft);
+}
+
+.camply-table__selectCell {
+	width: 1%;
+	white-space: nowrap;
+}
+.camply-table__selectCell > * {
+	vertical-align: middle;
+}
+
+/* En-tête collant : le conteneur doit défiler (hauteur max côté appelant). */
+.camply-table__stickyWrap {
+	overflow-y: auto;
+}
+.camply-table__stickyHead th {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+}
 
 .camply-table__align-left {
 	text-align: left;

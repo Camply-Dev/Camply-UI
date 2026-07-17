@@ -8,22 +8,24 @@ export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElemen
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-	({ label, hint, error, className, id, rows = 4, disabled, ...props }, ref) => {
+	({ label, hint, error, className, id, rows = 4, disabled, required, ...props }, ref) => {
 		return (
 			<Field
 				label={label}
 				hint={hint}
 				error={error}
+				required={required}
 				id={id}
 				idPrefix="textarea"
 				className={className}
 			>
-				{({ id: areaId, describedBy, invalid }) => (
+				{({ id: areaId, describedBy, invalid, required: isRequired }) => (
 					<textarea
 						ref={ref}
 						id={areaId}
 						rows={rows}
 						disabled={disabled}
+						required={isRequired}
 						aria-invalid={invalid}
 						aria-describedby={describedBy}
 						className={cn(

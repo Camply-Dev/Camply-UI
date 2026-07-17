@@ -36,12 +36,302 @@
 		"./icons": {
 			"types": "./dist/lib/icons.d.ts",
 			"import": "./dist/lib/icons.js"
-		}
+		},
+		"./Accordion": {
+			"types": "./dist/components/Accordion/index.d.ts",
+			"import": "./dist/components/Accordion/index.js"
+		},
+		"./Accordion/styles.css": "./dist/components/Accordion/Accordion.css",
+		"./Alert": {
+			"types": "./dist/components/Alert/index.d.ts",
+			"import": "./dist/components/Alert/index.js"
+		},
+		"./Alert/styles.css": "./dist/components/Alert/Alert.css",
+		"./Avatar": {
+			"types": "./dist/components/Avatar/index.d.ts",
+			"import": "./dist/components/Avatar/index.js"
+		},
+		"./Avatar/styles.css": "./dist/components/Avatar/Avatar.css",
+		"./Badge": {
+			"types": "./dist/components/Badge/index.d.ts",
+			"import": "./dist/components/Badge/index.js"
+		},
+		"./Badge/styles.css": "./dist/components/Badge/Badge.css",
+		"./Banner": {
+			"types": "./dist/components/Banner/index.d.ts",
+			"import": "./dist/components/Banner/index.js"
+		},
+		"./Banner/styles.css": "./dist/components/Banner/Banner.css",
+		"./Breadcrumbs": {
+			"types": "./dist/components/Breadcrumbs/index.d.ts",
+			"import": "./dist/components/Breadcrumbs/index.js"
+		},
+		"./Breadcrumbs/styles.css": "./dist/components/Breadcrumbs/Breadcrumbs.css",
+		"./Button": {
+			"types": "./dist/components/Button/index.d.ts",
+			"import": "./dist/components/Button/index.js"
+		},
+		"./Button/styles.css": "./dist/components/Button/Button.css",
+		"./ButtonGroup": {
+			"types": "./dist/components/ButtonGroup/index.d.ts",
+			"import": "./dist/components/ButtonGroup/index.js"
+		},
+		"./ButtonGroup/styles.css": "./dist/components/ButtonGroup/ButtonGroup.css",
+		"./Card": {
+			"types": "./dist/components/Card/index.d.ts",
+			"import": "./dist/components/Card/index.js"
+		},
+		"./Card/styles.css": "./dist/components/Card/Card.css",
+		"./Carousel": {
+			"types": "./dist/components/Carousel/index.d.ts",
+			"import": "./dist/components/Carousel/index.js"
+		},
+		"./Carousel/styles.css": "./dist/components/Carousel/Carousel.css",
+		"./Checkbox": {
+			"types": "./dist/components/Checkbox/index.d.ts",
+			"import": "./dist/components/Checkbox/index.js"
+		},
+		"./Checkbox/styles.css": "./dist/components/Checkbox/Checkbox.css",
+		"./ColorPicker": {
+			"types": "./dist/components/ColorPicker/index.d.ts",
+			"import": "./dist/components/ColorPicker/index.js"
+		},
+		"./ColorPicker/styles.css": "./dist/components/ColorPicker/ColorPicker.css",
+		"./Combobox": {
+			"types": "./dist/components/Combobox/index.d.ts",
+			"import": "./dist/components/Combobox/index.js"
+		},
+		"./Combobox/styles.css": "./dist/components/Combobox/Combobox.css",
+		"./CommandPalette": {
+			"types": "./dist/components/CommandPalette/index.d.ts",
+			"import": "./dist/components/CommandPalette/index.js"
+		},
+		"./CommandPalette/styles.css": "./dist/components/CommandPalette/CommandPalette.css",
+		"./DatePicker": {
+			"types": "./dist/components/DatePicker/index.d.ts",
+			"import": "./dist/components/DatePicker/index.js"
+		},
+		"./DatePicker/styles.css": "./dist/components/DatePicker/DatePicker.css",
+		"./DescriptionList": {
+			"types": "./dist/components/DescriptionList/index.d.ts",
+			"import": "./dist/components/DescriptionList/index.js"
+		},
+		"./DescriptionList/styles.css": "./dist/components/DescriptionList/DescriptionList.css",
+		"./Divider": {
+			"types": "./dist/components/Divider/index.d.ts",
+			"import": "./dist/components/Divider/index.js"
+		},
+		"./Divider/styles.css": "./dist/components/Divider/Divider.css",
+		"./Drawer": {
+			"types": "./dist/components/Drawer/index.d.ts",
+			"import": "./dist/components/Drawer/index.js"
+		},
+		"./Drawer/styles.css": "./dist/components/Drawer/Drawer.css",
+		"./DropdownMenu": {
+			"types": "./dist/components/DropdownMenu/index.d.ts",
+			"import": "./dist/components/DropdownMenu/index.js"
+		},
+		"./DropdownMenu/styles.css": "./dist/components/DropdownMenu/DropdownMenu.css",
+		"./FileUpload": {
+			"types": "./dist/components/FileUpload/index.d.ts",
+			"import": "./dist/components/FileUpload/index.js"
+		},
+		"./FileUpload/styles.css": "./dist/components/FileUpload/FileUpload.css",
+		"./HoverCard": {
+			"types": "./dist/components/HoverCard/index.d.ts",
+			"import": "./dist/components/HoverCard/index.js"
+		},
+		"./HoverCard/styles.css": "./dist/components/HoverCard/HoverCard.css",
+		"./IconButton": {
+			"types": "./dist/components/IconButton/index.d.ts",
+			"import": "./dist/components/IconButton/index.js"
+		},
+		"./IconButton/styles.css": "./dist/components/IconButton/IconButton.css",
+		"./Input": {
+			"types": "./dist/components/Input/index.d.ts",
+			"import": "./dist/components/Input/index.js"
+		},
+		"./Input/styles.css": "./dist/components/Input/Input.css",
+		"./Kbd": {
+			"types": "./dist/components/Kbd/index.d.ts",
+			"import": "./dist/components/Kbd/index.js"
+		},
+		"./Kbd/styles.css": "./dist/components/Kbd/Kbd.css",
+		"./Menubar": {
+			"types": "./dist/components/Menubar/index.d.ts",
+			"import": "./dist/components/Menubar/index.js"
+		},
+		"./Menubar/styles.css": "./dist/components/Menubar/Menubar.css",
+		"./Meter": {
+			"types": "./dist/components/Meter/index.d.ts",
+			"import": "./dist/components/Meter/index.js"
+		},
+		"./Meter/styles.css": "./dist/components/Meter/Meter.css",
+		"./Modal": {
+			"types": "./dist/components/Modal/index.d.ts",
+			"import": "./dist/components/Modal/index.js"
+		},
+		"./Modal/styles.css": "./dist/components/Modal/Modal.css",
+		"./MultiSelect": {
+			"types": "./dist/components/MultiSelect/index.d.ts",
+			"import": "./dist/components/MultiSelect/index.js"
+		},
+		"./MultiSelect/styles.css": "./dist/components/MultiSelect/MultiSelect.css",
+		"./NumberInput": {
+			"types": "./dist/components/NumberInput/index.d.ts",
+			"import": "./dist/components/NumberInput/index.js"
+		},
+		"./NumberInput/styles.css": "./dist/components/NumberInput/NumberInput.css",
+		"./Pagination": {
+			"types": "./dist/components/Pagination/index.d.ts",
+			"import": "./dist/components/Pagination/index.js"
+		},
+		"./Pagination/styles.css": "./dist/components/Pagination/Pagination.css",
+		"./PinInput": {
+			"types": "./dist/components/PinInput/index.d.ts",
+			"import": "./dist/components/PinInput/index.js"
+		},
+		"./PinInput/styles.css": "./dist/components/PinInput/PinInput.css",
+		"./Popover": {
+			"types": "./dist/components/Popover/index.d.ts",
+			"import": "./dist/components/Popover/index.js"
+		},
+		"./Popover/styles.css": "./dist/components/Popover/Popover.css",
+		"./Progress": {
+			"types": "./dist/components/Progress/index.d.ts",
+			"import": "./dist/components/Progress/index.js"
+		},
+		"./Progress/styles.css": "./dist/components/Progress/Progress.css",
+		"./RadialProgress": {
+			"types": "./dist/components/RadialProgress/index.d.ts",
+			"import": "./dist/components/RadialProgress/index.js"
+		},
+		"./RadialProgress/styles.css": "./dist/components/RadialProgress/RadialProgress.css",
+		"./Radio": {
+			"types": "./dist/components/Radio/index.d.ts",
+			"import": "./dist/components/Radio/index.js"
+		},
+		"./Radio/styles.css": "./dist/components/Radio/Radio.css",
+		"./RangeSlider": {
+			"types": "./dist/components/RangeSlider/index.d.ts",
+			"import": "./dist/components/RangeSlider/index.js"
+		},
+		"./RangeSlider/styles.css": "./dist/components/RangeSlider/RangeSlider.css",
+		"./Rating": {
+			"types": "./dist/components/Rating/index.d.ts",
+			"import": "./dist/components/Rating/index.js"
+		},
+		"./Rating/styles.css": "./dist/components/Rating/Rating.css",
+		"./SegmentedControl": {
+			"types": "./dist/components/SegmentedControl/index.d.ts",
+			"import": "./dist/components/SegmentedControl/index.js"
+		},
+		"./SegmentedControl/styles.css": "./dist/components/SegmentedControl/SegmentedControl.css",
+		"./Select": {
+			"types": "./dist/components/Select/index.d.ts",
+			"import": "./dist/components/Select/index.js"
+		},
+		"./Select/styles.css": "./dist/components/Select/Select.css",
+		"./Sheet": {
+			"types": "./dist/components/Sheet/index.d.ts",
+			"import": "./dist/components/Sheet/index.js"
+		},
+		"./Sheet/styles.css": "./dist/components/Sheet/Sheet.css",
+		"./Skeleton": {
+			"types": "./dist/components/Skeleton/index.d.ts",
+			"import": "./dist/components/Skeleton/index.js"
+		},
+		"./Skeleton/styles.css": "./dist/components/Skeleton/Skeleton.css",
+		"./Slider": {
+			"types": "./dist/components/Slider/index.d.ts",
+			"import": "./dist/components/Slider/index.js"
+		},
+		"./Slider/styles.css": "./dist/components/Slider/Slider.css",
+		"./Snippet": {
+			"types": "./dist/components/Snippet/index.d.ts",
+			"import": "./dist/components/Snippet/index.js"
+		},
+		"./Snippet/styles.css": "./dist/components/Snippet/Snippet.css",
+		"./Spinner": {
+			"types": "./dist/components/Spinner/index.d.ts",
+			"import": "./dist/components/Spinner/index.js"
+		},
+		"./Spinner/styles.css": "./dist/components/Spinner/Spinner.css",
+		"./Spoiler": {
+			"types": "./dist/components/Spoiler/index.d.ts",
+			"import": "./dist/components/Spoiler/index.js"
+		},
+		"./Spoiler/styles.css": "./dist/components/Spoiler/Spoiler.css",
+		"./Stat": {
+			"types": "./dist/components/Stat/index.d.ts",
+			"import": "./dist/components/Stat/index.js"
+		},
+		"./Stat/styles.css": "./dist/components/Stat/Stat.css",
+		"./Steps": {
+			"types": "./dist/components/Steps/index.d.ts",
+			"import": "./dist/components/Steps/index.js"
+		},
+		"./Steps/styles.css": "./dist/components/Steps/Steps.css",
+		"./Switch": {
+			"types": "./dist/components/Switch/index.d.ts",
+			"import": "./dist/components/Switch/index.js"
+		},
+		"./Switch/styles.css": "./dist/components/Switch/Switch.css",
+		"./Table": {
+			"types": "./dist/components/Table/index.d.ts",
+			"import": "./dist/components/Table/index.js"
+		},
+		"./Table/styles.css": "./dist/components/Table/Table.css",
+		"./Tabs": {
+			"types": "./dist/components/Tabs/index.d.ts",
+			"import": "./dist/components/Tabs/index.js"
+		},
+		"./Tabs/styles.css": "./dist/components/Tabs/Tabs.css",
+		"./Tag": {
+			"types": "./dist/components/Tag/index.d.ts",
+			"import": "./dist/components/Tag/index.js"
+		},
+		"./Tag/styles.css": "./dist/components/Tag/Tag.css",
+		"./TagInput": {
+			"types": "./dist/components/TagInput/index.d.ts",
+			"import": "./dist/components/TagInput/index.js"
+		},
+		"./TagInput/styles.css": "./dist/components/TagInput/TagInput.css",
+		"./Textarea": {
+			"types": "./dist/components/Textarea/index.d.ts",
+			"import": "./dist/components/Textarea/index.js"
+		},
+		"./Textarea/styles.css": "./dist/components/Textarea/Textarea.css",
+		"./Timeline": {
+			"types": "./dist/components/Timeline/index.d.ts",
+			"import": "./dist/components/Timeline/index.js"
+		},
+		"./Timeline/styles.css": "./dist/components/Timeline/Timeline.css",
+		"./Toast": {
+			"types": "./dist/components/Toast/index.d.ts",
+			"import": "./dist/components/Toast/index.js"
+		},
+		"./Toast/styles.css": "./dist/components/Toast/Toast.css",
+		"./Toggle": {
+			"types": "./dist/components/Toggle/index.d.ts",
+			"import": "./dist/components/Toggle/index.js"
+		},
+		"./Toggle/styles.css": "./dist/components/Toggle/Toggle.css",
+		"./Tooltip": {
+			"types": "./dist/components/Tooltip/index.d.ts",
+			"import": "./dist/components/Tooltip/index.js"
+		},
+		"./Tooltip/styles.css": "./dist/components/Tooltip/Tooltip.css",
+		"./Tree": {
+			"types": "./dist/components/Tree/index.d.ts",
+			"import": "./dist/components/Tree/index.js"
+		},
+		"./Tree/styles.css": "./dist/components/Tree/Tree.css"
 	},
 	"files": [
 		"dist",
-		"README.md",
-		"THIRD-PARTY-LICENSES.md"
+		"LICENSE",
+		"README.md"
 	],
 	"publishConfig": {
 		"access": "public"
@@ -55,7 +345,9 @@
 		"check": "biome check .",
 		"fix": "biome check --write .",
 		"sync": "bun scripts/sync-src-barrel.js",
-		"prepublishOnly": "bun run build"
+		"prepublishOnly": "bun run build",
+		"test": "vitest run",
+		"test:watch": "vitest"
 	},
 	"peerDependencies": {
 		"react": ">=18",
@@ -70,6 +362,7 @@
 		"knip": "6.26.0",
 		"react": "19.2.7",
 		"react-dom": "19.2.7",
-		"typescript": "7.0.2"
+		"typescript": "7.0.2",
+		"vitest": "3.2.4"
 	}
 }

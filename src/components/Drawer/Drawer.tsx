@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { CloseButton } from "../../lib/CloseButton";
 import { cn } from "../../lib/cn";
 import { OverlayDialog } from "../../lib/OverlayDialog";
+import { useId } from "../../lib/useId";
 export interface DrawerProps {
 	open: boolean;
 	onClose: () => void;
@@ -29,6 +30,8 @@ export function Drawer({
 	className,
 	style,
 }: DrawerProps) {
+	const titleId = useId("drawer-title");
+
 	return (
 		<OverlayDialog
 			open={open}
@@ -37,11 +40,16 @@ export function Drawer({
 			as="aside"
 			backdropClassName="camply-drawer__backdrop"
 			panelClassName={cn("camply-drawer__panel", `camply-drawer__${side}`, className)}
+			ariaLabelledBy={title ? titleId : undefined}
 			style={{ width, ...style }}
 		>
 			{(title || showClose) && (
 				<div className={"camply-drawer__header"}>
-					{title && <h2 className={"camply-drawer__title"}>{title}</h2>}
+					{title && (
+						<h2 id={titleId} className={"camply-drawer__title"}>
+							{title}
+						</h2>
+					)}
 					{showClose && <CloseButton className="camply-drawer__close" onClick={onClose} />}
 				</div>
 			)}

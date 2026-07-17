@@ -1,4 +1,4 @@
-import { type CSSProperties, useCallback, useMemo, useRef, useState } from "react";
+import { type HTMLAttributes, useCallback, useMemo, useRef, useState } from "react";
 import { cn } from "../../lib/cn";
 import {
 	buildMonthGrid,
@@ -11,6 +11,8 @@ import {
 	YEAR_PAGE,
 	yearPageStart,
 } from "../../lib/dateField";
+import { Field } from "../../lib/Field";
+import { useLabels, useLocale } from "../../lib/i18n";
 import { Calendar, ChevronLeft, ChevronRight } from "../../lib/icons";
 import { Portal } from "../../lib/Portal";
 import { useAnchor } from "../../lib/useAnchor";
@@ -20,7 +22,12 @@ import { useId } from "../../lib/useId";
 
 export type DateRange = [Date | null, Date | null];
 
-export interface DatePickerProps {
+/** Valeur soumise : date locale en ISO court (YYYY-MM-DD), sans décalage UTC. */
+const toISODate = (d: Date) =>
+	`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+export interface DatePickerProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, "onChange" | "defaultValue"> {
 	value?: Date | null;
 	defaultValue?: Date | null;
 	onChange?: (date: Date | null) => void;
@@ -32,11 +39,27 @@ export interface DatePickerProps {
 	max?: Date;
 	placeholder?: string;
 	label?: string;
+	/** Texte d'aide affiché sous le champ. */
+	hint?: string;
+	/** Message d'erreur : remplace l'aide, colore le champ et pose aria-invalid. */
+	error?: string;
+	/**
+	 * Nom soumis avec le formulaire, via un <input type="hidden"> au format
+	 * YYYY-MM-DD. En mode `range`, DEUX inputs cachés partagent ce `name`, dans
+	 * l'ordre [début, fin] — côté serveur : `FormData.getAll(name)`.
+	 */
+	name?: string;
+	/**
+	 * Marque le champ obligatoire (astérisque dans le label). En mode `single` la
+	 * validation native s'applique, l'input étant réel ; en mode `range` le
+	 * contrôle est un <button> (rôle qui n'admet pas aria-required) : signaler
+	 * l'absence de valeur passe alors par `error`.
+	 */
+	required?: boolean;
 	disabled?: boolean;
+	/** Locale Intl ; par défaut celle du CamplyProvider. */
 	locale?: string;
 	weekStartsOn?: 0 | 1;
-	className?: string;
-	style?: CSSProperties;
 }
 
 export function DatePicker({
@@ -51,12 +74,22 @@ export function DatePicker({
 	max,
 	placeholder = "Choisir une date",
 	label,
+	hint,
+	error,
+	name,
+	required,
 	disabled = false,
-	locale = "fr-FR",
+	locale: localeProp,
 	weekStartsOn = 1,
+	id,
 	className,
 	style,
+	...rest
 }: DatePickerProps) {
+	const labels = useLabels();
+	const contextLocale = useLocale();
+	const locale = localeProp ?? contextLocale;
+
 	const [selected, setSelected] = useControllable<Date | null>(value, defaultValue, onChange);
 	const [range, setRange] = useControllable<DateRange>(
 		rangeValue,
@@ -72,7 +105,7 @@ export function DatePicker({
 	const popRef = useRef<HTMLDivElement>(null);
 	const popId = useId("datepicker");
 
-	const floatStyle = useAnchor(triggerRef, popRef, open, {
+	const { style: floatStyle } = useAnchor(triggerRef, popRef, open, {
 		placement: "bottom-start",
 		gap: 6,
 		constrainHeight: true,
@@ -86,6 +119,12 @@ export function DatePicker({
 
 	const weekdays = useMemo(() => weekdayNames(locale, weekStartsOn), [locale, weekStartsOn]);
 	const grid = useMemo(() => buildMonthGrid(view, weekStartsOn), [view, weekStartsOn]);
+
+	/** Faute de clé « aujourd'hui » dans les libellés, on la tire de la locale. */
+	const todayLabel = useMemo(() => {
+		const text = new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(0, "day");
+		return text.charAt(0).toUpperCase() + text.slice(1);
+	}, [locale]);
 
 	const outOfRange = (d: Date) =>
 		(min && startOfDay(d) < startOfDay(min)) || (max && startOfDay(d) > startOfDay(max));
@@ -173,186 +212,222 @@ export function DatePicker({
 	const hasValue = mode === "single" ? selected != null : rangeStart != null;
 
 	return (
-		<div className={cn("camply-field", className)} style={style}>
-			{label && <span className={"camply-field__label"}>{label}</span>}
-			<div
-				ref={triggerRef}
-				className={cn(
-					"camply-field-shell",
-					open && "camply-field-shell--open",
-					disabled && "camply-field-shell--disabled",
-				)}
-			>
-				<button
-					type="button"
-					disabled={disabled}
-					aria-haspopup="dialog"
-					aria-expanded={open}
-					aria-controls={popId}
-					aria-label="Ouvrir le calendrier"
-					className={"camply-icon-ghost-btn"}
-					onClick={toggleCalendar}
-				>
-					<Calendar size={16} />
-				</button>
-				{mode === "single" ? (
-					<input
-						className={"camply-field-control"}
-						value={draft ?? (selected ? formatInput(selected) : "")}
-						placeholder="JJ/MM/AAAA"
-						inputMode="numeric"
-						disabled={disabled}
-						aria-label={label ?? "Date"}
-						onChange={(e) => onType(e.target.value)}
-						onFocus={openCalendar}
-						onBlur={() => setDraft(null)}
-					/>
-				) : (
-					<button
-						type="button"
-						disabled={disabled}
-						className={cn(
-							"camply-field-control",
-							"camply-datepicker__valueBtn",
-							!hasValue && "camply-datepicker__placeholder",
-						)}
-						onClick={toggleCalendar}
-					>
-						{display}
-					</button>
-				)}
-			</div>
-
-			{open && (
-				<Portal>
+		<Field
+			label={label}
+			hint={hint}
+			error={error}
+			required={required}
+			id={id}
+			idPrefix="datepicker"
+			className={className}
+			style={style}
+		>
+			{({ id: controlId, labelId, describedBy, invalid }) => (
+				<>
 					<div
-						ref={popRef}
-						id={popId}
-						role="dialog"
-						aria-label="Calendrier"
-						className="camply-floating-surface camply-datepicker__pop"
-						style={floatStyle}
+						ref={triggerRef}
+						className={cn(
+							"camply-field-shell",
+							error && "camply-field-shell--error",
+							open && "camply-field-shell--open",
+							disabled && "camply-field-shell--disabled",
+						)}
+						{...rest}
 					>
-						<div className={"camply-datepicker__head"}>
+						<button
+							type="button"
+							disabled={disabled}
+							aria-haspopup="dialog"
+							aria-expanded={open}
+							aria-controls={popId}
+							aria-label={labels.openCalendar}
+							className={"camply-icon-ghost-btn"}
+							onClick={toggleCalendar}
+						>
+							<Calendar size={16} />
+						</button>
+						{mode === "single" ? (
+							<input
+								id={controlId}
+								className={"camply-field-control"}
+								value={draft ?? (selected ? formatInput(selected) : "")}
+								placeholder="JJ/MM/AAAA"
+								inputMode="numeric"
+								disabled={disabled}
+								required={required}
+								aria-label={label ? undefined : placeholder}
+								aria-describedby={describedBy}
+								aria-invalid={invalid}
+								onChange={(e) => onType(e.target.value)}
+								onFocus={openCalendar}
+								onBlur={() => setDraft(null)}
+							/>
+						) : (
 							<button
+								id={controlId}
 								type="button"
-								className={"camply-round-btn camply-focus-ring"}
-								aria-label={yearView ? "Années précédentes" : "Mois précédent"}
-								onClick={() => shiftPage(-1)}
+								disabled={disabled}
+								aria-labelledby={labelId}
+								aria-label={label ? undefined : placeholder}
+								aria-describedby={describedBy}
+								aria-invalid={invalid}
+								className={cn(
+									"camply-field-control",
+									"camply-datepicker__valueBtn",
+									!hasValue && "camply-datepicker__placeholder",
+								)}
+								onClick={toggleCalendar}
 							>
-								<ChevronLeft size={16} />
+								{display}
 							</button>
-							<button
-								type="button"
-								className={"camply-datepicker__monthLabel"}
-								aria-label="Choisir l'année"
-								aria-expanded={yearView}
-								onClick={() => setYearView((y) => !y)}
-							>
-								{yearView ? `${yearBase} – ${yearBase + YEAR_PAGE - 1}` : monthLabel}
-							</button>
-							<button
-								type="button"
-								className={"camply-round-btn camply-focus-ring"}
-								aria-label={yearView ? "Années suivantes" : "Mois suivant"}
-								onClick={() => shiftPage(1)}
-							>
-								<ChevronRight size={16} />
-							</button>
-						</div>
+						)}
+					</div>
 
-						{yearView ? (
-							<div className={"camply-datepicker__years"}>
-								{years.map((y) => (
-									<button
-										key={y}
-										type="button"
-										disabled={yearDisabled(y)}
-										className={cn(
-											"camply-picker-cell",
-											"camply-datepicker__year",
-											y === view.getFullYear() && "camply-datepicker__yearCurrent",
-										)}
-										onClick={() => pickYear(y)}
-									>
-										{y}
-									</button>
-								))}
-							</div>
+					{name &&
+						(mode === "single" ? (
+							<input type="hidden" name={name} value={selected ? toISODate(selected) : ""} />
 						) : (
 							<>
-								<div className={"camply-datepicker__weekdays"}>
-									{weekdays.map((w) => (
-										<span key={w} className={"camply-datepicker__weekday"}>
-											{w}
-										</span>
-									))}
+								<input type="hidden" name={name} value={rangeStart ? toISODate(rangeStart) : ""} />
+								<input type="hidden" name={name} value={rangeEnd ? toISODate(rangeEnd) : ""} />
+							</>
+						))}
+
+					{open && (
+						<Portal>
+							<div
+								ref={popRef}
+								id={popId}
+								role="dialog"
+								aria-label={labels.calendar}
+								className="camply-floating-surface camply-datepicker__pop"
+								style={floatStyle}
+							>
+								<div className={"camply-datepicker__head"}>
+									<button
+										type="button"
+										className={"camply-round-btn camply-focus-ring"}
+										aria-label={labels.previous}
+										onClick={() => shiftPage(-1)}
+									>
+										<ChevronLeft size={16} />
+									</button>
+									<button
+										type="button"
+										className={"camply-datepicker__monthLabel"}
+										aria-label={labels.chooseYear}
+										aria-expanded={yearView}
+										onClick={() => setYearView((y) => !y)}
+									>
+										{yearView ? `${yearBase} – ${yearBase + YEAR_PAGE - 1}` : monthLabel}
+									</button>
+									<button
+										type="button"
+										className={"camply-round-btn camply-focus-ring"}
+										aria-label={labels.next}
+										onClick={() => shiftPage(1)}
+									>
+										<ChevronRight size={16} />
+									</button>
 								</div>
 
-								<div className={"camply-datepicker__days"}>
-									{grid.map((d) => {
-										const muted = d.getMonth() !== view.getMonth();
-										const disabledDay = outOfRange(d);
-										const isToday = isSameDay(d, today);
-										const isSel =
-											mode === "single"
-												? selected && isSameDay(d, selected)
-												: (rangeStart && isSameDay(d, rangeStart)) ||
-													(rangeEnd && isSameDay(d, rangeEnd));
-										const inRange =
-											mode === "range" &&
-											rangeStart &&
-											rangeEnd &&
-											startOfDay(d) > rangeStart &&
-											startOfDay(d) < rangeEnd;
-										return (
+								{yearView ? (
+									<div className={"camply-datepicker__years"}>
+										{years.map((y) => (
 											<button
-												key={d.getTime()}
+												key={y}
 												type="button"
-												disabled={disabledDay}
+												disabled={yearDisabled(y)}
 												className={cn(
 													"camply-picker-cell",
-													"camply-datepicker__day",
-													muted && "camply-datepicker__muted",
-													isToday && "camply-datepicker__today",
-													inRange && "camply-datepicker__inRange",
-													isSel && "camply-datepicker__selected",
+													"camply-datepicker__year",
+													y === view.getFullYear() && "camply-datepicker__yearCurrent",
 												)}
-												onClick={() => pick(d)}
+												onClick={() => pickYear(y)}
 											>
-												{d.getDate()}
+												{y}
 											</button>
-										);
-									})}
-								</div>
-							</>
-						)}
+										))}
+									</div>
+								) : (
+									<>
+										<div className={"camply-datepicker__weekdays"}>
+											{weekdays.map((w) => (
+												<span key={w} className={"camply-datepicker__weekday"}>
+													{w}
+												</span>
+											))}
+										</div>
 
-						<div className={"camply-datepicker__footer"}>
-							<button
-								type="button"
-								className={"camply-text-btn camply-datepicker__todayBtn"}
-								onClick={() => {
-									setYearView(false);
-									setView(new Date());
-									pick(new Date());
-								}}
-							>
-								Aujourd'hui
-							</button>
-							{hasValue && (
-								<button
-									type="button"
-									className={"camply-text-btn camply-datepicker__clearBtn"}
-									onClick={clear}
-								>
-									Effacer
-								</button>
-							)}
-						</div>
-					</div>
-				</Portal>
+										<div className={"camply-datepicker__days"}>
+											{grid.map((d) => {
+												const muted = d.getMonth() !== view.getMonth();
+												const disabledDay = outOfRange(d);
+												const isToday = isSameDay(d, today);
+												const isSel =
+													mode === "single"
+														? selected && isSameDay(d, selected)
+														: (rangeStart && isSameDay(d, rangeStart)) ||
+															(rangeEnd && isSameDay(d, rangeEnd));
+												const inRange =
+													mode === "range" &&
+													rangeStart &&
+													rangeEnd &&
+													startOfDay(d) > rangeStart &&
+													startOfDay(d) < rangeEnd;
+												return (
+													<button
+														key={d.getTime()}
+														type="button"
+														disabled={disabledDay}
+														aria-label={fmt(d)}
+														aria-current={isToday ? "date" : undefined}
+														aria-pressed={isSel ? true : undefined}
+														className={cn(
+															"camply-picker-cell",
+															"camply-datepicker__day",
+															muted && "camply-datepicker__muted",
+															isToday && "camply-datepicker__today",
+															inRange && "camply-datepicker__inRange",
+															isSel && "camply-datepicker__selected",
+														)}
+														onClick={() => pick(d)}
+													>
+														{d.getDate()}
+													</button>
+												);
+											})}
+										</div>
+									</>
+								)}
+
+								<div className={"camply-datepicker__footer"}>
+									<button
+										type="button"
+										className={"camply-text-btn camply-datepicker__todayBtn"}
+										onClick={() => {
+											setYearView(false);
+											setView(new Date());
+											pick(new Date());
+										}}
+									>
+										{todayLabel}
+									</button>
+									{hasValue && (
+										<button
+											type="button"
+											className={"camply-text-btn camply-datepicker__clearBtn"}
+											onClick={clear}
+										>
+											{labels.clear}
+										</button>
+									)}
+								</div>
+							</div>
+						</Portal>
+					)}
+				</>
 			)}
-		</div>
+		</Field>
 	);
 }

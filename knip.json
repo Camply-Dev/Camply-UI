@@ -4,8 +4,6 @@
 		".": {
 			"ignoreDependencies": ["docs"]
 		},
-		"docs": {
-			"ignoreDependencies": ["@camply/ui"]
-		}
+		"docs": {}
 	}
 }

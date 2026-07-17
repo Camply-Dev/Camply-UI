@@ -1,39 +1,43 @@
-import type { CSSProperties, ReactNode } from "react";
+import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
+import { useLabels } from "../../lib/i18n";
 import { Check } from "../../lib/icons";
+
 export interface Step {
 	label: ReactNode;
 	description?: ReactNode;
 }
 
-export interface StepsProps {
+export interface StepsProps extends HTMLAttributes<HTMLOListElement> {
 	steps: Step[];
 	current: number;
 	orientation?: "horizontal" | "vertical";
-	className?: string;
-	style?: CSSProperties;
 }
 
-export function Steps({
-	steps,
-	current,
-	orientation = "horizontal",
-	className,
-	style,
-}: StepsProps) {
+export const Steps = forwardRef<HTMLOListElement, StepsProps>(function Steps(
+	{ steps, current, orientation = "horizontal", className, ...rest },
+	ref,
+) {
+	const labels = useLabels();
 	return (
 		<ol
+			ref={ref}
 			className={cn("camply-steps__root", `camply-steps__${orientation}`, className)}
-			style={style}
-			aria-label="Progression par étapes"
+			aria-label={labels.steps}
+			{...rest}
 		>
 			{steps.map((step, i) => {
 				const state = i < current ? "done" : i === current ? "current" : "upcoming";
 				const isLast = i === steps.length - 1;
 				return (
-					// biome-ignore lint/suspicious/noArrayIndexKey: étapes déclaratives ordonnées — la position est l'identité
-					<li key={i} className={cn("camply-steps__step", `camply-steps__${state}`)}>
-						<div className={"camply-steps__marker"}>
+					<li
+						// biome-ignore lint/suspicious/noArrayIndexKey: étapes déclaratives ordonnées — la position est l'identité
+						key={i}
+						className={cn("camply-steps__step", `camply-steps__${state}`)}
+						aria-current={state === "current" ? "step" : undefined}
+					>
+						{/* Puce et connecteur sont décoratifs : le rang est déjà porté par la liste ordonnée. */}
+						<div className={"camply-steps__marker"} aria-hidden="true">
 							<span className={"camply-steps__bubble"}>
 								{state === "done" ? <Check size={15} /> : i + 1}
 							</span>
@@ -48,4 +52,4 @@ export function Steps({
 			})}
 		</ol>
 	);
-}
+});

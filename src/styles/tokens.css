@@ -75,6 +75,9 @@
 	--camply-fill-3: rgba(255, 255, 255, 0.1);
 	--camply-fill-4: rgba(255, 255, 255, 0.2);
 
+	/* Surlignage de survol / d'option active (listbox, menus). */
+	--camply-hover-soft: var(--camply-fill-2);
+
 	--camply-border-hover: rgba(148, 176, 216, 0.32);
 	--camply-neutral-solid: #cdd9e6;
 	--camply-knob: #e8eef5;
@@ -102,9 +105,11 @@
 	--camply-duration: 0.2s;
 	--camply-transition: 0.15s ease;
 
-	--camply-z-dropdown: 1000;
-	--camply-z-tooltip: 1100;
-	--camply-z-modal: 1200;
+	/* Empilement : les couches flottantes doivent passer AU-DESSUS du voile
+	   modal, sinon un Select/Popover ouvert dans une Modal est peint derrière. */
+	--camply-z-modal: 1000;
+	--camply-z-dropdown: 1100;
+	--camply-z-tooltip: 1200;
 	--camply-z-toast: 1300;
 }
 
@@ -598,4 +603,124 @@
 }
 .camply-chevron--open {
 	transform: rotate(180deg);
+}
+
+/* ============================================================
+   Accessibilité — mouvement réduit
+   Respecte le réglage système : coupe les animations d'entrée, les
+   transitions et les boucles infinies (Spinner, Skeleton, Progress
+   indéterminé). On ne met pas 0s (certaines transitions déclenchent des
+   callbacks) mais une durée quasi nulle, et on désactive le défilement
+   fluide.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+	/* biome-ignore-start lint/complexity/noImportantStyles: le reset "mouvement réduit" doit primer sur les animations déclarées dans chaque composant — c'est précisément son rôle */
+	[class*="camply-"],
+	[class*="camply-"]::before,
+	[class*="camply-"]::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+	/* biome-ignore-end lint/complexity/noImportantStyles: fin du reset */
+}
+
+/* Astérisque des champs obligatoires (Field). */
+.camply-field__required {
+	margin-left: 3px;
+	color: var(--camply-danger);
+}
+
+/* ============================================================
+   Thème clair
+   Le bloc :root ci-dessus reste le thème sombre par défaut (rétrocompatible).
+   Pour passer en clair, poser data-camply-theme="light" sur <html>, <body> ou
+   n'importe quel conteneur : le thème est SCOPABLE (on peut avoir une zone
+   claire dans une page sombre). color-scheme aligne aussi les contrôles
+   natifs et les barres de défilement.
+   ============================================================ */
+:root {
+	color-scheme: dark;
+}
+
+[data-camply-theme="light"] {
+	color-scheme: light;
+
+	--camply-bg: #f6f8fb;
+	--camply-surface: #ffffff;
+	--camply-surface-2: #f1f5f9;
+	--camply-elevated: #ffffff;
+	--camply-overlay: rgba(15, 23, 42, 0.45);
+
+	--camply-text: #0f1a29;
+	--camply-text-strong: #020617;
+	--camply-text-muted: #475569;
+	--camply-text-muted-2: #64748b;
+	--camply-text-disabled: #94a3b8;
+
+	--camply-accent: #0284c7;
+	--camply-accent-hover: #0369a1;
+	--camply-accent-contrast: #ffffff;
+	--camply-accent-soft: rgba(2, 132, 199, 0.1);
+	--camply-accent-soft-hover: rgba(2, 132, 199, 0.18);
+	--camply-accent-border: rgba(2, 132, 199, 0.35);
+
+	--camply-danger: #dc2626;
+	--camply-danger-hover: #b91c1c;
+	--camply-danger-contrast: #ffffff;
+	--camply-danger-soft: rgba(220, 38, 38, 0.1);
+	--camply-danger-border: rgba(220, 38, 38, 0.3);
+	--camply-danger-ring: 0 0 0 3px rgba(220, 38, 38, 0.28);
+	--camply-danger-soft-hover: rgba(220, 38, 38, 0.18);
+
+	--camply-warning: #b45309;
+	--camply-warning-contrast: #ffffff;
+	--camply-warning-soft: rgba(180, 83, 9, 0.1);
+	--camply-warning-border: rgba(180, 83, 9, 0.28);
+
+	--camply-success: #047857;
+	--camply-success-contrast: #ffffff;
+	--camply-success-soft: rgba(4, 120, 87, 0.1);
+	--camply-success-border: rgba(4, 120, 87, 0.28);
+
+	--camply-info: #4f46e5;
+	--camply-info-contrast: #ffffff;
+	--camply-info-soft: rgba(79, 70, 229, 0.1);
+	--camply-info-border: rgba(79, 70, 229, 0.26);
+
+	--camply-border: rgba(15, 23, 42, 0.12);
+	--camply-border-soft: rgba(15, 23, 42, 0.07);
+	--camply-border-strong: rgba(15, 23, 42, 0.2);
+	--camply-border-hover: rgba(15, 23, 42, 0.32);
+
+	--camply-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+	--camply-shadow-md: 0 6px 18px rgba(15, 23, 42, 0.1);
+	--camply-shadow-lg: 0 18px 45px rgba(15, 23, 42, 0.14);
+	--camply-shadow-pop: 0 12px 32px rgba(15, 23, 42, 0.14);
+
+	--camply-ring: 0 0 0 3px rgba(2, 132, 199, 0.35);
+
+	--camply-field-bg: #ffffff;
+
+	--camply-fill-1: rgba(15, 23, 42, 0.02);
+	--camply-fill-2: rgba(15, 23, 42, 0.05);
+	--camply-fill-3: rgba(15, 23, 42, 0.1);
+	--camply-fill-4: rgba(15, 23, 42, 0.2);
+
+	--camply-neutral-solid: #334155;
+	--camply-knob: #ffffff;
+	--camply-sheen: rgba(15, 23, 42, 0.1);
+
+	--camply-tooltip-bg: #0f1a29;
+	--camply-tooltip-fg: #f8fafc;
+	--camply-tooltip-dark: #020617;
+
+	--camply-scrollbar-thumb: rgba(15, 23, 42, 0.22);
+	--camply-scrollbar-thumb-hover: rgba(15, 23, 42, 0.35);
+
+	--camply-gradient-accent: linear-gradient(90deg, #0369a1, var(--camply-accent));
+	--camply-gradient-info: linear-gradient(90deg, #4338ca, var(--camply-info));
+	--camply-gradient-warn: linear-gradient(90deg, #92400e, var(--camply-warning));
+	--camply-gradient-danger: linear-gradient(90deg, #991b1b, var(--camply-danger));
 }

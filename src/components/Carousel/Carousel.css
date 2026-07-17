@@ -65,11 +65,21 @@
 	right: 6px;
 }
 
+.camply-carousel__controls {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	margin-top: 14px;
+}
+.camply-carousel__toggle {
+	flex: none;
+}
+
 .camply-carousel__dots {
 	display: flex;
 	justify-content: center;
 	gap: 7px;
-	margin-top: 14px;
 }
 .camply-carousel__dot {
 	width: 7px;
@@ -103,7 +113,6 @@
 }
 
 .camply-carousel__count {
-	margin-top: 14px;
 	text-align: center;
 	font-family: var(--camply-font-mono);
 	font-size: 12.5px;

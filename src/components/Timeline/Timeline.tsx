@@ -1,5 +1,6 @@
-import type { CSSProperties, ReactNode } from "react";
+import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
+
 export type TimelineTone = "accent" | "info" | "warn" | "danger" | "muted";
 
 export interface TimelineItem {
@@ -10,19 +11,21 @@ export interface TimelineItem {
 	tone?: TimelineTone;
 }
 
-export interface TimelineProps {
+export interface TimelineProps extends HTMLAttributes<HTMLOListElement> {
 	items: TimelineItem[];
-	className?: string;
-	style?: CSSProperties;
 }
 
-export function Timeline({ items, className, style }: TimelineProps) {
+export const Timeline = forwardRef<HTMLOListElement, TimelineProps>(function Timeline(
+	{ items, className, ...rest },
+	ref,
+) {
 	return (
-		<ol className={cn("camply-timeline__root", className)} style={style}>
+		<ol ref={ref} className={cn("camply-timeline__root", className)} {...rest}>
 			{items.map((item, i) => (
 				// biome-ignore lint/suspicious/noArrayIndexKey: événements déclaratifs ordonnés — la position est l'identité
 				<li key={i} className={"camply-timeline__item"}>
-					<div className={"camply-timeline__rail"}>
+					{/* Pastille et trait sont purement décoratifs. */}
+					<div className={"camply-timeline__rail"} aria-hidden="true">
 						<span
 							className={cn(
 								"camply-timeline__dot",
@@ -46,4 +49,4 @@ export function Timeline({ items, className, style }: TimelineProps) {
 			))}
 		</ol>
 	);
-}
+});
