@@ -7,11 +7,13 @@ import {
 	Kbd,
 	Snippet,
 	Spoiler,
+	Stack,
+	type StackGap,
 	Tag,
 	Toggle,
 } from "@camply/ui";
 import { Icon } from "../icons";
-import { bool, type PlaygroundConfig, str } from "./engine";
+import { bool, num, type PlaygroundConfig, str } from "./engine";
 
 export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 	button: {
@@ -219,6 +221,41 @@ export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 			["keys", "string[]", 'séquence de touches, ex. ["⌘", "K"]'],
 			["size", "enum", "sm · md"],
 			["children", "ReactNode", "alternative à keys : une seule touche"],
+		],
+	},
+
+	stack: {
+		component: "Stack",
+		controls: [
+			{ key: "direction", label: "Direction", type: "seg", options: ["horizontal", "vertical"] },
+			{ key: "gap", label: "Espacement", type: "seg", options: ["1", "2", "4", "6", "8"] },
+			{ key: "align", label: "Alignement", type: "seg", options: ["start", "center", "end"] },
+		],
+		defaults: { direction: "horizontal", gap: "4", align: "center" },
+		render: (p) => (
+			<Stack direction={str(p.direction)} gap={num(p.gap) as StackGap} align={str(p.align)}>
+				<Badge tone="accent">Un</Badge>
+				<Badge tone="info" variant="soft">
+					Deux
+				</Badge>
+				<Badge tone="success" variant="soft">
+					Trois
+				</Badge>
+			</Stack>
+		),
+		code: (p) => `import { Stack, Badge } from "@camply/ui";
+
+<Stack direction="${p.direction}" gap={${p.gap}} align="${p.align}">
+  <Badge tone="accent">Un</Badge>
+  <Badge tone="info" variant="soft">Deux</Badge>
+  <Badge tone="success" variant="soft">Trois</Badge>
+</Stack>`,
+		props: [
+			["direction", "enum", "vertical · horizontal"],
+			["gap", "number", "0 · 1 · 2 · 3 · 4 · 5 · 6 · 8 (échelle --camply-space-*)"],
+			["align", "enum", "start · center · end · stretch · baseline"],
+			["justify", "enum", "start · center · end · between · around"],
+			["wrap", "boolean", "autorise le retour à la ligne"],
 		],
 	},
 

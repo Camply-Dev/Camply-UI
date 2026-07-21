@@ -262,6 +262,11 @@
 			"import": "./dist/components/Spoiler/index.js"
 		},
 		"./Spoiler/styles.css": "./dist/components/Spoiler/Spoiler.css",
+		"./Stack": {
+			"types": "./dist/components/Stack/index.d.ts",
+			"import": "./dist/components/Stack/index.js"
+		},
+		"./Stack/styles.css": "./dist/components/Stack/Stack.css",
 		"./Stat": {
 			"types": "./dist/components/Stat/index.d.ts",
 			"import": "./dist/components/Stat/index.js"

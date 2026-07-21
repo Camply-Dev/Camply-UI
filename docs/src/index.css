@@ -944,19 +944,10 @@ html {
 	color: var(--sc-muted-2);
 }
 
-.cu-guide__snippets {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	max-width: 420px;
-}
-
-.cu-guide__steps {
-	margin-top: 6px;
-	padding: 22px 20px;
-	border: 1px solid var(--sc-line-soft);
-	border-radius: 14px;
-	background: var(--sc-surface);
+/* Onglets d'installation (Tabs @camply/ui) : largeur cadrée sur la commande. */
+.cu-guide__install {
+	max-width: 460px;
+	margin-bottom: 16px;
 }
 
 .cu-guide__split {

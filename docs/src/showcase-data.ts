@@ -48,6 +48,13 @@ export const COMPONENTS: ComponentEntry[] = [
 	c("badge", "Badge", "Primitifs", "Marqueurs", "Marqueur de statut : tons, variantes, icône."),
 	c("tag", "Tag", "Primitifs", "Marqueurs", "Étiquette compacte, éventuellement supprimable."),
 	c("kbd", "Kbd", "Primitifs", "Marqueurs", "Représentation d'une touche clavier."),
+	c(
+		"stack",
+		"Stack",
+		"Primitifs",
+		"Mise en forme",
+		"Empilement flex : la primitive de mise en page.",
+	),
 	c("divider", "Divider", "Primitifs", "Mise en forme", "Séparateur avec libellé optionnel."),
 	c("snippet", "Snippet", "Primitifs", "Mise en forme", "Bloc de code avec bouton copier."),
 	c("spoiler", "Spoiler", "Primitifs", "Mise en forme", "Contenu long tronqué et dépliable."),
