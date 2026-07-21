@@ -57,7 +57,6 @@ export * from "./components/Toast";
 export * from "./components/Toggle";
 export * from "./components/Tooltip";
 export * from "./components/Tree";
-
+export type { CamplyLabels, CamplyProviderProps } from "./lib/i18n";
 // Provider global (textes + locale) — optionnel : sans lui, tout retombe en français.
 export { CamplyProvider, useLabels, useLocale } from "./lib/i18n";
-export type { CamplyLabels, CamplyProviderProps } from "./lib/i18n";
