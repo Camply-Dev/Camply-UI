@@ -1,0 +1,114 @@
+.camply-datepicker__pop {
+	width: 296px;
+	padding: 14px;
+}
+
+.camply-datepicker__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 12px;
+}
+
+.camply-datepicker__monthLabel {
+	padding: 4px 10px;
+	border: none;
+	border-radius: var(--camply-radius-sm);
+	background: transparent;
+	font-family: var(--camply-font-display);
+	font-size: 14.5px;
+	font-weight: 600;
+	color: var(--camply-text);
+	text-transform: capitalize;
+	cursor: pointer;
+	transition: background var(--camply-duration);
+}
+.camply-datepicker__monthLabel:hover {
+	background: var(--camply-fill-2);
+}
+
+.camply-datepicker__years {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 6px;
+}
+.camply-datepicker__year {
+	padding: 12px 0;
+}
+.camply-datepicker__yearCurrent {
+	background: var(--camply-accent);
+	color: var(--camply-accent-contrast);
+	font-weight: 600;
+}
+.camply-datepicker__yearCurrent:hover {
+	background: var(--camply-accent-hover);
+}
+
+.camply-datepicker__weekdays,
+.camply-datepicker__days {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 2px;
+}
+.camply-datepicker__weekday {
+	padding: 4px 0;
+	text-align: center;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--camply-text-muted-2);
+	text-transform: capitalize;
+}
+.camply-datepicker__day {
+	aspect-ratio: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.camply-datepicker__muted {
+	color: var(--camply-text-muted-2);
+}
+.camply-datepicker__today {
+	box-shadow: inset 0 0 0 1px var(--camply-accent-border);
+}
+.camply-datepicker__inRange {
+	border-radius: 0;
+	background: var(--camply-accent-soft);
+	color: var(--camply-text);
+}
+.camply-datepicker__selected {
+	background: var(--camply-accent);
+	color: var(--camply-accent-contrast);
+	font-weight: 600;
+}
+.camply-datepicker__selected:hover {
+	background: var(--camply-accent-hover);
+}
+
+.camply-datepicker__footer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid var(--camply-border);
+}
+.camply-datepicker__todayBtn {
+	color: var(--camply-accent-hover);
+}
+.camply-datepicker__clearBtn {
+	color: var(--camply-text-muted-2);
+}
+.camply-datepicker__clearBtn:hover {
+	color: var(--camply-danger-hover);
+}
+
+.camply-datepicker__valueBtn {
+	cursor: pointer;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.camply-datepicker__placeholder {
+	color: var(--camply-text-muted-2);
+}

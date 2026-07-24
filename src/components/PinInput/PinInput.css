@@ -1,0 +1,31 @@
+.camply-pininput__field {
+	width: fit-content;
+}
+
+.camply-pininput__root {
+	--_s: 48px;
+	--_fs: 19px;
+	display: inline-flex;
+	gap: 10px;
+	font-family: var(--camply-font-sans);
+	/* remise à zéro des styles UA du <fieldset> */
+	margin: 0;
+	padding: 0;
+	border: 0;
+	min-width: 0;
+}
+.camply-pininput__sm {
+	--_s: 38px;
+	--_fs: 16px;
+}
+.camply-pininput__md {
+	--_s: 48px;
+}
+.camply-pininput__lg {
+	--_s: 56px;
+	--_fs: 22px;
+}
+.camply-pininput__disabled {
+	opacity: var(--camply-disabled-opacity);
+	pointer-events: none;
+}

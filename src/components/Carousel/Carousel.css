@@ -1,0 +1,120 @@
+.camply-carousel__root {
+	font-family: var(--camply-font-sans);
+	outline: none;
+}
+.camply-carousel__viewport {
+	position: relative;
+	overflow: hidden;
+	border-radius: var(--camply-radius-lg);
+}
+.camply-carousel__track {
+	display: flex;
+	gap: var(--cu-gap, 0px);
+	transition: transform 0.4s var(--camply-ease);
+}
+.camply-carousel__slide {
+	flex: 0 0 calc((100% - (var(--cu-spv, 1) - 1) * var(--cu-gap, 0px)) / var(--cu-spv, 1));
+	min-width: 0;
+}
+
+.camply-carousel__trackFade {
+	display: grid;
+	gap: 0;
+	transition: none;
+}
+.camply-carousel__trackFade .camply-carousel__slide {
+	grid-area: 1 / 1;
+	flex: none;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.4s var(--camply-ease);
+}
+.camply-carousel__trackFade .camply-carousel__slideActive {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.camply-carousel__arrow {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 6px;
+	border: none;
+	border-radius: var(--camply-radius-sm);
+	background: none;
+	color: var(--camply-text);
+	cursor: pointer;
+	transition:
+		color var(--camply-duration),
+		opacity var(--camply-duration);
+}
+.camply-carousel__arrow:hover:not(:disabled) {
+	color: var(--camply-accent-hover);
+}
+.camply-carousel__arrow:disabled {
+	opacity: 0.3;
+	cursor: not-allowed;
+}
+.camply-carousel__prev {
+	left: 6px;
+}
+.camply-carousel__next {
+	right: 6px;
+}
+
+.camply-carousel__controls {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	margin-top: 14px;
+}
+.camply-carousel__toggle {
+	flex: none;
+}
+
+.camply-carousel__dots {
+	display: flex;
+	justify-content: center;
+	gap: 7px;
+}
+.camply-carousel__dot {
+	width: 7px;
+	height: 7px;
+	padding: 0;
+	border: none;
+	border-radius: 50%;
+	background: var(--camply-border-strong);
+	cursor: pointer;
+	transition:
+		background var(--camply-duration),
+		width var(--camply-duration);
+}
+.camply-carousel__dot:hover {
+	background: var(--camply-text-muted-2);
+}
+.camply-carousel__dotActive {
+	width: 22px;
+	border-radius: 999px;
+	background: var(--camply-accent);
+}
+
+.camply-carousel__dotsLines .camply-carousel__dot {
+	width: 20px;
+	height: 3px;
+	border-radius: 999px;
+}
+.camply-carousel__dotsLines .camply-carousel__dotActive {
+	width: 20px;
+	background: var(--camply-accent);
+}
+
+.camply-carousel__count {
+	text-align: center;
+	font-family: var(--camply-font-mono);
+	font-size: 12.5px;
+	color: var(--camply-text-muted);
+}

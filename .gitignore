@@ -8,3 +8,6 @@ dist/
 .turbo
 coverage/
 *.tsbuildinfo
+
+# Référence locale issue d'un zip Claude Design — ni versionnée, ni lintée
+components-test/

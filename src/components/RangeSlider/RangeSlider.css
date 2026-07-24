@@ -1,0 +1,52 @@
+.camply-rangeslider__root {
+	width: 100%;
+	font-family: var(--camply-font-sans);
+}
+.camply-rangeslider__root.camply-rangeslider__disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+.camply-rangeslider__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 14px;
+}
+.camply-rangeslider__label {
+	font-size: 13px;
+	color: var(--camply-text-muted);
+}
+.camply-rangeslider__value {
+	font-family: var(--camply-font-mono);
+	font-size: 13px;
+	color: var(--camply-accent-hover);
+}
+
+.camply-rangeslider__track {
+	position: relative;
+	height: 6px;
+	border-radius: var(--camply-radius-pill);
+	background: var(--camply-fill-3);
+	touch-action: none;
+}
+.camply-rangeslider__fill {
+	position: absolute;
+	top: 0;
+	height: 100%;
+	border-radius: var(--camply-radius-pill);
+	background: var(--camply-gradient-accent);
+}
+.camply-rangeslider__knob {
+	position: absolute;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: var(--camply-knob);
+	box-shadow: var(--camply-shadow-sm);
+	cursor: grab;
+}
+.camply-rangeslider__knob:active {
+	cursor: grabbing;
+}

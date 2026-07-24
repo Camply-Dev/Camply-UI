@@ -1,0 +1,71 @@
+.camply-stack__root {
+	display: flex;
+}
+
+.camply-stack__vertical {
+	flex-direction: column;
+}
+.camply-stack__horizontal {
+	flex-direction: row;
+}
+
+.camply-stack__wrap {
+	flex-wrap: wrap;
+}
+
+.camply-stack__gap-0 {
+	gap: 0;
+}
+.camply-stack__gap-1 {
+	gap: var(--camply-space-1);
+}
+.camply-stack__gap-2 {
+	gap: var(--camply-space-2);
+}
+.camply-stack__gap-3 {
+	gap: var(--camply-space-3);
+}
+.camply-stack__gap-4 {
+	gap: var(--camply-space-4);
+}
+.camply-stack__gap-5 {
+	gap: var(--camply-space-5);
+}
+.camply-stack__gap-6 {
+	gap: var(--camply-space-6);
+}
+.camply-stack__gap-8 {
+	gap: var(--camply-space-8);
+}
+
+.camply-stack__align-start {
+	align-items: flex-start;
+}
+.camply-stack__align-center {
+	align-items: center;
+}
+.camply-stack__align-end {
+	align-items: flex-end;
+}
+.camply-stack__align-stretch {
+	align-items: stretch;
+}
+.camply-stack__align-baseline {
+	align-items: baseline;
+}
+
+.camply-stack__justify-start {
+	justify-content: flex-start;
+}
+.camply-stack__justify-center {
+	justify-content: center;
+}
+.camply-stack__justify-end {
+	justify-content: flex-end;
+}
+.camply-stack__justify-between {
+	justify-content: space-between;
+}
+.camply-stack__justify-around {
+	justify-content: space-around;
+}

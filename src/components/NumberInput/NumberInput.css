@@ -1,0 +1,43 @@
+.camply-numberinput__step {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: var(--_h);
+	height: 100%;
+	border: none;
+	background: transparent;
+	color: var(--camply-text-muted);
+	cursor: pointer;
+	flex: none;
+	transition:
+		background var(--camply-duration),
+		color var(--camply-duration);
+}
+.camply-numberinput__step:hover:not(:disabled) {
+	background: var(--camply-fill-2);
+	color: var(--camply-text);
+}
+.camply-numberinput__step:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+.camply-numberinput__inputWrap {
+	display: flex;
+	align-items: center;
+	gap: 3px;
+	flex: 1;
+	min-width: 0;
+	padding: 0 4px;
+	border-left: 1px solid var(--camply-border);
+	border-right: 1px solid var(--camply-border);
+	height: 100%;
+}
+.camply-numberinput__affix {
+	color: var(--camply-text-muted-2);
+	font-size: 14px;
+	flex: none;
+}
+.camply-numberinput__input {
+	text-align: center;
+}

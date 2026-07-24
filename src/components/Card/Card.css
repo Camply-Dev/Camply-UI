@@ -1,0 +1,56 @@
+.camply-card__card {
+	border: 1px solid var(--camply-border);
+	border-radius: var(--camply-radius-lg);
+	background: var(--camply-fill-1);
+	font-family: var(--camply-font-sans);
+	color: var(--camply-text);
+}
+.camply-card__pad-none {
+	padding: 0;
+}
+.camply-card__pad-sm {
+	padding: 16px;
+}
+.camply-card__pad-md {
+	padding: 22px;
+}
+.camply-card__pad-lg {
+	padding: 30px;
+}
+
+.camply-card__interactive {
+	cursor: pointer;
+	transition:
+		transform 0.25s var(--camply-ease),
+		border-color 0.25s var(--camply-ease),
+		background 0.25s var(--camply-ease);
+}
+.camply-card__interactive:hover {
+	transform: translateY(-4px);
+	border-color: var(--camply-accent-border);
+	background: var(--camply-fill-2);
+}
+
+.camply-card__header {
+	margin-bottom: 14px;
+}
+.camply-card__title {
+	margin: 0 0 4px;
+	font-family: var(--camply-font-display);
+	font-size: 16px;
+	font-weight: 700;
+	letter-spacing: -0.2px;
+	color: var(--camply-text);
+}
+.camply-card__desc {
+	margin: 0;
+	font-size: 13.5px;
+	line-height: 1.55;
+	color: var(--camply-text-muted);
+}
+.camply-card__footer {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 18px;
+}

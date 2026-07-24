@@ -1,0 +1,62 @@
+.camply-stat__root {
+	padding: 20px 22px;
+	border: 1px solid var(--camply-border);
+	border-radius: var(--camply-radius-lg);
+	background: var(--camply-fill-1);
+	font-family: var(--camply-font-sans);
+}
+.camply-stat__top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 10px;
+}
+.camply-stat__label {
+	font-size: 13px;
+	color: var(--camply-text-muted);
+}
+.camply-stat__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	border-radius: var(--camply-radius);
+	background: var(--camply-accent-soft);
+	color: var(--camply-accent-hover);
+}
+.camply-stat__value {
+	font-family: var(--camply-font-display);
+	font-size: 30px;
+	font-weight: 700;
+	letter-spacing: -1px;
+	color: var(--camply-text);
+}
+.camply-stat__bottom {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 10px;
+}
+.camply-stat__delta {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 3px 9px;
+	border-radius: var(--camply-radius-pill);
+	font-size: 12.5px;
+	font-weight: 600;
+}
+.camply-stat__good {
+	background: var(--camply-accent-soft);
+	color: var(--camply-accent-hover);
+}
+.camply-stat__bad {
+	background: var(--camply-danger-soft);
+	color: var(--camply-danger-hover);
+}
+.camply-stat__hint {
+	font-size: 12.5px;
+	color: var(--camply-text-muted-2);
+}

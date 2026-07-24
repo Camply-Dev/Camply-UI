@@ -1,0 +1,15 @@
+.camply-input__wrap {
+	gap: 9px;
+}
+.camply-input__wrap.camply-field-shell--disabled {
+	background: var(--camply-fill-1);
+	border-color: var(--camply-border);
+}
+
+.camply-input__iconLeft,
+.camply-input__iconRight {
+	display: inline-flex;
+	align-items: center;
+	color: var(--camply-text-muted-2);
+	flex: none;
+}

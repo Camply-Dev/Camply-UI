@@ -1,0 +1,98 @@
+.camply-tooltip__tip {
+	--_bg: var(--camply-tooltip-bg);
+	--_fg: var(--camply-tooltip-fg);
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	max-width: 260px;
+	padding: 7px 11px;
+	border-radius: var(--camply-radius-sm);
+	background: var(--_bg);
+	color: var(--_fg);
+	font-family: var(--camply-font-sans);
+	font-size: 12.5px;
+	font-weight: 600;
+	line-height: 1.4;
+	box-shadow: var(--camply-shadow-md);
+	z-index: var(--camply-z-tooltip);
+	animation: camply-tip-in 0.14s var(--camply-ease);
+}
+@keyframes camply-tip-in {
+	from {
+		opacity: 0;
+		transform: translateY(3px);
+	}
+}
+
+.camply-tooltip__icon {
+	display: inline-flex;
+	align-items: center;
+	flex: none;
+}
+.camply-tooltip__label {
+	min-width: 0;
+}
+
+.camply-tooltip__plain {
+	--_bg: transparent;
+	--_fg: var(--camply-text);
+	padding: 2px 4px;
+	box-shadow: none;
+	text-shadow: 0 1px 4px rgba(4, 8, 14, 0.75);
+}
+.camply-tooltip__dark {
+	--_bg: var(--camply-tooltip-dark);
+	--_fg: var(--camply-text-strong);
+}
+.camply-tooltip__accent {
+	--_bg: var(--camply-accent);
+	--_fg: var(--camply-accent-contrast);
+}
+.camply-tooltip__success {
+	--_bg: var(--camply-success);
+	--_fg: var(--camply-success-contrast);
+}
+.camply-tooltip__warning {
+	--_bg: var(--camply-warning);
+	--_fg: var(--camply-warning-contrast);
+}
+.camply-tooltip__danger {
+	--_bg: var(--camply-danger);
+	--_fg: var(--camply-danger-contrast);
+}
+.camply-tooltip__info {
+	--_bg: var(--camply-info);
+	--_fg: var(--camply-info-contrast);
+}
+
+.camply-tooltip__arrow {
+	position: absolute;
+	width: 8px;
+	height: 8px;
+	background: var(--_bg);
+	transform: rotate(45deg);
+}
+.camply-tooltip__top .camply-tooltip__arrow {
+	bottom: -3px;
+	left: 50%;
+	margin-left: -4px;
+}
+.camply-tooltip__bottom .camply-tooltip__arrow {
+	top: -3px;
+	left: 50%;
+	margin-left: -4px;
+}
+.camply-tooltip__left .camply-tooltip__arrow {
+	right: -3px;
+	top: 50%;
+	margin-top: -4px;
+}
+.camply-tooltip__right .camply-tooltip__arrow {
+	left: -3px;
+	top: 50%;
+	margin-top: -4px;
+}
+
+.camply-tooltip__plain .camply-tooltip__arrow {
+	display: none;
+}

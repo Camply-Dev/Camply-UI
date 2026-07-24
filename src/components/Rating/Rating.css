@@ -1,0 +1,33 @@
+.camply-rating__root {
+	display: inline-flex;
+	gap: 4px;
+	font-family: var(--camply-font-sans);
+}
+.camply-rating__disabled {
+	opacity: 0.5;
+}
+
+.camply-rating__star {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	border: none;
+	background: none;
+	color: var(--camply-border-strong);
+	transition:
+		color 0.15s,
+		transform 0.12s var(--camply-ease-spring);
+}
+.camply-rating__interactive .camply-rating__star {
+	cursor: pointer;
+}
+.camply-rating__interactive .camply-rating__star:hover {
+	transform: scale(1.12);
+}
+.camply-rating__on {
+	color: var(--camply-warning);
+}
+.camply-rating__on svg {
+	fill: var(--camply-warning);
+}

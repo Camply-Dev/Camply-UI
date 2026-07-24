@@ -1,0 +1,14 @@
+.camply-dropdownmenu__menu {
+	min-width: 190px;
+	padding: 6px;
+	font-family: var(--camply-font-sans);
+}
+
+.camply-dropdownmenu__menuLabel {
+	padding: 7px 11px 4px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.4px;
+	text-transform: uppercase;
+	color: var(--camply-text-muted-2);
+}

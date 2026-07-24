@@ -1,0 +1,79 @@
+.camply-timeline__root {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-family: var(--camply-font-sans);
+}
+.camply-timeline__item {
+	display: flex;
+	gap: 14px;
+}
+.camply-timeline__rail {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	flex: none;
+}
+.camply-timeline__dot {
+	--_c: var(--camply-accent);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	background: color-mix(in srgb, var(--_c) 18%, transparent);
+	border: 1.5px solid var(--_c);
+	color: var(--_c);
+	margin-top: 2px;
+}
+.camply-timeline__tone-accent {
+	--_c: var(--camply-accent);
+}
+.camply-timeline__tone-info {
+	--_c: var(--camply-info);
+}
+.camply-timeline__tone-warn {
+	--_c: var(--camply-warning);
+}
+.camply-timeline__tone-danger {
+	--_c: var(--camply-danger);
+}
+.camply-timeline__tone-muted {
+	--_c: var(--camply-text-muted-2);
+}
+.camply-timeline__line {
+	flex: 1;
+	width: 2px;
+	min-height: 16px;
+	margin: 4px 0;
+	background: var(--camply-border-strong);
+}
+.camply-timeline__content {
+	padding-bottom: 22px;
+	flex: 1;
+	min-width: 0;
+}
+.camply-timeline__header {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+}
+.camply-timeline__title {
+	font-size: 14.5px;
+	font-weight: 600;
+	color: var(--camply-text);
+}
+.camply-timeline__time {
+	font-size: 12px;
+	color: var(--camply-text-muted-2);
+	white-space: nowrap;
+	flex: none;
+}
+.camply-timeline__description {
+	margin-top: 3px;
+	font-size: 13.5px;
+	line-height: 1.55;
+	color: var(--camply-text-muted);
+}

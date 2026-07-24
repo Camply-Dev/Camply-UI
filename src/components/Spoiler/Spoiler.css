@@ -1,0 +1,43 @@
+.camply-spoiler__root {
+	font-family: var(--camply-font-sans);
+}
+.camply-spoiler__content {
+	position: relative;
+	overflow: hidden;
+	color: var(--camply-text-muted);
+	font-size: 14px;
+	line-height: 1.6;
+}
+.camply-spoiler__fade {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 56px;
+	background: linear-gradient(transparent, var(--camply-bg));
+	pointer-events: none;
+}
+.camply-spoiler__toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	margin-top: 10px;
+	padding: 0;
+	border: none;
+	background: none;
+	color: var(--camply-accent-hover);
+	font-family: inherit;
+	font-size: 13.5px;
+	font-weight: 600;
+	cursor: pointer;
+}
+.camply-spoiler__toggle:hover {
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+.camply-spoiler__icon {
+	transition: transform 0.2s var(--camply-ease);
+}
+.camply-spoiler__iconOpen {
+	transform: rotate(180deg);
+}

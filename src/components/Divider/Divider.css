@@ -1,0 +1,48 @@
+.camply-divider__horizontal {
+	height: 0;
+	margin: 0;
+	border: none;
+	border-top: 1px solid var(--camply-border);
+}
+.camply-divider__horizontal.camply-divider__dashed {
+	border-top-style: dashed;
+}
+
+.camply-divider__vertical {
+	display: inline-block;
+	align-self: stretch;
+	width: 0;
+	min-height: 1em;
+	border-left: 1px solid var(--camply-border);
+}
+.camply-divider__vertical.camply-divider__dashed {
+	border-left-style: dashed;
+}
+
+.camply-divider__labelled {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	font-family: var(--camply-font-sans);
+}
+.camply-divider__line {
+	flex: 1;
+	height: 0;
+	border-top: 1px solid var(--camply-border);
+}
+.camply-divider__line.camply-divider__dashed {
+	border-top-style: dashed;
+}
+.camply-divider__label {
+	font-size: 12.5px;
+	font-weight: 600;
+	letter-spacing: 0.3px;
+	color: var(--camply-text-muted-2);
+	white-space: nowrap;
+}
+.camply-divider__align-start .camply-divider__line:first-child {
+	flex: 0 0 24px;
+}
+.camply-divider__align-end .camply-divider__line:last-child {
+	flex: 0 0 24px;
+}

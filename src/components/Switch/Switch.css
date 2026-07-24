@@ -1,0 +1,52 @@
+.camply-control__wrap.camply-switch__spread {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+}
+
+/* Le Field est une colonne flex : on garde le <label> à la largeur de son
+   contenu, sauf en mode `spread` qui doit occuper toute la ligne. */
+.camply-switch__field {
+	align-items: flex-start;
+}
+.camply-switch__field.camply-switch__fieldSpread {
+	align-items: stretch;
+}
+
+.camply-switch__track {
+	--_w: 42px;
+	--_h: 24px;
+	--_pad: 2px;
+	position: relative;
+	display: inline-block;
+	width: var(--_w);
+	height: var(--_h);
+	border-radius: var(--camply-radius-pill);
+	background: var(--camply-fill-3);
+	transition: background var(--camply-duration);
+}
+.camply-switch__thumb {
+	position: absolute;
+	top: var(--_pad);
+	left: var(--_pad);
+	width: calc(var(--_h) - var(--_pad) * 2);
+	height: calc(var(--_h) - var(--_pad) * 2);
+	border-radius: 50%;
+	background: var(--camply-accent-contrast);
+	transition: transform 0.22s var(--camply-ease-spring);
+}
+
+.camply-switch__sm .camply-switch__track {
+	--_w: 34px;
+	--_h: 20px;
+}
+
+.camply-control__input:checked + .camply-switch__track {
+	background: var(--camply-accent);
+}
+.camply-control__input:checked + .camply-switch__track .camply-switch__thumb {
+	transform: translateX(calc(var(--_w) - var(--_h)));
+}
+.camply-control__input[aria-invalid="true"]:not(:checked) + .camply-switch__track {
+	box-shadow: inset 0 0 0 1px var(--camply-danger);
+}

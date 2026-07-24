@@ -1,0 +1,8 @@
+.camply-popover__panel {
+	min-width: 220px;
+	max-width: 320px;
+	padding: 16px;
+	color: var(--camply-text);
+	font-family: var(--camply-font-sans);
+	font-size: 14px;
+}

@@ -1,0 +1,8 @@
+.camply-taginput__wrap {
+	cursor: text;
+}
+
+.camply-taginput__input {
+	min-width: 80px;
+	padding: 4px;
+}

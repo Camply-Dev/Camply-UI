@@ -1,0 +1,9 @@
+.camply-hovercard__card {
+	--camply-float-z: var(--camply-z-tooltip);
+	--camply-float-dur: 0.16s;
+	width: 280px;
+	padding: 16px;
+	color: var(--camply-text);
+	font-family: var(--camply-font-sans);
+	font-size: 14px;
+}

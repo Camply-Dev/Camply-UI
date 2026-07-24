@@ -1,0 +1,58 @@
+.camply-tree__tree,
+.camply-tree__group {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-family: var(--camply-font-sans);
+}
+.camply-tree__row {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	padding: 7px 10px 7px 0;
+	border-radius: var(--camply-radius-sm);
+	color: var(--camply-text-muted);
+	font-size: 13.5px;
+	cursor: pointer;
+	transition:
+		background var(--camply-duration),
+		color var(--camply-duration);
+}
+.camply-tree__row:hover {
+	background: var(--camply-fill-2);
+	color: var(--camply-text);
+}
+.camply-tree__selected {
+	background: var(--camply-accent-soft);
+	color: var(--camply-accent-hover);
+}
+.camply-tree__caret {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	flex: none;
+}
+.camply-tree__caretIcon {
+	color: var(--camply-text-muted-2);
+	transition: transform 0.18s var(--camply-ease);
+}
+.camply-tree__caretOpen {
+	transform: rotate(90deg);
+}
+.camply-tree__icon {
+	display: inline-flex;
+	color: currentColor;
+	flex: none;
+}
+.camply-tree__label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.camply-tree__guided {
+	margin-left: 15px;
+	padding-left: 8px;
+	border-left: 1px solid var(--camply-border);
+}

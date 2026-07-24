@@ -1,0 +1,52 @@
+.camply-toggle__toggle {
+	--_h: 40px;
+	--_px: 14px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 7px;
+	height: var(--_h);
+	min-width: var(--_h);
+	padding: 0 var(--_px);
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius);
+	background: var(--camply-fill-1);
+	color: var(--camply-text-muted);
+	font-family: var(--camply-font-sans);
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition:
+		background var(--camply-duration),
+		color var(--camply-duration),
+		border-color var(--camply-duration),
+		transform 0.12s var(--camply-ease-spring);
+}
+.camply-toggle__toggle:hover:not(.camply-toggle__on) {
+	background: var(--camply-fill-2);
+	color: var(--camply-text);
+}
+.camply-toggle__toggle:active {
+	transform: scale(0.95);
+}
+.camply-toggle__on {
+	background: var(--camply-accent-soft);
+	border-color: var(--camply-accent-border);
+	color: var(--camply-accent-hover);
+}
+
+.camply-toggle__sm {
+	--_h: 32px;
+	--_px: 11px;
+	font-size: 13px;
+	border-radius: var(--camply-radius-sm);
+}
+.camply-toggle__md {
+	--_h: 40px;
+}
+.camply-toggle__lg {
+	--_h: 48px;
+	--_px: 18px;
+	font-size: 16px;
+	border-radius: var(--camply-radius-lg);
+}

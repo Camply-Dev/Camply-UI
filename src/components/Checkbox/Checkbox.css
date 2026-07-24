@@ -1,0 +1,39 @@
+/* Le Field est une colonne flex : sans ça, le <label> s'étirerait sur toute la
+   largeur et la zone cliquable déborderait du contenu. */
+.camply-checkbox__field {
+	align-items: flex-start;
+}
+
+.camply-checkbox__control {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius-xs);
+	background: var(--camply-field-bg);
+	color: var(--camply-accent-contrast);
+	transition:
+		background var(--camply-duration),
+		border-color var(--camply-duration);
+}
+.camply-checkbox__tick {
+	opacity: 0;
+	transform: scale(0.6);
+	transition:
+		opacity 0.15s,
+		transform 0.15s var(--camply-ease-spring);
+}
+
+.camply-control__input:checked + .camply-checkbox__control {
+	background: var(--camply-accent);
+	border-color: var(--camply-accent);
+}
+.camply-control__input:checked + .camply-checkbox__control .camply-checkbox__tick {
+	opacity: 1;
+	transform: scale(1);
+}
+.camply-control__input[aria-invalid="true"]:not(:checked) + .camply-checkbox__control {
+	border-color: var(--camply-danger);
+}

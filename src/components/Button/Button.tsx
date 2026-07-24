@@ -1,41 +1,58 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { type ButtonHTMLAttributes, forwardRef, type ReactNode } from "react";
+import { cn } from "../../lib/cn";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost";
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "soft" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-	children: ReactNode;
 	variant?: ButtonVariant;
 	size?: ButtonSize;
+	fullWidth?: boolean;
+	loading?: boolean;
+	leftIcon?: ReactNode;
+	rightIcon?: ReactNode;
 }
 
-const variantStyles: Record<ButtonVariant, string> = {
-	primary: "camply-btn--primary",
-	secondary: "camply-btn--secondary",
-	ghost: "camply-btn--ghost",
-};
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+	(
+		{
+			variant = "primary",
+			size = "md",
+			fullWidth,
+			loading,
+			leftIcon,
+			rightIcon,
+			disabled,
+			type = "button",
+			className,
+			children,
+			...props
+		},
+		ref,
+	) => {
+		return (
+			<button
+				ref={ref}
+				type={type}
+				className={cn(
+					"camply-button__btn",
+					"camply-focus-ring",
+					`camply-button__${variant}`,
+					`camply-button__${size}`,
+					fullWidth && "camply-button__fullWidth",
+					loading && "camply-button__loading",
+					className,
+				)}
+				disabled={disabled || loading}
+				{...props}
+			>
+				{loading && <span className="camply-button__spinner" aria-hidden="true" />}
+				{!loading && leftIcon && <span className="camply-button__icon">{leftIcon}</span>}
+				{children && <span className="camply-button__label">{children}</span>}
+				{!loading && rightIcon && <span className="camply-button__icon">{rightIcon}</span>}
+			</button>
+		);
+	},
+);
 
-const sizeStyles: Record<ButtonSize, string> = {
-	sm: "camply-btn--sm",
-	md: "camply-btn--md",
-	lg: "camply-btn--lg",
-};
-
-export function Button({
-	children,
-	variant = "primary",
-	size = "md",
-	className = "",
-	type = "button",
-	...props
-}: ButtonProps) {
-	const classes = ["camply-btn", variantStyles[variant], sizeStyles[size], className]
-		.filter(Boolean)
-		.join(" ");
-
-	return (
-		<button type={type} className={classes} {...props}>
-			{children}
-		</button>
-	);
-}
+Button.displayName = "Button";

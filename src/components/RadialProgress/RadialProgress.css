@@ -1,0 +1,26 @@
+.camply-radialprogress__root {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-family: var(--camply-font-sans);
+}
+.camply-radialprogress__svg {
+	transform: rotate(-90deg);
+}
+.camply-radialprogress__arc {
+	transition: stroke-dashoffset 0.5s var(--camply-ease);
+}
+.camply-radialprogress__center {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.camply-radialprogress__value {
+	font-family: var(--camply-font-display);
+	font-size: 18px;
+	font-weight: 700;
+	color: var(--camply-text);
+}

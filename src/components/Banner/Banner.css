@@ -1,0 +1,76 @@
+.camply-banner__banner {
+	--_c: var(--camply-info);
+	--_bg: var(--camply-info-soft);
+	--_bd: var(--camply-info-border);
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 16px;
+	border: 1px solid var(--_bd);
+	border-radius: var(--camply-radius-lg);
+	background: var(--_bg);
+	font-family: var(--camply-font-sans);
+}
+.camply-banner__info {
+	--_c: var(--camply-info);
+	--_bg: var(--camply-info-soft);
+	--_bd: var(--camply-info-border);
+}
+.camply-banner__success {
+	--_c: var(--camply-success);
+	--_bg: var(--camply-success-soft);
+	--_bd: var(--camply-success-border);
+}
+.camply-banner__accent {
+	--_c: var(--camply-accent-hover);
+	--_bg: var(--camply-accent-soft);
+	--_bd: var(--camply-accent-border);
+}
+.camply-banner__warn {
+	--_c: var(--camply-warning);
+	--_bg: var(--camply-warning-soft);
+	--_bd: var(--camply-warning-border);
+}
+.camply-banner__danger {
+	--_c: var(--camply-danger);
+	--_bg: var(--camply-danger-soft);
+	--_bd: var(--camply-danger-border);
+}
+
+.camply-banner__icon {
+	display: inline-flex;
+	color: var(--_c);
+	flex: none;
+}
+.camply-banner__text {
+	flex: 1;
+	min-width: 0;
+	font-size: 13.5px;
+	line-height: 1.45;
+	color: var(--camply-text);
+}
+.camply-banner__action {
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+.camply-banner__close {
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	margin: -3px -4px -3px 0;
+	border: none;
+	border-radius: var(--camply-radius-sm);
+	background: transparent;
+	color: var(--camply-text-muted);
+	cursor: pointer;
+	transition: background var(--camply-duration);
+}
+.camply-banner__close:hover {
+	background: var(--camply-fill-3);
+	color: var(--camply-text);
+}

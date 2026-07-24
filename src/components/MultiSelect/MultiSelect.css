@@ -1,0 +1,62 @@
+.camply-multiselect__trigger {
+	justify-content: space-between;
+	cursor: pointer;
+	text-align: left;
+	font-family: inherit;
+}
+
+.camply-multiselect__values {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	flex: 1;
+	min-width: 0;
+}
+.camply-multiselect__placeholder {
+	color: var(--camply-text-muted-2);
+	padding: 3px 0;
+}
+.camply-multiselect__chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 3px 6px 3px 9px;
+	border-radius: var(--camply-radius-sm);
+	background: var(--camply-accent-soft);
+	color: var(--camply-accent-hover);
+	font-size: 12.5px;
+	font-weight: 500;
+}
+.camply-multiselect__chipX {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 15px;
+	height: 15px;
+	border-radius: 4px;
+	background: var(--camply-fill-3);
+	cursor: pointer;
+}
+.camply-multiselect__chipX:hover {
+	background: var(--camply-fill-4);
+}
+
+.camply-multiselect__selected {
+	color: var(--camply-text);
+}
+.camply-multiselect__box {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	border: 1px solid var(--camply-border-strong);
+	border-radius: var(--camply-radius-xs);
+	background: var(--camply-field-bg);
+	color: var(--camply-accent-contrast);
+	flex: none;
+}
+.camply-multiselect__boxOn {
+	background: var(--camply-accent);
+	border-color: var(--camply-accent);
+}
