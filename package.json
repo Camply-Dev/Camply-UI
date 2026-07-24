@@ -366,7 +366,7 @@
 		"esbuild": "^0.28.1",
 		"knip": "6.26.0",
 		"react": "19.2.7",
-		"react-dom": "19.2.7",
+		"react-dom": "19.2.8",
 		"typescript": "7.0.2",
 		"vitest": "3.2.4"
 	}
