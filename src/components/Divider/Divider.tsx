@@ -37,7 +37,7 @@ export const Divider = forwardRef<HTMLElement, DividerProps>(
 						aria-hidden="true"
 						className={cn("camply-divider__line", `camply-divider__${variant}`)}
 					/>
-					<span className={"camply-divider__label"}>{label}</span>
+					<span className="camply-divider__label">{label}</span>
 					<span
 						aria-hidden="true"
 						className={cn("camply-divider__line", `camply-divider__${variant}`)}

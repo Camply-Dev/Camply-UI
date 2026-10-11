@@ -1,80 +1,137 @@
 import {
+	type ForwardedRef,
 	forwardRef,
 	type HTMLAttributes,
 	type KeyboardEvent,
 	type ReactNode,
+	type RefAttributes,
+	useCallback,
 	useMemo,
 	useRef,
 	useState,
 } from "react";
 import { cn } from "../../lib/cn";
 import { ChevronRight } from "../../lib/icons";
+import { useTypeahead } from "../../lib/typeahead";
 import { useControllable } from "../../lib/useControllable";
 
-export interface TreeNode {
+/**
+ * Nœud d'arbre. `T` est la charge utile du consommateur : elle voyage avec le
+ * nœud jusqu'à `onSelect`, ce qui évite de re-chercher le nœud dans l'arbre
+ * source à chaque sélection. `TreeNode` nu (sans paramètre) reste valide : `data`
+ * vaut alors `never`, donc simplement absent.
+ */
+export interface TreeNode<T = never> {
 	id: string;
 	label: ReactNode;
 	icon?: ReactNode;
-	children?: TreeNode[];
+	/** Données libres attachées au nœud — jamais lues par le composant. */
+	data?: T;
+	children?: TreeNode<T>[];
 }
 
-export interface TreeProps extends Omit<HTMLAttributes<HTMLUListElement>, "onSelect"> {
-	nodes: TreeNode[];
+/**
+ * Attributs que la racine se réserve (règle 3) : `role="tree"` porte la navigation
+ * clavier, le tabindex tournant et les `treeitem` enfants ; le contenu vient de `nodes`.
+ */
+type ReservedTreeAttr = "role" | "children" | "dangerouslySetInnerHTML";
+
+export interface TreeProps<T = never>
+	extends Omit<HTMLAttributes<HTMLUListElement>, "onSelect" | ReservedTreeAttr> {
+	nodes: TreeNode<T>[];
 	selectedId?: string;
 	defaultSelectedId?: string;
-	onSelect?: (id: string) => void;
+	/** Reçoit l'id du nœud, puis le nœud complet. */
+	onSelect?: (id: string, node: TreeNode<T>) => void;
+	/** Nœuds dépliés, pilotés par le parent (règle 2), pour accorder l'arbre à une route. */
+	expanded?: string[];
+	/** Nœuds dépliés au montage, en mode non contrôlé. */
 	defaultExpanded?: string[];
+	onExpandedChange?: (expanded: string[]) => void;
 	guides?: boolean;
 }
 
 /** Nœud visible aplati : c'est cette liste que la navigation clavier parcourt. */
-interface FlatNode {
-	node: TreeNode;
+interface FlatNode<T> {
+	node: TreeNode<T>;
 	depth: number;
 	parentId?: string;
 	hasChildren: boolean;
 	isOpen: boolean;
 }
 
-/** Délai au-delà duquel la saisie au clavier repart d'une nouvelle recherche. */
-const TYPEAHEAD_RESET = 500;
-
-export const Tree = forwardRef<HTMLUListElement, TreeProps>(function Tree(
+const TreeRoot = forwardRef(function Tree<T>(
 	{
 		nodes,
 		selectedId,
 		defaultSelectedId,
 		onSelect,
+		expanded,
 		defaultExpanded = [],
+		onExpandedChange,
 		guides = false,
 		className,
 		onKeyDown,
 		...rest
-	},
-	ref,
+	}: TreeProps<T>,
+	ref: ForwardedRef<HTMLUListElement>,
 ) {
-	const [selected, setSelected] = useControllable(selectedId, defaultSelectedId, onSelect, {
+	// Index id → nœud sur l'arbre entier : c'est lui qui permet de rendre le nœud
+	// à `onSelect` sans le faire re-chercher au consommateur.
+	const byId = useMemo(() => {
+		const map = new Map<string, TreeNode<T>>();
+		const walk = (list: TreeNode<T>[]) => {
+			for (const node of list) {
+				map.set(node.id, node);
+				if (node.children) walk(node.children);
+			}
+		};
+		walk(nodes);
+		return map;
+	}, [nodes]);
+
+	// `useControllable` ne transporte qu'une valeur : le nœud est rattaché ici, au
+	// moment d'émettre.
+	const emitSelect = useCallback(
+		(id: string | undefined) => {
+			if (id === undefined) return;
+			const node = byId.get(id);
+			// Les sélections ne naissent que de nœuds rendus : l'absence est impossible
+			// en pratique, mais on préfère ne rien émettre à émettre un nœud inventé.
+			if (node) onSelect?.(id, node);
+		},
+		[byId, onSelect],
+	);
+
+	const [selected, setSelected] = useControllable(selectedId, defaultSelectedId, emitSelect, {
 		allowUndefined: true,
 	});
-	const [expanded, setExpanded] = useState<Set<string>>(() => new Set(defaultExpanded));
+	const [expandedIds, setExpandedIds] = useControllable<string[]>(
+		expanded,
+		defaultExpanded,
+		onExpandedChange,
+	);
+	// L'appartenance se teste à chaque nœud rendu et à chaque touche : un Set dérivé
+	// une fois coûte moins qu'un `includes` par nœud.
+	const open = useMemo(() => new Set(expandedIds), [expandedIds]);
 	const [focusedId, setFocusedId] = useState<string>();
 	const rows = useRef(new Map<string, HTMLDivElement>()).current;
-	const search = useRef({ query: "", at: 0 });
+	const typeahead = useTypeahead();
 
 	// Les nœuds visibles à plat : l'ordre des flèches Haut/Bas est celui de l'écran.
 	const visible = useMemo(() => {
-		const flat: FlatNode[] = [];
-		const walk = (list: TreeNode[], depth: number, parentId?: string) => {
+		const flat: FlatNode<T>[] = [];
+		const walk = (list: TreeNode<T>[], depth: number, parentId?: string) => {
 			for (const node of list) {
 				const hasChildren = !!node.children?.length;
-				const isOpen = hasChildren && expanded.has(node.id);
+				const isOpen = hasChildren && open.has(node.id);
 				flat.push({ node, depth, parentId, hasChildren, isOpen });
 				if (isOpen) walk(node.children ?? [], depth + 1, node.id);
 			}
 		};
 		walk(nodes, 0);
 		return flat;
-	}, [nodes, expanded]);
+	}, [nodes, open]);
 
 	// Roving tabindex : un seul nœud tabbable — le focusé, sinon le sélectionné, sinon le premier.
 	const activeId = useMemo(() => {
@@ -84,13 +141,14 @@ export const Tree = forwardRef<HTMLUListElement, TreeProps>(function Tree(
 		return visible[0]?.node.id;
 	}, [focusedId, selected, visible]);
 
-	const setOpen = (id: string, open: boolean) =>
-		setExpanded((prev) => {
-			const next = new Set(prev);
-			if (open) next.add(id);
-			else next.delete(id);
-			return next;
-		});
+	// `set` de useControllable ne prend pas d'updater : on part de l'état courant,
+	// comme Accordion. Le Set garantit au passage l'absence de doublon.
+	const setOpen = (id: string, isOpen: boolean) => {
+		const next = new Set(open);
+		if (isOpen) next.add(id);
+		else next.delete(id);
+		setExpandedIds([...next]);
+	};
 
 	const focusNode = (id: string | undefined) => {
 		if (!id) return;
@@ -98,29 +156,10 @@ export const Tree = forwardRef<HTMLUListElement, TreeProps>(function Tree(
 		rows.get(id)?.focus();
 	};
 
-	const activate = (node: TreeNode, hasChildren: boolean) => {
+	const activate = (node: TreeNode<T>, hasChildren: boolean) => {
 		setFocusedId(node.id);
 		setSelected(node.id);
-		if (hasChildren) setOpen(node.id, !expanded.has(node.id));
-	};
-
-	/** Saisie au clavier : saute au nœud visible dont le libellé commence par ce qui est tapé. */
-	const typeahead = (e: KeyboardEvent<HTMLUListElement>, from: number) => {
-		if (e.key.length !== 1 || e.ctrlKey || e.metaKey || e.altKey || !e.key.trim()) return;
-		const now = Date.now();
-		const previous = now - search.current.at < TYPEAHEAD_RESET ? search.current.query : "";
-		const query = previous + e.key.toLowerCase();
-		search.current = { query, at: now };
-
-		// Une lettre répétée avance au suivant ; une saisie continue affine sur place.
-		const start = query.length > 1 ? from : from + 1;
-		const ordered = [...visible.slice(start), ...visible.slice(0, start)];
-		const hit = ordered.find((f) =>
-			rows.get(f.node.id)?.textContent?.trim().toLowerCase().startsWith(query),
-		);
-		if (!hit) return;
-		e.preventDefault();
-		focusNode(hit.node.id);
+		if (hasChildren) setOpen(node.id, !open.has(node.id));
 	};
 
 	// Navigation APG portée par l'arbre lui-même : les touches remontent depuis le nœud focusé.
@@ -166,15 +205,22 @@ export const Tree = forwardRef<HTMLUListElement, TreeProps>(function Tree(
 				activate(current.node, current.hasChildren);
 				return;
 			}
-			default:
-				typeahead(e, index);
+			default: {
+				// Typeahead : le texte est lu dans la table des lignes rendues, la recherche
+				// elle-même est partagée avec le menu (src/lib/typeahead.ts).
+				const labels = visible.map((f) => rows.get(f.node.id)?.textContent);
+				const at = typeahead.find(e, labels, index);
+				if (at === -1) return;
+				e.preventDefault();
+				focusNode(visible[at].node.id);
+			}
 		}
 	};
 
-	const renderNodes = (list: TreeNode[], depth: number): ReactNode =>
+	const renderNodes = (list: TreeNode<T>[], depth: number): ReactNode =>
 		list.map((node) => {
 			const hasChildren = !!node.children?.length;
-			const isOpen = hasChildren && expanded.has(node.id);
+			const isOpen = hasChildren && open.has(node.id);
 			const isSelected = selected === node.id;
 			return (
 				<li key={node.id} role="none">
@@ -197,7 +243,7 @@ export const Tree = forwardRef<HTMLUListElement, TreeProps>(function Tree(
 						style={{ paddingLeft: guides ? 8 : 8 + depth * 18 }}
 						onClick={() => activate(node, hasChildren)}
 					>
-						<span className={"camply-tree__caret"}>
+						<span className="camply-tree__caret">
 							{hasChildren && (
 								<ChevronRight
 									size={14}
@@ -205,8 +251,8 @@ export const Tree = forwardRef<HTMLUListElement, TreeProps>(function Tree(
 								/>
 							)}
 						</span>
-						{node.icon && <span className={"camply-tree__icon"}>{node.icon}</span>}
-						<span className={"camply-tree__label"}>{node.label}</span>
+						{node.icon && <span className="camply-tree__icon">{node.icon}</span>}
+						<span className="camply-tree__label">{node.label}</span>
 					</div>
 					{hasChildren && isOpen && (
 						// biome-ignore lint/a11y/useSemanticElements: ul+role="group" est le pattern ARIA des sous-arbres
@@ -219,15 +265,27 @@ export const Tree = forwardRef<HTMLUListElement, TreeProps>(function Tree(
 		});
 
 	return (
+		// Règle 3 : le spread d'abord ; un `role` du consommateur détruirait la
+		// sémantique dont dépendent le clavier et les `treeitem`.
 		<ul
+			{...rest}
 			ref={ref}
-			className={cn("camply-tree__tree", className)}
 			// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: ul+role="tree" est le pattern ARIA canonique — la navigation clavier vit sur l'arbre, les treeitem se partagent un tabindex (roving)
 			role="tree"
+			className={cn("camply-tree__tree", className)}
 			onKeyDown={handleKeyDown}
-			{...rest}
 		>
 			{renderNodes(nodes, 0)}
 		</ul>
 	);
 });
+
+/**
+ * Arbre APG (`ul[role=tree]`, tabindex tournant). `forwardRef` efface le
+ * paramètre générique : on le restaure par un cast, pour que `T` continue d'être
+ * inféré depuis `nodes` — et que `<Tree nodes={…} />` sans `data` reste écrivable
+ * sans annotation.
+ */
+export const Tree = TreeRoot as <T = never>(
+	props: TreeProps<T> & RefAttributes<HTMLUListElement>,
+) => ReactNode;

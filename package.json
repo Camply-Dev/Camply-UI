@@ -1,6 +1,6 @@
 {
 	"name": "@camply/ui",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Bibliothèque de composants React pour Camply",
 	"type": "module",
 	"workspaces": [
@@ -32,7 +32,9 @@
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js"
 		},
+		"./package.json": "./package.json",
 		"./styles.css": "./dist/styles.css",
+		"./tokens.css": "./dist/tokens.css",
 		"./icons": {
 			"types": "./dist/lib/icons.d.ts",
 			"import": "./dist/lib/icons.js"
@@ -132,6 +134,11 @@
 			"import": "./dist/components/DropdownMenu/index.js"
 		},
 		"./DropdownMenu/styles.css": "./dist/components/DropdownMenu/DropdownMenu.css",
+		"./EmptyState": {
+			"types": "./dist/components/EmptyState/index.d.ts",
+			"import": "./dist/components/EmptyState/index.js"
+		},
+		"./EmptyState/styles.css": "./dist/components/EmptyState/EmptyState.css",
 		"./FileUpload": {
 			"types": "./dist/components/FileUpload/index.d.ts",
 			"import": "./dist/components/FileUpload/index.js"
@@ -345,12 +352,12 @@
 		"dev": "bun --cwd docs dev",
 		"docs:build": "bun --cwd docs build",
 		"build": "bun scripts/build.js",
-		"typecheck": "tsc --noEmit && tsc --noEmit -p docs/tsconfig.json",
+		"typecheck": "tsc --noEmit && tsc --noEmit -p tests/tsconfig.json && tsc --noEmit -p docs/tsconfig.json",
 		"knip": "knip",
 		"check": "biome check .",
 		"fix": "biome check --write .",
 		"sync": "bun scripts/sync-src-barrel.js",
-		"prepublishOnly": "bun run build",
+		"prepublishOnly": "bun run build && bunx --bun publint@0.3.16 --strict",
 		"test": "vitest run",
 		"test:watch": "vitest"
 	},
@@ -360,10 +367,14 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.3",
+		"@testing-library/jest-dom": "^7.0.1",
+		"@testing-library/react": "^16.3.3",
+		"@testing-library/user-event": "^14.6.7",
 		"@types/bun": "1.3.14",
 		"@types/react": "19.2.17",
 		"@types/react-dom": "19.2.3",
 		"esbuild": "^0.28.1",
+		"jsdom": "^30.1.0",
 		"knip": "6.26.0",
 		"react": "19.2.7",
 		"react-dom": "19.2.7",

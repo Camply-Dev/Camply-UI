@@ -12,6 +12,7 @@ import {
 	useRef,
 } from "react";
 import { cn } from "../../lib/cn";
+import { useLabels } from "../../lib/i18n";
 import { ChevronDown, ChevronUp } from "../../lib/icons";
 import { nextSortState, type SortState, sortRows } from "../../lib/tableSort";
 import { useControllable } from "../../lib/useControllable";
@@ -23,14 +24,53 @@ export type { SortDir, SortState } from "../../lib/tableSort";
 /** Clé de ligne renvoyée par `rowKey` — c'est aussi l'unité de sélection. */
 export type RowKey = string | number;
 
-export interface Column<Row> {
-	key: string;
+/**
+ * Clés de `Row` dont la valeur est directement affichable par React — donc les
+ * seules qu'une colonne peut lire sans `cell`. Une `Date`, un objet ou un tableau
+ * d'objets en sont exclus : ils exigent un `cell`, au lieu de finir rendus en
+ * `[object Object]` à l'exécution. Les clés numériques le sont aussi (`& string`).
+ * La garantie vaut ce que vaut le typage de `Row` : un `Row` en `any` laisse tout
+ * passer, un `Row` en `Record<string, unknown>` ne laisse rien passer (`never`, donc
+ * `cell` partout).
+ */
+export type RenderableKey<Row> = {
+	[K in keyof Row]-?: Row[K] extends ReactNode ? K : never;
+}[keyof Row] &
+	string;
+
+interface ColumnBase<Row> {
 	header: ReactNode;
-	cell?: (row: Row) => ReactNode;
+	/** Rend la colonne triable ; la valeur renvoyée sert de critère de comparaison. */
 	sortValue?: (row: Row) => string | number;
 	align?: "left" | "right" | "center";
 	width?: number | string;
 }
+
+/**
+ * Colonne adossée à un champ : `key` désigne une propriété rendable de `Row`, dont
+ * la valeur est affichée telle quelle. `cell` reste possible pour l'habiller — il
+ * prime alors sur la lecture du champ.
+ */
+export interface FieldColumn<Row> extends ColumnBase<Row> {
+	key: RenderableKey<Row>;
+	cell?: (row: Row) => ReactNode;
+}
+
+/**
+ * Colonne calculée (actions, agrégat, colonne virtuelle) : `key` est un identifiant
+ * de colonne libre qui ne pointe vers aucun champ, donc `cell` dit quoi afficher.
+ */
+export interface ComputedColumn<Row> extends ColumnBase<Row> {
+	key: string;
+	cell: (row: Row) => ReactNode;
+}
+
+/**
+ * Union discriminée par la présence de `cell` : une clé qui n'est pas un champ
+ * rendable de `Row` bascule la colonne du côté « calculée », où `cell` est exigé.
+ * Une clé mal orthographiée donne une erreur de compilation, pas une cellule vide.
+ */
+export type Column<Row> = FieldColumn<Row> | ComputedColumn<Row>;
 
 export interface TableProps<Row> extends ComponentPropsWithoutRef<"div"> {
 	columns: Column<Row>[];
@@ -55,10 +95,29 @@ export interface TableProps<Row> extends ComponentPropsWithoutRef<"div"> {
 	loadingRows?: number;
 	/** En-tête collant — à combiner avec une hauteur max sur le conteneur. */
 	stickyHeader?: boolean;
-	/** Nom accessible de la case « tout sélectionner ». */
+	/** Nom accessible de la case « tout sélectionner » ; sinon `CamplyLabels.selectAll`. */
 	selectAllLabel?: string;
-	/** Nom accessible de la case d'une ligne. */
+	/** Nom accessible de la case d'une ligne ; sinon `CamplyLabels.selectRow`. */
 	rowSelectionLabel?: (row: Row, index: number) => string;
+}
+
+/**
+ * TypeScript ne réduit pas une union sur la présence d'une prop optionnelle. Le
+ * prédicat teste « a un `cell` », seul sens vrai par construction : une
+ * `FieldColumn` habillée d'un `cell` satisfait aussi `ComputedColumn`.
+ */
+function hasCell<Row>(col: Column<Row>): col is ComputedColumn<Row> {
+	return !!col.cell;
+}
+
+/** Contenu d'une cellule : `cell` s'il est fourni, sinon le champ désigné par `key`. */
+function cellContent<Row>(col: Column<Row>, row: Row): ReactNode {
+	if (hasCell(col)) return col.cell(row);
+	// `key` est ici une clé de `Row` — l'indexation est vérifiée par le compilateur.
+	// Seule la « rendabilité » de la valeur lui échappe : il ne résout pas le
+	// conditionnel de `RenderableKey` tant que `Row` reste un générique ouvert. D'où
+	// cette unique assertion, vraie par construction du type côté consommateur.
+	return (row[col.key] as ReactNode) ?? null;
 }
 
 /** Un clic né d'un contrôle interne (case à cocher, lien, bouton) ne déclenche pas `onRowClick`. */
@@ -87,12 +146,13 @@ const TableRoot = forwardRef(function Table<Row>(
 		loading = false,
 		loadingRows = 4,
 		stickyHeader = false,
-		selectAllLabel = "Tout sélectionner",
-		rowSelectionLabel = (_row, index) => `Sélectionner la ligne ${index + 1}`,
+		selectAllLabel,
+		rowSelectionLabel,
 		...rest
 	}: TableProps<Row>,
 	ref: ForwardedRef<HTMLDivElement>,
 ) {
+	const labels = useLabels();
 	const [sort, setSort] = useControllable<SortState | null>(sortProp, defaultSort, onSortChange);
 	const [selection, setSelection] = useControllable<RowKey[]>(
 		selectedKeys,
@@ -149,16 +209,16 @@ const TableRoot = forwardRef(function Table<Row>(
 			aria-busy={loading || undefined}
 			{...rest}
 		>
-			<table className={"camply-table__table"}>
+			<table className="camply-table__table">
 				<thead className={cn(stickyHeader && "camply-table__stickyHead")}>
 					<tr>
 						{selectable && (
-							<th className={"camply-table__th camply-table__selectCell"} scope="col">
+							<th className="camply-table__th camply-table__selectCell" scope="col">
 								<Checkbox
 									ref={selectAllRef}
 									checked={allSelected}
 									onChange={toggleAll}
-									aria-label={selectAllLabel}
+									aria-label={selectAllLabel ?? labels.selectAll}
 								/>
 							</th>
 						)}
@@ -168,7 +228,7 @@ const TableRoot = forwardRef(function Table<Row>(
 								<>
 									{col.header}
 									{col.sortValue && (
-										<span className={"camply-table__sortIcon"}>
+										<span className="camply-table__sortIcon">
 											{dir === "asc" ? (
 												<ChevronUp size={13} />
 											) : (
@@ -195,13 +255,13 @@ const TableRoot = forwardRef(function Table<Row>(
 									{col.sortValue ? (
 										<button
 											type="button"
-											className={"camply-table__thInner camply-focus-ring"}
+											className="camply-table__thInner camply-focus-ring"
 											onClick={() => toggleSort(col)}
 										>
 											{inner}
 										</button>
 									) : (
-										<span className={"camply-table__thInner"}>{inner}</span>
+										<span className="camply-table__thInner">{inner}</span>
 									)}
 								</th>
 							);
@@ -215,7 +275,7 @@ const TableRoot = forwardRef(function Table<Row>(
 							<tr key={i}>
 								{Array.from({ length: colCount }).map((__, j) => (
 									// biome-ignore lint/suspicious/noArrayIndexKey: cellules de chargement à position fixe — l'index EST l'identité
-									<td key={j} className={"camply-table__td"}>
+									<td key={j} className="camply-table__td">
 										<Skeleton />
 									</td>
 								))}
@@ -223,7 +283,7 @@ const TableRoot = forwardRef(function Table<Row>(
 						))
 					) : sorted.length === 0 && emptyState ? (
 						<tr>
-							<td colSpan={colCount} className={"camply-table__empty"}>
+							<td colSpan={colCount} className="camply-table__empty">
 								{emptyState}
 							</td>
 						</tr>
@@ -247,11 +307,13 @@ const TableRoot = forwardRef(function Table<Row>(
 									onKeyDown={onRowClick && keyDownRow(row)}
 								>
 									{selectable && (
-										<td className={"camply-table__td camply-table__selectCell"}>
+										<td className="camply-table__td camply-table__selectCell">
 											<Checkbox
 												checked={isSelected}
 												onChange={() => toggleRow(key)}
-												aria-label={rowSelectionLabel(row, i)}
+												aria-label={
+													rowSelectionLabel ? rowSelectionLabel(row, i) : labels.selectRow(i)
+												}
 											/>
 										</td>
 									)}
@@ -263,9 +325,7 @@ const TableRoot = forwardRef(function Table<Row>(
 												col.align && `camply-table__align-${col.align}`,
 											)}
 										>
-											{col.cell
-												? col.cell(row)
-												: ((row as Record<string, ReactNode>)[col.key] ?? null)}
+											{cellContent(col, row)}
 										</td>
 									))}
 								</tr>

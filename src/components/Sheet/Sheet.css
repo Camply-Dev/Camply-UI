@@ -10,20 +10,19 @@
 	flex-direction: column;
 	max-height: 90vh;
 	background: var(--camply-surface-2);
-	font-family: var(--camply-font-sans);
 }
 .camply-sheet__bottom {
 	bottom: 0;
 	border-top: 1px solid var(--camply-border-strong);
 	border-radius: var(--camply-radius-xl) var(--camply-radius-xl) 0 0;
-	box-shadow: 0 -20px 60px rgba(2, 8, 18, 0.55);
+	box-shadow: 0 -20px 60px var(--camply-shadow-color);
 	animation: camply-sheet-up 0.3s var(--camply-ease);
 }
 .camply-sheet__top {
 	top: 0;
 	border-bottom: 1px solid var(--camply-border-strong);
 	border-radius: 0 0 var(--camply-radius-xl) var(--camply-radius-xl);
-	box-shadow: 0 20px 60px rgba(2, 8, 18, 0.55);
+	box-shadow: 0 20px 60px var(--camply-shadow-color);
 	animation: camply-sheet-down 0.3s var(--camply-ease);
 }
 @keyframes camply-sheet-up {
@@ -53,31 +52,6 @@
 	gap: 16px;
 	padding: 18px 24px;
 }
-.camply-sheet__title {
-	margin: 0;
-	font-family: var(--camply-font-display);
-	font-size: 18px;
-	font-weight: 700;
-	letter-spacing: -0.3px;
-	color: var(--camply-text);
-}
-.camply-sheet__close {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 30px;
-	height: 30px;
-	border: none;
-	border-radius: var(--camply-radius-sm);
-	background: var(--camply-fill-2);
-	color: var(--camply-text-muted);
-	cursor: pointer;
-	transition: background var(--camply-duration);
-}
-.camply-sheet__close:hover {
-	background: var(--camply-fill-3);
-	color: var(--camply-text);
-}
 .camply-sheet__content {
 	flex: 1;
 	overflow-y: auto;
@@ -85,8 +59,4 @@
 	color: var(--camply-text-muted);
 	font-size: 14px;
 	line-height: 1.6;
-}
-.camply-sheet__footer {
-	padding: 16px 24px;
-	border-top: 1px solid var(--camply-border);
 }

@@ -24,6 +24,27 @@
 	user-select: none;
 }
 
+/*
+ * Palette de repli (avatar sans image) : une classe par index, le composant ne
+ * choisit que l'index à partir du hachage du nom. Les couleurs restent ici pour
+ * qu'une application puisse redéfinir sa palette sans `!important`.
+ */
+.camply-avatar__tint0 {
+	background: linear-gradient(150deg, #7dd3fc, #38bdf8);
+}
+.camply-avatar__tint1 {
+	background: linear-gradient(150deg, #7ab6e0, #4f86b0);
+}
+.camply-avatar__tint2 {
+	background: linear-gradient(150deg, #e0c07a, #b0904a);
+}
+.camply-avatar__tint3 {
+	background: linear-gradient(150deg, #e0a17a, #b06a4a);
+}
+.camply-avatar__tint4 {
+	background: linear-gradient(150deg, #b79ee0, #8467b0);
+}
+
 .camply-avatar__status {
 	position: absolute;
 	bottom: 0;
@@ -35,7 +56,7 @@
 	background: var(--camply-success);
 }
 .camply-avatar__away {
-	background: var(--camply-warning);
+	background: var(--camply-warn);
 }
 .camply-avatar__busy {
 	background: var(--camply-danger);

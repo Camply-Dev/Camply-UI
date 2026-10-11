@@ -4,13 +4,21 @@ export interface DismissLayer {
 	/** Éléments qui comptent comme « intérieur » : le déclencheur ET la surface. */
 	refs: Array<RefObject<HTMLElement | null>>;
 	onClose: () => void;
+	/**
+	 * Couche que SEULE Échap referme : le clic extérieur ne la ferme pas.
+	 * Un dialogue modal a déjà son voile pour ça, une couche de survol a
+	 * `mouseleave` — mais tous deux doivent s'empiler pour qu'Échap n'en ferme
+	 * qu'un à la fois. Ses `refs` comptent toujours comme intérieur : un clic
+	 * dans le panneau d'un dialogue épargne les couches qu'il recouvre.
+	 */
+	escapeOnly?: boolean;
 }
 
 /**
  * Pile des couches renvoyables (menus, popovers, listes…), du plus ancien au
- * plus récent. Sans elle : une seule Échap fermait TOUT le stack, et un portail
- * enfant (la liste d'un Select dans un Popover) comptait comme « extérieur »,
- * ce qui refermait le parent au premier clic.
+ * plus récent. Sans elle, une seule Échap fermerait TOUT le stack, et un portail
+ * enfant (la liste d'un Select dans un Popover) compterait comme « extérieur »,
+ * ce qui refermerait le parent au premier clic.
  */
 const stack: DismissLayer[] = [];
 
@@ -26,6 +34,9 @@ function onKeyDown(e: KeyboardEvent) {
 function onPointerDown(e: PointerEvent) {
 	const target = e.target as Node;
 	// Couche la plus profonde qui contient la cible (-1 = clic hors de tout).
+	// Toutes les couches peuvent contenir la cible, `escapeOnly` compris : un
+	// dialogue ouvert depuis un Popover est portalisé hors du panneau de ce
+	// dernier, et c'est sa propre couche qui doit arrêter la remontée.
 	let deepest = -1;
 	for (let i = stack.length - 1; i >= 0; i--) {
 		if (containsTarget(stack[i], target)) {
@@ -33,9 +44,10 @@ function onPointerDown(e: PointerEvent) {
 			break;
 		}
 	}
-	// On ne referme que ce qui est AU-DESSUS de la couche cliquée, du haut vers le bas.
+	// On ne referme que ce qui est AU-DESSUS de la couche cliquée, du haut vers le
+	// bas ; une couche `escapeOnly` n'est jamais fermée par le pointeur.
 	for (let i = stack.length - 1; i > deepest; i--) {
-		stack[i].onClose();
+		if (!stack[i].escapeOnly) stack[i].onClose();
 	}
 }
 

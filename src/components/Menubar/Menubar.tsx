@@ -19,14 +19,22 @@ import { useControllable } from "../../lib/useControllable";
 import { useDismiss } from "../../lib/useDismiss";
 import { useId } from "../../lib/useId";
 import { useMenuNav } from "../../lib/useMenuNav";
+// Import direct plutôt que par le barrel : `MenuCloseContext` est interne à la
+// librairie (le barrel de DropdownMenu ne l'expose pas) et c'est lui qui permet
+// à la barre de réutiliser l'entrée de menu du menu déroulant.
+import {
+	MenuCloseContext,
+	MenuItem,
+	type MenuItemProps,
+	MenuSeparator,
+} from "../DropdownMenu/DropdownMenu";
 
-export interface MenubarItem {
+/**
+ * Une entrée de barre est une `MenuItem` (règle 1) décrite par des données :
+ * `children` devient `label`, et le séparateur qui la précède devient un drapeau.
+ */
+export interface MenubarItem extends Omit<MenuItemProps, "children"> {
 	label: ReactNode;
-	icon?: ReactNode;
-	shortcut?: string;
-	onSelect?: () => void;
-	danger?: boolean;
-	disabled?: boolean;
 	separatorBefore?: boolean;
 }
 
@@ -35,7 +43,13 @@ export interface MenubarMenu {
 	items: MenubarItem[];
 }
 
-export interface MenubarProps extends ComponentPropsWithoutRef<"div"> {
+/**
+ * `role="menubar"` est posé après le spread et `children` retiré du type : c'est
+ * `menus` qui décrit le contenu (règle 3). `onKeyDown` et `onMouseLeave` sont
+ * composés avec les nôtres (règle 4).
+ */
+export interface MenubarProps
+	extends Omit<ComponentPropsWithoutRef<"div">, "role" | "children" | "dangerouslySetInnerHTML"> {
 	menus: MenubarMenu[];
 	/**
 	 * Index du menu ouvert, piloté par le parent (`null` = aucun). Une barre de
@@ -53,6 +67,11 @@ const CLOSE_DELAY = 180;
 
 const ITEM_SELECTOR = '[role="menuitem"]:not([disabled])';
 
+/**
+ * Barre de menus au pattern APG. Passe-lui un `aria-label` (transmis tel quel à
+ * l'élément `role="menubar"`) : sans nom, un lecteur d'écran annonce une « barre
+ * de menus » nue, indistinguable d'une autre sur la même page.
+ */
 export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 	(
 		{
@@ -62,6 +81,8 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 			onOpenIndexChange,
 			className,
 			style: styleProp,
+			onKeyDown: onKeyDownProp,
+			onMouseLeave: onMouseLeaveProp,
 			...rest
 		},
 		ref,
@@ -151,6 +172,9 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 		const { onKeyDown: onItemsKeyDown } = useMenuNav(menuRef, open);
 
 		const onBarKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+			// Règle 4 : le spread précède ce handler, celui du consommateur est donc appelé ici.
+			onKeyDownProp?.(e);
+			if (e.defaultPrevented) return;
 			if (menus.length === 0) return;
 
 			// Bas : ouvre le menu du déclencheur focalisé et entre dedans.
@@ -211,7 +235,11 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 					className={cn("camply-menubar__bar", className)}
 					style={styleProp}
 					onKeyDown={onBarKeyDown}
-					onMouseLeave={scheduleClose}
+					onMouseLeave={(e) => {
+						onMouseLeaveProp?.(e);
+						if (e.defaultPrevented) return;
+						scheduleClose();
+					}}
 				>
 					{menus.map((menu, i) => (
 						<button
@@ -228,6 +256,7 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 							tabIndex={i === roving ? 0 : -1}
 							className={cn(
 								"camply-menubar__trigger",
+								"camply-focus-ring",
 								openIdx === i && "camply-menubar__triggerOpen",
 							)}
 							onClick={() => {
@@ -258,28 +287,19 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 							onMouseEnter={cancelClose}
 							onMouseLeave={scheduleClose}
 						>
-							{activeMenu.items.map((item, i) => (
-								// biome-ignore lint/suspicious/noArrayIndexKey: items de menu déclaratifs sans id — la position est l'identité
-								<Fragment key={i}>
-									{item.separatorBefore && <hr className={"camply-menu-separator"} />}
-									<button
-										type="button"
-										role="menuitem"
-										disabled={item.disabled}
-										className={cn("camply-menu-item", item.danger && "camply-menu-item--danger")}
-										onClick={() => {
-											close();
-											item.onSelect?.();
-										}}
-									>
-										{item.icon && <span className={"camply-menu-item__icon"}>{item.icon}</span>}
-										<span className={"camply-menu-item__label"}>{item.label}</span>
-										{item.shortcut && (
-											<span className={"camply-menu-item__shortcut"}>{item.shortcut}</span>
-										)}
-									</button>
-								</Fragment>
-							))}
+							{/* Mêmes entrées que DropdownMenu, à la lettre : c'est le contexte qui
+							    leur donne LA fermeture de la barre (celle qui rend le focus au bon
+							    déclencheur). L'ordre « onSelect puis close » vit dans MenuItem, une
+							    seule fois, pour les deux menus. */}
+							<MenuCloseContext.Provider value={close}>
+								{activeMenu.items.map(({ label, separatorBefore, ...item }, i) => (
+									// biome-ignore lint/suspicious/noArrayIndexKey: items de menu déclaratifs sans id — la position est l'identité
+									<Fragment key={i}>
+										{separatorBefore && <MenuSeparator />}
+										<MenuItem {...item}>{label}</MenuItem>
+									</Fragment>
+								))}
+							</MenuCloseContext.Provider>
 						</div>
 					</Portal>
 				)}

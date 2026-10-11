@@ -1,52 +1,43 @@
+/* Racine, en-tête, piste et poignées viennent de la jauge partagée
+   (tokens.css) : le curseur d'intervalle n'est qu'un Slider à deux poignées et
+   n'en dévie que par les écarts ci-dessous. */
+
+/* Le libellé est rendu par `Field` : l'en-tête ne porte que la plage, et c'est
+   l'espacement de `.camply-field` qui tient la colonne — d'où une marge
+   d'en-tête nulle. */
 .camply-rangeslider__root {
-	width: 100%;
-	font-family: var(--camply-font-sans);
-}
-.camply-rangeslider__root.camply-rangeslider__disabled {
-	opacity: 0.5;
-	pointer-events: none;
-}
-.camply-rangeslider__head {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 14px;
-}
-.camply-rangeslider__label {
-	font-size: 13px;
-	color: var(--camply-text-muted);
-}
-.camply-rangeslider__value {
-	font-family: var(--camply-font-mono);
-	font-size: 13px;
-	color: var(--camply-accent-hover);
+	--_head-mb: 0;
+	--_head-fs: 13px;
 }
 
+/* Seul contenu de l'en-tête, la plage se recale à droite sans surcharger le
+   `justify-content` de la feuille partagée : `margin-inline-start` lui est
+   disjoint, l'ordre des feuilles n'entre donc pas en jeu. */
+.camply-rangeslider__value {
+	margin-inline-start: auto;
+}
+
+/* Les poignées débordent la piste de 6 px de part et d'autre : sans cette marge
+   elles viendraient toucher la plage au-dessus et le message d'aide en dessous,
+   que `Field` place à 7 px. */
 .camply-rangeslider__track {
-	position: relative;
-	height: 6px;
-	border-radius: var(--camply-radius-pill);
-	background: var(--camply-fill-3);
-	touch-action: none;
+	margin-block: 6px;
 }
-.camply-rangeslider__fill {
-	position: absolute;
-	top: 0;
-	height: 100%;
-	border-radius: var(--camply-radius-pill);
-	background: var(--camply-gradient-accent);
-}
+
+/* L'anneau de focus de la lib EST une box-shadow : sans transition il apparaît
+   d'un coup, alors qu'il se fond sur le curseur simple. Deux poignées au lieu
+   d'une ne justifient pas deux apparitions de focus différentes. */
 .camply-rangeslider__knob {
-	position: absolute;
-	top: 50%;
-	transform: translate(-50%, -50%);
-	width: 18px;
-	height: 18px;
-	border-radius: 50%;
-	background: var(--camply-knob);
-	box-shadow: var(--camply-shadow-sm);
-	cursor: grab;
+	transition: box-shadow var(--camply-duration);
 }
-.camply-rangeslider__knob:active {
-	cursor: grabbing;
+
+/* En erreur, la jauge se teinte comme le ferait la bordure d'un `field-shell` :
+   le message seul ne suffit pas à rattacher l'erreur au contrôle. Ces deux
+   règles surchargent bien la feuille partagée, mais par SPÉCIFICITÉ (deux
+   classes contre une) — l'ordre des feuilles reste sans effet. */
+.camply-rangeslider__root--error .camply-rangeslider__track {
+	background: var(--camply-danger-soft);
+}
+.camply-rangeslider__root--error .camply-rangeslider__fill {
+	background: var(--camply-gradient-danger);
 }

@@ -1,5 +1,6 @@
 import { type KeyboardEvent, type RefObject, useEffect } from "react";
 import { wrapIndex } from "./rovingIndex";
+import { useTypeahead } from "./typeahead";
 
 /**
  * Navigation clavier ARIA APG d'un menu (DropdownMenu, Menubar) :
@@ -8,6 +9,8 @@ import { wrapIndex } from "./rovingIndex";
  * n'est atteignable ni au Tab ni aux flèches.
  */
 export function useMenuNav(containerRef: RefObject<HTMLElement | null>, open: boolean) {
+	const typeahead = useTypeahead();
+
 	const items = () => {
 		const el = containerRef.current;
 		if (!el) return [] as HTMLElement[];
@@ -17,6 +20,9 @@ export function useMenuNav(containerRef: RefObject<HTMLElement | null>, open: bo
 	// À l'ouverture, le focus entre dans le menu (première entrée active).
 	// biome-ignore lint/correctness/useExhaustiveDependencies: containerRef est un RefObject stable
 	useEffect(() => {
+		// Chaque ouverture/fermeture repart d'une recherche vierge : sans ça, les
+		// frappes de la fois précédente se recolleraient aux nouvelles pendant 500 ms.
+		typeahead.reset();
 		if (!open) return;
 		const id = requestAnimationFrame(() => items()[0]?.focus());
 		return () => cancelAnimationFrame(id);
@@ -37,17 +43,13 @@ export function useMenuNav(containerRef: RefObject<HTMLElement | null>, open: bo
 		if (e.key === "Home") return focusAt(0);
 		if (e.key === "End") return focusAt(list.length - 1);
 
-		// Typeahead : taper une lettre saute à l'entrée suivante qui commence par elle.
-		if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && e.key.trim()) {
-			const q = e.key.toLowerCase();
-			const from = current + 1;
-			const ordered = [...list.slice(from), ...list.slice(0, from)];
-			const hit = ordered.find((el) => el.textContent?.trim().toLowerCase().startsWith(q));
-			if (hit) {
-				e.preventDefault();
-				hit.focus();
-			}
-		}
+		// Typeahead : le texte des entrées est lu dans le DOM, la recherche elle-même
+		// est partagée avec l'arbre (src/lib/typeahead.ts).
+		const labels = list.map((el) => el.textContent);
+		const at = typeahead.find(e, labels, current);
+		if (at === -1) return;
+		e.preventDefault();
+		list[at].focus();
 	};
 
 	return { onKeyDown };

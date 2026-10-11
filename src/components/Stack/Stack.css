@@ -1,6 +1,19 @@
 .camply-stack__root {
 	display: flex;
 }
+/* `as="ul"`, `"ol"` ou `"fieldset"` : la pile règle seule ses espacements, sans
+   les marges, retraits et décorations que le navigateur prête à ces balises. */
+.camply-stack__root:is(ul, ol, fieldset) {
+	margin: 0;
+	padding: 0;
+}
+.camply-stack__root:is(ul, ol) {
+	list-style: none;
+}
+.camply-stack__root:is(fieldset) {
+	min-inline-size: 0;
+	border: 0;
+}
 
 .camply-stack__vertical {
 	flex-direction: column;

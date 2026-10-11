@@ -1,38 +1,39 @@
 import {
 	type ButtonHTMLAttributes,
+	type ForwardedRef,
+	forwardRef,
 	type KeyboardEvent,
 	type MouseEvent,
-	useCallback,
+	type ReactNode,
+	type RefAttributes,
 	useMemo,
-	useRef,
-	useState,
 } from "react";
 import { cn } from "../../lib/cn";
-import { Field } from "../../lib/Field";
-import { Check, ChevronDown, X } from "../../lib/icons";
+import { Field, idRefs } from "../../lib/Field";
+import { FieldChevron } from "../../lib/FieldChevron";
+import { HiddenField } from "../../lib/HiddenField";
+import { useLabels } from "../../lib/i18n";
+import { Check, X } from "../../lib/icons";
 import { Listbox, ListboxOption } from "../../lib/Listbox";
+import { useMergedRefs } from "../../lib/mergeRefs";
 import { Portal } from "../../lib/Portal";
-import { useAnchor } from "../../lib/useAnchor";
+import type { Option } from "../../lib/types";
 import { useControllable } from "../../lib/useControllable";
-import { useDismiss } from "../../lib/useDismiss";
-import { useId } from "../../lib/useId";
-import { useListboxNav } from "../../lib/useListboxNav";
+import { type ReservedListboxAttr, useListboxField } from "../../lib/useListboxField";
 
-export interface MultiSelectOption<T extends string = string> {
-	value: T;
-	label: string;
-	disabled?: boolean;
-}
+/** Alias de `Option` : Select, Combobox et MultiSelect partagent la même forme. */
+export type MultiSelectOption<T extends string = string> = Option<T>;
 
 export interface MultiSelectProps<T extends string = string>
 	extends Omit<
 		ButtonHTMLAttributes<HTMLButtonElement>,
-		"value" | "defaultValue" | "onChange" | "type" | "name"
+		"value" | "defaultValue" | "onChange" | "type" | "name" | ReservedListboxAttr
 	> {
 	options: MultiSelectOption<T>[];
 	value?: T[];
 	defaultValue?: T[];
 	onChange?: (value: T[]) => void;
+	/** Texte affiché tant que rien n'est choisi (défaut : libellés de la lib). */
 	placeholder?: string;
 	label?: string;
 	/** Texte d'aide affiché sous le champ. */
@@ -54,41 +55,39 @@ export interface MultiSelectProps<T extends string = string>
 	disabled?: boolean;
 }
 
-export function MultiSelect<T extends string = string>({
-	options,
-	value,
-	defaultValue = [],
-	onChange,
-	placeholder = "Sélectionner…",
-	label,
-	hint,
-	error,
-	name,
-	required,
-	max,
-	disabled = false,
-	id,
-	className,
-	style,
-	onClick: onClickProp,
-	onKeyDown: onKeyDownProp,
-	...rest
-}: MultiSelectProps<T>) {
+const MultiSelectBase = forwardRef(function MultiSelect<T extends string = string>(
+	{
+		options,
+		value,
+		defaultValue = [],
+		onChange,
+		placeholder,
+		label,
+		hint,
+		error,
+		name,
+		required,
+		max,
+		disabled = false,
+		id,
+		className,
+		style,
+		"aria-labelledby": ariaLabelledBy,
+		"aria-describedby": ariaDescribedBy,
+		"aria-invalid": ariaInvalid,
+		onClick: onClickProp,
+		onKeyDown: onKeyDownProp,
+		...rest
+	}: MultiSelectProps<T>,
+	ref: ForwardedRef<HTMLButtonElement>,
+) {
+	const labels = useLabels();
 	const [selected, setSelected] = useControllable<T[]>(value, defaultValue, onChange);
-	const [open, setOpen] = useState(false);
-	const triggerRef = useRef<HTMLButtonElement>(null);
-	const listRef = useRef<HTMLDivElement>(null);
-	const listId = useId("multiselect");
-	const { active, setActive, moveActive } = useListboxNav(listRef, open, options);
-
-	const { style: floatStyle } = useAnchor(triggerRef, listRef, open, {
-		placement: "bottom-start",
-		gap: 6,
-		matchWidth: true,
-		constrainHeight: true,
+	const list = useListboxField<HTMLButtonElement, MultiSelectOption<T>>({
+		idPrefix: "multiselect",
+		items: options,
 	});
-	const close = useCallback(() => setOpen(false), []);
-	useDismiss(open, close, [triggerRef, listRef]);
+	const setTriggerRef = useMergedRefs(list.anchorRef, ref);
 
 	const selectedSet = useMemo(() => new Set(selected), [selected]);
 	const selectedOptions = useMemo(
@@ -111,7 +110,10 @@ export function MultiSelect<T extends string = string>({
 	const onClick = (e: MouseEvent<HTMLButtonElement>) => {
 		onClickProp?.(e);
 		if (e.defaultPrevented || disabled) return;
-		setOpen((o) => !o);
+		// Fermer passe TOUJOURS par close() : c'est le seul chemin qui déclenche le
+		// nettoyage joint au renvoi. setOpen(false) le court-circuiterait en silence.
+		if (list.open) list.close();
+		else list.setOpen(true);
 	};
 
 	const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
@@ -121,31 +123,18 @@ export function MultiSelect<T extends string = string>({
 			remove(selected[selected.length - 1]);
 			return;
 		}
-		if (!open) {
+		if (!list.open) {
 			if (["ArrowDown", "ArrowUp"].includes(e.key)) {
 				e.preventDefault();
-				setActive(0);
-				setOpen(true);
+				list.setActive(0);
+				list.setOpen(true);
 			}
 			return;
 		}
-		switch (e.key) {
-			case "ArrowDown":
-				e.preventDefault();
-				moveActive(1);
-				break;
-			case "ArrowUp":
-				e.preventDefault();
-				moveActive(-1);
-				break;
-			case "Enter":
-			case " ":
-				e.preventDefault();
-				if (options[active]) toggle(options[active]);
-				break;
-			case "Tab":
-				setOpen(false);
-				break;
+		if (list.handleNavKey(e)) return;
+		if (e.key === "Enter" || e.key === " ") {
+			e.preventDefault();
+			if (options[list.active]) toggle(options[list.active]);
 		}
 	};
 
@@ -163,41 +152,47 @@ export function MultiSelect<T extends string = string>({
 			{({ id: triggerId, labelId, describedBy, invalid }) => (
 				<>
 					<button
-						ref={triggerRef}
+						{...rest}
+						ref={setTriggerRef}
 						id={triggerId}
 						type="button"
+						// Invariants du contrat combobox — cf. `ReservedListboxAttr`.
 						role="combobox"
 						aria-haspopup="listbox"
-						aria-expanded={open}
-						aria-controls={listId}
-						aria-labelledby={labelId}
-						aria-describedby={describedBy}
-						aria-invalid={invalid}
+						aria-expanded={list.open}
 						aria-required={required || undefined}
-						aria-activedescendant={open ? `${listId}-opt-${active}` : undefined}
+						{...list.aria}
+						// Composés, jamais écrasés (règle 4) : nos IDREF d'abord, et l'invalidité
+						// du consommateur ne vaut que tant qu'aucune `error` n'est rendue.
+						aria-labelledby={idRefs(labelId, ariaLabelledBy)}
+						aria-describedby={idRefs(describedBy, ariaDescribedBy)}
+						aria-invalid={invalid ?? ariaInvalid}
 						disabled={disabled}
 						className={cn(
 							"camply-field-shell",
 							"camply-field-shell--wrap",
 							"camply-multiselect__trigger",
 							error && "camply-field-shell--error",
-							open && "camply-field-shell--open",
-							disabled && "camply-field-shell--disabled",
+							list.open && "camply-field-shell--open",
+							// Pas de `--disabled` : le trigger est un <button>, que
+							// `.camply-field-shell:disabled` couvre déjà. Le modificateur n'existe
+							// que pour les coques non désactivables nativement (le <div> de Combobox).
 						)}
-						{...rest}
 						onClick={onClick}
 						onKeyDown={onKeyDown}
 					>
-						<span className={"camply-multiselect__values"}>
+						<span className="camply-multiselect__values">
 							{selectedOptions.length === 0 ? (
-								<span className={"camply-multiselect__placeholder"}>{placeholder}</span>
+								<span className="camply-multiselect__placeholder">
+									{placeholder ?? labels.selectPlaceholder}
+								</span>
 							) : (
 								selectedOptions.map((o) => (
-									<span key={o.value} className={"camply-multiselect__chip"}>
+									<span key={o.value} className="camply-multiselect__chip">
 										{o.label}
 										<span
 											aria-hidden="true"
-											className={"camply-multiselect__chipX"}
+											className="camply-multiselect__chipX"
 											onClick={(e) => {
 												e.stopPropagation();
 												remove(o.value);
@@ -209,22 +204,19 @@ export function MultiSelect<T extends string = string>({
 								))
 							)}
 						</span>
-						<ChevronDown
-							size={16}
-							className={cn("camply-chevron", open && "camply-chevron--open")}
-						/>
+						<FieldChevron open={list.open} />
 					</button>
 
-					{name && selected.map((v) => <input key={v} type="hidden" name={name} value={v} />)}
+					{selected.map((v) => (
+						<HiddenField key={v} name={name} value={v} disabled={disabled} />
+					))}
 
-					{open && (
+					{list.open && (
 						<Portal>
 							<Listbox
-								listRef={listRef}
-								id={listId}
+								{...list.props}
 								multiselectable
 								className="camply-floating-surface camply-floating-list camply-multiselect__list"
-								style={floatStyle}
 							>
 								{options.map((opt, i) => {
 									const isSelected = selectedSet.has(opt.value);
@@ -232,15 +224,18 @@ export function MultiSelect<T extends string = string>({
 									return (
 										<ListboxOption
 											key={opt.value}
-											id={`${listId}-opt-${i}`}
-											active={i === active}
+											id={list.optionId(i)}
+											active={i === list.active}
 											selected={isSelected}
 											disabled={opt.disabled || blocked}
 											className={cn(
 												"camply-multiselect__option",
 												isSelected && "camply-multiselect__selected",
 											)}
-											onMouseEnter={() => !opt.disabled && setActive(i)}
+											onMouseEnter={() => !opt.disabled && list.setActive(i)}
+											// La liste reste ouverte après un clic : sans ça le focus tomberait
+											// sur <body> et les flèches ne piloteraient plus rien.
+											onMouseDown={(e) => e.preventDefault()}
 											onClick={() => toggle(opt)}
 										>
 											<span
@@ -262,4 +257,14 @@ export function MultiSelect<T extends string = string>({
 			)}
 		</Field>
 	);
-}
+});
+
+/**
+ * Sélection multiple (bouton + listbox multi-sélectionnable ancrée).
+ * `forwardRef` efface le paramètre générique : on le restaure par un cast pour que
+ * `T` continue d'être inféré depuis `options`. La ref vise le bouton déclencheur,
+ * de quoi lui rendre le focus après une erreur de validation.
+ */
+export const MultiSelect = MultiSelectBase as <T extends string = string>(
+	props: MultiSelectProps<T> & RefAttributes<HTMLButtonElement>,
+) => ReactNode;

@@ -34,7 +34,7 @@
 	--_c: var(--camply-info);
 }
 .camply-timeline__tone-warn {
-	--_c: var(--camply-warning);
+	--_c: var(--camply-warn);
 }
 .camply-timeline__tone-danger {
 	--_c: var(--camply-danger);

@@ -1,13 +1,14 @@
 import { forwardRef, type InputHTMLAttributes, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
-import { Field } from "../../lib/Field";
+import { Field, idRefs } from "../../lib/Field";
+import type { Size } from "../../lib/types";
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
 	label?: string;
 	hint?: string;
 	error?: string;
 	leftIcon?: ReactNode;
 	rightIcon?: ReactNode;
-	size?: "sm" | "md" | "lg";
+	size?: Size;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
@@ -20,9 +21,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 			rightIcon,
 			size = "md",
 			className,
+			style,
 			id,
 			disabled,
 			required,
+			"aria-describedby": ariaDescribedBy,
+			"aria-invalid": ariaInvalid,
 			...props
 		},
 		ref,
@@ -36,6 +40,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 				id={id}
 				idPrefix="input"
 				className={className}
+				style={style}
 			>
 				{({ id: inputId, describedBy, invalid, required: isRequired }) => (
 					<div
@@ -47,18 +52,22 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 							disabled && "camply-field-shell--disabled",
 						)}
 					>
-						{leftIcon && <span className={"camply-input__iconLeft"}>{leftIcon}</span>}
+						{leftIcon && <span className="camply-input__iconLeft">{leftIcon}</span>}
 						<input
 							ref={ref}
 							id={inputId}
-							className={"camply-field-control"}
-							aria-invalid={invalid}
-							aria-describedby={describedBy}
+							className="camply-field-control"
 							disabled={disabled}
 							required={isRequired}
 							{...props}
+							// Posés APRÈS le spread : le lien vers le message du Field est un
+							// invariant. Ils restent dans le type public parce qu'on COMPOSE —
+							// l'IDREF du consommateur s'ajoute, son aria-invalid ne sert que
+							// tant qu'aucune `error` n'est rendue (règles 3 et 4).
+							aria-describedby={idRefs(describedBy, ariaDescribedBy)}
+							aria-invalid={invalid ?? ariaInvalid}
 						/>
-						{rightIcon && <span className={"camply-input__iconRight"}>{rightIcon}</span>}
+						{rightIcon && <span className="camply-input__iconRight">{rightIcon}</span>}
 					</div>
 				)}
 			</Field>

@@ -77,6 +77,11 @@
 	text-transform: uppercase;
 	color: var(--camply-text-muted-2);
 }
+/* Pas `.camply-listbox-option` : l'élément est un <button> plus aéré (gap,
+   rembourrage, rayon), il ne partagerait que cinq déclarations triviales et
+   devrait surcharger les autres à classe doublée. Son état actif en contraste
+   forcé vient du bloc `forced-colors` de tokens.css ; son fond actif est le
+   même `fill-2`. */
 .camply-commandpalette__item {
 	display: flex;
 	align-items: center;

@@ -17,6 +17,7 @@ export * from "./components/DescriptionList";
 export * from "./components/Divider";
 export * from "./components/Drawer";
 export * from "./components/DropdownMenu";
+export * from "./components/EmptyState";
 export * from "./components/FileUpload";
 export * from "./components/HoverCard";
 export * from "./components/IconButton";

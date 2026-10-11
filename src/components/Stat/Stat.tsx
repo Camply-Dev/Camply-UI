@@ -32,16 +32,16 @@ export const Stat = forwardRef<HTMLDivElement, StatProps>(
 
 		return (
 			<div ref={ref} className={cn("camply-stat__root", className)} {...props}>
-				<div className={"camply-stat__top"}>
-					<span className={"camply-stat__label"}>{label}</span>
+				<div className="camply-stat__top">
+					<span className="camply-stat__label">{label}</span>
 					{icon && (
-						<span aria-hidden="true" className={"camply-stat__icon"}>
+						<span aria-hidden="true" className="camply-stat__icon">
 							{icon}
 						</span>
 					)}
 				</div>
-				<div className={"camply-stat__value"}>{value}</div>
-				<div className={"camply-stat__bottom"}>
+				<div className="camply-stat__value">{value}</div>
+				<div className="camply-stat__bottom">
 					{delta != null && (
 						<span
 							className={cn("camply-stat__delta", good ? "camply-stat__good" : "camply-stat__bad")}
@@ -52,7 +52,7 @@ export const Stat = forwardRef<HTMLDivElement, StatProps>(
 							{deltaSuffix}
 						</span>
 					)}
-					{hint && <span className={"camply-stat__hint"}>{hint}</span>}
+					{hint && <span className="camply-stat__hint">{hint}</span>}
 				</div>
 			</div>
 		);

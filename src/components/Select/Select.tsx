@@ -1,37 +1,38 @@
 import {
 	type ButtonHTMLAttributes,
+	type ForwardedRef,
+	forwardRef,
 	type KeyboardEvent,
 	type MouseEvent,
-	useCallback,
-	useRef,
-	useState,
+	type ReactNode,
+	type RefAttributes,
 } from "react";
 import { cn } from "../../lib/cn";
-import { Field } from "../../lib/Field";
-import { Check, ChevronDown } from "../../lib/icons";
+import { Field, idRefs } from "../../lib/Field";
+import { FieldChevron } from "../../lib/FieldChevron";
+import { HiddenField } from "../../lib/HiddenField";
+import { useLabels } from "../../lib/i18n";
+import { Check } from "../../lib/icons";
 import { Listbox, ListboxOption } from "../../lib/Listbox";
+import { useMergedRefs } from "../../lib/mergeRefs";
 import { Portal } from "../../lib/Portal";
-import { useAnchor } from "../../lib/useAnchor";
+import type { Option, Size } from "../../lib/types";
 import { useControllable } from "../../lib/useControllable";
-import { useDismiss } from "../../lib/useDismiss";
-import { useId } from "../../lib/useId";
-import { firstEnabledIndex, lastEnabledIndex, useListboxNav } from "../../lib/useListboxNav";
+import { type ReservedListboxAttr, useListboxField } from "../../lib/useListboxField";
 
-export interface SelectOption<T extends string = string> {
-	value: T;
-	label: string;
-	disabled?: boolean;
-}
+/** Alias de `Option` : Select, Combobox et MultiSelect partagent la même forme. */
+export type SelectOption<T extends string = string> = Option<T>;
 
 export interface SelectProps<T extends string = string>
 	extends Omit<
 		ButtonHTMLAttributes<HTMLButtonElement>,
-		"value" | "defaultValue" | "onChange" | "type" | "name"
+		"value" | "defaultValue" | "onChange" | "type" | "name" | ReservedListboxAttr
 	> {
 	options: SelectOption<T>[];
 	value?: T;
 	defaultValue?: T;
 	onChange?: (value: T) => void;
+	/** Texte affiché tant que rien n'est choisi (défaut : libellés de la lib). */
 	placeholder?: string;
 	label?: string;
 	/** Texte d'aide affiché sous le champ. */
@@ -49,107 +50,82 @@ export interface SelectProps<T extends string = string>
 	 */
 	required?: boolean;
 	disabled?: boolean;
-	size?: "sm" | "md" | "lg";
+	size?: Size;
 }
 
-export function Select<T extends string = string>({
-	options,
-	value,
-	defaultValue,
-	onChange,
-	placeholder = "Sélectionner…",
-	label,
-	hint,
-	error,
-	name,
-	required,
-	disabled = false,
-	size = "md",
-	id,
-	className,
-	style,
-	onClick: onClickProp,
-	onKeyDown: onKeyDownProp,
-	...rest
-}: SelectProps<T>) {
+const SelectBase = forwardRef(function Select<T extends string = string>(
+	{
+		options,
+		value,
+		defaultValue,
+		onChange,
+		placeholder,
+		label,
+		hint,
+		error,
+		name,
+		required,
+		disabled = false,
+		size = "md",
+		id,
+		className,
+		style,
+		"aria-labelledby": ariaLabelledBy,
+		"aria-describedby": ariaDescribedBy,
+		"aria-invalid": ariaInvalid,
+		onClick: onClickProp,
+		onKeyDown: onKeyDownProp,
+		...rest
+	}: SelectProps<T>,
+	ref: ForwardedRef<HTMLButtonElement>,
+) {
+	const labels = useLabels();
 	const [selected, setSelected] = useControllable(value, defaultValue, onChange, {
 		allowUndefined: true,
 	});
-	const [open, setOpen] = useState(false);
-
-	const triggerRef = useRef<HTMLButtonElement>(null);
-	const listRef = useRef<HTMLDivElement>(null);
-	const listId = useId("listbox");
-	const { active, setActive, moveActive } = useListboxNav(listRef, open, options);
-
-	const { style: floatStyle } = useAnchor(triggerRef, listRef, open, {
-		placement: "bottom-start",
-		gap: 6,
-		matchWidth: true,
-		constrainHeight: true,
+	const list = useListboxField<HTMLButtonElement, SelectOption<T>>({
+		idPrefix: "listbox",
+		items: options,
 	});
-
-	const close = useCallback(() => setOpen(false), []);
-	useDismiss(open, close, [triggerRef, listRef]);
+	const setTriggerRef = useMergedRefs(list.anchorRef, ref);
 
 	const selectedOption = options.find((o) => o.value === selected);
 
 	const openMenu = () => {
 		if (disabled) return;
 		const idx = options.findIndex((o) => o.value === selected);
-		setActive(idx >= 0 ? idx : 0);
-		setOpen(true);
+		list.setActive(idx >= 0 ? idx : 0);
+		list.setOpen(true);
 	};
 
 	const pick = (opt: SelectOption<T>) => {
 		if (opt.disabled) return;
 		setSelected(opt.value);
-		setOpen(false);
-		triggerRef.current?.focus();
+		list.close();
+		list.anchorRef.current?.focus();
 	};
 
 	const onClick = (e: MouseEvent<HTMLButtonElement>) => {
 		onClickProp?.(e);
 		if (e.defaultPrevented || disabled) return;
-		if (open) setOpen(false);
+		if (list.open) list.close();
 		else openMenu();
 	};
 
 	const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
 		onKeyDownProp?.(e);
 		if (e.defaultPrevented || disabled) return;
-		if (!open) {
+		if (!list.open) {
 			if (["ArrowDown", "ArrowUp", "Enter", " "].includes(e.key)) {
 				e.preventDefault();
 				openMenu();
 			}
 			return;
 		}
-		switch (e.key) {
-			case "ArrowDown":
-				e.preventDefault();
-				moveActive(1);
-				break;
-			case "ArrowUp":
-				e.preventDefault();
-				moveActive(-1);
-				break;
-			case "Home":
-				e.preventDefault();
-				setActive(firstEnabledIndex(options));
-				break;
-			case "End":
-				e.preventDefault();
-				setActive(lastEnabledIndex(options));
-				break;
-			case "Enter":
-			case " ":
-				e.preventDefault();
-				if (options[active]) pick(options[active]);
-				break;
-			case "Tab":
-				setOpen(false);
-				break;
+		if (list.handleNavKey(e)) return;
+		if (e.key === "Enter" || e.key === " ") {
+			e.preventDefault();
+			if (options[list.active]) pick(options[list.active]);
 		}
 	};
 
@@ -167,27 +143,29 @@ export function Select<T extends string = string>({
 			{({ id: triggerId, labelId, describedBy, invalid }) => (
 				<>
 					<button
-						ref={triggerRef}
+						{...rest}
+						ref={setTriggerRef}
 						id={triggerId}
 						type="button"
+						// Invariants du contrat combobox — cf. `ReservedListboxAttr`.
 						role="combobox"
-						aria-expanded={open}
 						aria-haspopup="listbox"
-						aria-controls={listId}
-						aria-labelledby={labelId}
-						aria-describedby={describedBy}
-						aria-invalid={invalid}
+						aria-expanded={list.open}
 						aria-required={required || undefined}
-						aria-activedescendant={open ? `${listId}-opt-${active}` : undefined}
+						{...list.aria}
+						// Composés, jamais écrasés (règle 4) : nos IDREF d'abord, et l'invalidité
+						// du consommateur ne vaut que tant qu'aucune `error` n'est rendue.
+						aria-labelledby={idRefs(labelId, ariaLabelledBy)}
+						aria-describedby={idRefs(describedBy, ariaDescribedBy)}
+						aria-invalid={invalid ?? ariaInvalid}
 						disabled={disabled}
 						className={cn(
 							"camply-field-shell",
 							"camply-select__trigger",
 							`camply-field-shell--${size}`,
 							error && "camply-field-shell--error",
-							open && "camply-field-shell--open",
+							list.open && "camply-field-shell--open",
 						)}
-						{...rest}
 						onClick={onClick}
 						onKeyDown={onKeyDown}
 					>
@@ -197,39 +175,37 @@ export function Select<T extends string = string>({
 								!selectedOption && "camply-select__placeholder",
 							)}
 						>
-							{selectedOption ? selectedOption.label : placeholder}
+							{selectedOption ? selectedOption.label : (placeholder ?? labels.selectPlaceholder)}
 						</span>
-						<ChevronDown
-							size={16}
-							className={cn("camply-chevron", open && "camply-chevron--open")}
-						/>
+						<FieldChevron open={list.open} />
 					</button>
 
-					{name && <input type="hidden" name={name} value={selected ?? ""} />}
+					<HiddenField name={name} value={selected ?? ""} disabled={disabled} />
 
-					{open && (
+					{list.open && (
 						<Portal>
 							<Listbox
-								listRef={listRef}
-								id={listId}
+								{...list.props}
 								className="camply-floating-surface camply-floating-list camply-select__list"
-								style={floatStyle}
 							>
 								{options.map((opt, i) => {
 									const isSelected = opt.value === selected;
 									return (
 										<ListboxOption
 											key={opt.value}
-											id={`${listId}-opt-${i}`}
-											active={i === active}
+											id={list.optionId(i)}
+											active={i === list.active}
 											selected={isSelected}
 											disabled={opt.disabled}
 											className="camply-select__option"
-											onMouseEnter={() => !opt.disabled && setActive(i)}
+											onMouseEnter={() => !opt.disabled && list.setActive(i)}
+											// Le focus ne quitte jamais le trigger : un aller-retour body → bouton
+											// émettrait un onBlur/onFocus parasite au clic.
+											onMouseDown={(e) => e.preventDefault()}
 											onClick={() => pick(opt)}
 										>
 											<span>{opt.label}</span>
-											{isSelected && <Check size={15} className={"camply-select__tick"} />}
+											{isSelected && <Check size={15} className="camply-select__tick" />}
 										</ListboxOption>
 									);
 								})}
@@ -240,4 +216,14 @@ export function Select<T extends string = string>({
 			)}
 		</Field>
 	);
-}
+});
+
+/**
+ * Champ de sélection unique (pattern APG « combobox » : bouton + listbox ancrée).
+ * `forwardRef` efface le paramètre générique : on le restaure par un cast pour que
+ * `T` continue d'être inféré depuis `options`. La ref vise le bouton déclencheur,
+ * de quoi lui rendre le focus après une erreur de validation.
+ */
+export const Select = SelectBase as <T extends string = string>(
+	props: SelectProps<T> & RefAttributes<HTMLButtonElement>,
+) => ReactNode;

@@ -8,11 +8,25 @@ import {
 } from "react";
 import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
+import { Field, idRefs } from "../../lib/Field";
+import { HiddenField } from "../../lib/HiddenField";
 import { Star } from "../../lib/icons";
 import { useControllable } from "../../lib/useControllable";
 
+/**
+ * Règle 3. Les `role="radio"` des étoiles dépendent de `role="radiogroup"` ; les
+ * états ARIA dérivent de `required`, `readOnly` et `disabled` ; l'orientation est
+ * le contrat du clavier.
+ */
+type ReservedRatingAttr =
+	| "role"
+	| "aria-orientation"
+	| "aria-disabled"
+	| "aria-readonly"
+	| "aria-required";
+
 export interface RatingProps
-	extends Omit<HTMLAttributes<HTMLDivElement>, "onChange" | "defaultValue"> {
+	extends Omit<HTMLAttributes<HTMLDivElement>, "onChange" | "defaultValue" | ReservedRatingAttr> {
 	value?: number;
 	defaultValue?: number;
 	onChange?: (value: number) => void;
@@ -25,10 +39,18 @@ export interface RatingProps
 	/** Nom soumis avec le formulaire : la note part dans un <input type="hidden">. */
 	name?: string;
 	/**
-	 * Marque le champ obligatoire (aria-required). Un input caché n'étant pas soumis
-	 * à la validation native, une note à 0 doit être rejetée côté application.
+	 * Marque le champ obligatoire : astérisque à côté du libellé et aria-required.
+	 * Un input caché n'étant pas soumis à la validation native, une note à 0 doit
+	 * être rejetée côté application.
 	 */
 	required?: boolean;
+	/**
+	 * Libellé visible du champ, rendu par `Field` comme sur tous les autres champs
+	 * de la lib. Il nomme aussi le groupe (ARIA l'exige sur un radiogroup) ; les
+	 * étoiles gardent leur nom court, comme les options de Radio et SegmentedControl :
+	 * le lecteur d'écran annonce déjà le groupe en y entrant.
+	 */
+	label?: string;
 	/**
 	 * Nom accessible d'une étoile (défaut : "3/5"). Point d'entrée d'i18n : la lib
 	 * ne rend ici aucun texte figé.
@@ -53,8 +75,15 @@ export const Rating = forwardRef<HTMLDivElement, RatingProps>(function Rating(
 		icon,
 		name,
 		required,
+		label,
 		formatValue = (v, m) => `${v}/${m}`,
+		id,
 		className,
+		style,
+		"aria-label": ariaLabel,
+		"aria-labelledby": ariaLabelledBy,
+		onKeyDown,
+		onMouseLeave,
 		...props
 	},
 	ref,
@@ -81,8 +110,10 @@ export const Rating = forwardRef<HTMLDivElement, RatingProps>(function Rating(
 		starRefs.current[Math.max(next, 1) - 1]?.focus();
 	};
 
-	const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-		if (!interactive) return;
+	const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+		// Règle 4.
+		onKeyDown?.(e);
+		if (e.defaultPrevented || !interactive) return;
 		switch (e.key) {
 			case "ArrowRight":
 			case "ArrowUp":
@@ -105,49 +136,71 @@ export const Rating = forwardRef<HTMLDivElement, RatingProps>(function Rating(
 	};
 
 	return (
-		<div
-			ref={ref}
-			{...props}
-			className={cn(
-				"camply-rating__root",
-				interactive && "camply-rating__interactive",
-				disabled && "camply-rating__disabled",
-				className,
-			)}
-			role="radiogroup"
-			aria-orientation="horizontal"
-			aria-disabled={disabled || undefined}
-			aria-readonly={readOnly || undefined}
-			aria-required={required || undefined}
-			onKeyDown={onKeyDown}
-			onMouseLeave={() => setHover(0)}
+		// `Field` enveloppe : `label` rend un vrai libellé visible, pas un aria-label muet.
+		<Field
+			label={label}
+			required={required}
+			id={id}
+			idPrefix="rating"
+			className={className}
+			style={style}
 		>
-			{Array.from({ length: max }, (_, i) => i + 1).map((n) => (
-				// biome-ignore lint/a11y/useSemanticElements: <input type="radio"> n'est pas stylable en étoile survolable — bouton + role="radio" est le pattern APG
-				<button
-					key={n}
-					ref={(el) => {
-						starRefs.current[n - 1] = el;
-					}}
-					type="button"
-					role="radio"
-					aria-checked={n === val}
-					tabIndex={n === focused ? 0 : -1}
-					className={cn(
-						"camply-rating__star",
-						"camply-focus-ring",
-						n <= active && "camply-rating__on",
-					)}
-					style={{ width: size, height: size }}
-					aria-label={formatValue(n, max)}
-					disabled={disabled}
-					onMouseEnter={() => interactive && setHover(n)}
-					onClick={() => pick(n)}
-				>
-					{icon ?? <Star size={size} />}
-				</button>
-			))}
-			{name && <input type="hidden" name={name} value={val} />}
-		</div>
+			{({ id: groupId, labelId }) => {
+				// Règle 4 : le libellé du `Field` et un `aria-labelledby` du consommateur se composent.
+				const labelledBy = idRefs(labelId, ariaLabelledBy);
+				return (
+					<div
+						ref={ref}
+						{...props}
+						// Règle 3 — cf. `ReservedRatingAttr`.
+						id={groupId}
+						role="radiogroup"
+						aria-orientation="horizontal"
+						aria-labelledby={labelledBy}
+						aria-label={labelledBy ? undefined : ariaLabel}
+						aria-disabled={disabled || undefined}
+						aria-readonly={readOnly || undefined}
+						aria-required={required || undefined}
+						className={cn(
+							"camply-rating__root",
+							interactive && "camply-rating__interactive",
+							disabled && "camply-rating__disabled",
+						)}
+						onKeyDown={handleKeyDown}
+						onMouseLeave={(e) => {
+							onMouseLeave?.(e);
+							setHover(0);
+						}}
+					>
+						{Array.from({ length: max }, (_, i) => i + 1).map((n) => (
+							// biome-ignore lint/a11y/useSemanticElements: <input type="radio"> n'est pas stylable en étoile survolable — bouton + role="radio" est le pattern APG
+							<button
+								key={n}
+								ref={(el) => {
+									starRefs.current[n - 1] = el;
+								}}
+								type="button"
+								role="radio"
+								aria-checked={n === val}
+								tabIndex={n === focused ? 0 : -1}
+								className={cn(
+									"camply-rating__star",
+									"camply-focus-ring",
+									n <= active && "camply-rating__on",
+								)}
+								style={{ width: size, height: size }}
+								aria-label={formatValue(n, max)}
+								disabled={disabled}
+								onMouseEnter={() => interactive && setHover(n)}
+								onClick={() => pick(n)}
+							>
+								{icon ?? <Star size={size} />}
+							</button>
+						))}
+						<HiddenField name={name} value={val} disabled={disabled} />
+					</div>
+				);
+			}}
+		</Field>
 	);
 });

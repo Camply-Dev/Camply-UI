@@ -67,15 +67,22 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 		component: "Avatar",
 		controls: [
 			{ key: "name", label: "Nom", type: "text" },
-			{ key: "size", label: "Taille", type: "seg", options: ["40", "52", "68"] },
-			{ key: "status", label: "Statut", type: "seg", options: ["none", "online", "away", "busy"] },
+			// L'échelle nommée remplace les diamètres au jugé : md vaut 52 px, le
+			// diamètre par défaut d'avant — la démo montre donc la nouveauté sans bouger.
+			{ key: "size", label: "Taille", type: "seg", options: ["sm", "md", "lg"] },
+			{
+				key: "status",
+				label: "Statut",
+				type: "seg",
+				options: ["none", "online", "away", "busy", "offline"],
+			},
 		],
-		defaults: { name: "Clara Morel", size: "52", status: "online" },
+		defaults: { name: "Clara Morel", size: "md", status: "online" },
 		render: (p) => (
 			<div style={{ display: "flex", alignItems: "center", gap: 20 }}>
 				<Avatar
 					name={str(p.name)}
-					size={num(p.size)}
+					size={str(p.size)}
 					status={p.status === "none" ? undefined : str(p.status)}
 				/>
 				<AvatarGroup
@@ -91,15 +98,28 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 			</div>
 		),
 		code: (p) =>
-			`import { Avatar, AvatarGroup } from "@camply/ui";\n\n<Avatar name="${p.name}" size={${p.size}}${
+			`import { Avatar, AvatarGroup } from "@camply/ui";\n\n<Avatar name="${p.name}" size="${p.size}"${
 				p.status === "none" ? "" : ` status="${p.status}"`
 			} />\n\n<AvatarGroup avatars={[{ name: "Alice" }, { name: "Jean" }]} max={3} />`,
 		props: [
 			["src", "string", "image ; sinon initiales dérivées du nom"],
-			["name / initials", "string", "alt + initiales / initiales imposées"],
-			["size", "number", "diamètre en px (défaut 52)"],
-			["status", "enum", "online · away · busy · offline"],
-			["AvatarGroup · avatars / max", "AvatarProps[] / number", "pile d'avatars avec chip +N"],
+			["name / initials", "string", "nom accessible + initiales / initiales imposées"],
+			[
+				"size",
+				"Size | number",
+				"sm 32 · md 52 · lg 72, ou un diamètre libre en px (défaut md, soit 52)",
+			],
+			["status", "AvatarStatus", "online · away · busy · offline (pastille de présence)"],
+			[
+				"AvatarGroup · avatars",
+				'Omit<AvatarProps, "size" | "status">[]',
+				"pile d'avatars superposés — le groupe impose le diamètre et masque les pastilles",
+			],
+			[
+				"AvatarGroup · max / size",
+				"number / Size | number",
+				"chip +N au-delà (défaut 4) · diamètre imposé à la pile (défaut 38)",
+			],
 		],
 	},
 
@@ -157,44 +177,77 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 			}\n  items={[\n    { term: "Forfait", description: "Pro" },\n    { term: "Membres", description: "12 / 20" },\n  ]}\n/>`,
 		props: [
 			["items", "DescriptionItem[]", "{ term, description }"],
-			["layout", "enum", "row (côte à côte) · stacked (empilé)"],
+			["layout", "enum", "row (côte à côte, défaut) · stacked (empilé)"],
 			["divided", "boolean", "séparateur entre les lignes (défaut true)"],
 		],
 	},
 
 	table: {
 		component: "Table",
-		controls: [{ key: "striped", label: "Zébrures", type: "toggle" }],
-		defaults: { striped: true },
+		controls: [
+			{ key: "striped", label: "Zébrures", type: "toggle" },
+			{ key: "selectable", label: "Sélection", type: "toggle" },
+			{ key: "loading", label: "Chargement", type: "toggle" },
+		],
+		defaults: { striped: true, selectable: false, loading: false },
 		render: (p) => (
 			<div style={{ width: "100%", maxWidth: 520 }}>
 				<Table
 					striped={bool(p.striped)}
+					selectable={bool(p.selectable)}
+					loading={bool(p.loading)}
 					data={TABLE_ROWS}
 					rowKey={(r) => r.id}
+					// Aucune colonne n'a besoin de `cell` : sans lui, la colonne affiche le champ
+					// désigné par `key`, que le compilateur vérifie être rendable sur la ligne.
 					columns={[
-						{ key: "name", header: "Nom", cell: (r) => r.name, sortValue: (r) => r.name },
-						{ key: "role", header: "Rôle", cell: (r) => r.role },
+						{ key: "name", header: "Nom", sortValue: (r) => r.name },
+						{ key: "role", header: "Rôle" },
 						{
 							key: "projects",
 							header: "Projets",
 							align: "right",
-							cell: (r) => r.projects,
 							sortValue: (r) => r.projects,
 						},
 					]}
 				/>
 			</div>
 		),
-		code: (p) =>
-			`import { Table } from "@camply/ui";\n\n<Table\n  data={rows}\n  rowKey={(r) => r.id}${
-				p.striped ? "\n  striped" : ""
-			}\n  columns={[\n    { key: "name", header: "Nom", cell: (r) => r.name, sortValue: (r) => r.name },\n    { key: "role", header: "Rôle", cell: (r) => r.role },\n  ]}\n/>`,
+		code: (p) => {
+			// Les options booléennes ne sont écrites que lorsqu'elles sont activées.
+			const flags = [
+				p.striped ? "\n  striped" : "",
+				p.selectable ? "\n  selectable" : "",
+				p.loading ? "\n  loading" : "",
+			].join("");
+			return `import { Table } from "@camply/ui";\n\n<Table\n  data={rows}\n  rowKey={(r) => r.id}${flags}\n  columns={[\n    { key: "name", header: "Nom", sortValue: (r) => r.name },\n    { key: "role", header: "Rôle" },\n  ]}\n/>`;
+		},
 		props: [
-			["columns", "Column<Row>[]", "{ key, header, cell?, sortValue?, align?, width? }"],
-			["data / rowKey", "Row[] / fn", "données typées et clé stable par ligne"],
+			[
+				"columns",
+				"Column<Row>[]",
+				"{ key, header, cell?, sortValue?, align?, width? } — union discriminée par cell",
+			],
+			[
+				"columns · key",
+				"RenderableKey<Row> | string",
+				"champ rendable de la ligne (cell facultatif), ou identifiant libre — cell est alors exigé",
+			],
+			["data / rowKey", "Row[] / (row, i) => RowKey", "données typées et clé stable par ligne"],
 			["sortValue", "(row) => string | number", "active le tri sur la colonne"],
-			["onRowClick", "(row) => void", "ligne cliquable"],
+			["sort / defaultSort", "SortState | null", "tri contrôlé / initial ({ key, dir })"],
+			["onSortChange", "(sort) => void", "changement de tri (null = tri retiré)"],
+			["selectable", "boolean", "case à cocher par ligne + case « tout » dans l'en-tête"],
+			["selectedKeys / defaultSelectedKeys", "RowKey[]", "sélection contrôlée / initiale"],
+			["onSelectionChange", "(keys: RowKey[]) => void", "clés des lignes cochées"],
+			["onRowClick", "(row) => void", "ligne cliquable (aussi Entrée / Espace)"],
+			["loading / loadingRows", "boolean / number", "squelettes pendant le chargement (défaut 4)"],
+			["stickyHeader", "boolean", "en-tête collant — à combiner avec une hauteur max"],
+			[
+				"selectAllLabel / rowSelectionLabel",
+				"string / (row, i) => string",
+				'noms accessibles des cases ("Tout sélectionner" · "Sélectionner la ligne n")',
+			],
 			["striped / emptyState", "boolean / ReactNode", "zébrures / contenu si vide"],
 		],
 	},
@@ -231,13 +284,30 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 			</div>
 		),
 		code: (p) =>
-			`import { Tree } from "@camply/ui";\n\n<Tree${p.guides ? "\n  guides" : ""}\n  defaultExpanded={["src"]}\n  onSelect={(id) => open(id)}\n  nodes={[\n    {\n      id: "src",\n      label: "src",\n      children: [{ id: "index", label: "index.ts" }],\n    },\n  ]}\n/>`,
+			`import { Tree } from "@camply/ui";\n\n<Tree${p.guides ? "\n  guides" : ""}\n  defaultExpanded={["src"]}\n  onSelect={(id, node) => open(node.data ?? id)}\n  nodes={[\n    {\n      id: "src",\n      label: "src",\n      children: [{ id: "index", label: "index.ts", data: fileFor("index") }],\n    },\n  ]}\n/>`,
 		props: [
-			["nodes", "TreeNode[]", "{ id, label, icon?, children? }"],
+			[
+				"nodes",
+				"TreeNode<T>[]",
+				"{ id, label, icon?, data?, children? } — data est la charge utile libre du nœud",
+			],
 			["selectedId / defaultSelectedId", "string", "sélection contrôlée / initiale"],
-			["onSelect", "(id: string) => void", "sélection d'un nœud"],
-			["defaultExpanded", "string[]", "ids dépliés au départ"],
-			["guides", "boolean", "lignes verticales de guidage"],
+			[
+				"onSelect",
+				"(id: string, node: TreeNode<T>) => void",
+				"sélection d'un nœud — le nœud complet arrive en second, plus besoin de le re-chercher",
+			],
+			[
+				"expanded / defaultExpanded / onExpandedChange",
+				"string[] / string[] / fn",
+				"dépliage contrôlé / ids dépliés au départ / rappel — sans expanded, l'arbre se gère seul",
+			],
+			["guides", "boolean", "lignes verticales de guidage (défaut false)"],
+			[
+				"ref + attributs natifs",
+				"Ref<HTMLUListElement>",
+				'étalés sur la racine <ul> — role="tree", children et dangerouslySetInnerHTML restent réservés',
+			],
 		],
 	},
 
@@ -247,7 +317,12 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 			{ key: "slidesPerView", label: "Visibles", type: "seg", options: ["1", "2", "3"] },
 			{ key: "gap", label: "Espace", type: "seg", options: ["0", "12", "24"] },
 			{ key: "effect", label: "Effet", type: "seg", options: ["slide", "fade"] },
-			{ key: "indicator", label: "Indicateur", type: "seg", options: ["dots", "lines", "count"] },
+			{
+				key: "indicator",
+				label: "Indicateur",
+				type: "seg",
+				options: ["dots", "lines", "count", "none"],
+			},
 			{ key: "arrows", label: "Flèches", type: "toggle" },
 		],
 		defaults: {
@@ -296,14 +371,15 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 		},
 		props: [
 			["children", "ReactNode[]", "une diapositive par enfant"],
-			["slidesPerView / gap", "number", "diapos visibles à la fois · espace (px)"],
-			["effect", "enum", "slide (défaut) · fade (fondu enchaîné)"],
-			["indicator", "enum", "dots (défaut) · lines · count (n / N)"],
-			["arrows / dots", "boolean", "flèches précédent/suivant · indicateur visible"],
-			["autoPlay / pauseOnHover", "number / boolean", "défilement auto (ms) · pause au survol"],
+			["slidesPerView / gap", "number", "diapos visibles (défaut 1) · espace en px (défaut 0)"],
+			["effect", "CarouselEffect", "slide (défaut) · fade (fondu enchaîné, 1 diapo)"],
+			["indicator", "CarouselIndicator", "dots (défaut) · lines · count (n / N) · none"],
+			["arrows", "boolean", "flèches précédent/suivant (défaut true)"],
+			["autoPlay", "number", "rotation auto en ms (défaut 0 = aucune)"],
+			["pauseOnHover", "boolean", "pause au survol (défaut true)"],
 			["loop", "boolean", "reboucle après la dernière (défaut true)"],
 			["aspectRatio", "string", 'ratio du cadre, ex. "16 / 9"'],
-			["index / defaultIndex / onIndexChange", "number / fn", "index contrôlé"],
+			["index / defaultIndex / onIndexChange", "number / fn", "index contrôlé / initial"],
 		],
 	},
 
@@ -318,7 +394,9 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 		props: [
 			["open / onClose", "boolean / fn", "visibilité contrôlée"],
 			["commands", "Command[]", "{ id, label, keywords?, group?, icon?, shortcut?, onRun }"],
-			["placeholder / emptyMessage", "string", "textes de recherche"],
+			["placeholder", "string", "texte du champ ; sinon labels.commandPalettePlaceholder"],
+			["emptyMessage", "string", "état vide ; sinon labels.noCommands"],
+			["aria-label", "string", "nom accessible du dialogue ; sinon labels.commandPalette"],
 			["useCommandPalette()", "[open, setOpen]", "hook ⌘K/Ctrl+K prêt à l'emploi"],
 		],
 	},

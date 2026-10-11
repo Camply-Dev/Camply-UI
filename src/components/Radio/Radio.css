@@ -3,6 +3,20 @@
 	flex-direction: column;
 	gap: 12px;
 }
+/* Option décrite (`hint`) : le rond s'aligne sur la première ligne, pas au milieu. */
+.camply-control__wrap.camply-radio__described {
+	align-items: flex-start;
+}
+.camply-radio__text {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+.camply-radio__hint {
+	font-size: 12.5px;
+	line-height: 1.45;
+	color: var(--camply-text-muted);
+}
 .camply-radio__control {
 	display: inline-flex;
 	align-items: center;

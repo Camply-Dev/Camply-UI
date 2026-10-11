@@ -29,18 +29,20 @@ function ModalPreview(p: Values) {
 			<Button variant="primary" onClick={onOpen}>
 				Ouvrir la modale
 			</Button>
+			{/* Sans titre, la description reste affichée : d'où le contrôle « Titre ». */}
 			<Modal
 				open={open}
 				onClose={onClose}
 				size={str(p.size)}
-				title="Supprimer le projet"
+				title={bool(p.title) ? "Supprimer le projet" : undefined}
 				description="Cette action est définitive et supprime toutes les données associées."
 				footer={
 					<>
 						<Button variant="ghost" onClick={onClose}>
 							Annuler
 						</Button>
-						<Button variant="danger" onClick={onClose}>
+						{/* 0.2.0 : la sémantique destructrice passe par `tone`, la forme reste `variant`. */}
+						<Button tone="danger" onClick={onClose}>
 							Supprimer
 						</Button>
 					</>
@@ -101,7 +103,7 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 		component: "Card",
 		imports: ["Card", "CardHeader", "CardTitle", "CardDescription", "CardFooter"],
 		controls: [
-			{ key: "padding", label: "Padding", type: "seg", options: ["sm", "md", "lg"] },
+			{ key: "padding", label: "Padding", type: "seg", options: ["none", "sm", "md", "lg"] },
 			{ key: "interactive", label: "Interactive", type: "toggle" },
 		],
 		defaults: { padding: "md", interactive: false },
@@ -128,12 +130,17 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 				p.interactive ? " interactive" : ""
 			}>\n  <CardHeader>\n    <CardTitle>Forfait Pro</CardTitle>\n    <CardDescription>…</CardDescription>\n  </CardHeader>\n  <CardFooter>…</CardFooter>\n</Card>`,
 		props: [
-			["padding", "enum", "none · sm · md · lg"],
+			["padding", "enum", "none · sm · md · lg (défaut md)"],
 			["interactive", "boolean", "élévation + bordure accent au survol"],
 			[
 				"CardHeader / CardTitle / CardDescription / CardFooter",
 				"—",
 				"sous-composants de structure",
+			],
+			[
+				"CardTitle · headingLevel",
+				"HeadingLevel",
+				"2 · 3 · 4 · 5 · 6 — niveau du titre (défaut 3)",
 			],
 		],
 	},
@@ -163,9 +170,14 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 				p.dismissible ? "\n  dismissible" : ""
 			}\n>\n  Ta commande est en cours de préparation.\n</Alert>`,
 		props: [
-			["tone", "enum", "info · success · warn · danger"],
+			["tone", "AlertTone", "dérivé de Tone : info · success · warn · danger (défaut info)"],
 			["title", "ReactNode", "titre en gras"],
-			["dismissible / onDismiss", "boolean / fn", "bouton fermer"],
+			["dismissible", "boolean", "affiche le bouton fermer"],
+			[
+				"open / defaultOpen / onOpenChange",
+				"boolean / boolean / fn",
+				"visibilité contrôlée — defaultOpen vaut true ici : l'alerte est là dès le montage",
+			],
 			["icon", "ReactNode | null", "icône personnalisée — null pour masquer"],
 		],
 	},
@@ -177,7 +189,7 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 				key: "tone",
 				label: "Ton",
 				type: "seg",
-				options: ["accent", "info", "success", "warn", "danger"],
+				options: ["info", "success", "warn", "danger", "accent"],
 			},
 			{ key: "dismissible", label: "Fermable", type: "toggle" },
 		],
@@ -203,26 +215,51 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 				p.dismissible ? "\n  dismissible" : ""
 			}\n  action={<Button size="sm">Mettre à niveau</Button>}\n>\n  Passe au forfait Pro…\n</Banner>`,
 		props: [
-			["tone", "enum", "info · success · warn · danger · accent"],
+			[
+				"tone",
+				"BannerTone",
+				"dérivé de Tone : info · success · warn · danger · accent (défaut accent)",
+			],
 			["action", "ReactNode", "action(s) à droite, ex. un Button"],
-			["dismissible / onDismiss", "boolean / fn", "bouton fermer"],
+			["dismissible", "boolean", "affiche le bouton fermer"],
+			[
+				"open / defaultOpen / onOpenChange",
+				"boolean / boolean / fn",
+				"visibilité contrôlée — defaultOpen vaut true ici : le bandeau est là dès le montage",
+			],
 			["icon", "ReactNode | null", "icône personnalisée — null pour masquer"],
 		],
 	},
 
 	modal: {
 		component: "Modal",
-		controls: [{ key: "size", label: "Taille", type: "seg", options: ["sm", "md", "lg"] }],
-		defaults: { size: "md" },
+		controls: [
+			{ key: "size", label: "Taille", type: "seg", options: ["sm", "md", "lg", "full"] },
+			{ key: "title", label: "Titre", type: "toggle" },
+		],
+		defaults: { size: "md", title: true },
 		render: (p) => <ModalPreview {...p} />,
 		code: (p) =>
-			`import { Modal } from "@camply/ui";\n\n<Modal\n  open={open}\n  onClose={onClose}\n  size="${p.size}"\n  title="Supprimer le projet"\n  footer={<Button variant="danger">Supprimer</Button>}\n>\n  Es-tu sûr de vouloir continuer ?\n</Modal>`,
+			`import { Modal } from "@camply/ui";\n\n<Modal\n  open={open}\n  onClose={onClose}\n  size="${p.size}"${
+				p.title ? `\n  title="Supprimer le projet"` : ""
+			}\n  description="Cette action est définitive."\n  footer={<Button tone="danger">Supprimer</Button>}\n>\n  Es-tu sûr de vouloir continuer ?\n</Modal>`,
 		props: [
-			["open / onClose", "boolean / fn", "visibilité contrôlée — Échap et backdrop ferment"],
-			["title / description", "ReactNode", "en-tête de la boîte"],
+			["open / onClose", "boolean / fn", "visibilité contrôlée — Échap et voile ferment"],
+			["title", "ReactNode", "titre de l'en-tête — nomme le dialogue (aria-labelledby)"],
+			["description", "ReactNode", "texte sous le titre — rendu même sans titre"],
 			["footer", "ReactNode", "actions en pied, alignées à droite"],
-			["size", "enum", "sm · md · lg"],
-			["closeOnBackdrop / showClose", "boolean", "fermeture au clic dehors / bouton ×"],
+			[
+				"size",
+				"ModalSize",
+				"sm · md · lg (échelle partagée Size, défaut md) · full, toute la fenêtre",
+			],
+			["closeOnBackdrop", "boolean", "fermeture au clic sur le voile (défaut true)"],
+			["showClose", "boolean", "bouton × dans l'en-tête (défaut true)"],
+			[
+				"ref + attributs natifs",
+				"Ref<HTMLDivElement>",
+				"la racine publique est le panneau, pas le voile — role, aria-modal, tabIndex restent réservés",
+			],
 		],
 	},
 
@@ -235,9 +272,16 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 			`import { Drawer } from "@camply/ui";\n\n<Drawer\n  open={open}\n  onClose={onClose}\n  side="${p.side}"\n  title="Filtres"\n>\n  …\n</Drawer>`,
 		props: [
 			["open / onClose", "boolean / fn", "visibilité contrôlée"],
-			["side", "enum", "left · right"],
+			["side", "enum", "left · right (défaut right)"],
 			["width", "number | string", "largeur du panneau (défaut 380)"],
 			["title / footer", "ReactNode", "en-tête / pied"],
+			["showClose", "boolean", "bouton × dans l'en-tête (défaut true)"],
+			["closeOnBackdrop", "boolean", "fermeture au clic sur le voile (défaut true)"],
+			[
+				"ref + attributs natifs",
+				"Ref<HTMLElement>",
+				"la racine publique est le panneau <aside> — role, aria-modal, tabIndex restent réservés",
+			],
 		],
 	},
 
@@ -255,10 +299,17 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 			}\n  title="Partager"\n>\n  …\n</Sheet>`,
 		props: [
 			["open / onClose", "boolean / fn", "visibilité contrôlée"],
-			["side", "enum", "bottom · top"],
-			["height", "number | string", "hauteur maximale"],
-			["handle", "boolean", "poignée de drag (bottom, défaut true)"],
+			["side", "enum", "bottom · top (défaut bottom)"],
+			["height", "number | string", "hauteur du panneau (défaut auto)"],
+			["handle", "boolean", "poignée de drag, côté bottom seulement (défaut true)"],
 			["title / footer", "ReactNode", "en-tête / pied"],
+			["showClose", "boolean", "bouton × dans l'en-tête (défaut true)"],
+			["closeOnBackdrop", "boolean", "fermeture au clic sur le voile (défaut true)"],
+			[
+				"ref + attributs natifs",
+				"Ref<HTMLDivElement>",
+				"la racine publique est le panneau, pas le voile — role, aria-modal, tabIndex restent réservés",
+			],
 		],
 	},
 
@@ -283,6 +334,11 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 		props: [
 			["trigger", "ReactElement", "élément cliquable qui ouvre le menu"],
 			["placement", "Placement", "position du menu (défaut bottom-start)"],
+			[
+				"open / defaultOpen / onOpenChange",
+				"boolean / boolean / fn",
+				"mode contrôlé — sans elles, le menu gère son ouverture",
+			],
 			["MenuItem · icon / shortcut / danger / disabled / onSelect", "—", "props de chaque entrée"],
 			["MenuLabel / MenuSeparator", "—", "libellé de section / séparateur"],
 		],
@@ -296,7 +352,7 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 				key: "tone",
 				label: "Ton",
 				type: "seg",
-				options: ["default", "plain", "dark", "accent", "success", "warning", "danger", "info"],
+				options: ["default", "plain", "dark", "accent", "success", "warn", "danger", "info"],
 			},
 			{ key: "icon", label: "Icône", type: "toggle" },
 			{
@@ -324,14 +380,25 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 		},
 		props: [
 			["content", "ReactNode", "contenu de l'infobulle"],
+			["children", "ReactElement", "élément survolé — reçoit aria-describedby à l'ouverture"],
 			["icon", "ReactNode", "icône avant le contenu"],
 			[
 				"tone",
-				"enum",
-				"default · plain (sans fond) · dark · accent · success · warning · danger · info",
+				"TooltipTone",
+				"default (défaut) · plain (sans fond) · dark, plus les tons dérivés accent · success · warn · danger · info",
 			],
 			["placement", "Placement", "top · bottom · left · right (+ variantes -start/-end)"],
-			["delay", "number", "délai d'apparition en ms (défaut 200)"],
+			["delay", "number", "délai avant ouverture au survol en ms (défaut 200)"],
+			[
+				"closeDelay",
+				"number",
+				"délai avant fermeture en ms (défaut 150) — laisse le temps d'amener le pointeur sur l'infobulle",
+			],
+			[
+				"open / defaultOpen / onOpenChange",
+				"boolean / boolean / fn",
+				"mode contrôlé — sans elles, l'infobulle gère son ouverture",
+			],
 		],
 	},
 
@@ -364,6 +431,11 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 		props: [
 			["trigger", "ReactElement", "élément cliquable qui ouvre le panneau"],
 			["placement", "Placement", "position (défaut bottom-start)"],
+			[
+				"open / defaultOpen / onOpenChange",
+				"boolean / boolean / fn",
+				"mode contrôlé — sans elles, le popover gère son ouverture",
+			],
 		],
 	},
 
@@ -387,6 +459,11 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 			["trigger", "ReactElement", "élément survolé (hover/focus)"],
 			["openDelay / closeDelay", "number", "délais en ms (défaut 250 / 150)"],
 			["placement", "Placement", "position (défaut bottom-start)"],
+			[
+				"open / defaultOpen / onOpenChange",
+				"boolean / boolean / fn",
+				"mode contrôlé — sans elles, la carte gère son ouverture",
+			],
 		],
 	},
 };

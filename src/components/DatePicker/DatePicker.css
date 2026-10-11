@@ -1,3 +1,52 @@
+/* Classes à consommateur unique : elles vivent ici et non dans tokens.css,
+   toujours chargé. Elles restent EN TÊTE de la feuille : `.camply-picker-cell`
+   pose le fond transparent que `__yearCurrent`, `__inRange` et `__selected`
+   teintent ensuite, à spécificité égale.
+   Les noms génériques sont portés par le TSX ; c'est là qu'il faudra les
+   renommer en `.camply-datepicker__*` (règle 7). */
+.camply-picker-cell {
+	border: none;
+	border-radius: var(--camply-radius-sm);
+	background: transparent;
+	color: var(--camply-text);
+	font-family: inherit;
+	font-size: 13px;
+	cursor: pointer;
+	transition:
+		background var(--camply-duration),
+		color var(--camply-duration);
+}
+.camply-picker-cell:hover:not(:disabled) {
+	background: var(--camply-fill-3);
+}
+.camply-picker-cell:disabled {
+	color: var(--camply-text-disabled);
+	cursor: not-allowed;
+}
+
+.camply-text-btn {
+	border: none;
+	background: none;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.camply-icon-ghost-btn {
+	display: inline-flex;
+	align-items: center;
+	flex: none;
+	padding: 0;
+	border: none;
+	background: none;
+	color: var(--camply-text-muted-2);
+	cursor: pointer;
+}
+.camply-icon-ghost-btn:disabled {
+	cursor: not-allowed;
+}
+
 .camply-datepicker__pop {
 	width: 296px;
 	padding: 14px;

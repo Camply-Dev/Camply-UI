@@ -1,6 +1,9 @@
 import { createContext, type ReactNode, useContext, useMemo } from "react";
 
-/** Tous les textes que la lib rend elle-même (aria-labels, boutons internes…). */
+/**
+ * Tous les textes que la lib rend elle-même (aria-labels, boutons internes…),
+ * résolus en `prop ?? labels.clé` (règle 5).
+ */
 export interface CamplyLabels {
 	close: string;
 	clear: string;
@@ -25,6 +28,46 @@ export interface CamplyLabels {
 	pause: string;
 	search: string;
 	noResults: string;
+
+	/** Snippet : bouton de copie, avant et après la copie. */
+	copy: string;
+	copied: string;
+	/** Spoiler : déplier / replier. */
+	showMore: string;
+	showLess: string;
+	/** Placeholders des champs à choix (Select, MultiSelect, TagInput, DatePicker). */
+	selectPlaceholder: string;
+	addTag: string;
+	datePlaceholder: string;
+	colorPlaceholder: string;
+	/** DatePicker : bouton « aujourd'hui » et format de saisie attendu. */
+	today: string;
+	dateFormatHint: string;
+	/** Carousel : `aria-roledescription` et nom d'une diapositive (index 0-based). */
+	carouselRoleDescription: string;
+	slideRoleDescription: string;
+	slide: (index: number) => string;
+	/** CommandPalette : nom accessible, placeholder et état vide. */
+	commandPalette: string;
+	commandPalettePlaceholder: string;
+	noCommands: string;
+	/** ColorPicker : nom complet de chacune des trois surfaces de réglage. */
+	colorPickerSaturation: string;
+	colorPickerHue: string;
+	colorPickerAlpha: string;
+	/** Table : noms accessibles des cases de sélection. */
+	selectAll: string;
+	selectRow: (index: number) => string;
+	/** RangeSlider : suffixes des deux poignées. */
+	minimum: string;
+	maximum: string;
+	/** FileUpload : zone de dépôt et messages de rejet. */
+	dropFiles: string;
+	browseFiles: string;
+	fileTypeRejected: (name: string) => string;
+	fileTooLarge: (name: string, max: string) => string;
+	/** Unités de taille de fichier, de l'octet au téraoctet. */
+	fileSizeUnits: [string, string, string, string, string];
 }
 
 const FR: CamplyLabels = {
@@ -49,8 +92,37 @@ const FR: CamplyLabels = {
 	remove: "Retirer",
 	play: "Lecture",
 	pause: "Pause",
-	search: "Rechercher",
+	search: "Rechercher…",
 	noResults: "Aucun résultat",
+
+	copy: "Copier",
+	copied: "Copié",
+	showMore: "Voir plus",
+	showLess: "Voir moins",
+	selectPlaceholder: "Sélectionner…",
+	addTag: "Ajouter…",
+	datePlaceholder: "Choisir une date",
+	colorPlaceholder: "Choisir une couleur",
+	today: "Aujourd'hui",
+	dateFormatHint: "JJ/MM/AAAA",
+	carouselRoleDescription: "carrousel",
+	slideRoleDescription: "diapositive",
+	slide: (index) => `Diapositive ${index + 1}`,
+	commandPalette: "Palette de commandes",
+	commandPalettePlaceholder: "Rechercher une commande…",
+	noCommands: "Aucune commande",
+	colorPickerSaturation: "Sélecteur de couleur — saturation et luminosité",
+	colorPickerHue: "Sélecteur de couleur — teinte",
+	colorPickerAlpha: "Sélecteur de couleur — opacité",
+	selectAll: "Tout sélectionner",
+	selectRow: (index) => `Sélectionner la ligne ${index + 1}`,
+	minimum: "minimum",
+	maximum: "maximum",
+	dropFiles: "Déposer des fichiers ou",
+	browseFiles: "parcourir",
+	fileTypeRejected: (name) => `Type non accepté : ${name}`,
+	fileTooLarge: (name, max) => `${name} dépasse ${max}`,
+	fileSizeUnits: ["o", "Ko", "Mo", "Go", "To"],
 };
 
 interface CamplyContextValue {

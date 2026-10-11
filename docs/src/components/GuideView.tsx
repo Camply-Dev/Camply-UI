@@ -183,13 +183,14 @@ import type { ButtonProps } from "@camply/ui";`}</CodeBlock>
 						0 dépendance
 					</Badge>
 					<Badge tone="neutral" variant="soft">
-						58 composants
+						60 composants
 					</Badge>
 				</Preview>
 				<ul className="cu-guide__list">
 					<li>
-						Il n'existe pas de sous-chemin par composant : <code>@camply/ui/button</code> n'existe
-						pas.
+						Tout vient de la racine par défaut. Un sous-chemin par composant existe aussi, à la
+						casse exacte du composant : <code>@camply/ui/Button</code> — jamais{" "}
+						<code>@camply/ui/button</code>.
 					</li>
 					<li>
 						Le paquet est publié en ESM non bundlé : votre bundler ne garde que ce que vous rendez.
@@ -221,6 +222,25 @@ import type { ButtonProps } from "@camply/ui";`}</CodeBlock>
 				<CodeBlock lang="css">{`:root {
   --camply-accent: #8b5cf6;
 }`}</CodeBlock>
+				<p className="cu-guide__p">
+					Un <strong>thème clair</strong> est fourni. Il est scopable : posez l'attribut sur{" "}
+					<code>&lt;html&gt;</code> pour toute l'app, ou sur n'importe quel conteneur pour n'en
+					éclaircir qu'une zone. Le sombre reste le défaut.
+				</p>
+				<div className="cu-guide__split">
+					<Preview label="Sombre (défaut)">
+						<Button variant="primary">Action</Button>
+						<Badge tone="accent">accent</Badge>
+					</Preview>
+					<div className="cu-guide__scope" data-camply-theme="light">
+						<div className="cu-guide__scope-label">Clair</div>
+						<div className="cu-row">
+							<Button variant="primary">Action</Button>
+							<Badge tone="accent">accent</Badge>
+						</div>
+					</div>
+				</div>
+				<CodeBlock lang="tsx">{`<html data-camply-theme="light">`}</CodeBlock>
 				<div className="cu-guide__inline-cta">
 					<Button
 						variant="ghost"
@@ -258,6 +278,17 @@ function Page() {
 					<code>"use client"</code>. Les styles restent importés une fois dans{" "}
 					<code>app/layout.tsx</code>.
 				</Alert>
+				<p className="cu-guide__p">
+					Un troisième provider est <strong>optionnel</strong> : <code>CamplyProvider</code>{" "}
+					surcharge les textes que la lib rend elle-même (« Fermer », « Page suivante », les{" "}
+					<code>aria-label</code>…) et la locale <code>Intl</code> des dates et des tailles de
+					fichier. Sans lui, tout retombe sur le français.
+				</p>
+				<CodeBlock lang="tsx">{`import { CamplyProvider } from "@camply/ui";
+
+<CamplyProvider locale="en-US" labels={{ close: "Close", next: "Next" }}>
+  <App />
+</CamplyProvider>;`}</CodeBlock>
 			</Section>
 
 			<Section title="Où aller ensuite">
@@ -268,7 +299,7 @@ function Page() {
 							Explorer les composants
 						</div>
 						<p className="cu-guide__nextcard-desc">
-							58 composants groupés par famille, avec playground interactif.
+							60 composants groupés par famille, avec playground interactif.
 						</p>
 					</ClickableCard>
 					<ClickableCard className="cu-guide__nextcard" onActivate={() => onNavigate(CSS)}>

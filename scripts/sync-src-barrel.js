@@ -8,11 +8,13 @@ const components = readdirSync(join(root, "src/components")).sort((a, b) => a.lo
 // Le barrel n'importe AUCUN CSS : le CSS est découplé du graphe JS pour qu'importer
 // un composant n'embarque pas les feuilles des 57 autres. Le consommateur importe
 // une fois "@camply/ui/styles.css" (ou la feuille d'un composant précis).
+// L'ordre ci-dessous est celui que produit l'assist `organizeImports` de biome :
+// sans ça, `bun run sync` puis `bun run fix` ne convergent pas et la garde de
+// fraîcheur en CI serait rouge en permanence.
 const srcBarrel = `${components.map((name) => `export * from "./components/${name}";`).join("\n")}
-
+export type { CamplyLabels, CamplyProviderProps } from "./lib/i18n";
 // Provider global (textes + locale) — optionnel : sans lui, tout retombe en français.
 export { CamplyProvider, useLabels, useLocale } from "./lib/i18n";
-export type { CamplyLabels, CamplyProviderProps } from "./lib/i18n";
 `;
 
 writeFileSync(join(root, "src/index.ts"), srcBarrel);
@@ -23,7 +25,12 @@ const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
 
 const exportsMap = {
 	".": { types: "./dist/index.d.ts", import: "./dist/index.js" },
+	// Une map `exports` close masque le package.json, que Vite, Jest ou les plugins
+	// Tailwind résolvent couramment pour localiser le paquet.
+	"./package.json": "./package.json",
 	"./styles.css": "./dist/styles.css",
+	// Couche partagée seule : sans elle, "./<Composant>/styles.css" est inutilisable.
+	"./tokens.css": "./dist/tokens.css",
 	"./icons": { types: "./dist/lib/icons.d.ts", import: "./dist/lib/icons.js" },
 };
 

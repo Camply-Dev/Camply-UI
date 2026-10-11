@@ -12,7 +12,7 @@ import { nextRovingIndex } from "../../lib/rovingIndex";
 import { useControllable } from "../../lib/useControllable";
 import { useId } from "../../lib/useId";
 
-type TabsVariant = "line" | "soft";
+export type TabsVariant = "line" | "soft";
 interface TabsContextValue {
 	value: string;
 	setValue: (v: string) => void;
@@ -25,6 +25,16 @@ const useTabs = () => {
 	if (!ctx) throw new Error("Tabs components must be used within <Tabs>");
 	return ctx;
 };
+
+/**
+ * Ce que chaque pièce du bandeau se réserve (règle 3). Rôle, état et IDREF sont le
+ * contrat APG : un `id` repris de l'extérieur décrocherait `aria-controls` et
+ * `aria-labelledby` (règle 8). `type="button"` : un onglet ne soumet pas un
+ * formulaire. L'orientation est fixée, le clavier ne gérant que ←/→.
+ */
+type ReservedTabListAttr = "role" | "aria-orientation";
+type ReservedTabAttr = "type" | "role" | "id" | "aria-selected" | "aria-controls" | "tabIndex";
+type ReservedTabPanelAttr = "role" | "id" | "aria-labelledby";
 
 export interface TabsProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "onChange" | "defaultValue"> {
@@ -50,7 +60,7 @@ export const Tabs = forwardRef<HTMLDivElement, TabsProps>(function Tabs(
 	);
 });
 
-export interface TabListProps extends HTMLAttributes<HTMLDivElement> {
+export interface TabListProps extends Omit<HTMLAttributes<HTMLDivElement>, ReservedTabListAttr> {
 	children: ReactNode;
 }
 
@@ -78,12 +88,13 @@ export const TabList = forwardRef<HTMLDivElement, TabListProps>(function TabList
 	};
 
 	return (
+		// Règle 3 : le spread d'abord, le contrat du bandeau après.
 		<div
+			{...rest}
 			ref={ref}
 			role="tablist"
 			aria-orientation="horizontal"
 			className={cn("camply-tabs__list", `camply-tabs__list-${variant}`, className)}
-			{...rest}
 			onKeyDown={handleKeyDown}
 		>
 			{children}
@@ -91,29 +102,33 @@ export const TabList = forwardRef<HTMLDivElement, TabListProps>(function TabList
 	);
 });
 
-export interface TabProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "value"> {
+export interface TabProps
+	extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "value" | ReservedTabAttr> {
 	value: string;
 	children: ReactNode;
 	icon?: ReactNode;
 }
 
 export const Tab = forwardRef<HTMLButtonElement, TabProps>(function Tab(
-	{ value, children, icon, disabled, className, onClick, ...rest },
+	{ value, children, icon, className, onClick, ...rest },
 	ref,
 ) {
 	const { value: active, setValue, idBase, variant } = useTabs();
 	const selected = active === value;
 	return (
+		// Règle 3 : le spread d'abord, l'état de l'onglet après.
 		<button
+			{...rest}
 			ref={ref}
 			type="button"
 			role="tab"
 			id={`${idBase}-tab-${value}`}
 			aria-selected={selected}
-			aria-controls={`${idBase}-panel-${value}`}
+			// Le panneau inactif est démonté : hors sélection, l'IDREF pointerait
+			// dans le vide (règle 8).
+			aria-controls={selected ? `${idBase}-panel-${value}` : undefined}
 			// Roving tabindex : un seul onglet dans l'ordre de tabulation.
 			tabIndex={selected ? 0 : -1}
-			disabled={disabled}
 			className={cn(
 				"camply-tabs__tab",
 				"camply-focus-ring",
@@ -121,19 +136,20 @@ export const Tab = forwardRef<HTMLButtonElement, TabProps>(function Tab(
 				selected && "camply-tabs__selected",
 				className,
 			)}
-			{...rest}
+			// Règle 4.
 			onClick={(e) => {
 				onClick?.(e);
+				if (e.defaultPrevented) return;
 				setValue(value);
 			}}
 		>
-			{icon && <span className={"camply-tabs__tabIcon"}>{icon}</span>}
+			{icon && <span className="camply-tabs__tabIcon">{icon}</span>}
 			{children}
 		</button>
 	);
 });
 
-export interface TabPanelProps extends HTMLAttributes<HTMLDivElement> {
+export interface TabPanelProps extends Omit<HTMLAttributes<HTMLDivElement>, ReservedTabPanelAttr> {
 	value: string;
 	children: ReactNode;
 }
@@ -145,13 +161,14 @@ export const TabPanel = forwardRef<HTMLDivElement, TabPanelProps>(function TabPa
 	const { value: active, idBase } = useTabs();
 	if (active !== value) return null;
 	return (
+		// Même contrat que l'onglet : le spread d'abord, l'appariement APG après.
 		<div
+			{...rest}
 			ref={ref}
 			role="tabpanel"
 			id={`${idBase}-panel-${value}`}
 			aria-labelledby={`${idBase}-tab-${value}`}
 			className={cn("camply-tabs__panel", className)}
-			{...rest}
 		>
 			{children}
 		</div>

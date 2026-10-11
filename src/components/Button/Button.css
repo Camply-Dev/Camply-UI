@@ -1,3 +1,6 @@
+/* Table de tons commune à Button, IconButton et Badge, avec son contrat de
+   variables : voir tokens.css. Ne restent ici que la forme et les dimensions,
+   propres au bouton à libellé. */
 .camply-button__btn {
 	--_h: 40px;
 	--_px: 18px;
@@ -17,6 +20,8 @@
 	font-weight: 600;
 	line-height: 1;
 	white-space: nowrap;
+	/* Rendu en lien (`asChild`) : pas de soulignement hérité. */
+	text-decoration: none;
 	cursor: pointer;
 	user-select: none;
 	transition:
@@ -29,6 +34,13 @@
 .camply-button__btn:disabled {
 	cursor: not-allowed;
 	opacity: var(--camply-disabled-opacity);
+}
+
+/* `asChild` désactivé : un lien n'a pas de `:disabled`, il porte `aria-disabled`.
+   Sans pointeur, ni survol ni clic ; le clavier est coupé par le composant. */
+.camply-button__btn[aria-disabled="true"] {
+	opacity: var(--camply-disabled-opacity);
+	pointer-events: none;
 }
 
 .camply-button__btn.camply-button__loading {
@@ -69,19 +81,20 @@
 	--_radius: var(--camply-radius-lg);
 }
 
+/* ── Formes ───────────────────────────────────────────────────────────────── */
 .camply-button__primary {
-	background: var(--camply-accent);
-	color: var(--camply-accent-contrast);
+	background: var(--_c);
+	color: var(--_contrast);
 }
 
 .camply-button__primary:hover:not(:disabled) {
-	background: var(--camply-accent-hover);
+	background: var(--_c-hover);
 }
 
 .camply-button__secondary {
 	background: var(--camply-fill-2);
 	border-color: var(--camply-border-strong);
-	color: var(--camply-text);
+	color: var(--_chrome-ink);
 }
 
 .camply-button__secondary:hover:not(:disabled) {
@@ -90,30 +103,21 @@
 
 .camply-button__ghost {
 	background: transparent;
-	color: var(--camply-text-muted);
+	color: var(--_chrome-ink-quiet);
 }
 
 .camply-button__ghost:hover:not(:disabled) {
 	background: var(--camply-fill-2);
-	color: var(--camply-text);
+	color: var(--_chrome-ink);
 }
 
 .camply-button__soft {
-	background: var(--camply-accent-soft);
-	color: var(--camply-accent-hover);
+	background: var(--_soft);
+	color: var(--_ink);
 }
 
 .camply-button__soft:hover:not(:disabled) {
-	background: var(--camply-accent-soft-hover);
-}
-
-.camply-button__danger {
-	background: var(--camply-danger);
-	color: var(--camply-danger-contrast);
-}
-
-.camply-button__danger:hover:not(:disabled) {
-	background: var(--camply-danger-hover);
+	background: var(--_soft-hover);
 }
 
 .camply-button__fullWidth {

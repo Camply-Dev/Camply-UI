@@ -14,6 +14,16 @@
 .camply-accordion__itemOpen {
 	border-color: var(--camply-border-strong);
 }
+/*
+ * Le bouton d'en-tête vit dans un <h2>..<h6> pour que la navigation par titres
+ * des lecteurs d'écran atteigne l'accordéon. Ce reset annule marge et police du
+ * navigateur : le rendu reste celui du seul bouton. En feuille et non en style
+ * inline, pour rester surchargeable sans !important.
+ */
+.camply-accordion__heading {
+	margin: 0;
+	font: inherit;
+}
 .camply-accordion__trigger {
 	display: flex;
 	align-items: center;

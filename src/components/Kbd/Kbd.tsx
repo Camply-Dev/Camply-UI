@@ -1,9 +1,10 @@
 import { forwardRef, type HTMLAttributes, type ReactNode, type Ref } from "react";
 import { cn } from "../../lib/cn";
+import type { Size } from "../../lib/types";
 
 export interface KbdProps extends HTMLAttributes<HTMLElement> {
 	keys?: string[];
-	size?: "sm" | "md";
+	size?: Extract<Size, "sm" | "md">;
 	children?: ReactNode;
 }
 
@@ -16,8 +17,9 @@ export const Kbd = forwardRef<HTMLElement, KbdProps>(
 					className={cn("camply-kbd__group", className)}
 					{...props}
 				>
-					{keys.map((k) => (
-						<kbd key={k} className={cn("camply-kbd__kbd", `camply-kbd__${size}`)}>
+					{keys.map((k, i) => (
+						// biome-ignore lint/suspicious/noArrayIndexKey: la touche seule ne fait pas une clé (une séquence peut la répéter : ⌘ K K) et la liste est figée, jamais réordonnée
+						<kbd key={`${i}-${k}`} className={cn("camply-kbd__kbd", `camply-kbd__${size}`)}>
 							{k}
 						</kbd>
 					))}

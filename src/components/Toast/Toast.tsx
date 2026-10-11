@@ -2,6 +2,7 @@ import {
 	type ComponentPropsWithoutRef,
 	createContext,
 	forwardRef,
+	type MouseEvent,
 	type ReactNode,
 	useCallback,
 	useContext,
@@ -15,13 +16,29 @@ import { cn } from "../../lib/cn";
 import { useLabels } from "../../lib/i18n";
 import { Info, STATUS_ICONS } from "../../lib/icons";
 import { Portal } from "../../lib/Portal";
-export type ToastTone = "default" | "success" | "info" | "warn" | "danger";
+import type { Tone } from "../../lib/types";
+import { Button } from "../Button";
+/** `default` sort de la palette sémantique : notification neutre, sans statut. */
+export type ToastTone = Extract<Tone, "success" | "info" | "warn" | "danger"> | "default";
+
+/** Bouton d'action d'un toast (« Annuler », « Voir »…). */
+export interface ToastAction {
+	label: ReactNode;
+	/** Appelé au clic ; le toast se ferme ensuite, sauf `event.preventDefault()`. */
+	onClick: (event: MouseEvent<HTMLButtonElement>) => void;
+}
 
 export interface ToastOptions {
 	title: ReactNode;
 	description?: ReactNode;
 	tone?: ToastTone;
 	duration?: number;
+	/**
+	 * Bouton d'action sous le texte. Le toast disparaît au bout de `duration` :
+	 * en laisser le temps (une durée plus longue, ou `0`), et ne jamais en faire
+	 * le seul moyen d'agir (WCAG 2.2.1).
+	 */
+	action?: ToastAction;
 }
 
 interface ToastRecord extends ToastOptions {
@@ -52,7 +69,14 @@ export function useToast(): ToastContextValue {
 
 const TONE_ICON = { ...STATUS_ICONS, default: Info } as const;
 
-export interface ToastProviderProps extends Omit<ComponentPropsWithoutRef<"section">, "children"> {
+/**
+ * Règle 3. La pile n'est annoncée que si elle reste une région live, et
+ * `data-position` (posé après le spread) suit la prop `position`.
+ */
+type ReservedToastViewportAttr = "aria-live" | "aria-atomic";
+
+export interface ToastProviderProps
+	extends Omit<ComponentPropsWithoutRef<"section">, "children" | ReservedToastViewportAttr> {
 	children: ReactNode;
 	position?: Corner;
 	duration?: number;
@@ -70,6 +94,10 @@ export const ToastProvider = forwardRef<HTMLElement, ToastProviderProps>(
 			duration = 4000,
 			className,
 			"aria-label": ariaLabel,
+			onPointerEnter,
+			onPointerLeave,
+			onFocus,
+			onBlur,
 			...props
 		},
 		ref,
@@ -165,29 +193,39 @@ export const ToastProvider = forwardRef<HTMLElement, ToastProviderProps>(
 					<section
 						ref={ref}
 						className={cn("camply-toast__viewport", className)}
-						data-position={position}
 						aria-label={ariaLabel ?? labels.notifications}
+						{...props}
+						data-position={position}
 						aria-live="polite"
 						aria-atomic="false"
-						onPointerEnter={() => {
+						// La pause relève de WCAG 2.2.1 : elle est composée avec les gestionnaires du
+						// consommateur, jamais écrasée ; seul son `preventDefault()` la neutralise.
+						onPointerEnter={(e) => {
+							onPointerEnter?.(e);
+							if (e.defaultPrevented) return;
 							hovered.current = true;
 							syncPause();
 						}}
-						onPointerLeave={() => {
+						onPointerLeave={(e) => {
+							onPointerLeave?.(e);
+							if (e.defaultPrevented) return;
 							hovered.current = false;
 							syncPause();
 						}}
-						onFocus={() => {
+						onFocus={(e) => {
+							onFocus?.(e);
+							if (e.defaultPrevented) return;
 							focused.current = true;
 							syncPause();
 						}}
 						onBlur={(e) => {
+							onBlur?.(e);
+							if (e.defaultPrevented) return;
 							// Focus qui reste dans la pile (toast → bouton fermer) : on ne reprend pas.
 							if (e.currentTarget.contains(e.relatedTarget)) return;
 							focused.current = false;
 							syncPause();
 						}}
-						{...props}
 					>
 						{toasts.map((t) => {
 							const tone = t.tone ?? "default";
@@ -197,24 +235,33 @@ export const ToastProvider = forwardRef<HTMLElement, ToastProviderProps>(
 							return (
 								<div
 									key={t.id}
-									className={"camply-toast__toast"}
+									className="camply-toast__toast"
 									data-tone={tone}
 									role={urgent ? "alert" : "status"}
 									aria-live={urgent ? "assertive" : "polite"}
 									aria-atomic="true"
 								>
-									<span className={"camply-toast__icon"} aria-hidden="true">
+									<span className="camply-toast__icon" aria-hidden="true">
 										<ToneIcon size={15} />
 									</span>
-									<div className={"camply-toast__body"}>
-										<div className={"camply-toast__title"}>{t.title}</div>
-										{t.description && <div className={"camply-toast__desc"}>{t.description}</div>}
+									<div className="camply-toast__body">
+										<div className="camply-toast__title">{t.title}</div>
+										{t.description && <div className="camply-toast__desc">{t.description}</div>}
+										{t.action && (
+											<Button
+												size="sm"
+												variant="soft"
+												className="camply-toast__action"
+												onClick={(e) => {
+													t.action?.onClick(e);
+													if (!e.defaultPrevented) dismiss(t.id);
+												}}
+											>
+												{t.action.label}
+											</Button>
+										)}
 									</div>
-									<CloseButton
-										className="camply-toast__close"
-										onClick={() => dismiss(t.id)}
-										iconSize={14}
-									/>
+									<CloseButton className="camply-toast__close" onClick={() => dismiss(t.id)} />
 								</div>
 							);
 						})}

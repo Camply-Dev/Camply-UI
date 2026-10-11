@@ -56,7 +56,7 @@
 	--_c: var(--camply-info);
 }
 .camply-toast__toast[data-tone="warn"] {
-	--_c: var(--camply-warning);
+	--_c: var(--camply-warn);
 }
 .camply-toast__toast[data-tone="danger"] {
 	--_c: var(--camply-danger);
@@ -91,24 +91,18 @@
 	line-height: 1.45;
 	color: var(--camply-text-muted-2);
 }
-.camply-toast__close {
+.camply-toast__action {
+	margin-top: 10px;
+}
+/* Delta d'IconButton uniquement — voir le commentaire détaillé dans
+   src/styles/tokens.css, au-dessus de `.camply-alert__close`, qui explique la
+   classe doublée. Le toast est compact : 24px et un rayon plus serré que le
+   `sm` d'IconButton. */
+.camply-toast__close.camply-toast__close {
+	--_s: 24px;
+	--_radius: var(--camply-radius-xs);
 	flex: none;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 24px;
-	height: 24px;
 	margin: -2px -3px 0 0;
 	border: none;
-	border-radius: var(--camply-radius-xs);
-	background: transparent;
 	color: var(--camply-text-muted-2);
-	cursor: pointer;
-	transition:
-		background var(--camply-duration),
-		color var(--camply-duration);
-}
-.camply-toast__close:hover {
-	background: var(--camply-fill-3);
-	color: var(--camply-text);
 }

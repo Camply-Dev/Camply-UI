@@ -7,9 +7,11 @@ import {
 	useRef,
 } from "react";
 import { cn } from "../../lib/cn";
+import { Field, idRefs } from "../../lib/Field";
+import { HiddenField } from "../../lib/HiddenField";
 import { ratioToValue, snapToStep, valueToPercent } from "../../lib/sliderGeometry";
+import { nextSliderValue } from "../../lib/sliderKeys";
 import { useControllable } from "../../lib/useControllable";
-import { useId } from "../../lib/useId";
 
 export interface SliderProps
 	extends Omit<ComponentPropsWithoutRef<"div">, "onChange" | "defaultValue"> {
@@ -20,6 +22,10 @@ export interface SliderProps
 	max?: number;
 	step?: number;
 	label?: string;
+	/** Texte d'aide affiché sous la piste. */
+	hint?: string;
+	/** Message d'erreur : remplace l'aide, teinte la jauge et pose aria-invalid. */
+	error?: string;
 	showValue?: boolean;
 	formatValue?: (value: number) => string;
 	disabled?: boolean;
@@ -44,12 +50,15 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
 		max = 100,
 		step = 1,
 		label,
+		hint,
+		error,
 		showValue = true,
 		formatValue = (v) => `${v}`,
 		disabled = false,
 		name,
 		required,
 		readOnly = false,
+		id,
 		className,
 		"aria-label": ariaLabel,
 		"aria-labelledby": ariaLabelledBy,
@@ -60,7 +69,6 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
 	const [val, setVal] = useControllable<number>(value, defaultValue, onChange);
 	const trackRef = useRef<HTMLDivElement>(null);
 	const dragging = useRef(false);
-	const labelId = useId("camply-slider-label");
 	const locked = disabled || readOnly;
 
 	const setFromClientX = useCallback(
@@ -90,32 +98,8 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
 
 	const onKeyDown = (e: KeyboardEvent) => {
 		if (locked) return;
-		const big = (max - min) / 10;
-		let next = val;
-		switch (e.key) {
-			case "ArrowRight":
-			case "ArrowUp":
-				next = val + step;
-				break;
-			case "ArrowLeft":
-			case "ArrowDown":
-				next = val - step;
-				break;
-			case "PageUp":
-				next = val + big;
-				break;
-			case "PageDown":
-				next = val - big;
-				break;
-			case "Home":
-				next = min;
-				break;
-			case "End":
-				next = max;
-				break;
-			default:
-				return;
-		}
+		const next = nextSliderValue(e.key, val, min, max, step);
+		if (next === null) return;
 		e.preventDefault();
 		setVal(snapToStep(next, min, max, step));
 	};
@@ -123,53 +107,68 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
 	const pct = valueToPercent(val, min, max);
 	const text = formatValue(val);
 
+	// La racine `.camply-slider__root` porte la ref, les props DOM, `className` et
+	// `style` ; `Field` est imbriqué dedans pour que ce sélecteur reste ciblable.
 	return (
 		<div
 			ref={ref}
 			{...rest}
-			className={cn("camply-slider__root", disabled && "camply-slider__disabled", className)}
-		>
-			{(label || showValue) && (
-				<div className={"camply-slider__head"}>
-					{label && (
-						<span id={labelId} className={"camply-slider__label"}>
-							{label}
-							{required && (
-								<span aria-hidden="true" className={"camply-field__required"}>
-									*
-								</span>
-							)}
-						</span>
-					)}
-					{showValue && <span className={"camply-slider__value"}>{text}</span>}
-				</div>
+			className={cn(
+				"camply-slider__root",
+				disabled && "camply-slider__disabled",
+				error && "camply-slider__root--error",
+				className,
 			)}
-			<div
-				ref={trackRef}
-				className={"camply-slider__track"}
-				onPointerDown={onPointerDown}
-				onPointerMove={onPointerMove}
-				onPointerUp={onPointerUp}
-			>
-				<div className={"camply-slider__fill"} style={{ width: `${pct}%` }} />
-				<div
-					role="slider"
-					tabIndex={disabled ? -1 : 0}
-					aria-valuemin={min}
-					aria-valuemax={max}
-					aria-valuenow={val}
-					aria-valuetext={text}
-					aria-label={ariaLabel}
-					aria-labelledby={label ? labelId : ariaLabelledBy}
-					aria-orientation="horizontal"
-					aria-disabled={disabled || undefined}
-					aria-readonly={readOnly || undefined}
-					className={"camply-slider__knob camply-focus-ring camply-focus-ring--raised"}
-					style={{ left: `${pct}%` }}
-					onKeyDown={onKeyDown}
-				/>
-			</div>
-			{name && <input type="hidden" name={name} value={val} />}
+		>
+			<Field label={label} hint={hint} error={error} required={required} id={id} idPrefix="slider">
+				{({ id: knobId, labelId, describedBy, invalid }) => {
+					// Règle 4 : le libellé rendu et un `aria-labelledby` de l'appelant se composent.
+					const labelledBy = idRefs(labelId, ariaLabelledBy);
+					return (
+						<>
+							{showValue && (
+								<div className="camply-slider__head">
+									<span className="camply-slider__value">{text}</span>
+								</div>
+							)}
+							<div
+								ref={trackRef}
+								className="camply-slider__track"
+								onPointerDown={onPointerDown}
+								onPointerMove={onPointerMove}
+								onPointerUp={onPointerUp}
+							>
+								<div className="camply-slider__fill" style={{ width: `${pct}%` }} />
+								{/* La poignée porte l'id du champ : un <div role="slider"> n'est pas un
+								    contrôle étiquetable, le `htmlFor` du label reste donc inerte et c'est
+								    `aria-labelledby` qui nomme réellement le widget. */}
+								<div
+									id={knobId}
+									role="slider"
+									tabIndex={disabled ? -1 : 0}
+									aria-valuemin={min}
+									aria-valuemax={max}
+									aria-valuenow={val}
+									aria-valuetext={text}
+									aria-label={labelledBy ? undefined : ariaLabel}
+									aria-labelledby={labelledBy}
+									aria-describedby={describedBy}
+									aria-invalid={invalid}
+									aria-orientation="horizontal"
+									aria-disabled={disabled || undefined}
+									aria-readonly={readOnly || undefined}
+									className="camply-slider__knob camply-focus-ring camply-focus-ring--raised"
+									style={{ left: `${pct}%` }}
+									onKeyDown={onKeyDown}
+								/>
+							</div>
+						</>
+					);
+				}}
+			</Field>
+			<HiddenField name={name} value={val} disabled={disabled} />
 		</div>
 	);
 });
+
+Slider.displayName = "Slider";

@@ -13,7 +13,6 @@
 	border-radius: var(--camply-radius-xl);
 	background: var(--camply-surface);
 	box-shadow: var(--camply-shadow-lg);
-	font-family: var(--camply-font-sans);
 	animation: camply-modal-in 0.22s var(--camply-ease);
 }
 @keyframes camply-modal-in {
@@ -31,6 +30,10 @@
 .camply-modal__lg {
 	max-width: 640px;
 }
+.camply-modal__full {
+	max-width: none;
+	height: 100%;
+}
 
 .camply-modal__header {
 	display: flex;
@@ -39,37 +42,11 @@
 	gap: 16px;
 	padding: 24px 24px 0;
 }
-.camply-modal__title {
-	margin: 0;
-	font-family: var(--camply-font-display);
-	font-size: 18px;
-	font-weight: 700;
-	letter-spacing: -0.3px;
-	color: var(--camply-text);
-}
 .camply-modal__desc {
 	margin: 6px 0 0;
 	font-size: 14px;
 	line-height: 1.55;
 	color: var(--camply-text-muted);
-}
-.camply-modal__close {
-	flex: none;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 30px;
-	height: 30px;
-	border: none;
-	border-radius: var(--camply-radius-sm);
-	background: var(--camply-fill-2);
-	color: var(--camply-text-muted);
-	cursor: pointer;
-	transition: background var(--camply-duration);
-}
-.camply-modal__close:hover {
-	background: var(--camply-fill-3);
-	color: var(--camply-text);
 }
 
 .camply-modal__content {

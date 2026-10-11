@@ -19,6 +19,9 @@
 			"preset": "recommended",
 			"suspicious": {
 				"noExplicitAny": "error"
+			},
+			"style": {
+				"useConsistentCurlyBraces": "error"
 			}
 		},
 		"domains": {

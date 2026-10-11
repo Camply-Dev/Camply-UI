@@ -1,4 +1,12 @@
-import { type HTMLAttributes, useCallback, useMemo, useRef, useState } from "react";
+import {
+	type ForwardedRef,
+	forwardRef,
+	type HTMLAttributes,
+	useCallback,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { cn } from "../../lib/cn";
 import {
 	buildMonthGrid,
@@ -12,8 +20,10 @@ import {
 	yearPageStart,
 } from "../../lib/dateField";
 import { Field } from "../../lib/Field";
+import { HiddenField } from "../../lib/HiddenField";
 import { useLabels, useLocale } from "../../lib/i18n";
 import { Calendar, ChevronLeft, ChevronRight } from "../../lib/icons";
+import { useMergedRefs } from "../../lib/mergeRefs";
 import { Portal } from "../../lib/Portal";
 import { useAnchor } from "../../lib/useAnchor";
 import { useControllable } from "../../lib/useControllable";
@@ -26,15 +36,8 @@ export type DateRange = [Date | null, Date | null];
 const toISODate = (d: Date) =>
 	`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
-export interface DatePickerProps
+interface DatePickerBaseProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "onChange" | "defaultValue"> {
-	value?: Date | null;
-	defaultValue?: Date | null;
-	onChange?: (date: Date | null) => void;
-	rangeValue?: DateRange;
-	defaultRangeValue?: DateRange;
-	onRangeChange?: (range: DateRange) => void;
-	mode?: "single" | "range";
 	min?: Date;
 	max?: Date;
 	placeholder?: string;
@@ -59,36 +62,95 @@ export interface DatePickerProps
 	disabled?: boolean;
 	/** Locale Intl ; par défaut celle du CamplyProvider. */
 	locale?: string;
-	weekStartsOn?: 0 | 1;
+	/** Premier jour de semaine (0 = dimanche). Par défaut : celui de la locale. */
+	weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
 }
 
-export function DatePicker({
-	value,
-	defaultValue = null,
-	onChange,
-	rangeValue,
-	defaultRangeValue = [null, null],
-	onRangeChange,
-	mode = "single",
-	min,
-	max,
-	placeholder = "Choisir une date",
-	label,
-	hint,
-	error,
-	name,
-	required,
-	disabled = false,
-	locale: localeProp,
-	weekStartsOn = 1,
-	id,
-	className,
-	style,
-	...rest
-}: DatePickerProps) {
+/** Mode par défaut : une date unique, saisissable au clavier. */
+interface DatePickerSingleProps {
+	mode?: "single";
+	value?: Date | null;
+	defaultValue?: Date | null;
+	onChange?: (date: Date | null) => void;
+}
+
+/** Mode plage : début et fin, choisis au calendrier. */
+interface DatePickerRangeProps {
+	mode: "range";
+	rangeValue?: DateRange;
+	defaultRangeValue?: DateRange;
+	onRangeChange?: (range: DateRange) => void;
+}
+
+/**
+ * Les deux jeux valeur/rappel s'excluent, `mode` les discrimine : le compilateur
+ * refuse `<DatePicker mode="single" rangeValue={…} />`, qui ignorerait la plage.
+ */
+export type DatePickerProps = DatePickerBaseProps & (DatePickerSingleProps | DatePickerRangeProps);
+
+/** Vue interne : le corps lit les deux jeux, l'exclusion ne vaut qu'à l'appel. */
+type DatePickerAllProps = DatePickerBaseProps &
+	Omit<DatePickerSingleProps, "mode"> &
+	Omit<DatePickerRangeProps, "mode"> & { mode?: "single" | "range" };
+
+/** L'API est jeune : méthode partout depuis 2023, propriété sur les Safari d'avant. */
+type WeekInfo = { firstDay: number };
+type LocaleWithWeekInfo = Intl.Locale & { getWeekInfo?: () => WeekInfo; weekInfo?: WeekInfo };
+
+/** Premier jour de semaine de la locale ; lundi quand l'information n'est pas exposée. */
+function firstDayOfWeek(locale: string): number {
+	try {
+		const loc = new Intl.Locale(locale) as LocaleWithWeekInfo;
+		const info = loc.getWeekInfo?.() ?? loc.weekInfo;
+		return info ? info.firstDay % 7 : 1; // firstDay : 1 = lundi … 7 = dimanche
+	} catch {
+		return 1;
+	}
+}
+
+/**
+ * Champ date : saisie au clavier en mode « single », calendrier ancré dans les
+ * deux modes. La ref vise le conteneur du champ — celui qui porte `{...rest}` et
+ * que décrit `HTMLAttributes<HTMLDivElement>` —, pas le contrôle focusable, qui
+ * change de nature selon `mode`.
+ * Pas de cast sur l'export, contrairement aux composants génériques :
+ * `forwardRef` distribue l'union discriminée sur `mode`, qui reste donc
+ * vérifiée à l'appel.
+ */
+export const DatePicker = forwardRef(function DatePicker(
+	props: DatePickerProps,
+	ref: ForwardedRef<HTMLDivElement>,
+) {
+	const {
+		value,
+		defaultValue = null,
+		onChange,
+		rangeValue,
+		defaultRangeValue = [null, null],
+		onRangeChange,
+		mode = "single",
+		min,
+		max,
+		placeholder,
+		label,
+		hint,
+		error,
+		name,
+		required,
+		disabled = false,
+		locale: localeProp,
+		weekStartsOn,
+		id,
+		className,
+		style,
+		...rest
+	} = props as DatePickerAllProps;
 	const labels = useLabels();
 	const contextLocale = useLocale();
 	const locale = localeProp ?? contextLocale;
+	const placeholderText = placeholder ?? labels.datePlaceholder;
+	// Mémoïsé : `new Intl.Locale` à chaque rendu pour une valeur qui ne bouge jamais.
+	const weekStart = useMemo(() => weekStartsOn ?? firstDayOfWeek(locale), [weekStartsOn, locale]);
 
 	const [selected, setSelected] = useControllable<Date | null>(value, defaultValue, onChange);
 	const [range, setRange] = useControllable<DateRange>(
@@ -102,6 +164,11 @@ export function DatePicker({
 	const [yearView, setYearView] = useState(false);
 
 	const triggerRef = useRef<HTMLDivElement>(null);
+	// Le déclencheur exposé est le shell, pas le contrôle : celui-ci change de
+	// nature selon `mode` (input en « single », bouton en « range »). Le shell est
+	// le seul nœud commun aux deux, et c'est lui qui porte `{...rest}` — donc le
+	// nœud que décrit le type public.
+	const setTriggerRef = useMergedRefs(triggerRef, ref);
 	const popRef = useRef<HTMLDivElement>(null);
 	const popId = useId("datepicker");
 
@@ -117,14 +184,8 @@ export function DatePicker({
 	}, []);
 	useDismiss(open, close, [triggerRef, popRef]);
 
-	const weekdays = useMemo(() => weekdayNames(locale, weekStartsOn), [locale, weekStartsOn]);
-	const grid = useMemo(() => buildMonthGrid(view, weekStartsOn), [view, weekStartsOn]);
-
-	/** Faute de clé « aujourd'hui » dans les libellés, on la tire de la locale. */
-	const todayLabel = useMemo(() => {
-		const text = new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(0, "day");
-		return text.charAt(0).toUpperCase() + text.slice(1);
-	}, [locale]);
+	const weekdays = useMemo(() => weekdayNames(locale, weekStart), [locale, weekStart]);
+	const grid = useMemo(() => buildMonthGrid(view, weekStart), [view, weekStart]);
 
 	const outOfRange = (d: Date) =>
 		(min && startOfDay(d) < startOfDay(min)) || (max && startOfDay(d) > startOfDay(max));
@@ -184,6 +245,14 @@ export function DatePicker({
 	const onType = (raw: string) => {
 		const masked = maskDate(raw);
 		setDraft(masked);
+		// Champ vidé = effacement explicite. Sans cette branche, le blur jette le
+		// brouillon et l'ancienne date remonte toute seule — y compris dans l'input
+		// caché `name` — sans qu'aucun onChange n'ait été émis. `onType` n'est câblé
+		// qu'en mode « single » : pas de cas `range` ici.
+		if (masked === "") {
+			setSelected(null);
+			return;
+		}
 		const d = parseDate(masked);
 		if (d && !outOfRange(d)) {
 			setSelected(startOfDay(d));
@@ -202,10 +271,10 @@ export function DatePicker({
 	const yearDisabled = (y: number) =>
 		(min != null && y < min.getFullYear()) || (max != null && y > max.getFullYear());
 
-	let display = placeholder;
-	if (mode === "single") {
-		if (selected) display = fmt(selected);
-	} else if (rangeStart) {
+	// Libellé du bouton, que seul le mode « range » rend : en « single » la date
+	// s'affiche dans l'input, pas ici.
+	let display = placeholderText;
+	if (rangeStart) {
 		display = rangeEnd ? `${fmt(rangeStart)} — ${fmt(rangeEnd)}` : `${fmt(rangeStart)} — …`;
 	}
 
@@ -225,7 +294,7 @@ export function DatePicker({
 			{({ id: controlId, labelId, describedBy, invalid }) => (
 				<>
 					<div
-						ref={triggerRef}
+						ref={setTriggerRef}
 						className={cn(
 							"camply-field-shell",
 							error && "camply-field-shell--error",
@@ -239,9 +308,10 @@ export function DatePicker({
 							disabled={disabled}
 							aria-haspopup="dialog"
 							aria-expanded={open}
-							aria-controls={popId}
+							// Le popover n'est monté qu'en `open` : sinon l'IDREF pendrait.
+							aria-controls={open ? popId : undefined}
 							aria-label={labels.openCalendar}
-							className={"camply-icon-ghost-btn"}
+							className="camply-icon-ghost-btn"
 							onClick={toggleCalendar}
 						>
 							<Calendar size={16} />
@@ -249,13 +319,13 @@ export function DatePicker({
 						{mode === "single" ? (
 							<input
 								id={controlId}
-								className={"camply-field-control"}
+								className="camply-field-control"
 								value={draft ?? (selected ? formatInput(selected) : "")}
-								placeholder="JJ/MM/AAAA"
+								placeholder={labels.dateFormatHint}
 								inputMode="numeric"
 								disabled={disabled}
 								required={required}
-								aria-label={label ? undefined : placeholder}
+								aria-label={label ? undefined : placeholderText}
 								aria-describedby={describedBy}
 								aria-invalid={invalid}
 								onChange={(e) => onType(e.target.value)}
@@ -268,7 +338,7 @@ export function DatePicker({
 								type="button"
 								disabled={disabled}
 								aria-labelledby={labelId}
-								aria-label={label ? undefined : placeholder}
+								aria-label={label ? undefined : placeholderText}
 								aria-describedby={describedBy}
 								aria-invalid={invalid}
 								className={cn(
@@ -283,15 +353,26 @@ export function DatePicker({
 						)}
 					</div>
 
-					{name &&
-						(mode === "single" ? (
-							<input type="hidden" name={name} value={selected ? toISODate(selected) : ""} />
-						) : (
-							<>
-								<input type="hidden" name={name} value={rangeStart ? toISODate(rangeStart) : ""} />
-								<input type="hidden" name={name} value={rangeEnd ? toISODate(rangeEnd) : ""} />
-							</>
-						))}
+					{mode === "single" ? (
+						<HiddenField
+							name={name}
+							value={selected ? toISODate(selected) : ""}
+							disabled={disabled}
+						/>
+					) : (
+						<>
+							<HiddenField
+								name={name}
+								value={rangeStart ? toISODate(rangeStart) : ""}
+								disabled={disabled}
+							/>
+							<HiddenField
+								name={name}
+								value={rangeEnd ? toISODate(rangeEnd) : ""}
+								disabled={disabled}
+							/>
+						</>
+					)}
 
 					{open && (
 						<Portal>
@@ -303,10 +384,10 @@ export function DatePicker({
 								className="camply-floating-surface camply-datepicker__pop"
 								style={floatStyle}
 							>
-								<div className={"camply-datepicker__head"}>
+								<div className="camply-datepicker__head">
 									<button
 										type="button"
-										className={"camply-round-btn camply-focus-ring"}
+										className="camply-round-btn camply-focus-ring"
 										aria-label={labels.previous}
 										onClick={() => shiftPage(-1)}
 									>
@@ -314,7 +395,7 @@ export function DatePicker({
 									</button>
 									<button
 										type="button"
-										className={"camply-datepicker__monthLabel"}
+										className="camply-datepicker__monthLabel"
 										aria-label={labels.chooseYear}
 										aria-expanded={yearView}
 										onClick={() => setYearView((y) => !y)}
@@ -323,7 +404,7 @@ export function DatePicker({
 									</button>
 									<button
 										type="button"
-										className={"camply-round-btn camply-focus-ring"}
+										className="camply-round-btn camply-focus-ring"
 										aria-label={labels.next}
 										onClick={() => shiftPage(1)}
 									>
@@ -332,7 +413,7 @@ export function DatePicker({
 								</div>
 
 								{yearView ? (
-									<div className={"camply-datepicker__years"}>
+									<div className="camply-datepicker__years">
 										{years.map((y) => (
 											<button
 												key={y}
@@ -351,15 +432,15 @@ export function DatePicker({
 									</div>
 								) : (
 									<>
-										<div className={"camply-datepicker__weekdays"}>
+										<div className="camply-datepicker__weekdays">
 											{weekdays.map((w) => (
-												<span key={w} className={"camply-datepicker__weekday"}>
+												<span key={w} className="camply-datepicker__weekday">
 													{w}
 												</span>
 											))}
 										</div>
 
-										<div className={"camply-datepicker__days"}>
+										<div className="camply-datepicker__days">
 											{grid.map((d) => {
 												const muted = d.getMonth() !== view.getMonth();
 												const disabledDay = outOfRange(d);
@@ -401,22 +482,22 @@ export function DatePicker({
 									</>
 								)}
 
-								<div className={"camply-datepicker__footer"}>
+								<div className="camply-datepicker__footer">
 									<button
 										type="button"
-										className={"camply-text-btn camply-datepicker__todayBtn"}
+										className="camply-text-btn camply-datepicker__todayBtn"
 										onClick={() => {
 											setYearView(false);
 											setView(new Date());
 											pick(new Date());
 										}}
 									>
-										{todayLabel}
+										{labels.today}
 									</button>
 									{hasValue && (
 										<button
 											type="button"
-											className={"camply-text-btn camply-datepicker__clearBtn"}
+											className="camply-text-btn camply-datepicker__clearBtn"
 											onClick={clear}
 										>
 											{labels.clear}
@@ -430,4 +511,4 @@ export function DatePicker({
 			)}
 		</Field>
 	);
-}
+});

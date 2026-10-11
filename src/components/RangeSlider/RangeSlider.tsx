@@ -8,7 +8,11 @@ import {
 } from "react";
 import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
+import { Field, idRefs } from "../../lib/Field";
+import { HiddenField } from "../../lib/HiddenField";
+import { useLabels } from "../../lib/i18n";
 import { ratioToValue, snapToStep, valueToPercent } from "../../lib/sliderGeometry";
+import { nextSliderValue } from "../../lib/sliderKeys";
 import { useControllable } from "../../lib/useControllable";
 
 export type RangeValue = [number, number];
@@ -22,6 +26,10 @@ export interface RangeSliderProps
 	max?: number;
 	step?: number;
 	label?: string;
+	/** Texte d'aide affiché sous la piste. */
+	hint?: string;
+	/** Message d'erreur : remplace l'aide, teinte la jauge et pose aria-invalid. */
+	error?: string;
 	showValue?: boolean;
 	formatValue?: (value: number) => string;
 	minGap?: number;
@@ -40,9 +48,9 @@ export interface RangeSliderProps
 	required?: boolean;
 	/** Plage figée : les poignées restent focusables mais n'acceptent plus de modification. */
 	readOnly?: boolean;
-	/** Nom accessible de la poignée basse (défaut : "<label> minimum"). */
+	/** Nom accessible de la poignée basse (défaut : « <label> » + labels.minimum). */
 	minLabel?: string;
-	/** Nom accessible de la poignée haute (défaut : "<label> maximum"). */
+	/** Nom accessible de la poignée haute (défaut : « <label> » + labels.maximum). */
 	maxLabel?: string;
 }
 
@@ -55,6 +63,8 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 		max = 100,
 		step = 1,
 		label,
+		hint,
+		error,
 		showValue = true,
 		formatValue = (v) => `${v}`,
 		minGap = 0,
@@ -64,6 +74,7 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 		readOnly = false,
 		minLabel,
 		maxLabel,
+		id,
 		className,
 		"aria-label": ariaLabel,
 		"aria-labelledby": ariaLabelledBy,
@@ -72,6 +83,7 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 	ref,
 ) {
 	const [range, setRange] = useControllable<RangeValue>(value, defaultValue, onChange);
+	const labels = useLabels();
 	const trackRef = useRef<HTMLDivElement>(null);
 	const dragging = useRef<0 | 1 | null>(null);
 	const locked = disabled || readOnly;
@@ -114,33 +126,8 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 
 	const onKey = (index: 0 | 1) => (e: KeyboardEvent) => {
 		if (locked) return;
-		const big = (max - min) / 10;
-		const current = range[index];
-		let next: number;
-		switch (e.key) {
-			case "ArrowRight":
-			case "ArrowUp":
-				next = current + step;
-				break;
-			case "ArrowLeft":
-			case "ArrowDown":
-				next = current - step;
-				break;
-			case "PageUp":
-				next = current + big;
-				break;
-			case "PageDown":
-				next = current - big;
-				break;
-			case "Home":
-				next = min;
-				break;
-			case "End":
-				next = max;
-				break;
-			default:
-				return;
-		}
+		const next = nextSliderValue(e.key, range[index], min, max, step);
+		if (next === null) return;
 		e.preventDefault();
 		setHandle(index, next);
 	};
@@ -150,10 +137,12 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 	// rendrait indiscernables au lecteur d'écran.
 	const base = label ?? ariaLabel;
 	const handleNames: [string | undefined, string | undefined] = [
-		minLabel ?? (base ? `${base} minimum` : undefined),
-		maxLabel ?? (base ? `${base} maximum` : undefined),
+		minLabel ?? (base ? `${base} ${labels.minimum}` : undefined),
+		maxLabel ?? (base ? `${base} ${labels.maximum}` : undefined),
 	];
 
+	// La racine `.camply-rangeslider__root` porte la ref, les props DOM, `className`
+	// et `style` ; `Field` est imbriqué dedans pour que ce sélecteur reste ciblable.
 	return (
 		<div
 			ref={ref}
@@ -161,65 +150,81 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 			className={cn(
 				"camply-rangeslider__root",
 				disabled && "camply-rangeslider__disabled",
+				error && "camply-rangeslider__root--error",
 				className,
 			)}
 		>
-			{(label || showValue) && (
-				<div className={"camply-rangeslider__head"}>
-					{label && (
-						<span className={"camply-rangeslider__label"}>
-							{label}
-							{required && (
-								<span aria-hidden="true" className={"camply-field__required"}>
-									*
-								</span>
-							)}
-						</span>
-					)}
-					{showValue && (
-						<span className={"camply-rangeslider__value"}>
-							{formatValue(range[0])} – {formatValue(range[1])}
-						</span>
-					)}
-				</div>
-			)}
-			<div
-				ref={trackRef}
-				className={"camply-rangeslider__track"}
-				onPointerMove={onPointerMove}
-				onPointerUp={onPointerUp}
+			<Field
+				label={label}
+				hint={hint}
+				error={error}
+				required={required}
+				id={id}
+				idPrefix="rangeslider"
 			>
-				<div
-					className={"camply-rangeslider__fill"}
-					style={{ left: `${pct(range[0])}%`, right: `${100 - pct(range[1])}%` }}
-				/>
-				{([0, 1] as const).map((i) => (
-					<div
-						key={i}
-						role="slider"
-						tabIndex={disabled ? -1 : 0}
-						aria-valuemin={i === 0 ? min : clamp(range[0] + minGap, min, max)}
-						aria-valuemax={i === 0 ? clamp(range[1] - minGap, min, max) : max}
-						aria-valuenow={range[i]}
-						aria-valuetext={formatValue(range[i])}
-						aria-label={handleNames[i]}
-						aria-labelledby={handleNames[i] ? undefined : ariaLabelledBy}
-						aria-orientation="horizontal"
-						aria-disabled={disabled || undefined}
-						aria-readonly={readOnly || undefined}
-						className={"camply-rangeslider__knob camply-focus-ring camply-focus-ring--raised"}
-						style={{ left: `${pct(range[i])}%` }}
-						onPointerDown={onPointerDown(i)}
-						onKeyDown={onKey(i)}
-					/>
-				))}
-			</div>
-			{name && (
-				<>
-					<input type="hidden" name={`${name}-min`} value={range[0]} />
-					<input type="hidden" name={`${name}-max`} value={range[1]} />
-				</>
-			)}
+				{({ id: groupId, labelId, describedBy, invalid }) => {
+					// Règle 4 : le libellé rendu et un `aria-labelledby` de l'appelant se composent.
+					const labelledBy = idRefs(labelId, ariaLabelledBy);
+					return (
+						<>
+							{showValue && (
+								<div className="camply-rangeslider__head">
+									<span className="camply-rangeslider__value">
+										{formatValue(range[0])} – {formatValue(range[1])}
+									</span>
+								</div>
+							)}
+							{/* La piste est le groupe : c'est elle qui porte l'id du champ (le `htmlFor`
+							    du label ne peut pas cibler un <div role="slider">) et le nom d'ensemble,
+							    chaque poignée gardant son propre nom « … minimum » / « … maximum ». */}
+							{/* biome-ignore lint/a11y/useSemanticElements: <fieldset> impose un <legend> et un habillage natif incontournable sur une piste positionnée — div+role="group" est le pattern APG du curseur à deux poignées */}
+							<div
+								ref={trackRef}
+								id={groupId}
+								role="group"
+								aria-label={labelledBy ? undefined : ariaLabel}
+								aria-labelledby={labelledBy}
+								className="camply-rangeslider__track"
+								onPointerMove={onPointerMove}
+								onPointerUp={onPointerUp}
+							>
+								<div
+									className="camply-rangeslider__fill"
+									style={{ left: `${pct(range[0])}%`, right: `${100 - pct(range[1])}%` }}
+								/>
+								{([0, 1] as const).map((i) => (
+									<div
+										key={i}
+										role="slider"
+										tabIndex={disabled ? -1 : 0}
+										aria-valuemin={i === 0 ? min : clamp(range[0] + minGap, min, max)}
+										aria-valuemax={i === 0 ? clamp(range[1] - minGap, min, max) : max}
+										aria-valuenow={range[i]}
+										aria-valuetext={formatValue(range[i])}
+										aria-label={handleNames[i]}
+										// Sans nom composé (ni `label` ni `aria-label`), la poignée retombe sur
+										// la source de nom du groupe plutôt que de rester anonyme.
+										aria-labelledby={handleNames[i] ? undefined : labelledBy}
+										aria-describedby={describedBy}
+										aria-invalid={invalid}
+										aria-orientation="horizontal"
+										aria-disabled={disabled || undefined}
+										aria-readonly={readOnly || undefined}
+										className="camply-rangeslider__knob camply-focus-ring camply-focus-ring--raised"
+										style={{ left: `${pct(range[i])}%` }}
+										onPointerDown={onPointerDown(i)}
+										onKeyDown={onKey(i)}
+									/>
+								))}
+							</div>
+						</>
+					);
+				}}
+			</Field>
+			<HiddenField name={name && `${name}-min`} value={range[0]} disabled={disabled} />
+			<HiddenField name={name && `${name}-max`} value={range[1]} disabled={disabled} />
 		</div>
 	);
 });
+
+RangeSlider.displayName = "RangeSlider";

@@ -29,10 +29,10 @@ export const DescriptionList = forwardRef<HTMLDListElement, DescriptionListProps
 					<div
 						// biome-ignore lint/suspicious/noArrayIndexKey: paires clé/valeur déclaratives — la position est l'identité
 						key={i}
-						className={"camply-descriptionlist__row"}
+						className="camply-descriptionlist__row"
 					>
-						<dt className={"camply-descriptionlist__term"}>{item.term}</dt>
-						<dd className={"camply-descriptionlist__desc"}>{item.description}</dd>
+						<dt className="camply-descriptionlist__term">{item.term}</dt>
+						<dd className="camply-descriptionlist__desc">{item.description}</dd>
 					</div>
 				))}
 			</dl>

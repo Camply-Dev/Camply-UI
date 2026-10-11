@@ -3,7 +3,6 @@
 	--sc-side: #0a1019;
 	--sc-surface: rgba(255, 255, 255, 0.02);
 	--sc-surface-2: #0f1a29;
-	--sc-elevated: #111b2a;
 	--sc-line: rgba(148, 176, 216, 0.13);
 	--sc-line-soft: rgba(148, 176, 216, 0.08);
 	--sc-line-strong: rgba(148, 176, 216, 0.22);
@@ -516,28 +515,6 @@ html {
 	color: var(--sc-muted);
 }
 
-.cu-demo {
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-}
-
-.cu-preview {
-	padding: 20px;
-	border: 1px solid var(--sc-line-soft);
-	border-radius: 12px;
-	background: rgba(0, 0, 0, 0.16);
-}
-
-.cu-preview__label {
-	margin-bottom: 14px;
-	font-size: 11px;
-	font-weight: 700;
-	letter-spacing: 0.05em;
-	text-transform: uppercase;
-	color: var(--sc-muted-2);
-}
-
 .cu-row {
 	display: flex;
 	flex-wrap: wrap;
@@ -672,14 +649,6 @@ html {
 
 .cu-token:first-child {
 	border-top: none;
-}
-
-.cu-swatch {
-	width: 22px;
-	height: 22px;
-	flex: none;
-	border-radius: 6px;
-	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
 }
 
 .cu-tokens__actions {

@@ -5,10 +5,13 @@ import {
 	type HTMLAttributes,
 	type KeyboardEvent,
 	useRef,
+	useState,
 } from "react";
 import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
-import { Field } from "../../lib/Field";
+import { Field, idRefs } from "../../lib/Field";
+import { HiddenField } from "../../lib/HiddenField";
+import type { Size } from "../../lib/types";
 import { useControllable } from "../../lib/useControllable";
 
 export interface PinInputProps
@@ -31,10 +34,13 @@ export interface PinInputProps
 	error?: string;
 	/** Nom accessible d'une cellule (défaut : « <label> <position> »). */
 	cellLabel?: (index: number) => string;
-	size?: "sm" | "md" | "lg";
+	size?: Size;
 	className?: string;
 	style?: CSSProperties;
 }
+
+/** Découpe une valeur compacte en `n` cellules, en complétant par du vide. */
+const pad = (value: string, n: number) => Array.from({ length: n }, (_, i) => value[i] ?? "");
 
 export const PinInput = forwardRef<HTMLFieldSetElement, PinInputProps>(function PinInput(
 	{
@@ -59,27 +65,42 @@ export const PinInput = forwardRef<HTMLFieldSetElement, PinInputProps>(function 
 		style,
 		id,
 		onPaste,
+		"aria-labelledby": ariaLabelledBy,
 		...rest
 	},
 	ref,
 ) {
 	const [val, setVal] = useControllable<string>(value, defaultValue, onChange);
 	const refs = useRef<(HTMLInputElement | null)[]>([]);
-	const chars = Array.from({ length }, (_, i) => val[i] ?? "");
+	// Tronqué : une `value` plus longue que `length` ne doit pas faire diverger la
+	// comparaison de resynchro ci-dessous.
+	const capped = val.slice(0, length);
+	// Les cellules sont positionnelles : vider celle du milieu doit laisser un trou
+	// sur place, alors que `val` — le contrat public — reste une chaîne compacte.
+	const [cells, setCells] = useState<string[]>(() => pad(capped, length));
+	// Resynchro seulement quand la valeur vient d'ailleurs (parent, `length`) : tout
+	// commit d'ici passe par `commit`, qui garde `cells.join("") === val` — les trous
+	// survivent donc à cette comparaison.
+	if (cells.length !== length || cells.join("") !== capped) setCells(pad(capped, length));
 	const locked = disabled || readOnly;
 
 	const pattern = type === "number" ? /[0-9]/ : /[a-zA-Z0-9]/;
 
-	const commit = (next: string) => {
-		const trimmed = next.slice(0, length);
-		setVal(trimmed);
-		if (trimmed.length === length) onComplete?.(trimmed);
+	/**
+	 * Seule porte de sortie : les cellules sont la vérité, `val` n'en est que la
+	 * projection compacte. Passer par ici garantit que les deux ne divergent pas.
+	 */
+	const commit = (next: string[]) => {
+		setCells(next);
+		const compact = next.join("");
+		setVal(compact);
+		if (compact.length === length) onComplete?.(compact);
 	};
 
 	const setCharAt = (index: number, char: string) => {
-		const arr = chars.slice();
-		arr[index] = char;
-		commit(arr.join(""));
+		const next = cells.slice();
+		next[index] = char;
+		commit(next);
 	};
 
 	const focusCell = (i: number) => {
@@ -109,7 +130,7 @@ export const PinInput = forwardRef<HTMLFieldSetElement, PinInputProps>(function 
 		if (e.key === "Backspace") {
 			e.preventDefault();
 			if (locked) return;
-			if (chars[i]) {
+			if (cells[i]) {
 				setCharAt(i, "");
 			} else if (i > 0) {
 				focusCell(i - 1);
@@ -130,7 +151,9 @@ export const PinInput = forwardRef<HTMLFieldSetElement, PinInputProps>(function 
 			.join("")
 			.slice(0, length);
 		if (text) {
-			commit(text);
+			// Un collage réécrit la disposition : les trous d'un effacement précédent ne
+			// doivent pas survivre, même si le collage redonne la même chaîne compacte.
+			commit(pad(text, length));
 			focusCell(text.length);
 		}
 	};
@@ -152,17 +175,19 @@ export const PinInput = forwardRef<HTMLFieldSetElement, PinInputProps>(function 
 				// <fieldset> : groupe natif (role=group) nommé par le label du Field.
 				<fieldset
 					ref={ref}
-					aria-labelledby={labelId}
+					{...rest}
+					// Posé APRÈS le spread mais composé, comme sur les autres champs : le
+					// libellé du Field et un `aria-labelledby` du consommateur se cumulent.
+					aria-labelledby={idRefs(labelId, ariaLabelledBy)}
 					className={cn(
 						"camply-pininput__root",
 						`camply-pininput__${size}`,
 						disabled && "camply-pininput__disabled",
 					)}
 					onPaste={handlePaste}
-					{...rest}
 				>
-					{name && <input type="hidden" name={name} value={val} disabled={disabled} />}
-					{chars.map((c, i) => (
+					<HiddenField name={name} value={val} disabled={disabled} />
+					{cells.map((c, i) => (
 						<input
 							// biome-ignore lint/suspicious/noArrayIndexKey: cellules à position fixe — l'index EST l'identité
 							key={i}

@@ -1,4 +1,5 @@
 import { Badge, Button, Card, Snippet } from "@camply/ui";
+import { version } from "../../../package.json";
 import { Icon } from "../icons";
 import { AVAILABLE, CSS, FAMILIES, TOTAL } from "../showcase-data";
 
@@ -25,7 +26,7 @@ export function HomeView({ onNavigate }: HomeViewProps) {
 					height={58}
 				/>
 				<Badge tone="accent">
-					v0.1.0 · {AVAILABLE.length} / {TOTAL} composants
+					v{version} · {AVAILABLE.length} / {TOTAL} composants
 				</Badge>
 				<h1 className="cu-hero__title">La librairie UI de Camply</h1>
 				<p className="cu-hero__sub">

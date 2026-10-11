@@ -1,0 +1,14 @@
+{
+	// Le tsconfig racine a `rootDir: "src"` (il pilote l'émission des .d.ts) : il ne
+	// peut donc pas inclure `tests/`. Sans ce fichier, vitest transpile les tests
+	// sans les typer et une erreur de types y passerait la CI en silence.
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"noEmit": true,
+		"emitDeclarationOnly": false,
+		"declaration": false,
+		"rootDir": "..",
+		"types": ["bun", "vitest/globals"]
+	},
+	"include": ["../tests", "../src"]
+}

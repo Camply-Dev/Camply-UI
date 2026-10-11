@@ -1,11 +1,26 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
-export interface RadialProgressProps extends HTMLAttributes<HTMLDivElement> {
+import type { Tone } from "../../lib/types";
+export type RadialProgressTone = Extract<Tone, "accent" | "info" | "warn" | "danger">;
+
+/**
+ * Attributs qui portent la valeur annoncée. La racine est elle-même la barre de
+ * progression : ils sont posés après le spread et retirés du type (règle 3), car
+ * une valeur annoncée différente de l'arc dessiné serait un mensonge (règle 8).
+ *
+ * `aria-valuetext` reste ouvert : quand `children` remplace le centre (« 3/4 »),
+ * le « 75 % » par défaut ne décrit plus l'affichage, et c'est le seul canal de
+ * l'appelant. Il est pris avant le spread et sert de surcharge, comme `aria-label`.
+ */
+type ReservedRadialProgressAttr = "role" | "aria-valuenow" | "aria-valuemin" | "aria-valuemax";
+
+export interface RadialProgressProps
+	extends Omit<HTMLAttributes<HTMLDivElement>, ReservedRadialProgressAttr> {
 	value: number;
 	size?: number;
 	thickness?: number;
-	tone?: "accent" | "info" | "warn" | "danger";
+	tone?: RadialProgressTone;
 	showValue?: boolean;
 	/** Nom accessible de la progression (le contenu du centre est décoratif pour le rôle progressbar). */
 	label?: string;
@@ -15,7 +30,7 @@ export interface RadialProgressProps extends HTMLAttributes<HTMLDivElement> {
 const TONE_VAR = {
 	accent: "var(--camply-accent)",
 	info: "var(--camply-info)",
-	warn: "var(--camply-warning)",
+	warn: "var(--camply-warn)",
 	danger: "var(--camply-danger)",
 } as const;
 
@@ -32,6 +47,7 @@ export const RadialProgress = forwardRef<HTMLDivElement, RadialProgressProps>(
 			className,
 			style,
 			"aria-label": ariaLabel,
+			"aria-valuetext": ariaValueText,
 			...props
 		},
 		ref,
@@ -43,7 +59,9 @@ export const RadialProgress = forwardRef<HTMLDivElement, RadialProgressProps>(
 		const text = `${Math.round(clamped)}%`;
 
 		return (
+			// Règle 3 : le spread d'abord, ce qui porte la valeur annoncée après.
 			<div
+				{...props}
 				ref={ref}
 				className={cn("camply-radialprogress__root", className)}
 				style={{ width: size, height: size, ...style }}
@@ -51,11 +69,10 @@ export const RadialProgress = forwardRef<HTMLDivElement, RadialProgressProps>(
 				aria-valuenow={Math.round(clamped)}
 				aria-valuemin={0}
 				aria-valuemax={100}
-				aria-valuetext={text}
+				aria-valuetext={ariaValueText ?? text}
 				aria-label={label ?? ariaLabel}
-				{...props}
 			>
-				<svg width={size} height={size} aria-hidden="true" className={"camply-radialprogress__svg"}>
+				<svg width={size} height={size} aria-hidden="true" className="camply-radialprogress__svg">
 					<circle
 						cx={size / 2}
 						cy={size / 2}
@@ -74,12 +91,11 @@ export const RadialProgress = forwardRef<HTMLDivElement, RadialProgressProps>(
 						strokeLinecap="round"
 						strokeDasharray={circumference}
 						strokeDashoffset={offset}
-						className={"camply-radialprogress__arc"}
+						className="camply-radialprogress__arc"
 					/>
 				</svg>
-				<div className={"camply-radialprogress__center"}>
-					{children ??
-						(showValue && <span className={"camply-radialprogress__value"}>{text}</span>)}
+				<div className="camply-radialprogress__center">
+					{children ?? (showValue && <span className="camply-radialprogress__value">{text}</span>)}
 				</div>
 			</div>
 		);

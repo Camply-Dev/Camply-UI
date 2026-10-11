@@ -19,7 +19,7 @@ import { ChevronLeft, ChevronRight, Pause, Play } from "../../lib/icons";
 import { wrapIndex } from "../../lib/rovingIndex";
 import { useControllable } from "../../lib/useControllable";
 
-export type CarouselIndicator = "dots" | "lines" | "count";
+export type CarouselIndicator = "dots" | "lines" | "count" | "none";
 export type CarouselEffect = "slide" | "fade";
 
 /**
@@ -44,7 +44,7 @@ function isTextTarget(target: EventTarget | null): boolean {
 export interface CarouselProps extends Omit<HTMLAttributes<HTMLElement>, "children"> {
 	children: ReactNode[];
 	arrows?: boolean;
-	dots?: boolean;
+	/** Forme de l'indicateur de page ; `"none"` le masque. */
 	indicator?: CarouselIndicator;
 	slidesPerView?: number;
 	gap?: number;
@@ -63,7 +63,6 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 	{
 		children,
 		arrows = true,
-		dots = true,
 		indicator = "dots",
 		slidesPerView = 1,
 		gap = 0,
@@ -103,12 +102,18 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 
 	const active = clamp(index, 0, pages - 1);
 
+	// `setIndex` change d'identité à chaque rendu du parent dès que `onIndexChange`
+	// est une lambda écrite dans le JSX. Sans ce miroir, `go` changerait avec lui et
+	// l'effet ci-dessous relancerait la minuterie à chaque rendu : un parent qui se
+	// rend plus souvent que `autoPlay` ne verrait jamais le carrousel défiler.
+	const setIndexRef = useRef(setIndex);
+	setIndexRef.current = setIndex;
+
 	const go = useCallback(
 		(next: number) => {
-			if (loop) setIndex(wrapIndex(next, pages));
-			else setIndex(clamp(next, 0, pages - 1));
+			setIndexRef.current(loop ? wrapIndex(next, pages) : clamp(next, 0, pages - 1));
 		},
-		[pages, loop, setIndex],
+		[pages, loop],
 	);
 
 	// WCAG 2.2.2 : la rotation doit pouvoir être arrêtée — bouton, survol ou focus.
@@ -123,7 +128,8 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 
 	const canPrev = loop || active > 0;
 	const canNext = loop || active < pages - 1;
-	const showDots = dots && pages > 1;
+	// Une seule page n'a rien à indiquer : l'indicateur disparaît de lui-même.
+	const shownIndicator = indicator !== "none" && pages > 1 ? indicator : null;
 
 	return (
 		<section
@@ -131,7 +137,7 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 			className={cn("camply-carousel__root", className)}
 			style={{ ...style, "--cu-spv": perView, "--cu-gap": `${gap}px` } as CSSProperties}
 			aria-label={labels.carousel}
-			aria-roledescription="carrousel"
+			aria-roledescription={labels.carouselRoleDescription}
 			// biome-ignore lint/a11y/noNoninteractiveTabindex: carrousel focusable pour la navigation ←/→ (pattern APG carousel)
 			tabIndex={0}
 			{...rest}
@@ -148,35 +154,41 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 			}}
 			onMouseEnter={(e: MouseEvent<HTMLElement>) => {
 				onMouseEnter?.(e);
+				if (e.defaultPrevented) return;
 				setHovered(true);
 			}}
 			onMouseLeave={(e: MouseEvent<HTMLElement>) => {
 				onMouseLeave?.(e);
+				if (e.defaultPrevented) return;
 				setHovered(false);
 			}}
 			onFocusCapture={(e: FocusEvent<HTMLElement>) => {
 				onFocusCapture?.(e);
+				if (e.defaultPrevented) return;
 				setFocused(true);
 			}}
 			onBlurCapture={(e: FocusEvent<HTMLElement>) => {
 				onBlurCapture?.(e);
+				if (e.defaultPrevented) return;
 				// Un déplacement interne du focus ne doit pas relancer la rotation.
 				if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false);
 			}}
 			onTouchStart={(e: TouchEvent<HTMLElement>) => {
 				onTouchStart?.(e);
+				if (e.defaultPrevented) return;
 				touchX.current = e.touches[0].clientX;
 			}}
 			onTouchEnd={(e: TouchEvent<HTMLElement>) => {
 				onTouchEnd?.(e);
-				if (touchX.current == null) return;
-				const dx = e.changedTouches[0].clientX - touchX.current;
-				if (Math.abs(dx) > 40) go(active + (dx < 0 ? 1 : -1));
+				const startX = touchX.current;
 				touchX.current = null;
+				if (e.defaultPrevented || startX == null) return;
+				const dx = e.changedTouches[0].clientX - startX;
+				if (Math.abs(dx) > 40) go(active + (dx < 0 ? 1 : -1));
 			}}
 		>
 			<div
-				className={"camply-carousel__viewport"}
+				className="camply-carousel__viewport"
 				style={aspectRatio ? { aspectRatio } : undefined}
 				aria-live={rotating ? "off" : "polite"}
 			>
@@ -193,7 +205,7 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 					{slides.map((slide, i) => {
 						const visible = fade ? i === active : i >= active && i < active + perView;
 						return (
-							// biome-ignore lint/a11y/useSemanticElements: div+role="group"+aria-roledescription="diapositive" est le pattern APG des slides
+							// biome-ignore lint/a11y/useSemanticElements: div+role="group"+aria-roledescription est le pattern APG des slides
 							<div
 								// biome-ignore lint/suspicious/noArrayIndexKey: diapositives = children positionnels — l'index EST l'identité
 								key={i}
@@ -207,7 +219,7 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 								)}
 								aria-hidden={!visible}
 								role="group"
-								aria-roledescription="diapositive"
+								aria-roledescription={labels.slideRoleDescription}
 							>
 								{slide}
 							</div>
@@ -239,8 +251,8 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 				)}
 			</div>
 
-			{(canRotate || showDots) && (
-				<div className={"camply-carousel__controls"}>
+			{(canRotate || shownIndicator) && (
+				<div className="camply-carousel__controls">
 					{canRotate && (
 						<button
 							type="button"
@@ -252,16 +264,16 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 						</button>
 					)}
 
-					{showDots &&
-						(indicator === "count" ? (
-							<div className={"camply-carousel__count"}>
+					{shownIndicator &&
+						(shownIndicator === "count" ? (
+							<div className="camply-carousel__count">
 								{active + 1} / {pages}
 							</div>
 						) : (
 							<div
 								className={cn(
 									"camply-carousel__dots",
-									indicator === "lines" && "camply-carousel__dotsLines",
+									shownIndicator === "lines" && "camply-carousel__dotsLines",
 								)}
 							>
 								{Array.from({ length: pages }, (_, i) => (
@@ -269,7 +281,7 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 										// biome-ignore lint/suspicious/noArrayIndexKey: un point par page — l'index EST l'identité
 										key={i}
 										type="button"
-										aria-label={`Diapositive ${i + 1}`}
+										aria-label={labels.slide(i)}
 										aria-current={i === active}
 										className={cn(
 											"camply-carousel__dot",

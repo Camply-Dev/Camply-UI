@@ -17,10 +17,26 @@ import type { Controllable } from "../../lib/useControllable";
 import { useId } from "../../lib/useId";
 import { useMenuNav } from "../../lib/useMenuNav";
 
-/** Permet à MenuItem de refermer le menu APRÈS avoir déclenché onSelect. */
-const MenuCloseContext = createContext<(() => void) | null>(null);
+/**
+ * Permet à MenuItem de refermer le menu APRÈS avoir déclenché onSelect.
+ *
+ * Exporté — mais absent du barrel, donc hors API publique — parce que `Menubar`
+ * rend les mêmes `MenuItem` : c'est ce contexte qui lui branche SA fermeture
+ * (celle qui rend le focus au bon déclencheur de la barre) sur l'entrée de menu
+ * partagée. Sans lui, la barre devrait recopier l'entrée, et la copie divergerait
+ * (règle 6).
+ */
+export const MenuCloseContext = createContext<(() => void) | null>(null);
 
-export interface DropdownMenuProps extends ComponentPropsWithoutRef<"div">, Controllable {
+/**
+ * Le menu est un `div` aux attributs natifs (son `onKeyDown` est composé avec le
+ * nôtre). Réservés et posés après le spread (règle 3) : `role="menu"`,
+ * `tabIndex={-1}` (focalisable hors tabulation) et l'`aria-labelledby` qui le
+ * rattache à son déclencheur.
+ */
+export interface DropdownMenuProps
+	extends Omit<ComponentPropsWithoutRef<"div">, "role" | "tabIndex" | "aria-labelledby">,
+		Controllable {
 	trigger: ReactElement;
 	children: ReactNode;
 	placement?: Placement;
@@ -37,6 +53,7 @@ export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(
 			onOpenChange,
 			className,
 			style: styleProp,
+			onKeyDown: onKeyDownProp,
 			...rest
 		},
 		ref,
@@ -52,6 +69,11 @@ export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(
 		const { onKeyDown: onItemsKeyDown } = useMenuNav(floatRef, open);
 
 		const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+			// Règle 4 : le handler du consommateur passe d'abord et garde le dernier
+			// mot. `{...rest}` étant étalé avant, sans ça son `onKeyDown` serait
+			// purement et simplement supprimé par le nôtre.
+			onKeyDownProp?.(e);
+			if (e.defaultPrevented) return;
 			// Le focus quitte le menu : il ne doit pas rester ouvert derrière lui.
 			// close() rend le focus au déclencheur, d'où la tabulation repart.
 			if (e.key === "Tab") {
@@ -103,8 +125,12 @@ export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(
 DropdownMenu.displayName = "DropdownMenu";
 
 // `onSelect` existe déjà sur les props DOM (événement de sélection de texte) :
-// on garde notre signature « entrée choisie ».
-export interface MenuItemProps extends Omit<ComponentPropsWithoutRef<"button">, "onSelect"> {
+// on garde notre signature « entrée choisie ». `type` et `role` sont l'invariant
+// de l'entrée, posés après le spread : un `type="submit"` accepté puis ignoré
+// laisserait croire qu'une entrée de menu peut soumettre un formulaire, et un
+// autre rôle la sortirait du `role="menu"` qui la contient (règles 3 et 8).
+export interface MenuItemProps
+	extends Omit<ComponentPropsWithoutRef<"button">, "onSelect" | "type" | "role"> {
 	children: ReactNode;
 	icon?: ReactNode;
 	onSelect?: () => void;
@@ -122,15 +148,18 @@ export const MenuItem = forwardRef<HTMLButtonElement, MenuItemProps>(
 				type="button"
 				role="menuitem"
 				className={cn("camply-menu-item", danger && "camply-menu-item--danger", className)}
+				// Composé, pas écrasé, et `preventDefault()` reste le veto explicite du
+				// consommateur sur la sélection ET sur la fermeture (règle 4).
 				onClick={(e) => {
 					onClick?.(e);
+					if (e.defaultPrevented) return;
 					onSelect?.();
 					close?.();
 				}}
 			>
-				{icon && <span className={"camply-menu-item__icon"}>{icon}</span>}
-				<span className={"camply-menu-item__label"}>{children}</span>
-				{shortcut && <span className={"camply-menu-item__shortcut"}>{shortcut}</span>}
+				{icon && <span className="camply-menu-item__icon">{icon}</span>}
+				<span className="camply-menu-item__label">{children}</span>
+				{shortcut && <span className="camply-menu-item__shortcut">{shortcut}</span>}
 			</button>
 		);
 	},

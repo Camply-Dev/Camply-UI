@@ -81,9 +81,10 @@
 .camply-colorpicker__fields > *:last-child {
 	flex: 1.4;
 }
-.camply-colorpicker__fields .camply-input__input {
+/* Les valeurs HEX/RGB s'alignent mieux en chasse fixe ; la taille vient déjà de
+   `camply-field-shell--sm` (les deux Input sont en size="sm"). */
+.camply-colorpicker__fields .camply-field-control {
 	font-family: var(--camply-font-mono);
-	font-size: 13px;
 }
 
 .camply-colorpicker__trigger {

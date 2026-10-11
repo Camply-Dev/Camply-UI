@@ -8,7 +8,8 @@ import {
 	useState,
 } from "react";
 import { cn } from "../../lib/cn";
-import { Field } from "../../lib/Field";
+import { Field, idRefs } from "../../lib/Field";
+import { HiddenField } from "../../lib/HiddenField";
 import { useLabels } from "../../lib/i18n";
 import { useControllable } from "../../lib/useControllable";
 import { Tag } from "../Tag";
@@ -18,6 +19,7 @@ export interface TagInputProps
 	value?: string[];
 	defaultValue?: string[];
 	onChange?: (value: string[]) => void;
+	/** Défaut : `labels.addTag` — surchargeable globalement via CamplyProvider. */
 	placeholder?: string;
 	label?: string;
 	hint?: string;
@@ -40,7 +42,7 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(function TagIn
 		value,
 		defaultValue = [],
 		onChange,
-		placeholder = "Ajouter…",
+		placeholder,
 		label,
 		hint,
 		error,
@@ -55,6 +57,10 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(function TagIn
 		style,
 		id,
 		onMouseDown,
+		// Le spread va sur l'enveloppe, mais un aria-* posé sur un <div> neutre ne
+		// décrit rien : on le détourne vers la saisie, qui EST le contrôle.
+		"aria-describedby": ariaDescribedBy,
+		"aria-invalid": ariaInvalid,
 		...rest
 	},
 	ref,
@@ -93,9 +99,8 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(function TagIn
 	const full = max != null && tags.length >= max;
 
 	/**
-	 * Le shell était un <label> englobant les tags : leur texte se retrouvait
-	 * concaténé dans le nom accessible du champ. C'est désormais un <div> neutre
-	 * qui redonne simplement le focus à la saisie (le vrai <label> vient de Field).
+	 * Coque neutre qui rend le focus à la saisie. Pas de <label> englobant : le texte
+	 * des tags s'ajouterait au nom accessible (le vrai <label> vient de Field).
 	 */
 	const onShellMouseDown = (e: MouseEvent<HTMLDivElement>) => {
 		onMouseDown?.(e);
@@ -138,16 +143,9 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(function TagIn
 					onMouseDown={onShellMouseDown}
 					{...rest}
 				>
-					{name &&
-						keyed.map(({ tag, key }) => (
-							<input
-								key={`hidden:${key}`}
-								type="hidden"
-								name={name}
-								value={tag}
-								disabled={disabled}
-							/>
-						))}
+					{keyed.map(({ tag, key }) => (
+						<HiddenField key={`hidden:${key}`} name={name} value={tag} disabled={disabled} />
+					))}
 					{keyed.map(({ tag, i, key }) => (
 						<Tag
 							key={key}
@@ -160,17 +158,17 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(function TagIn
 					<input
 						ref={inputRef}
 						id={inputId}
-						className={"camply-field-control camply-taginput__input"}
+						className="camply-field-control camply-taginput__input"
 						value={draft}
-						placeholder={tags.length === 0 ? placeholder : ""}
+						placeholder={tags.length === 0 ? (placeholder ?? labels.addTag) : ""}
 						disabled={disabled || full}
 						readOnly={readOnly}
 						// La validation native se joue sur la saisie : elle n'est requise
 						// que tant qu'aucun tag n'a été ajouté (et qu'elle reste visible).
 						required={isRequired && tags.length === 0 && !full}
 						aria-required={isRequired}
-						aria-invalid={invalid}
-						aria-describedby={describedBy}
+						aria-describedby={idRefs(describedBy, ariaDescribedBy)}
+						aria-invalid={invalid ?? ariaInvalid}
 						style={full ? { display: "none" } : undefined}
 						onChange={(e) => setDraft(e.target.value)}
 						onKeyDown={onKeyDown}

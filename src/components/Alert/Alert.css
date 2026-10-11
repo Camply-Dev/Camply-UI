@@ -1,34 +1,9 @@
+/* Boîte teintée, table de tons (`--_c`, `--_bg`, `--_bd`) et delta du bouton de
+   fermeture — celui vers lequel pointent Modal, Drawer, Sheet et Toast — vivent
+   dans tokens.css, communs à Alert et Banner. Le message encadré n'en dévie que
+   par son souffle, et par une icône qui reste en haut d'un texte long. */
 .camply-alert__alert {
-	--_c: var(--camply-info);
-	--_bg: var(--camply-info-soft);
-	--_bd: var(--camply-info-border);
-	display: flex;
-	gap: 12px;
 	padding: 14px 16px;
-	border: 1px solid var(--_bd);
-	border-radius: var(--camply-radius-lg);
-	background: var(--_bg);
-	font-family: var(--camply-font-sans);
-}
-.camply-alert__info {
-	--_c: var(--camply-info);
-	--_bg: var(--camply-info-soft);
-	--_bd: var(--camply-info-border);
-}
-.camply-alert__success {
-	--_c: var(--camply-success);
-	--_bg: var(--camply-success-soft);
-	--_bd: var(--camply-success-border);
-}
-.camply-alert__warn {
-	--_c: var(--camply-warning);
-	--_bg: var(--camply-warning-soft);
-	--_bd: var(--camply-warning-border);
-}
-.camply-alert__danger {
-	--_c: var(--camply-danger);
-	--_bg: var(--camply-danger-soft);
-	--_bd: var(--camply-danger-border);
 }
 
 .camply-alert__icon {
@@ -43,30 +18,13 @@
 .camply-alert__title {
 	font-size: 14px;
 	font-weight: 600;
-	color: color-mix(in srgb, var(--_c) 78%, white);
+	/* Le ton brut, sans éclaircissement : mélangé à du blanc, le titre passerait
+	   sous le seuil AA sur le fond clair (contraste mesuré 3,43:1). */
+	color: var(--_c);
 }
 .camply-alert__text {
 	margin-top: 2px;
 	font-size: 13px;
 	line-height: 1.5;
-	color: var(--camply-text);
-}
-.camply-alert__close {
-	flex: none;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 26px;
-	height: 26px;
-	margin: -3px -4px -3px 0;
-	border: none;
-	border-radius: var(--camply-radius-sm);
-	background: transparent;
-	color: var(--camply-text-muted);
-	cursor: pointer;
-	transition: background var(--camply-duration);
-}
-.camply-alert__close:hover {
-	background: var(--camply-fill-3);
 	color: var(--camply-text);
 }

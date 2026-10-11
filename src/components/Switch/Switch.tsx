@@ -1,12 +1,15 @@
 import { forwardRef, type InputHTMLAttributes } from "react";
 import { cn } from "../../lib/cn";
-import { Field } from "../../lib/Field";
+import { Field, idRefs, RequiredMark } from "../../lib/Field";
+import type { Size } from "../../lib/types";
 
-export interface SwitchProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "size"> {
+export interface SwitchProps
+	// `role="switch"` est l'invariant du composant (règle 3).
+	extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "size" | "role"> {
 	/** Libellé affiché à côté de l'interrupteur (reste dans le <label> cliquable). */
 	label?: string;
 	spread?: boolean;
-	size?: "sm" | "md";
+	size?: Extract<Size, "sm" | "md">;
 	/** Texte d'aide affiché sous l'interrupteur. */
 	hint?: string;
 	/** Message d'erreur : remplace l'aide, colore le texte et pose aria-invalid. */
@@ -15,7 +18,21 @@ export interface SwitchProps extends Omit<InputHTMLAttributes<HTMLInputElement>,
 
 export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
 	(
-		{ label, hint, error, spread, size = "md", className, style, id, disabled, required, ...props },
+		{
+			label,
+			hint,
+			error,
+			spread,
+			size = "md",
+			className,
+			style,
+			id,
+			disabled,
+			required,
+			"aria-describedby": ariaDescribedBy,
+			"aria-invalid": ariaInvalid,
+			...props
+		},
 		ref,
 	) => {
 		return (
@@ -37,31 +54,29 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
 						)}
 					>
 						{label && (
-							<span className={"camply-control__label"}>
+							<span className="camply-control__label">
 								{label}
-								{required && (
-									<span aria-hidden="true" className={"camply-field__required"}>
-										*
-									</span>
-								)}
+								{required && <RequiredMark />}
 							</span>
 						)}
-						<span className={"camply-control__box"}>
+						<span className="camply-control__box">
 							<input
 								ref={ref}
 								id={inputId}
 								type="checkbox"
-								// biome-ignore lint/a11y/useAriaPropsForRole: l'état coché du checkbox natif est mappé sur aria-checked par HTML-AAM — pas besoin de le dupliquer
-								role="switch"
-								className={"camply-control__input"}
+								className="camply-control__input"
 								disabled={disabled}
 								required={required}
-								aria-invalid={invalid}
-								aria-describedby={describedBy}
 								{...props}
+								// Règle 3.
+								// biome-ignore lint/a11y/useAriaPropsForRole: l'état coché du checkbox natif est mappé sur aria-checked par HTML-AAM — pas besoin de le dupliquer
+								role="switch"
+								// Posés APRÈS le spread, mais composés : voir Input.
+								aria-describedby={idRefs(describedBy, ariaDescribedBy)}
+								aria-invalid={invalid ?? ariaInvalid}
 							/>
 							<span className="camply-control__face camply-switch__track" aria-hidden="true">
-								<span className={"camply-switch__thumb"} />
+								<span className="camply-switch__thumb" />
 							</span>
 						</span>
 					</label>

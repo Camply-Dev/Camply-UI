@@ -1,3 +1,5 @@
+/* Option, coche et état coché sont communs à Select et Combobox : voir
+   tokens.css, où ils sont posés après `.camply-listbox-option--active`. */
 .camply-select__trigger {
 	justify-content: space-between;
 	cursor: pointer;
@@ -11,16 +13,4 @@
 }
 .camply-select__placeholder {
 	color: var(--camply-text-muted-2);
-}
-
-.camply-select__option {
-	justify-content: space-between;
-}
-.camply-select__option[aria-selected="true"] {
-	background: var(--camply-accent-soft);
-	color: var(--camply-accent-hover);
-}
-.camply-select__tick {
-	flex: none;
-	color: var(--camply-accent);
 }

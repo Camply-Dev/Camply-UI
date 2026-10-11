@@ -37,15 +37,15 @@ export const Steps = forwardRef<HTMLOListElement, StepsProps>(function Steps(
 						aria-current={state === "current" ? "step" : undefined}
 					>
 						{/* Puce et connecteur sont décoratifs : le rang est déjà porté par la liste ordonnée. */}
-						<div className={"camply-steps__marker"} aria-hidden="true">
-							<span className={"camply-steps__bubble"}>
+						<div className="camply-steps__marker" aria-hidden="true">
+							<span className="camply-steps__bubble">
 								{state === "done" ? <Check size={15} /> : i + 1}
 							</span>
-							{!isLast && <span className={"camply-steps__connector"} />}
+							{!isLast && <span className="camply-steps__connector" />}
 						</div>
-						<div className={"camply-steps__text"}>
-							<span className={"camply-steps__label"}>{step.label}</span>
-							{step.description && <span className={"camply-steps__desc"}>{step.description}</span>}
+						<div className="camply-steps__text">
+							<span className="camply-steps__label">{step.label}</span>
+							{step.description && <span className="camply-steps__desc">{step.description}</span>}
 						</div>
 					</li>
 				);

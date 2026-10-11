@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
+import { pushDismissLayer } from "./dismissStack";
 import { type Controllable, useControllable } from "./useControllable";
 
 /**
@@ -35,16 +36,19 @@ export function useDelayedOpen(openDelay: number, closeDelay = 0, controlled: Co
 	// Un timer en vol après démontage appellerait setState sur un composant mort.
 	useEffect(() => () => clearTimeout(timer.current), []);
 
-	// Échap referme la couche de survol (Tooltip/HoverCard restaient collés).
+	// Échap referme la couche de survol via la pile partagée, sinon la même frappe
+	// fermerait aussi le dialogue qui la contient. `escapeOnly` : la sortie au
+	// pointeur reste l'affaire de `hide()`.
 	useEffect(() => {
 		if (!open) return;
-		const onKey = (e: KeyboardEvent) => {
-			if (e.key !== "Escape") return;
-			clearTimeout(timer.current);
-			setOpenRef.current(false);
-		};
-		document.addEventListener("keydown", onKey);
-		return () => document.removeEventListener("keydown", onKey);
+		return pushDismissLayer({
+			refs: [],
+			escapeOnly: true,
+			onClose: () => {
+				clearTimeout(timer.current);
+				setOpenRef.current(false);
+			},
+		});
 	}, [open]);
 
 	return { open, show, hide };

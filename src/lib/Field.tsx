@@ -26,6 +26,28 @@ export interface FieldProps {
 }
 
 /**
+ * Compose une liste d'IDREF (`aria-describedby`, `aria-labelledby`) : celui du
+ * champ ET celui du consommateur (règle 4). Le `|| undefined` évite d'émettre
+ * `aria-describedby=""`, un aria-* qui pointe dans le vide (règle 8).
+ */
+export function idRefs(...ids: Array<string | false | null | undefined>): string | undefined {
+	return cn(...ids) || undefined;
+}
+
+/**
+ * Astérisque « champ obligatoire », pour les contrôles qui composent eux-mêmes
+ * leur libellé : une seule source garantit qu'elle reste décorative (aria-hidden,
+ * l'obligation est portée par `required`/`aria-required`) et stylée pareil partout.
+ */
+export function RequiredMark() {
+	return (
+		<span aria-hidden="true" className="camply-field__required">
+			*
+		</span>
+	);
+}
+
+/**
  * Enveloppe label / aide / erreur, partagée par tous les champs.
  * `labelId` permet aux widgets qui ne sont PAS un <input> (Select, DatePicker,
  * ColorPicker…) d'être nommés via aria-labelledby, faute de pouvoir s'appuyer
@@ -51,13 +73,9 @@ export function Field({
 	return (
 		<div className={cn("camply-field", className)} style={style}>
 			{label && (
-				<label id={labelId} htmlFor={controlId} className={"camply-field__label"}>
+				<label id={labelId} htmlFor={controlId} className="camply-field__label">
 					{label}
-					{required && (
-						<span aria-hidden="true" className={"camply-field__required"}>
-							*
-						</span>
-					)}
+					{required && <RequiredMark />}
 				</label>
 			)}
 			{children({

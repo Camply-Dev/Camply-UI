@@ -26,7 +26,7 @@ export function useClickDisclosure({
 	const anchorRef = useRef<HTMLElement>(null);
 	const floatRef = useRef<HTMLDivElement>(null);
 
-	const { style, side } = useAnchor(anchorRef, floatRef, open, {
+	const { style } = useAnchor(anchorRef, floatRef, open, {
 		placement,
 		gap: 8,
 		constrainHeight: true,
@@ -47,5 +47,6 @@ export function useClickDisclosure({
 	/** À passer tel quel à `cloneTrigger`, qui compose ref et handlers existants. */
 	const triggerProps = { ref: anchorRef, "aria-expanded": open, onClick: toggle };
 
-	return { open, setOpen, close, anchorRef, floatRef, style, side, triggerProps };
+	// `anchorRef` et `setOpen` restent internes : le contrat passe par `triggerProps`.
+	return { open, close, floatRef, style, triggerProps };
 }

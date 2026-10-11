@@ -32,7 +32,7 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
 			>
 				<button
 					type="button"
-					className={"camply-pagination__arrow camply-focus-ring"}
+					className="camply-pagination__arrow camply-focus-ring"
 					aria-label={labels.previousPage}
 					disabled={current === 1}
 					onClick={() => go(current - 1)}
@@ -45,7 +45,7 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
 							// biome-ignore lint/suspicious/noArrayIndexKey: séparateurs "…" à position fixe — l'index EST l'identité
 							key={`dots-${i}`}
 							aria-hidden="true"
-							className={"camply-pagination__dots"}
+							className="camply-pagination__dots"
 						>
 							{DOTS}
 						</span>
@@ -67,7 +67,7 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
 				)}
 				<button
 					type="button"
-					className={"camply-pagination__arrow camply-focus-ring"}
+					className="camply-pagination__arrow camply-focus-ring"
 					aria-label={labels.nextPage}
 					disabled={current === total}
 					onClick={() => go(current + 1)}

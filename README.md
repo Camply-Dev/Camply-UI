@@ -1,6 +1,6 @@
 # @camply/ui
 
-Bibliothèque de **58 composants React** pour Camply — thème sombre premium, accent cyan, customisable de A à Z via design tokens. ESM only, tree-shakable, zéro dépendance runtime.
+Bibliothèque de **60 composants React** pour Camply — thème sombre premium, accent cyan, customisable de A à Z via design tokens. ESM only, tree-shakable, zéro dépendance runtime.
 
 ## Utilisation
 
@@ -32,29 +32,34 @@ export function Example() {
 ### Le CSS n'est PAS importé par le JS
 
 C'est délibéré : si `Button/index.js` importait sa feuille, le graphe de modules du barrel
-tirerait les **58** feuilles pour un seul composant importé (75 Ko de CSS pour un `Button`
-dont la feuille pèse 2 Ko). Le CSS est donc découplé du JS, et tu l'importes toi-même.
+tirerait **toutes** les feuilles pour un seul composant importé — le bundle CSS complet,
+soit une quarantaine de fois la feuille d'un `Button` (2,2 Ko minifié). Le CSS est donc
+découplé du JS, et tu l'importes toi-même.
 
 Deux façons, au choix :
 
 ```tsx
-// A. Tout, une fois (recommandé) — tokens + utilitaires + 58 composants
+// A. Tout, une fois (recommandé) — tokens + utilitaires + toutes les feuilles
 import "@camply/ui/styles.css";
 
 // B. Au composant près, si tu n'en utilises qu'une poignée
-import "@camply/ui/styles.css";              // tokens + utilitaires : toujours requis
+import "@camply/ui/tokens.css";              // couche partagée : toujours requise
 import "@camply/ui/DatePicker/styles.css";   // …puis la feuille voulue
 ```
 
+> ⚠️ `styles.css` est le bundle **complet** (`tokens.css` + la feuille de chaque
+> composant) : ne pas le combiner avec l'option B, ce serait charger deux fois les mêmes
+> règles. L'option B part de `tokens.css`, qui porte les tokens `--camply-*` et les
+> utilitaires partagés (`.camply-field-shell`, `.camply-focus-ring`, overlays…) dont
+> chaque feuille de composant dépend. **Dans le doute : option A.**
+
 Le **JS**, lui, est tree-shakable dans les deux cas : importer `{ Button }` n'embarque
-que Button. Un sous-chemin dédié existe si tu veux court-circuiter le barrel :
+que Button. Un sous-chemin dédié existe si tu veux court-circuiter le barrel (casse
+exacte du dossier, `@camply/ui/button` n'existe pas) :
 
 ```tsx
 import { Button } from "@camply/ui/Button";
 ```
-
-Les design tokens et utilitaires partagés (`.camply-field-shell`, `.camply-focus-ring`,
-overlays…) vivent dans `styles.css` : il est requis dans tous les cas.
 
 ### Textes et locale
 
@@ -87,7 +92,7 @@ import { Home, Star, Search } from "@camply/ui/icons";
 <Home size={20} />;
 ```
 
-Chaque icône accepte `size` (défaut 16) et tous les attributs SVG natifs (`className`, `stroke`, `onClick`…). Le type `IconProps` est exporté. Ce sont des composants purs (compatibles Server Components).
+Chaque icône accepte `size` (défaut 16) et tous les attributs SVG natifs (`className`, `stroke`, `onClick`…). Le type `IconProps` est exporté. Ce sont des composants purs, et le **seul module de la lib sans `"use client"`** : les seuls réellement rendables en Server Component.
 
 ### Thémer
 
@@ -99,33 +104,42 @@ Tous les composants lisent les variables `--camply-*` définies dans `styles.css
 }
 ```
 
-Chaque composant accepte aussi `className` et `style`.
+Chaque composant accepte aussi `className` et `style`, appliqués à sa **racine**. Pour
+atteindre le contrôle interne d'un champ (`Input`, `Textarea`…), cibler `.camply-field-control`.
 
 ## Développement
 
 - **Bun** — runtime et gestionnaire de paquets
-- **TypeScript** strict · **tsc** (build `dist/`, TS 7) · **Biome** · **Vite** (docs)
+- **TypeScript 7** strict — types, et `tsc --emitDeclarationOnly` pour les `.d.ts`
+- **esbuild** — émission du JS (ESM, non bundlé, minifié) et minification du CSS
+- **Biome** (lint + format) · **Knip** (code mort) · **Vitest** · **Vite** (vitrine docs)
 
 ```bash
 bun install          # dépendances
 bun run dev          # vitrine docs (http://localhost:5173)
 bun run build        # build de la lib dans dist/
 bun run typecheck    # TypeScript sans emit
-bun run test         # vitest (helpers purs de src/lib)
-bun run check        # Biome (lint + format)
+bun run test         # vitest (helpers de src/lib + rendu DOM des composants)
+bun run check        # Biome (lint + format, lecture seule)
+bun run fix          # Biome (lint + format, écriture)
+bun run knip         # code mort (job CI dédié)
 ```
 
 ### Structure
 
 ```
 src/
-  components/       # 58 composants (MonComposant.tsx + .css + index.ts)
+  components/       # un dossier par composant (MonComposant.tsx + .css + index.ts)
   lib/              # helpers internes (cn, Portal, icons, useAnchor…)
-  styles/tokens.css # design tokens (source de @camply/ui/styles.css)
+  styles/tokens.css # tokens + utilitaires partagés → @camply/ui/tokens.css, et tête de styles.css
 docs/               # vitrine / documentation visuelle (Vite)
-scripts/            # build (tsc + post-steps), sync barrel
+scripts/            # build (esbuild pour le JS + tsc pour les .d.ts + post-steps), sync barrel
 dist/               # sortie du build (généré)
 ```
+
+> `target` et `jsx` sont définis **deux fois** : dans `tsconfig.json` (typecheck +
+> déclarations) et dans `scripts/build.js` (émission du JS par esbuild). Les changer des
+> deux côtés.
 
 ### Ajouter un composant
 
@@ -136,10 +150,84 @@ dist/               # sortie du build (généré)
 
 ### Conventions
 
-- Classes CSS : `camply-<slug>__<élément>` ; aucune couleur en dur, tout passe par les tokens `--camply-*`
-- Composant à racine DOM unique → `forwardRef` + `displayName` ; tous acceptent `className`, `style` et les attributs natifs de leur racine
-- a11y : patterns WAI-ARIA (listbox pilotée par `aria-activedescendant`, Échap ferme les overlays…) ; toute suppression Biome est inline et justifiée
-- Aucun texte en dur dans un composant : passer par `useLabels()` (voir `src/lib/i18n.tsx`) ou une prop
+Une librairie de 60 composants ne reste utilisable que si elle se comporte comme
+**un seul** composant décliné 60 fois. Ces règles ne sont pas du style : chacune
+corrige une divergence qui a réellement coûté un bug ici.
+
+**1. Un concept, un nom, une valeur.** Le vocabulaire partagé vit dans
+`src/lib/types.ts` : `Size` (`sm`/`md`/`lg`), `Tone`, `Option<T>`. Un composant
+qui ne supporte qu'un sous-ensemble le **dérive** — jamais ne le recopie :
+
+```ts
+export type AlertTone = Extract<Tone, "info" | "success" | "warn" | "danger">;
+```
+
+Un ton mal orthographié ne compile alors plus. C'est ainsi que `warning` avait
+divergé de `warn` sur un seul composant sans que rien ne le signale.
+
+**2. Un seul contrat contrôlé/non contrôlé.** `value` + `defaultValue` +
+`onChange` pour la valeur principale, `open` + `defaultOpen` + `onOpenChange`
+(interface `Controllable`) pour une ouverture. Un composant qui porte un second
+état indépendant le nomme par son axe, sur le même modèle : `Tree` expose
+`expanded` / `defaultExpanded` / `onExpandedChange` à côté de sa sélection. Tout
+passe par `useControllable` : le mode se décide une fois, pas à chaque rendu.
+
+Exception assumée : `Modal`, `Drawer`, `Sheet` et `CommandPalette` exigent `open`
+et `onClose`, sans mode non contrôlé. Un dialogue modal est toujours piloté par
+l'application ; un `defaultOpen` y serait un piège.
+
+**3. Chaque prop sait où elle atterrit.** Tous les composants sont des
+`forwardRef` et acceptent les attributs natifs. Où ils vont dépend de la forme du
+composant :
+
+- **Composant simple** : `ref`, `...rest`, `className` et `style` sur la racine.
+- **Champ** (`Input`, `Select`, `Rating`…) : `className` et `style` sur
+  l'**enveloppe** (`.camply-field`, qui porte libellé, aide et erreur) — c'est elle
+  qu'on positionne dans une mise en page. `ref` et `...rest` sur le **contrôle** —
+  c'est lui qu'on focalise, qui porte `name`, `value` et les `aria-*`.
+  *Écart connu* : `Slider`, `RangeSlider`, `ColorPicker` et `FileUpload` posent
+  encore les quatre sur une racine qui englobe l'enveloppe.
+- **Dialogue portalisé** : tout vise le **panneau**, jamais le voile. Un composant
+  qu'on ne peut ni référencer ni marquer d'un `data-testid` n'est pas testable.
+
+Ce qu'un `...rest` ne doit jamais pouvoir écraser, c'est l'invariant du
+composant — `role`, `aria-modal`, le nom accessible calculé. Ces attributs-là
+sont posés **après** le spread, et retirés du type public.
+
+**4. Composer, jamais écraser.** Un `onClick`, un `onBlur` ou une `ref` fournis
+par le consommateur s'appellent **avant** les nôtres ; `e.defaultPrevented`
+permet d'annuler le comportement par défaut. Voir `lib/cloneTrigger.ts`. L'ordre
+du spread JSX est un piège : `{...props}` après `onClick={…}` supprime le nôtre,
+l'inverse supprime le sien.
+
+**5. Aucun libellé en dur.** Tout texte rendu par la lib se résout en
+`prop ?? labels.clé` (`src/lib/i18n.tsx`). La prop couvre l'instance,
+`CamplyProvider` couvre l'application. Une clé jamais lue est un mensonge sur le
+contrat public : aucun outil ne les détecte, seule une relecture de
+`CamplyLabels` le peut.
+
+**6. Ce qui se répète trois fois monte dans `src/lib/`.** `HiddenField`
+(soumission des widgets non natifs), `sliderKeys` (clavier APG), `Field`
+(label/aide/erreur), `OverlayDialog` (dialogue modal), `Listbox`. La troisième
+copie est celle qui finit par diverger : l'oubli de `disabled` sur l'input caché
+était présent dans 9 composants sur 10.
+
+**7. Classes CSS `camply-<slug>__<élément>`**, aucune couleur **de thème** en
+dur : tout passe par les tokens `--camply-*`, pour qu'un thème repeigne toute la
+lib. Seule exception, la palette décorative d'`Avatar` (cinq dégradés attribués
+par hachage du nom), volontairement identique dans les deux thèmes. Le style d'un
+composant est surchargeable **sans `!important`** : pas de style inline pour ce qui
+peut vivre en feuille.
+
+**8. a11y : le pattern WAI-ARIA APG fait foi**, et un `aria-*` qui pointe dans le
+vide est un bug (`aria-controls` vers une liste fermée, `aria-activedescendant`
+vers un index hors bornes). Toute suppression Biome est inline et justifiée.
+
+> **Ce que les outils vérifient, et ce qu'ils ne voient pas.** `typecheck` rattrape
+> les règles 1 et 3 (un invariant retiré du type ne compile plus), `knip` les
+> exports morts, Biome le style, `publint` le paquet publié, et la CI la fraîcheur
+> du barrel. Les règles 2, 4, 5 et 8 ne reposent que sur les tests de rendu et la
+> relecture : ce sont celles à surveiller en revue.
 
 ## Publication
 

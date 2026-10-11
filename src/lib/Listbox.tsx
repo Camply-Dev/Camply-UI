@@ -1,13 +1,12 @@
 import type { CSSProperties, MouseEvent, ReactNode, Ref } from "react";
 import { cn } from "./cn";
 
-export interface ListboxProps {
+interface ListboxProps {
 	listRef: Ref<HTMLDivElement>;
 	id: string;
 	style?: CSSProperties;
 	className?: string;
 	multiselectable?: boolean;
-	tabIndex?: number;
 	children: ReactNode;
 }
 
@@ -17,7 +16,6 @@ export function Listbox({
 	style,
 	className,
 	multiselectable,
-	tabIndex = -1,
 	children,
 }: ListboxProps) {
 	return (
@@ -25,7 +23,9 @@ export function Listbox({
 			ref={listRef}
 			id={id}
 			role="listbox"
-			tabIndex={tabIndex}
+			// La liste ne prend jamais le focus : il reste sur le trigger ou l'input,
+			// qui pilote l'option active par aria-activedescendant.
+			tabIndex={-1}
 			aria-multiselectable={multiselectable ? "true" : undefined}
 			className={className}
 			style={style}
@@ -35,7 +35,7 @@ export function Listbox({
 	);
 }
 
-export interface ListboxOptionProps {
+interface ListboxOptionProps {
 	id: string;
 	active?: boolean;
 	selected?: boolean;

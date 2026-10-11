@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 /** Le trio ouvert/fermé que tout overlay expose. Absent = l'overlay gère son état. */
 export interface Controllable {
@@ -26,10 +26,17 @@ export function useControllable<T>(
 	value: T | undefined,
 	defaultValue: T | undefined,
 	onChange?: ((value: T) => void) | ((value: T | undefined) => void),
-	_options?: { allowUndefined?: boolean },
+	options?: { allowUndefined?: boolean },
 ): [T | undefined, (next: T | undefined) => void] {
 	const [internal, setInternal] = useState<T | undefined>(defaultValue);
-	const isControlled = value !== undefined;
+
+	// `allowUndefined` : pour Select/Combobox/RadioGroup/Tree, `value === undefined`
+	// veut dire « aucune sélection », pas « reprends la main ». Le mode est donc figé
+	// au premier `value` défini, pour que vider la sélection depuis le parent ne
+	// fasse pas resurgir l'état interne.
+	const everControlled = useRef(value !== undefined);
+	if (value !== undefined) everControlled.current = true;
+	const isControlled = options?.allowUndefined ? everControlled.current : value !== undefined;
 	const current = isControlled ? value : internal;
 
 	const set = useCallback(

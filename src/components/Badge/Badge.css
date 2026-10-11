@@ -21,68 +21,23 @@
 	font-size: 0.8125rem;
 }
 
-.camply-badge--accent {
-	--_fg: var(--camply-accent-hover);
-	--_bg: var(--camply-accent-soft);
-	--_border: var(--camply-accent-border);
-	--_solid-bg: var(--camply-accent);
-	--_solid-fg: var(--camply-accent-contrast);
-}
-
-.camply-badge--neutral {
-	--_fg: var(--camply-text-muted);
-	--_bg: var(--camply-border-soft);
-	--_border: var(--camply-border-strong);
-	--_solid-bg: var(--camply-neutral-solid);
-	--_solid-fg: var(--camply-accent-contrast);
-}
-
-.camply-badge--success {
-	--_fg: var(--camply-success);
-	--_bg: var(--camply-success-soft);
-	--_border: var(--camply-success-border);
-	--_solid-bg: var(--camply-success);
-	--_solid-fg: var(--camply-success-contrast);
-}
-
-.camply-badge--warn {
-	--_fg: var(--camply-warning);
-	--_bg: var(--camply-warning-soft);
-	--_border: var(--camply-warning-border);
-	--_solid-bg: var(--camply-warning);
-	--_solid-fg: var(--camply-warning-contrast);
-}
-
-.camply-badge--danger {
-	--_fg: var(--camply-danger-hover);
-	--_bg: var(--camply-danger-soft);
-	--_border: var(--camply-danger-border);
-	--_solid-bg: var(--camply-danger);
-	--_solid-fg: var(--camply-danger-contrast);
-}
-
-.camply-badge--info {
-	--_fg: var(--camply-info);
-	--_bg: var(--camply-info-soft);
-	--_border: var(--camply-info-border);
-	--_solid-bg: var(--camply-info);
-	--_solid-fg: var(--camply-info-contrast);
-}
-
+/* Les six tons viennent de la table partagée de tokens.css (feuille toujours
+   chargée), qui pose `--_soft` / `--_ink` / `--_c` / `--_contrast` / `--_bd`.
+   Ne restent ici que les trois formes, c'est-à-dire la façon de les consommer. */
 .camply-badge--soft {
-	background-color: var(--_bg);
-	color: var(--_fg);
+	background-color: var(--_soft);
+	color: var(--_ink);
 }
 
 .camply-badge--solid {
-	background-color: var(--_solid-bg);
-	color: var(--_solid-fg);
+	background-color: var(--_c);
+	color: var(--_contrast);
 }
 
 .camply-badge--outline {
 	background-color: transparent;
-	color: var(--_fg);
-	border-color: var(--_border);
+	color: var(--_ink);
+	border-color: var(--_bd);
 }
 
 .camply-badge__icon {

@@ -1,5 +1,6 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
+import { useLabels } from "../../lib/i18n";
 import { Check, Copy } from "../../lib/icons";
 import { useCopyFeedback } from "../../lib/useCopyFeedback";
 import { IconButton } from "../IconButton";
@@ -10,6 +11,7 @@ export interface SnippetProps extends Omit<HTMLAttributes<HTMLDivElement>, "chil
 	wrap?: boolean;
 	copyText?: string;
 	label?: ReactNode;
+	/** Surcharges ponctuelles ; sinon `CamplyLabels.copy` / `.copied`. */
 	copyLabel?: string;
 	copiedLabel?: string;
 }
@@ -22,29 +24,30 @@ export const Snippet = forwardRef<HTMLDivElement, SnippetProps>(
 			wrap = false,
 			copyText,
 			label,
-			copyLabel = "Copier",
-			copiedLabel = "Copié",
+			copyLabel,
+			copiedLabel,
 			className,
 			...props
 		},
 		ref,
 	) => {
 		const { copied, copy } = useCopyFeedback();
+		const labels = useLabels();
 
 		return (
 			<div ref={ref} className={cn("camply-snippet__root", className)} {...props}>
-				{label && <span className={"camply-snippet__label"}>{label}</span>}
-				<div className={"camply-snippet__bar"}>
+				{label && <span className="camply-snippet__label">{label}</span>}
+				<div className="camply-snippet__bar">
 					<code className={cn("camply-snippet__code", wrap && "camply-snippet__wrap")}>
 						{prompt && (
-							<span aria-hidden="true" className={"camply-snippet__prompt"}>
+							<span aria-hidden="true" className="camply-snippet__prompt">
 								$
 							</span>
 						)}
 						{children}
 					</code>
 					<IconButton
-						label={copied ? copiedLabel : copyLabel}
+						label={copied ? (copiedLabel ?? labels.copied) : (copyLabel ?? labels.copy)}
 						variant="ghost"
 						size="sm"
 						onClick={() => copy(copyText ?? children)}

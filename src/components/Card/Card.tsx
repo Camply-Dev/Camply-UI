@@ -1,5 +1,6 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
+import type { HeadingLevel } from "../../lib/types";
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 	interactive?: boolean;
@@ -40,12 +41,18 @@ export const CardHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivEleme
 
 CardHeader.displayName = "CardHeader";
 
-export const CardTitle = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadingElement>>(
-	({ className, children, ...props }, ref) => {
+export interface CardTitleProps extends HTMLAttributes<HTMLHeadingElement> {
+	/** Niveau du titre dans le plan de la page. Défaut 3 (`<h3>`) ; le style ne change pas. */
+	headingLevel?: HeadingLevel;
+}
+
+export const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
+	({ headingLevel = 3, className, children, ...props }, ref) => {
+		const Heading = `h${headingLevel}` as const;
 		return (
-			<h3 ref={ref} className={cn("camply-card__title", className)} {...props}>
+			<Heading ref={ref} className={cn("camply-card__title", className)} {...props}>
 				{children}
-			</h3>
+			</Heading>
 		);
 	},
 );

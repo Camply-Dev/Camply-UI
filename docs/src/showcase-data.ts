@@ -115,6 +115,7 @@ export const COMPONENTS: ComponentEntry[] = [
 	c("spinner", "Spinner", "Feedback", "Chargement", "Indicateur de chargement circulaire."),
 	c("skeleton", "Skeleton", "Feedback", "Chargement", "Placeholder de chargement."),
 	c("toast", "Toast", "Feedback", "Notifications", "Notification éphémère."),
+	c("emptystate", "EmptyState", "Feedback", "États", "Zone vide et marche à suivre."),
 
 	c("avatar", "Avatar", "Données", "Affichage", "Image ou initiales d'un utilisateur."),
 	c("stat", "Stat", "Données", "Affichage", "Statistique mise en avant (KPI)."),
@@ -206,7 +207,7 @@ export const TOKEN_GROUPS: TokenGroup[] = [
 		title: "Sémantique",
 		rows: [
 			{ name: "--camply-success", value: "#5bd6a5", color: true },
-			{ name: "--camply-warning", value: "#fbbf5c", color: true },
+			{ name: "--camply-warn", value: "#fbbf5c", color: true },
 			{ name: "--camply-danger", value: "#f4796e", color: true },
 			{ name: "--camply-info", value: "#a5b4fc", color: true },
 		],

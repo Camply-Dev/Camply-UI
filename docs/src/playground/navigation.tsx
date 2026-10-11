@@ -39,11 +39,12 @@ export const NAVIGATION: Record<string, PlaygroundConfig> = {
 				p.variant === "soft" ? ' variant="soft"' : ""
 			}>\n  <TabList>\n    <Tab value="apercu">Aperçu</Tab>\n    <Tab value="specs">Spécifications</Tab>\n  </TabList>\n  <TabPanel value="apercu">…</TabPanel>\n  <TabPanel value="specs">…</TabPanel>\n</Tabs>`,
 		props: [
-			["value / defaultValue", "string", "onglet actif contrôlé / initial"],
-			["onChange", "(value: string) => void", "changement"],
-			["variant", "enum", "line (soulignement) · soft (pilules)"],
+			["defaultValue", "string", "onglet ouvert au montage — requis, même en mode contrôlé"],
+			["value", "string", "onglet actif piloté par le parent"],
+			["onChange", "(value: string) => void", "changement d'onglet"],
+			["variant", "enum", "line (soulignement, défaut) · soft (pilules)"],
 			["Tab · value / icon / disabled", "—", "props de chaque onglet"],
-			["TabPanel · value", "string", "panneau affiché quand l'onglet est actif"],
+			["TabPanel · value", "string", "panneau monté uniquement quand l'onglet est actif"],
 		],
 	},
 
@@ -52,13 +53,16 @@ export const NAVIGATION: Record<string, PlaygroundConfig> = {
 		controls: [
 			{ key: "size", label: "Taille", type: "seg", options: ["sm", "md"] },
 			{ key: "fullWidth", label: "Pleine largeur", type: "toggle" },
+			{ key: "readOnly", label: "Lecture seule", type: "toggle" },
 		],
-		defaults: { size: "md", fullWidth: false },
+		defaults: { size: "md", fullWidth: false, readOnly: false },
 		render: (p) => (
 			<div style={{ width: "100%", maxWidth: 420, display: "flex", justifyContent: "center" }}>
 				<SegmentedControl
+					aria-label="Période"
 					size={str(p.size)}
 					fullWidth={bool(p.fullWidth)}
+					readOnly={bool(p.readOnly)}
 					style={bool(p.fullWidth) ? undefined : { minWidth: 300 }}
 					defaultValue="semaine"
 					options={[
@@ -70,15 +74,21 @@ export const NAVIGATION: Record<string, PlaygroundConfig> = {
 			</div>
 		),
 		code: (p) =>
-			`import { SegmentedControl } from "@camply/ui";\n\n<SegmentedControl\n  size="${p.size}"${
-				p.fullWidth ? "\n  fullWidth" : ""
+			`import { SegmentedControl } from "@camply/ui";\n\n<SegmentedControl\n  aria-label="Période"\n  size="${
+				p.size
+			}"${p.fullWidth ? "\n  fullWidth" : ""}${
+				p.readOnly ? "\n  readOnly" : ""
 			}\n  defaultValue="semaine"\n  options={[\n    { value: "jour", label: "Jour" },\n    { value: "semaine", label: "Semaine" },\n    { value: "mois", label: "Mois" },\n  ]}\n/>`,
 		props: [
 			["options", "SegmentOption[]", "{ value, label }"],
-			["value / defaultValue", "string", "segment actif contrôlé / initial"],
+			["value / defaultValue", "string", "segment actif contrôlé / initial (défaut : 1re option)"],
 			["onChange", "(value) => void", "changement"],
-			["size", "enum", "sm · md"],
+			["aria-label", "string", "nom accessible du radiogroup — ARIA l'exige sur un groupe"],
+			["size", "enum", "sm · md (défaut md)"],
 			["fullWidth", "boolean", "occupe toute la largeur"],
+			["readOnly", "boolean", "sélection figée : le segment actif reste focusable"],
+			["name", "string", "valeur soumise avec le formulaire via un input caché"],
+			["required", "boolean", "aria-required — indicatif, un segment est toujours choisi"],
 		],
 	},
 
@@ -88,6 +98,7 @@ export const NAVIGATION: Record<string, PlaygroundConfig> = {
 		defaults: {},
 		render: () => (
 			<Menubar
+				aria-label="Menu principal"
 				menus={[
 					{
 						label: "Fichier",
@@ -110,22 +121,37 @@ export const NAVIGATION: Record<string, PlaygroundConfig> = {
 			/>
 		),
 		code: () =>
-			`import { Menubar } from "@camply/ui";\n\n<Menubar\n  menus={[\n    {\n      label: "Fichier",\n      items: [\n        { label: "Nouveau", shortcut: "⌘N", onSelect: createFile },\n        { label: "Enregistrer", shortcut: "⌘S", separatorBefore: true },\n      ],\n    },\n  ]}\n/>`,
+			`import { Menubar } from "@camply/ui";\n\n<Menubar\n  aria-label="Menu principal"\n  menus={[\n    {\n      label: "Fichier",\n      items: [\n        { label: "Nouveau", shortcut: "⌘N", onSelect: createFile },\n        { label: "Enregistrer", shortcut: "⌘S", separatorBefore: true },\n      ],\n    },\n  ]}\n/>`,
 		props: [
 			["menus", "MenubarMenu[]", "{ label, items }"],
 			["items · label / icon / shortcut / onSelect", "—", "props de chaque entrée"],
 			["items · danger / disabled / separatorBefore", "—", "état et séparation"],
+			[
+				"openIndex / defaultOpenIndex",
+				"number | null",
+				"index du menu ouvert, contrôlé / au montage (null = aucun)",
+			],
+			["onOpenIndexChange", "(index: number | null) => void", "ouverture ou fermeture d'un menu"],
+			["aria-label", "string", "nom accessible de la barre — ARIA l'exige sur un menubar"],
 		],
 	},
 
 	accordion: {
 		component: "Accordion",
 		imports: ["Accordion", "AccordionItem"],
-		controls: [{ key: "multiple", label: "Multiple", type: "toggle" }],
-		defaults: { multiple: false },
+		controls: [
+			{ key: "multiple", label: "Multiple", type: "toggle" },
+			{ key: "expanded", label: "Tout déplier", type: "toggle" },
+		],
+		defaults: { multiple: false, expanded: false },
 		render: (p) => (
 			<div style={{ width: "100%", maxWidth: 460 }}>
-				<Accordion key={String(p.multiple)} multiple={bool(p.multiple)} defaultValue="a">
+				{/* « Tout déplier » implique le mode multiple : un seul panneau ne peut pas tout ouvrir. */}
+				<Accordion
+					key={`${p.multiple}-${p.expanded}`}
+					multiple={bool(p.multiple) || bool(p.expanded)}
+					defaultValue={bool(p.expanded) ? ["a", "b", "c"] : "a"}
+				>
 					<AccordionItem value="a" title="Qu'est-ce que Camply ?">
 						Une librairie de composants React soignés, pensée pour le dogfooding.
 					</AccordionItem>
@@ -139,13 +165,34 @@ export const NAVIGATION: Record<string, PlaygroundConfig> = {
 			</div>
 		),
 		code: (p) =>
-			`import { Accordion, AccordionItem } from "@camply/ui";\n\n<Accordion defaultValue="a"${
-				p.multiple ? " multiple" : ""
+			`import { Accordion, AccordionItem } from "@camply/ui";\n\n<Accordion defaultValue={${
+				p.expanded ? '["a", "b"]' : '"a"'
+			}}${
+				p.multiple || p.expanded ? " multiple" : ""
 			}>\n  <AccordionItem value="a" title="Qu'est-ce que Camply ?">\n    …\n  </AccordionItem>\n  <AccordionItem value="b" title="Est-ce gratuit ?">\n    …\n  </AccordionItem>\n</Accordion>`,
 		props: [
 			["multiple", "boolean", "plusieurs panneaux ouverts à la fois"],
-			["defaultValue", "string | string[]", "panneau(x) ouvert(s) au départ"],
+			[
+				"defaultValue",
+				"AccordionValue",
+				"panneau(x) ouvert(s) au montage (défaut : [] si multiple, sinon null)",
+			],
+			[
+				"value",
+				"AccordionValue",
+				"panneau(x) ouverts pilotés par le parent — string | string[] | null, null ferme tout",
+			],
+			[
+				"onChange",
+				"(value: AccordionValue) => void",
+				"reçoit un tableau si multiple, sinon la valeur ouverte ou null",
+			],
 			["AccordionItem · value / title / disabled", "—", "props de chaque panneau"],
+			[
+				"AccordionItem · headingLevel",
+				"2 | 3 | 4 | 5 | 6",
+				"niveau du titre qui enveloppe l'en-tête (défaut 3)",
+			],
 		],
 	},
 
@@ -165,8 +212,18 @@ export const NAVIGATION: Record<string, PlaygroundConfig> = {
 		code: () =>
 			`import { Breadcrumbs } from "@camply/ui";\n\n<Breadcrumbs\n  items={[\n    { label: "Accueil", href: "/" },\n    { label: "Composants", href: "/composants" },\n    { label: "Navigation" },\n  ]}\n/>`,
 		props: [
-			["items", "Crumb[]", "{ label, href? } — le dernier est la page courante"],
-			["separator", "ReactNode", "séparateur personnalisé (défaut chevron)"],
+			["items", "Crumb[]", "{ label, href?, onClick? } — le dernier est la page courante"],
+			[
+				"items · href / onClick",
+				"—",
+				"href rend un <a>, onClick seul rend un <button> ; ignorés sur le dernier crumb",
+			],
+			["separator", "ReactNode", "séparateur personnalisé (défaut : chevron)"],
+			[
+				"nom accessible",
+				"—",
+				"le <nav> reprend le libellé breadcrumb du CamplyProvider (« Fil d'Ariane »)",
+			],
 		],
 	},
 
@@ -179,9 +236,14 @@ export const NAVIGATION: Record<string, PlaygroundConfig> = {
 			`import { Pagination } from "@camply/ui";\n\n<Pagination\n  total={${p.total}}\n  defaultPage={3}\n  onChange={(page) => load(page)}\n/>`,
 		props: [
 			["total", "number", "nombre de pages"],
-			["page / defaultPage", "number", "page active contrôlée / initiale"],
+			["page / defaultPage", "number", "page active contrôlée / initiale (défaut 1)"],
 			["onChange", "(page: number) => void", "changement"],
-			["siblings", "number", "pages voisines affichées autour de l'active"],
+			["siblings", "number", "pages voisines affichées autour de l'active (défaut 1)"],
+			[
+				"noms accessibles",
+				"—",
+				"nav et flèches reprennent pagination / previousPage / nextPage du CamplyProvider",
+			],
 		],
 	},
 
@@ -216,8 +278,9 @@ export const NAVIGATION: Record<string, PlaygroundConfig> = {
 			}\n  steps={[\n    { label: "Compte", description: "Tes identifiants" },\n    { label: "Profil" },\n    { label: "Confirmation" },\n  ]}\n/>`,
 		props: [
 			["steps", "Step[]", "{ label, description? }"],
-			["current", "number", "index de l'étape en cours (0-based)"],
-			["orientation", "enum", "horizontal · vertical"],
+			["current", "number", "index de l'étape en cours, 0-based — requis"],
+			["orientation", "enum", "horizontal (défaut) · vertical"],
+			["nom accessible", "—", "la liste reprend le libellé steps du CamplyProvider"],
 		],
 	},
 
@@ -250,7 +313,8 @@ export const NAVIGATION: Record<string, PlaygroundConfig> = {
 			`import { Timeline } from "@camply/ui";\n\n<Timeline\n  items={[\n    { title: "Projet créé", time: "09:00", tone: "accent", description: "…" },\n    { title: "Composants livrés", time: "11:30", tone: "info" },\n    { title: "En attente de review", time: "14:00", tone: "muted" },\n  ]}\n/>`,
 		props: [
 			["items", "TimelineItem[]", "{ title, time?, description?, icon?, tone? }"],
-			["items · tone", "enum", "accent · info · warn · danger · muted"],
+			["items · tone", "enum", "accent (défaut) · info · warn · danger · muted"],
+			["items · icon", "ReactNode", "contenu de la pastille (décorative, aria-hidden)"],
 		],
 	},
 };

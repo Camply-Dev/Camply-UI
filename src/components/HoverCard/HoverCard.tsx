@@ -34,6 +34,8 @@ export const HoverCard = forwardRef<HTMLDivElement, HoverCardProps>(
 			onOpenChange,
 			className,
 			style: styleProp,
+			onMouseEnter,
+			onMouseLeave,
 			...rest
 		},
 		ref,
@@ -67,8 +69,17 @@ export const HoverCard = forwardRef<HTMLDivElement, HoverCardProps>(
 							ref={setCardRef}
 							className={cn("camply-floating-surface", "camply-hovercard__card", className)}
 							style={{ ...style, ...styleProp }}
-							onMouseEnter={show}
-							onMouseLeave={hide}
+							// Le pointeur doit pouvoir entrer dans la carte sans la faire fuir. Règle 4.
+							onMouseEnter={(e) => {
+								onMouseEnter?.(e);
+								if (e.defaultPrevented) return;
+								show();
+							}}
+							onMouseLeave={(e) => {
+								onMouseLeave?.(e);
+								if (e.defaultPrevented) return;
+								hide();
+							}}
 						>
 							{children}
 						</div>

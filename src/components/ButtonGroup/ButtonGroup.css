@@ -8,8 +8,24 @@
 	flex-direction: column;
 	align-items: stretch;
 }
+/* Écart par défaut : celui d'un groupe `md`, ou d'un groupe hétérogène dont
+   aucune taille n'est connue. */
 .camply-buttongroup__spaced {
 	gap: 8px;
+}
+
+/* Un groupe détaché doit respirer à la mesure de ses boutons : 8px entre deux
+   boutons `lg` de 48px paraissent serrés, entre deux `sm` de 32px ils bâillent.
+   L'écart s'écrit ici en dur plutôt que par une variable posée sur le groupe :
+   une `--_*` est privée à un composant, or tout ce que le groupe déclare est
+   HÉRITÉ par des composants tiers qu'il ne connaît pas. Composé avec `__spaced`
+   pour rester sans effet sur un groupe `attached`, dont l'écart est nul par
+   définition. */
+.camply-buttongroup__spaced.camply-buttongroup__size-sm {
+	gap: 6px;
+}
+.camply-buttongroup__spaced.camply-buttongroup__size-lg {
+	gap: 10px;
 }
 
 .camply-buttongroup__attached {

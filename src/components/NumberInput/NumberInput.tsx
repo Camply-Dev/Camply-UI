@@ -7,9 +7,10 @@ import {
 } from "react";
 import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
-import { Field } from "../../lib/Field";
+import { Field, idRefs } from "../../lib/Field";
 import { useLabels } from "../../lib/i18n";
 import { Minus, Plus } from "../../lib/icons";
+import type { Size } from "../../lib/types";
 import { useControllable } from "../../lib/useControllable";
 
 /** Attributs natifs de l'input, moins ceux dont NumberInput redéfinit le sens. */
@@ -40,7 +41,7 @@ export interface NumberInputProps extends NumberInputBase {
 	error?: string;
 	prefix?: string;
 	suffix?: string;
-	size?: "sm" | "md" | "lg";
+	size?: Size;
 	className?: string;
 	style?: CSSProperties;
 }
@@ -68,6 +69,8 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 		id,
 		onBlur,
 		onKeyDown,
+		"aria-describedby": ariaDescribedBy,
+		"aria-invalid": ariaInvalid,
 		...rest
 	},
 	ref,
@@ -134,7 +137,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 				>
 					<button
 						type="button"
-						className={"camply-numberinput__step"}
+						className="camply-numberinput__step"
 						aria-label={labels.decrease}
 						tabIndex={-1}
 						disabled={locked || val <= min}
@@ -142,19 +145,17 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 					>
 						<Minus size={15} />
 					</button>
-					<div className={"camply-numberinput__inputWrap"}>
-						{prefix && <span className={"camply-numberinput__affix"}>{prefix}</span>}
+					<div className="camply-numberinput__inputWrap">
+						{prefix && <span className="camply-numberinput__affix">{prefix}</span>}
 						<input
 							ref={ref}
 							id={inputId}
 							inputMode="decimal"
-							className={"camply-field-control camply-numberinput__input"}
+							className="camply-field-control camply-numberinput__input"
 							value={draft ?? display}
 							disabled={disabled}
 							readOnly={readOnly}
 							required={isRequired}
-							aria-invalid={invalid}
-							aria-describedby={describedBy}
 							onChange={(e) => {
 								const raw = e.target.value;
 								setDraft(raw);
@@ -164,17 +165,21 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 								if (!Number.isNaN(parsed)) setVal(parsed);
 							}}
 							onBlur={(e) => {
-								commit(val || 0);
 								onBlur?.(e);
+								if (e.defaultPrevented) return;
+								commit(val || 0);
 							}}
 							onKeyDown={handleKeyDown}
 							{...rest}
+							// Posés APRÈS le spread, mais composés : voir Input.
+							aria-describedby={idRefs(describedBy, ariaDescribedBy)}
+							aria-invalid={invalid ?? ariaInvalid}
 						/>
-						{suffix && <span className={"camply-numberinput__affix"}>{suffix}</span>}
+						{suffix && <span className="camply-numberinput__affix">{suffix}</span>}
 					</div>
 					<button
 						type="button"
-						className={"camply-numberinput__step"}
+						className="camply-numberinput__step"
 						aria-label={labels.increase}
 						tabIndex={-1}
 						disabled={locked || val >= max}

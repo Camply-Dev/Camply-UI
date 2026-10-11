@@ -33,12 +33,19 @@
 	min-width: 0;
 }
 
+/* Un ton = une règle ici, sinon il rendrait le style de base sans le dire.
+   Seule exception assumée : `default`, qui EST le style de base — `.camply-tooltip__tip`
+   porte déjà `--camply-tooltip-bg/-fg`, une règle `.camply-tooltip__default` vide
+   ne ferait que dupliquer.
+   `plain` n'a pas de fond : son halo DÉTACHE le texte de ce qu'il survole, il a
+   donc la couleur du fond de page, qui s'oppose par construction à celle du
+   texte. Un noir fixe salirait le texte sombre du thème clair. */
 .camply-tooltip__plain {
 	--_bg: transparent;
 	--_fg: var(--camply-text);
 	padding: 2px 4px;
 	box-shadow: none;
-	text-shadow: 0 1px 4px rgba(4, 8, 14, 0.75);
+	text-shadow: 0 1px 4px var(--camply-bg);
 }
 .camply-tooltip__dark {
 	--_bg: var(--camply-tooltip-dark);
@@ -52,9 +59,9 @@
 	--_bg: var(--camply-success);
 	--_fg: var(--camply-success-contrast);
 }
-.camply-tooltip__warning {
-	--_bg: var(--camply-warning);
-	--_fg: var(--camply-warning-contrast);
+.camply-tooltip__warn {
+	--_bg: var(--camply-warn);
+	--_fg: var(--camply-warn-contrast);
 }
 .camply-tooltip__danger {
 	--_bg: var(--camply-danger);

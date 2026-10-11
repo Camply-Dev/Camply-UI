@@ -4,13 +4,34 @@ const FOCUSABLE = [
 	"input:not([disabled]):not([type='hidden'])",
 	"select:not([disabled])",
 	"textarea:not([disabled])",
+	"iframe",
+	"audio[controls]",
+	"video[controls]",
+	"details > summary",
+	"[contenteditable]:not([contenteditable='false'])",
 	"[tabindex]:not([tabindex='-1'])",
 ].join(",");
+
+/**
+ * `inert` retire tout le sous-arbre de l'ordre de tabulation : sans ce filtre, la
+ * liste contiendrait des éléments que le navigateur saute (diapositives masquées
+ * d'un Carousel, par exemple) et le piège ne boucle jamais sur le bon élément.
+ * La remontée s'arrête à `container` : un `inert` posé par l'application PLUS HAUT
+ * ne doit pas vider la liste et avaler le Tab.
+ */
+function inInertSubtree(el: HTMLElement, container: HTMLElement): boolean {
+	for (let node: HTMLElement | null = el; node && node !== container; node = node.parentElement) {
+		if (node.hasAttribute("inert")) return true;
+	}
+	return false;
+}
 
 /** Éléments réellement focalisables d'un conteneur (visibles et non inertes). */
 export function focusableWithin(container: HTMLElement): HTMLElement[] {
 	return [...container.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
-		(el) => el.offsetWidth > 0 || el.offsetHeight > 0 || el === document.activeElement,
+		(el) =>
+			!inInertSubtree(el, container) &&
+			(el.offsetWidth > 0 || el.offsetHeight > 0 || el === document.activeElement),
 	);
 }
 

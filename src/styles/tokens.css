@@ -24,10 +24,10 @@
 	--camply-danger-soft: rgba(244, 121, 110, 0.14);
 	--camply-danger-border: rgba(244, 121, 110, 0.32);
 
-	--camply-warning: #fbbf5c;
-	--camply-warning-contrast: #241704;
-	--camply-warning-soft: rgba(251, 191, 92, 0.12);
-	--camply-warning-border: rgba(251, 191, 92, 0.26);
+	--camply-warn: #fbbf5c;
+	--camply-warn-contrast: #241704;
+	--camply-warn-soft: rgba(251, 191, 92, 0.12);
+	--camply-warn-border: rgba(251, 191, 92, 0.26);
 
 	--camply-success: #5bd6a5;
 	--camply-success-contrast: #04150e;
@@ -62,6 +62,10 @@
 	--camply-shadow-md: 0 8px 24px rgba(2, 8, 18, 0.55);
 	--camply-shadow-lg: 0 22px 55px rgba(2, 8, 18, 0.62);
 	--camply-shadow-pop: 0 16px 40px rgba(2, 8, 18, 0.6);
+	/* Couleur d'ombre seule : les panneaux latéraux (Drawer, Sheet) ont besoin
+	   d'une ombre DIRECTIONNELLE, que les ombres verticales ci-dessus ne
+	   peuvent pas fournir. Redéfinie par le thème clair, comme elles. */
+	--camply-shadow-color: rgba(2, 8, 18, 0.55);
 
 	--camply-ring: 0 0 0 3px rgba(56, 189, 248, 0.4);
 
@@ -92,7 +96,7 @@
 
 	--camply-gradient-accent: linear-gradient(90deg, #0284c7, var(--camply-accent));
 	--camply-gradient-info: linear-gradient(90deg, #6366f1, var(--camply-info));
-	--camply-gradient-warn: linear-gradient(90deg, #b0904a, var(--camply-warning));
+	--camply-gradient-warn: linear-gradient(90deg, #b0904a, var(--camply-warn));
 	--camply-gradient-danger: linear-gradient(90deg, #b0574a, var(--camply-danger));
 
 	--camply-font-sans:
@@ -103,7 +107,6 @@
 	--camply-ease: cubic-bezier(0.22, 1, 0.36, 1);
 	--camply-ease-spring: cubic-bezier(0.34, 1.5, 0.5, 1);
 	--camply-duration: 0.2s;
-	--camply-transition: 0.15s ease;
 
 	/* Empilement : les couches flottantes doivent passer AU-DESSUS du voile
 	   modal, sinon un Select/Popover ouvert dans une Modal est peint derrière. */
@@ -111,6 +114,17 @@
 	--camply-z-dropdown: 1100;
 	--camply-z-tooltip: 1200;
 	--camply-z-toast: 1300;
+
+	/* Les deux crans de réglage de .camply-floating-surface : un composant
+	   flottant les repose sur lui-même (cf. HoverCard, Menubar) au lieu de
+	   redéclarer un z-index ou une animation en dur. Déclarés ici pour être
+	   visibles dans la doc et dans l'éditeur de tokens de la vitrine. */
+	--camply-float-z: var(--camply-z-dropdown);
+	--camply-float-dur: 0.14s;
+
+	/* Damier d'aperçu de transparence (ColorPicker). */
+	--camply-checker-fg: rgba(255, 255, 255, 0.14);
+	--camply-checker-bg: rgba(0, 0, 0, 0.4);
 }
 
 @keyframes camply-float-in {
@@ -137,8 +151,9 @@
 	border-radius: var(--camply-radius-lg);
 	background: var(--camply-elevated);
 	box-shadow: var(--camply-shadow-pop);
-	z-index: var(--camply-float-z, var(--camply-z-dropdown));
-	animation: camply-float-in var(--camply-float-dur, 0.14s) var(--camply-ease);
+	font-family: var(--camply-font-sans);
+	z-index: var(--camply-float-z);
+	animation: camply-float-in var(--camply-float-dur) var(--camply-ease);
 }
 
 .camply-floating-list {
@@ -148,6 +163,11 @@
 	overflow-y: auto;
 }
 
+/* Barre de défilement des conteneurs défilables de la lib. L'imbrication native
+   n'écrit la liste qu'UNE fois : inscrire un conteneur coûte une ligne, et on ne
+   peut pas l'oublier dans l'une des règles WebKit. Le `&` explicite place le
+   plancher à Firefox 117 (août 2023), à trois mois de celui de `color-mix()` ;
+   un bundler qui vise plus bas l'aplatit. */
 .camply-floating-list,
 .camply-commandpalette__list,
 .camply-modal__panel,
@@ -158,63 +178,25 @@
 .camply-field-block {
 	scrollbar-width: thin;
 	scrollbar-color: var(--camply-scrollbar-thumb) transparent;
-}
 
-.camply-floating-list::-webkit-scrollbar,
-.camply-commandpalette__list::-webkit-scrollbar,
-.camply-modal__panel::-webkit-scrollbar,
-.camply-drawer__content::-webkit-scrollbar,
-.camply-sheet__content::-webkit-scrollbar,
-.camply-table__wrap::-webkit-scrollbar,
-.camply-snippet__code::-webkit-scrollbar,
-.camply-field-block::-webkit-scrollbar {
-	width: var(--camply-scrollbar-size);
-	height: var(--camply-scrollbar-size);
-}
-
-.camply-floating-list::-webkit-scrollbar-track,
-.camply-commandpalette__list::-webkit-scrollbar-track,
-.camply-modal__panel::-webkit-scrollbar-track,
-.camply-drawer__content::-webkit-scrollbar-track,
-.camply-sheet__content::-webkit-scrollbar-track,
-.camply-table__wrap::-webkit-scrollbar-track,
-.camply-snippet__code::-webkit-scrollbar-track,
-.camply-field-block::-webkit-scrollbar-track,
-.camply-floating-list::-webkit-scrollbar-corner,
-.camply-commandpalette__list::-webkit-scrollbar-corner,
-.camply-modal__panel::-webkit-scrollbar-corner,
-.camply-drawer__content::-webkit-scrollbar-corner,
-.camply-sheet__content::-webkit-scrollbar-corner,
-.camply-table__wrap::-webkit-scrollbar-corner,
-.camply-snippet__code::-webkit-scrollbar-corner,
-.camply-field-block::-webkit-scrollbar-corner {
-	background: transparent;
-}
-
-.camply-floating-list::-webkit-scrollbar-thumb,
-.camply-commandpalette__list::-webkit-scrollbar-thumb,
-.camply-modal__panel::-webkit-scrollbar-thumb,
-.camply-drawer__content::-webkit-scrollbar-thumb,
-.camply-sheet__content::-webkit-scrollbar-thumb,
-.camply-table__wrap::-webkit-scrollbar-thumb,
-.camply-snippet__code::-webkit-scrollbar-thumb,
-.camply-field-block::-webkit-scrollbar-thumb {
-	background: var(--camply-scrollbar-thumb);
-	border: 2px solid transparent;
-	border-radius: var(--camply-radius-pill);
-	background-clip: padding-box;
-}
-
-.camply-floating-list::-webkit-scrollbar-thumb:hover,
-.camply-commandpalette__list::-webkit-scrollbar-thumb:hover,
-.camply-modal__panel::-webkit-scrollbar-thumb:hover,
-.camply-drawer__content::-webkit-scrollbar-thumb:hover,
-.camply-sheet__content::-webkit-scrollbar-thumb:hover,
-.camply-table__wrap::-webkit-scrollbar-thumb:hover,
-.camply-snippet__code::-webkit-scrollbar-thumb:hover,
-.camply-field-block::-webkit-scrollbar-thumb:hover {
-	background: var(--camply-scrollbar-thumb-hover);
-	background-clip: padding-box;
+	&::-webkit-scrollbar {
+		width: var(--camply-scrollbar-size);
+		height: var(--camply-scrollbar-size);
+	}
+	&::-webkit-scrollbar-track,
+	&::-webkit-scrollbar-corner {
+		background: transparent;
+	}
+	&::-webkit-scrollbar-thumb {
+		background: var(--camply-scrollbar-thumb);
+		border: 2px solid transparent;
+		border-radius: var(--camply-radius-pill);
+		background-clip: padding-box;
+	}
+	&::-webkit-scrollbar-thumb:hover {
+		background: var(--camply-scrollbar-thumb-hover);
+		background-clip: padding-box;
+	}
 }
 
 .camply-control__wrap {
@@ -334,8 +316,12 @@
 	animation: camply-fade-in 0.18s ease;
 }
 
+/* Panneau de dialogue (Modal, Drawer, Sheet, CommandPalette) : la police est
+   posée ici plutôt que recopiée dans chaque feuille — un dialogue qui l'oublie
+   hérite sinon de la police de l'application hôte. */
 .camply-overlay-panel {
 	outline: none;
+	font-family: var(--camply-font-sans);
 }
 
 .camply-field {
@@ -382,9 +368,6 @@
 	--_h: 34px;
 	--_px: 11px;
 	font-size: 13px;
-}
-.camply-field-shell--md {
-	--_h: 42px;
 }
 .camply-field-shell--lg {
 	--_h: 50px;
@@ -490,45 +473,9 @@
 	box-shadow: var(--camply-ring), var(--camply-shadow-sm);
 }
 
-.camply-pin-cell {
-	width: var(--_s, 48px);
-	height: var(--_s, 48px);
-	border: 1px solid var(--camply-border-strong);
-	border-radius: var(--camply-radius);
-	background: var(--camply-field-bg);
-	color: var(--camply-text);
-	font-family: var(--camply-font-display);
-	font-size: var(--_fs, 19px);
-	font-weight: 600;
-	text-align: center;
-	outline: none;
-	transition:
-		border-color var(--camply-duration),
-		box-shadow var(--camply-duration),
-		background var(--camply-duration);
-}
-.camply-pin-cell:focus {
-	border-color: var(--camply-accent);
-}
-.camply-pin-cell--filled {
-	border-color: var(--camply-accent-border);
-	background: var(--camply-accent-soft);
-}
-
-.camply-icon-ghost-btn {
-	display: inline-flex;
-	align-items: center;
-	flex: none;
-	padding: 0;
-	border: none;
-	background: none;
-	color: var(--camply-text-muted-2);
-	cursor: pointer;
-}
-.camply-icon-ghost-btn:disabled {
-	cursor: not-allowed;
-}
-
+/* `.camply-round-btn` vit ici parce qu'il a deux consommateurs (Carousel,
+   DatePicker). Cette couche est toujours chargée : une classe à consommateur
+   unique reste dans la feuille de son composant (règle 6, lue dans les deux sens). */
 .camply-round-btn {
 	display: inline-flex;
 	align-items: center;
@@ -552,48 +499,19 @@
 	cursor: not-allowed;
 }
 
-.camply-picker-cell {
-	border: none;
-	border-radius: var(--camply-radius-sm);
-	background: transparent;
-	color: var(--camply-text);
-	font-family: inherit;
-	font-size: 13px;
-	cursor: pointer;
-	transition:
-		background var(--camply-duration),
-		color var(--camply-duration);
-}
-.camply-picker-cell:hover:not(:disabled) {
-	background: var(--camply-fill-3);
-}
-.camply-picker-cell:disabled {
-	color: var(--camply-text-disabled);
-	cursor: not-allowed;
-}
-
-.camply-text-btn {
-	border: none;
-	background: none;
-	font-family: inherit;
-	font-size: 13px;
-	font-weight: 600;
-	cursor: pointer;
-}
-
 .camply-checkerboard {
 	background-image:
-		linear-gradient(45deg, rgba(255, 255, 255, 0.14) 25%, transparent 25%),
-		linear-gradient(-45deg, rgba(255, 255, 255, 0.14) 25%, transparent 25%),
-		linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.14) 75%),
-		linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.14) 75%);
+		linear-gradient(45deg, var(--camply-checker-fg) 25%, transparent 25%),
+		linear-gradient(-45deg, var(--camply-checker-fg) 25%, transparent 25%),
+		linear-gradient(45deg, transparent 75%, var(--camply-checker-fg) 75%),
+		linear-gradient(-45deg, transparent 75%, var(--camply-checker-fg) 75%);
 	background-size: 10px 10px;
 	background-position:
 		0 0,
 		0 5px,
 		5px -5px,
 		-5px 0;
-	background-color: rgba(0, 0, 0, 0.4);
+	background-color: var(--camply-checker-bg);
 }
 
 .camply-chevron {
@@ -603,6 +521,362 @@
 }
 .camply-chevron--open {
 	transform: rotate(180deg);
+}
+
+/* ============================================================
+   Table de tons partagée (Button, IconButton, Badge)
+   Deux axes indépendants, donc 4 + 6 règles et non 4 × 6 : la classe de TON ne
+   pose que des variables, la classe de FORME décide comment les consommer.
+   Contrat du ton (même modèle qu'Alert.css) :
+     --_c          aplat plein
+     --_c-hover    aplat plein au survol
+     --_contrast   texte posé SUR l'aplat plein
+     --_soft       voile translucide
+     --_soft-hover voile translucide au survol
+     --_ink        la teinte, lisible sur le voile
+     --_bd         contour teinté (formes détourées : Badge outline)
+     --_chrome-ink       texte sur le chrome opaque (secondary, ghost survolé)
+     --_chrome-ink-quiet texte sur le chrome transparent au repos (ghost)
+   Un consommateur n'a pas à lire tout le contrat : les boutons ignorent `--_bd`
+   (voir juste en dessous), Badge ignore les deux `-hover` et les `-chrome-`.
+   Les surfaces du chrome (fill-2/fill-3, bordure) restent volontairement
+   NEUTRES quel que soit le ton : c'est la définition même de ces formes, et
+   toutes les familles n'ont pas de token de fond opaque. Le ton n'y vit que
+   dans l'encre.
+
+   Elle vit ici parce que les trois composants ne peuvent pas s'importer l'un
+   l'autre (les feuilles se chargent une par une), alors que cette couche-ci est
+   toujours chargée. Les préfixes étant figés côté TSX, le sélecteur les énumère :
+   un `[class*="__tone-"]` attraperait aussi les tons de Timeline, qui ne suivent
+   pas ce contrat.
+
+   Toutes les familles n'ont pas les mêmes déclinaisons dans les tokens : seuls
+   accent et danger possèdent un `-hover` et un `-soft-hover`. Pour les autres on
+   calcule un repli EXPLICITE plutôt que de viser une variable fantôme :
+   - l'aplat survolé se rapproche de la couleur du texte, ce qui l'éclaircit en
+     thème sombre et l'assombrit en thème clair, dans le même sens que les
+     paires accent/danger livrées ;
+   - le voile survolé ÉPAISSIT le voile de repos (9 % de couleur opaque ajoutés)
+     au lieu de viser un alpha absolu. Les quatre paires livrées valent toutes
+     +0,08 d'alpha (0,12→0,20 et 0,14→0,22 en sombre, 0,10→0,18 en clair) et la
+     formule les reproduit dans les deux thèmes ; surtout, elle reste MONOTONE
+     si un consommateur reteinte `--camply-<famille>-soft`, là où un alpha
+     absolu pourrait rendre le survol plus pâle que le repos.
+   ============================================================ */
+
+/* Repli commun : un ton sémantique se lit à l'identique sur le chrome. Seuls
+   accent et neutral — les tons « chrome » de la lib — reviennent au texte
+   courant, sinon le bouton par défaut virerait au bleu de marque. Le repli
+   précède la table DANS CE FICHIER : les deux ont la spécificité d'une classe,
+   c'est donc l'ordre qui tranche, et il est ici le même partout. */
+.camply-button__btn,
+.camply-iconbutton__btn {
+	--_chrome-ink: var(--_ink);
+	--_chrome-ink-quiet: var(--_ink);
+}
+
+.camply-button__tone-accent,
+.camply-iconbutton__tone-accent,
+.camply-badge--accent {
+	--_c: var(--camply-accent);
+	--_c-hover: var(--camply-accent-hover);
+	--_contrast: var(--camply-accent-contrast);
+	--_soft: var(--camply-accent-soft);
+	--_soft-hover: var(--camply-accent-soft-hover);
+	--_ink: var(--camply-accent-hover);
+	--_bd: var(--camply-accent-border);
+	--_chrome-ink: var(--camply-text);
+	--_chrome-ink-quiet: var(--camply-text-muted);
+}
+
+.camply-button__tone-neutral,
+.camply-iconbutton__tone-neutral,
+.camply-badge--neutral {
+	--_c: var(--camply-neutral-solid);
+	--_c-hover: color-mix(in srgb, var(--camply-neutral-solid) 82%, var(--camply-text));
+	/* L'aplat neutre est clair en sombre et sombre en clair, exactement comme
+	   l'aplat accent — son texte est donc le même. */
+	--_contrast: var(--camply-accent-contrast);
+	--_soft: var(--camply-fill-2);
+	--_soft-hover: var(--camply-fill-3);
+	--_ink: var(--camply-text);
+	/* Le neutre est la seule famille sans token `-border` : son contour est le
+	   contour fort de la lib, la même valeur que sert `.camply-field-shell`. */
+	--_bd: var(--camply-border-strong);
+	--_chrome-ink: var(--camply-text);
+	--_chrome-ink-quiet: var(--camply-text-muted);
+}
+
+.camply-button__tone-success,
+.camply-iconbutton__tone-success,
+.camply-badge--success {
+	--_c: var(--camply-success);
+	--_c-hover: color-mix(in srgb, var(--camply-success) 82%, var(--camply-text));
+	--_contrast: var(--camply-success-contrast);
+	--_soft: var(--camply-success-soft);
+	--_soft-hover: color-mix(in srgb, var(--camply-success) 9%, var(--camply-success-soft));
+	--_ink: var(--camply-success);
+	--_bd: var(--camply-success-border);
+}
+
+.camply-button__tone-warn,
+.camply-iconbutton__tone-warn,
+.camply-badge--warn {
+	--_c: var(--camply-warn);
+	--_c-hover: color-mix(in srgb, var(--camply-warn) 82%, var(--camply-text));
+	--_contrast: var(--camply-warn-contrast);
+	--_soft: var(--camply-warn-soft);
+	--_soft-hover: color-mix(in srgb, var(--camply-warn) 9%, var(--camply-warn-soft));
+	--_ink: var(--camply-warn);
+	--_bd: var(--camply-warn-border);
+}
+
+.camply-button__tone-danger,
+.camply-iconbutton__tone-danger,
+.camply-badge--danger {
+	--_c: var(--camply-danger);
+	--_c-hover: var(--camply-danger-hover);
+	--_contrast: var(--camply-danger-contrast);
+	--_soft: var(--camply-danger-soft);
+	--_soft-hover: var(--camply-danger-soft-hover);
+	--_ink: var(--camply-danger-hover);
+	--_bd: var(--camply-danger-border);
+}
+
+.camply-button__tone-info,
+.camply-iconbutton__tone-info,
+.camply-badge--info {
+	--_c: var(--camply-info);
+	--_c-hover: color-mix(in srgb, var(--camply-info) 82%, var(--camply-text));
+	--_contrast: var(--camply-info-contrast);
+	--_soft: var(--camply-info-soft);
+	--_soft-hover: color-mix(in srgb, var(--camply-info) 9%, var(--camply-info-soft));
+	--_ink: var(--camply-info);
+	--_bd: var(--camply-info-border);
+}
+
+/* ============================================================
+   Jauges horizontales (Slider, RangeSlider, Progress, Meter)
+   Même racine et même en-tête « libellé / valeur » pour les quatre. Les
+   écarts entre composants passent par des variables À VALEUR DE REPLI
+   plutôt que par une valeur par défaut posée ici : la feuille qui dévie n'a
+   alors rien à surcharger, donc rien à gagner dans la cascade — dont l'ordre
+   n'est garanti ni dans le bundle ni en import granulaire.
+   ============================================================ */
+.camply-slider__root,
+.camply-rangeslider__root,
+.camply-progress__root,
+.camply-meter__root {
+	width: 100%;
+	font-family: var(--camply-font-sans);
+}
+
+.camply-slider__root.camply-slider__disabled,
+.camply-rangeslider__root.camply-rangeslider__disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.camply-slider__head,
+.camply-rangeslider__head,
+.camply-progress__head,
+.camply-meter__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: var(--_head-mb, 8px);
+}
+
+/* Slider et RangeSlider n'y figurent pas : leur libellé passe par `Field`
+   (`.camply-field__label`). Progress et Meter dessinent leur propre en-tête. */
+.camply-progress__label,
+.camply-meter__label {
+	font-size: var(--_head-fs, 12.5px);
+	color: var(--camply-text-muted);
+}
+
+.camply-slider__value,
+.camply-rangeslider__value,
+.camply-progress__value,
+.camply-meter__value {
+	font-family: var(--camply-font-mono);
+	font-size: var(--_head-fs, 12.5px);
+	color: var(--_head-ink, var(--camply-accent-hover));
+}
+
+/* Piste et poignée : Slider et RangeSlider sont le même widget à une ou deux
+   poignées. Ce qui reste propre à l'un (curseur de la piste, poignée animée,
+   remplissage ancré à gauche) vit dans sa feuille, en propriétés DISJOINTES de
+   celles-ci : rien ne s'y surcharge, l'ordre des feuilles n'entre pas en jeu. */
+.camply-slider__track,
+.camply-rangeslider__track {
+	position: relative;
+	height: 6px;
+	border-radius: var(--camply-radius-pill);
+	background: var(--camply-fill-3);
+	touch-action: none;
+}
+
+.camply-slider__fill,
+.camply-rangeslider__fill {
+	position: absolute;
+	top: 0;
+	height: 100%;
+	border-radius: var(--camply-radius-pill);
+	background: var(--camply-gradient-accent);
+}
+
+.camply-slider__knob,
+.camply-rangeslider__knob {
+	position: absolute;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: var(--camply-knob);
+	box-shadow: var(--camply-shadow-sm);
+	cursor: grab;
+}
+
+.camply-slider__knob:active,
+.camply-rangeslider__knob:active {
+	cursor: grabbing;
+}
+
+/* ============================================================
+   Bandeaux (Alert, Banner)
+   Même trio de variables, mêmes valeurs, deux préfixes de classe figés côté
+   TSX. Le ton par défaut (`info`) est posé ici LUI AUSSI, et non sur la racine
+   de chaque feuille : la table entière tient alors dans un seul fichier, où
+   l'ordre — seul arbitre entre déclarations de même spécificité — est le même
+   dans le bundle et en import granulaire. Pour la même raison, le ton `accent`,
+   propre au bandeau, vit ici et non dans Banner.css.
+   La boîte teintée qui CONSOMME ce trio tient dans la même règle, à côté du
+   contrat qu'elle lit ; les feuilles n'y ajoutent qu'alignement et
+   rembourrage, propriétés DISJOINTES de celles-ci — donc pas de cascade.
+   ============================================================ */
+.camply-alert__alert,
+.camply-banner__banner {
+	--_c: var(--camply-info);
+	--_bg: var(--camply-info-soft);
+	--_bd: var(--camply-info-border);
+	display: flex;
+	gap: 12px;
+	border: 1px solid var(--_bd);
+	border-radius: var(--camply-radius-lg);
+	background: var(--_bg);
+	font-family: var(--camply-font-sans);
+}
+
+.camply-alert__success,
+.camply-banner__success {
+	--_c: var(--camply-success);
+	--_bg: var(--camply-success-soft);
+	--_bd: var(--camply-success-border);
+}
+
+.camply-alert__warn,
+.camply-banner__warn {
+	--_c: var(--camply-warn);
+	--_bg: var(--camply-warn-soft);
+	--_bd: var(--camply-warn-border);
+}
+
+.camply-alert__danger,
+.camply-banner__danger {
+	--_c: var(--camply-danger);
+	--_bg: var(--camply-danger-soft);
+	--_bd: var(--camply-danger-border);
+}
+
+.camply-banner__accent {
+	--_c: var(--camply-accent-hover);
+	--_bg: var(--camply-accent-soft);
+	--_bd: var(--camply-accent-border);
+}
+
+/* Bouton de fermeture des bandeaux : un IconButton ghost/sm dont mise en forme,
+   fond, survol et transition viennent déjà de `.camply-iconbutton__*`. On ne
+   pose que le delta. Classe doublée à dessein : les feuilles sont concaténées
+   par ordre alphabétique (scripts/build.js) et, en import granulaire, l'ordre
+   est libre — c'est la spécificité, pas la position, qui doit trancher.
+   `border: none` préserve les 26px exacts : IconButton pose une bordure de 1px
+   et rien ne fixe box-sizing dans la lib. */
+.camply-alert__close.camply-alert__close,
+.camply-banner__close.camply-banner__close {
+	--_s: 26px;
+	flex: none;
+	margin: -3px -4px -3px 0;
+	border: none;
+}
+
+/* Bouton de fermeture des dialogues (Modal, Drawer, Sheet) : même delta d'un
+   IconButton ghost/sm pour les trois. Le fond au repos est propre aux
+   dialogues — d'où la paire repos/survol, le survol devant dépasser
+   `.camply-iconbutton__ghost:hover:not(:disabled)` sans quoi il ne
+   s'appliquerait jamais. Classe doublée à dessein : les feuilles sont
+   concaténées par ordre alphabétique (scripts/build.js) et, en import
+   granulaire, l'ordre est libre — c'est la spécificité, pas la position, qui
+   doit trancher (Drawer précède IconButton dans l'alphabet). */
+.camply-modal__close.camply-modal__close,
+.camply-drawer__close.camply-drawer__close,
+.camply-sheet__close.camply-sheet__close {
+	--_s: 30px;
+	flex: none;
+	border: none;
+	background: var(--camply-fill-2);
+}
+.camply-modal__close.camply-modal__close:hover:not(:disabled),
+.camply-drawer__close.camply-drawer__close:hover:not(:disabled),
+.camply-sheet__close.camply-sheet__close:hover:not(:disabled) {
+	background: var(--camply-fill-3);
+}
+
+/* Titre des dialogues : `DialogHeader` le rend pour les trois côté JS, cette
+   règle le met en forme pour les trois côté CSS. Comme pour le bouton de
+   fermeture juste au-dessus, les préfixes sont figés côté TSX, donc le
+   sélecteur les énumère. Pas de classe doublée : aucune feuille de composant
+   ne redéclare ces propriétés, rien à départager. */
+.camply-modal__title,
+.camply-drawer__title,
+.camply-sheet__title {
+	margin: 0;
+	font-family: var(--camply-font-display);
+	font-size: 18px;
+	font-weight: 700;
+	letter-spacing: -0.3px;
+	color: var(--camply-text);
+}
+
+/* Pied des panneaux latéraux : Drawer et Sheet sont le même dialogue glissant
+   et partagent leur pied. Celui de Modal n'y est pas — il aligne ses actions à
+   droite sans filet, c'est un autre objet. */
+.camply-drawer__footer,
+.camply-sheet__footer {
+	padding: 16px 24px;
+	border-top: 1px solid var(--camply-border);
+}
+
+/* Option cochée d'une liste de sélection (Select, Combobox) : même paire de
+   couleurs sous deux préfixes. Placée APRÈS `.camply-listbox-option--active`,
+   de même spécificité, qu'elle doit couvrir — les deux règles vivant dans ce
+   fichier, leur ordre relatif ne dépend pas du mode d'import. */
+.camply-select__option,
+.camply-combobox__option {
+	justify-content: space-between;
+}
+
+.camply-select__option[aria-selected="true"],
+.camply-combobox__option[aria-selected="true"] {
+	background: var(--camply-accent-soft);
+	color: var(--camply-accent-hover);
+}
+
+.camply-select__tick,
+.camply-combobox__tick {
+	flex: none;
+	color: var(--camply-accent);
 }
 
 /* ============================================================
@@ -626,6 +900,51 @@
 	/* biome-ignore-end lint/complexity/noImportantStyles: fin du reset */
 }
 
+/* ============================================================
+   Accessibilité — contraste forcé (Windows HCM, forced-colors: active)
+   Le système remplace toutes les couleurs et efface purement et simplement
+   les box-shadow. Or l'anneau de focus de la lib EST une box-shadow, posée
+   après un `outline: none` : sans ce bloc, il ne reste AUCUN indicateur de
+   focus (WCAG 2.4.7). Même problème pour les états peints uniquement par un
+   background (option active, item de menu survolé). On repeint donc avec la
+   seule propriété que le système conserve : outline, avec les mots-clés
+   système (Highlight / GrayText), qu'il est seul à savoir traduire — d'où
+   l'absence de forced-color-adjust: none.
+   ============================================================ */
+@media (forced-colors: active) {
+	.camply-focus-ring:focus-visible,
+	.camply-focus-ring--raised:focus-visible,
+	.camply-field-shell:focus-within,
+	.camply-field-block:focus,
+	.camply-pin-cell:focus,
+	.camply-control__input:focus-visible + .camply-control__face {
+		outline: 2px solid Highlight;
+		outline-offset: 2px;
+	}
+
+	/* États « actif » / « sélectionné » peints par le SEUL fond : le système le
+	   remplace, l'état disparaît. Offset négatif : ces éléments sont collés au
+	   bord de leur conteneur défilable, ou jointifs dans la grille du
+	   calendrier — un anneau extérieur serait rogné ou mordrait le voisin. */
+	.camply-listbox-option--active,
+	.camply-commandpalette__active,
+	.camply-select__option[aria-selected="true"],
+	.camply-combobox__option[aria-selected="true"],
+	.camply-datepicker__selected,
+	.camply-datepicker__inRange,
+	.camply-datepicker__yearCurrent,
+	.camply-menu-item:hover:not(:disabled),
+	.camply-menu-item:focus-visible:not(:disabled) {
+		outline: 2px solid Highlight;
+		outline-offset: -2px;
+	}
+
+	/* L'opacité de désactivation est ignorée en contraste forcé. */
+	.camply-control__input:disabled + .camply-control__face {
+		border-color: GrayText;
+	}
+}
+
 /* Astérisque des champs obligatoires (Field). */
 .camply-field__required {
 	margin-left: 3px;
@@ -634,7 +953,7 @@
 
 /* ============================================================
    Thème clair
-   Le bloc :root ci-dessus reste le thème sombre par défaut (rétrocompatible).
+   Le bloc :root ci-dessus est le thème sombre par défaut.
    Pour passer en clair, poser data-camply-theme="light" sur <html>, <body> ou
    n'importe quel conteneur : le thème est SCOPABLE (on peut avoir une zone
    claire dans une page sombre). color-scheme aligne aussi les contrôles
@@ -674,10 +993,10 @@
 	--camply-danger-ring: 0 0 0 3px rgba(220, 38, 38, 0.28);
 	--camply-danger-soft-hover: rgba(220, 38, 38, 0.18);
 
-	--camply-warning: #b45309;
-	--camply-warning-contrast: #ffffff;
-	--camply-warning-soft: rgba(180, 83, 9, 0.1);
-	--camply-warning-border: rgba(180, 83, 9, 0.28);
+	--camply-warn: #b45309;
+	--camply-warn-contrast: #ffffff;
+	--camply-warn-soft: rgba(180, 83, 9, 0.1);
+	--camply-warn-border: rgba(180, 83, 9, 0.28);
 
 	--camply-success: #047857;
 	--camply-success-contrast: #ffffff;
@@ -698,6 +1017,7 @@
 	--camply-shadow-md: 0 6px 18px rgba(15, 23, 42, 0.1);
 	--camply-shadow-lg: 0 18px 45px rgba(15, 23, 42, 0.14);
 	--camply-shadow-pop: 0 12px 32px rgba(15, 23, 42, 0.14);
+	--camply-shadow-color: rgba(15, 23, 42, 0.18);
 
 	--camply-ring: 0 0 0 3px rgba(2, 132, 199, 0.35);
 
@@ -719,8 +1039,13 @@
 	--camply-scrollbar-thumb: rgba(15, 23, 42, 0.22);
 	--camply-scrollbar-thumb-hover: rgba(15, 23, 42, 0.35);
 
+	/* Damier inversé : en clair, des carreaux blancs sur fond noir seraient
+	   illisibles sous la couleur aperçue. */
+	--camply-checker-fg: rgba(15, 23, 42, 0.1);
+	--camply-checker-bg: #f1f5f9;
+
 	--camply-gradient-accent: linear-gradient(90deg, #0369a1, var(--camply-accent));
 	--camply-gradient-info: linear-gradient(90deg, #4338ca, var(--camply-info));
-	--camply-gradient-warn: linear-gradient(90deg, #92400e, var(--camply-warning));
+	--camply-gradient-warn: linear-gradient(90deg, #92400e, var(--camply-warn));
 	--camply-gradient-danger: linear-gradient(90deg, #991b1b, var(--camply-danger));
 }

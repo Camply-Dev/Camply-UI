@@ -25,21 +25,21 @@ export const Breadcrumbs = forwardRef<HTMLElement, BreadcrumbsProps>(
 				className={cn("camply-breadcrumbs__nav", className)}
 				{...props}
 			>
-				<ol className={"camply-breadcrumbs__list"}>
+				<ol className="camply-breadcrumbs__list">
 					{items.map((item, i) => {
 						const isLast = i === items.length - 1;
 						const key = item.href ?? (typeof item.label === "string" ? item.label : i);
 						return (
 							<Fragment key={key}>
-								<li className={"camply-breadcrumbs__crumb"}>
+								<li className="camply-breadcrumbs__crumb">
 									{!isLast && item.href ? (
-										<a href={item.href} className={"camply-breadcrumbs__link"}>
+										<a href={item.href} className="camply-breadcrumbs__link">
 											{item.label}
 										</a>
 									) : !isLast && item.onClick ? (
 										<button
 											type="button"
-											className={"camply-breadcrumbs__link camply-breadcrumbs__button"}
+											className="camply-breadcrumbs__link camply-breadcrumbs__button"
 											onClick={item.onClick}
 										>
 											{item.label}
@@ -56,7 +56,7 @@ export const Breadcrumbs = forwardRef<HTMLElement, BreadcrumbsProps>(
 									)}
 								</li>
 								{!isLast && (
-									<li className={"camply-breadcrumbs__sep"} aria-hidden="true">
+									<li className="camply-breadcrumbs__sep" aria-hidden="true">
 										{separator ?? <ChevronRight size={14} />}
 									</li>
 								)}

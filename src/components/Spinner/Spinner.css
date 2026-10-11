@@ -23,6 +23,16 @@
 .camply-spinner__dots span:nth-child(3) {
 	animation-delay: 0.4s;
 }
+/* Les points sont des <span> sans classe : le reset « mouvement réduit » de
+   tokens.css, qui cible `[class*="camply-"]`, ne les atteint pas et ils
+   pulseraient à l'infini. À supprimer le jour où Spinner.tsx leur pose une
+   classe `camply-spinner__dot` — le reset global les couvrira alors. */
+@media (prefers-reduced-motion: reduce) {
+	.camply-spinner__dots span {
+		animation: none;
+	}
+}
+
 @keyframes camply-dot {
 	0%,
 	80%,

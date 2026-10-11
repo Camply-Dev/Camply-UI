@@ -171,11 +171,13 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 
 				for (const file of Array.from(incoming)) {
 					if (!isFileAccepted(file, accept)) {
-						errors.push(`Type non accepté : ${file.name}`);
+						errors.push(labels.fileTypeRejected(file.name));
 						continue;
 					}
 					if (maxSize != null && file.size > maxSize) {
-						errors.push(`${file.name} dépasse ${formatFileSize(maxSize)}`);
+						errors.push(
+							labels.fileTooLarge(file.name, formatFileSize(maxSize, labels.fileSizeUnits)),
+						);
 						continue;
 					}
 					seq.current += 1;
@@ -259,37 +261,38 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 								aria-labelledby={labelId}
 								aria-describedby={describedBy}
 								aria-invalid={invalid}
-								className={"camply-fileupload__input"}
+								className="camply-fileupload__input"
 								onChange={(e) => receive(e.target.files)}
 							/>
-							<span className={"camply-fileupload__icon"}>
+							<span className="camply-fileupload__icon">
 								<Upload size={22} />
 							</span>
-							<span className={"camply-fileupload__primary"}>
-								Glisse tes fichiers ou <span className={"camply-fileupload__link"}>parcours</span>
+							<span className="camply-fileupload__primary">
+								{labels.dropFiles}{" "}
+								<span className="camply-fileupload__link">{labels.browseFiles}</span>
 							</span>
 						</label>
 					)}
 				</Field>
 
 				{items.length > 0 && (
-					<ul className={"camply-fileupload__list"}>
+					<ul className="camply-fileupload__list">
 						{items.map((it) => {
 							const percent = it.progress == null ? null : Math.round(clamp(it.progress, 0, 100));
 							return (
-								<li key={it.id} className={"camply-fileupload__item"}>
-									<span className={"camply-fileupload__body"}>
-										<span className={"camply-fileupload__name"} title={it.file.name}>
+								<li key={it.id} className="camply-fileupload__item">
+									<span className="camply-fileupload__body">
+										<span className="camply-fileupload__name" title={it.file.name}>
 											{it.file.name}
 										</span>
-										<span className={"camply-fileupload__meta"}>
-											{formatFileSize(it.file.size)}
+										<span className="camply-fileupload__meta">
+											{formatFileSize(it.file.size, labels.fileSizeUnits)}
 											{it.status === "uploading" &&
 												` · ${labels.uploading}${percent == null ? "" : ` ${percent} %`}`}
 										</span>
 										{it.status === "uploading" && (
 											<span
-												className={"camply-fileupload__bar"}
+												className="camply-fileupload__bar"
 												role="progressbar"
 												aria-label={labels.uploading}
 												aria-valuemin={0}
@@ -306,26 +309,26 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 											</span>
 										)}
 										{it.status === "error" && it.error && (
-											<span role="alert" className={"camply-fileupload__itemError"}>
+											<span role="alert" className="camply-fileupload__itemError">
 												{it.error}
 											</span>
 										)}
 									</span>
 
 									{it.status === "done" && (
-										<span className={"camply-fileupload__done"}>
+										<span className="camply-fileupload__done">
 											<Check size={14} />
 										</span>
 									)}
 									{it.status === "error" && (
-										<span className={"camply-fileupload__failed"}>
+										<span className="camply-fileupload__failed">
 											<AlertCircle size={14} />
 										</span>
 									)}
 
 									<button
 										type="button"
-										className={"camply-fileupload__remove"}
+										className="camply-fileupload__remove"
 										aria-label={`${labels.remove} ${it.file.name}`}
 										disabled={disabled}
 										onClick={() => remove(it.id)}
@@ -338,7 +341,7 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 					</ul>
 				)}
 
-				<div className={"camply-fileupload__error"} role="alert">
+				<div className="camply-fileupload__error" role="alert">
 					{rejected.map((message) => (
 						<span key={message}>{message}</span>
 					))}
@@ -347,7 +350,7 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 				{items.length > 0 && (
 					<button
 						type="button"
-						className={"camply-fileupload__clear"}
+						className="camply-fileupload__clear"
 						disabled={disabled}
 						onClick={clear}
 					>

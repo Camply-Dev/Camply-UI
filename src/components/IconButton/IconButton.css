@@ -1,3 +1,6 @@
+/* Mêmes deux axes que Button. La table de tons vit dans tokens.css — toujours
+   chargé, là où Button.css ne l'est pas forcément
+   (`@camply/ui/IconButton/styles.css` s'importe seul). */
 .camply-iconbutton__btn {
 	--_s: 40px;
 	--_radius: var(--camply-radius);
@@ -9,6 +12,8 @@
 	border: 1px solid transparent;
 	border-radius: var(--_radius);
 	color: var(--camply-text);
+	/* Rendu en lien (`asChild`) : pas de soulignement hérité. */
+	text-decoration: none;
 	cursor: pointer;
 	transition:
 		background var(--camply-duration),
@@ -23,6 +28,11 @@
 	cursor: not-allowed;
 	opacity: 0.5;
 }
+/* `asChild` désactivé : voir Button.css. */
+.camply-iconbutton__btn[aria-disabled="true"] {
+	opacity: 0.5;
+	pointer-events: none;
+}
 
 .camply-iconbutton__sm {
 	--_s: 32px;
@@ -36,39 +46,34 @@
 	--_radius: var(--camply-radius-lg);
 }
 
+/* ── Formes ───────────────────────────────────────────────────────────────── */
 .camply-iconbutton__primary {
-	background: var(--camply-accent);
-	color: var(--camply-accent-contrast);
+	background: var(--_c);
+	color: var(--_contrast);
 }
 .camply-iconbutton__primary:hover:not(:disabled) {
-	background: var(--camply-accent-hover);
+	background: var(--_c-hover);
 }
 .camply-iconbutton__secondary {
 	background: var(--camply-fill-2);
 	border-color: var(--camply-border-strong);
+	color: var(--_chrome-ink);
 }
 .camply-iconbutton__secondary:hover:not(:disabled) {
 	background: var(--camply-fill-3);
 }
 .camply-iconbutton__ghost {
 	background: transparent;
-	color: var(--camply-text-muted);
+	color: var(--_chrome-ink-quiet);
 }
 .camply-iconbutton__ghost:hover:not(:disabled) {
 	background: var(--camply-fill-2);
-	color: var(--camply-text);
+	color: var(--_chrome-ink);
 }
 .camply-iconbutton__soft {
-	background: var(--camply-accent-soft);
-	color: var(--camply-accent-hover);
+	background: var(--_soft);
+	color: var(--_ink);
 }
 .camply-iconbutton__soft:hover:not(:disabled) {
-	background: var(--camply-accent-soft-hover);
-}
-.camply-iconbutton__danger {
-	background: var(--camply-danger-soft);
-	color: var(--camply-danger-hover);
-}
-.camply-iconbutton__danger:hover:not(:disabled) {
-	background: var(--camply-danger-soft-hover);
+	background: var(--_soft-hover);
 }

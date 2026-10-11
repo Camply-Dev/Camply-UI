@@ -17,15 +17,13 @@ interface AnchorOptions {
 	placement?: Placement;
 	gap?: number;
 	matchWidth?: boolean;
-	padding?: number;
 	constrainHeight?: boolean;
 	minHeight?: number;
 }
 
-export interface AnchorResult {
+interface AnchorResult {
 	style: CSSProperties;
-	/** Placement RÉELLEMENT appliqué (après flip) — pour orienter une flèche. */
-	placement: Placement;
+	/** Côté RÉELLEMENT appliqué (après flip) — pour orienter une flèche. */
 	side: Side;
 }
 
@@ -46,6 +44,9 @@ const styleEqual = (a: CSSProperties, b: CSSProperties) => STYLE_KEYS.every((k) 
 
 const OPPOSITE: Record<Side, Side> = { top: "bottom", bottom: "top", left: "right", right: "left" };
 
+/** Marge minimale entre le flottant et le bord de la fenêtre — jamais collé. */
+const PADDING = 8;
+
 const HIDDEN: CSSProperties = {
 	position: "fixed",
 	top: 0,
@@ -64,14 +65,13 @@ export function useAnchor(
 		placement = "bottom-start",
 		gap = 8,
 		matchWidth = false,
-		padding = 8,
 		constrainHeight = false,
 		minHeight = 120,
 	} = options;
 
-	const [state, setState] = useState<{ style: CSSProperties; placement: Placement }>({
+	const [state, setState] = useState<AnchorResult>({
 		style: HIDDEN,
-		placement,
+		side: placement.split("-")[0] as Side,
 	});
 
 	const update = useCallback(() => {
@@ -89,10 +89,10 @@ export function useAnchor(
 
 		// Place disponible de chaque côté de l'ancre.
 		const room: Record<Side, number> = {
-			top: a.top - gap - padding,
-			bottom: vh - a.bottom - gap - padding,
-			left: a.left - gap - padding,
-			right: vw - a.right - gap - padding,
+			top: a.top - gap - PADDING,
+			bottom: vh - a.bottom - gap - PADDING,
+			left: a.left - gap - PADDING,
+			right: vw - a.right - gap - PADDING,
 		};
 		// Taille du flottant sur l'axe principal du côté demandé.
 		const needed = (s: Side) => (s === "top" || s === "bottom" ? fh : fw);
@@ -124,8 +124,8 @@ export function useAnchor(
 		}
 
 		// Recadrage dans le viewport.
-		left = clamp(left, padding, Math.max(padding, vw - fw - padding));
-		top = clamp(top, padding, Math.max(padding, vh - usedH - padding));
+		left = clamp(left, PADDING, Math.max(PADDING, vw - fw - PADDING));
+		top = clamp(top, PADDING, Math.max(PADDING, vh - usedH - PADDING));
 
 		const style: CSSProperties = {
 			position: "fixed",
@@ -140,14 +140,12 @@ export function useAnchor(
 			style.overflowY = "auto";
 		}
 
-		const resolved = (align ? `${side}-${align}` : side) as Placement;
-
+		// Même objet si rien n'a bougé : l'état d'un flottant est relu à chaque
+		// défilement, un nouvel objet à chaque passage relancerait un rendu pour rien.
 		setState((prev) =>
-			styleEqual(prev.style, style) && prev.placement === resolved
-				? prev
-				: { style, placement: resolved },
+			styleEqual(prev.style, style) && prev.side === side ? prev : { style, side },
 		);
-	}, [anchorRef, floatRef, placement, gap, matchWidth, padding, constrainHeight, minHeight]);
+	}, [anchorRef, floatRef, placement, gap, matchWidth, constrainHeight, minHeight]);
 
 	useIsoLayoutEffect(() => {
 		if (open) update();
@@ -174,9 +172,5 @@ export function useAnchor(
 		};
 	}, [open, update, floatRef, anchorRef]);
 
-	return {
-		style: state.style,
-		placement: state.placement,
-		side: state.placement.split("-")[0] as Side,
-	};
+	return state;
 }

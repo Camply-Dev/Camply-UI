@@ -23,10 +23,12 @@ import {
 	toHex,
 } from "../../lib/color";
 import { Field } from "../../lib/Field";
+import { FieldChevron } from "../../lib/FieldChevron";
 import { focusableWithin } from "../../lib/focusTrap";
+import { HiddenField } from "../../lib/HiddenField";
 import { useLabels, useLocale } from "../../lib/i18n";
-import { ChevronDown } from "../../lib/icons";
 import { Portal } from "../../lib/Portal";
+import { nextSliderValue } from "../../lib/sliderKeys";
 import { useAnchor } from "../../lib/useAnchor";
 import { useControllable } from "../../lib/useControllable";
 import { useDismiss } from "../../lib/useDismiss";
@@ -43,6 +45,8 @@ export interface ColorPickerProps
 	label?: string;
 	hint?: string;
 	error?: string;
+	/** Texte du déclencheur tant qu'aucune couleur n'est choisie. */
+	placeholder?: string;
 	/** Nom du champ : rend un input caché pour la soumission d'un <form> natif. */
 	name?: string;
 	required?: boolean;
@@ -50,8 +54,6 @@ export interface ColorPickerProps
 }
 
 const HUE_MAX = 360;
-/** Texte du déclencheur tant qu'aucune couleur n'est choisie. */
-const EMPTY_VALUE = "Choisir une couleur";
 
 /** Évite la dérive flottante des pas de 0,01 (0.1 + 0.2 -> 0.30000000000000004). */
 const round2 = (n: number) => Math.round(n * 100) / 100;
@@ -67,6 +69,7 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 		label,
 		hint,
 		error,
+		placeholder,
 		name,
 		required,
 		variant = "full",
@@ -83,10 +86,6 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 		() => new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 0 }),
 		[locale],
 	);
-	// i18n n'expose qu'une clé « colorPicker » : on en dérive un nom par surface.
-	const svLabel = `${labels.colorPicker} — saturation et luminosité`;
-	const hueLabel = `${labels.colorPicker} — teinte`;
-	const alphaLabel = `${labels.colorPicker} — opacité`;
 
 	const [hex, setHex] = useControllable<string>(value, defaultValue ?? "", onChange);
 	const [hsv, setHsv] = useState<[number, number, number]>(() => {
@@ -102,11 +101,8 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 
 	const hasColor = parseHex(hex) != null;
 
-	const internalCommit = useRef(false);
-
 	const commit = useCallback(
 		(h: number, s: number, v: number) => {
-			internalCommit.current = true;
 			setHsv([h, s, v]);
 			setHex(toHex(h, s, v));
 		},
@@ -114,12 +110,18 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 	);
 
 	useEffect(() => {
-		if (internalCommit.current) {
-			internalCommit.current = false;
-			return;
-		}
 		const rgb = parseHex(hex);
-		if (rgb) setHsv(rgbToHsv(...rgb));
+		if (!rgb) return;
+		// `hsv` n'est recalé que si `hex` vient de l'EXTÉRIEUR, par comparaison et non
+		// par un drapeau « commit interne » : un parent contrôlé qui n'applique pas notre
+		// onChange (palette restreinte, validation) le laisserait armé, et il mangerait
+		// sa mise à jour suivante. La comparaison porte sur les canaux RGB : un parent qui
+		// normalise la casse ne déclenche pas d'aller-retour rgbToHsv, lossy sur les gris.
+		setHsv((prev) => {
+			const [pr, pg, pb] = hsvToRgb(...prev);
+			if (pr === rgb[0] && pg === rgb[1] && pb === rgb[2]) return prev;
+			return rgbToHsv(...rgb);
+		});
 	}, [hex]);
 
 	const compact = variant === "compact";
@@ -129,6 +131,8 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 	const panelRef = useRef<HTMLDivElement>(null);
 	const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 	const draggingRef = useRef(false);
+	/** Ferme le glisser en cours : appelé au démontage et avant tout nouveau glisser. */
+	const stopDragRef = useRef<(() => void) | null>(null);
 	const hoverRef = useRef(false);
 	// Le déclencheur ouvre au focus : ce drapeau évite qu'il rouvre le panneau
 	// quand c'est NOUS qui lui rendons le focus (Échap, sortie par Tab).
@@ -178,7 +182,15 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 		};
 		closeTimer.current = setTimeout(tick, 200);
 	};
-	useEffect(() => () => clearTimeout(closeTimer.current), []);
+	// Au démontage : la fermeture différée ET un glisser éventuellement en cours,
+	// dont les listeners vivent sur `window` et survivraient au composant.
+	useEffect(
+		() => () => {
+			clearTimeout(closeTimer.current);
+			stopDragRef.current?.();
+		},
+		[],
+	);
 
 	/** Referme, et rend le focus au déclencheur s'il était dans le panneau. */
 	const closeAndRestore = useCallback(() => {
@@ -235,24 +247,33 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 		) => {
 			const el = target.current;
 			if (!el) return;
+			// Un glisser déjà en cours (2e doigt sur une autre surface) est fermé
+			// d'abord : sans ça sa paire de listeners resterait orpheline sur window.
+			stopDragRef.current?.();
 			// La surface prend le focus : le clavier prend le relais du glisser.
 			el.focus();
-			const rect = el.getBoundingClientRect();
 			draggingRef.current = true;
-			const apply = (cx: number, cy: number) =>
-				onMove(
-					clamp((cx - rect.left) / rect.width, 0, 1),
-					clamp((cy - rect.top) / rect.height, 0, 1),
-				);
+			// rect relu à chaque mouvement : useAnchor repositionne le panneau au
+			// défilement, un rect figé désaligne la couleur du pointeur.
+			const apply = (cx: number, cy: number) => {
+				const r = el.getBoundingClientRect();
+				onMove(clamp((cx - r.left) / r.width, 0, 1), clamp((cy - r.top) / r.height, 0, 1));
+			};
 			apply(e.clientX, e.clientY);
 			const move = (ev: globalThis.PointerEvent) => apply(ev.clientX, ev.clientY);
 			const up = () => {
 				window.removeEventListener("pointermove", move);
 				window.removeEventListener("pointerup", up);
+				// pointercancel : sur tactile le navigateur reprend le pointeur (défilement,
+				// appui long, mise en arrière-plan) sans jamais émettre pointerup.
+				window.removeEventListener("pointercancel", up);
 				draggingRef.current = false;
+				stopDragRef.current = null;
 			};
+			stopDragRef.current = up;
 			window.addEventListener("pointermove", move);
 			window.addEventListener("pointerup", up);
+			window.addEventListener("pointercancel", up);
 		},
 		[],
 	);
@@ -287,52 +308,18 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 		commit(h, round2(clamp(nextS, 0, 1)), round2(clamp(nextV, 0, 1)));
 	};
 
+	// Teinte et opacité sont des sliders 1D : même clavier que Slider/RangeSlider
+	// (flèches, Page±, Home/End), Maj accélérant le pas comme sur la surface 2D.
 	const onHueKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-		const step = e.shiftKey ? 10 : 1;
-		let next = Math.round(h);
-		switch (e.key) {
-			case "ArrowRight":
-			case "ArrowUp":
-				next += step;
-				break;
-			case "ArrowLeft":
-			case "ArrowDown":
-				next -= step;
-				break;
-			case "Home":
-				next = 0;
-				break;
-			case "End":
-				next = HUE_MAX;
-				break;
-			default:
-				return;
-		}
+		const next = nextSliderValue(e.key, Math.round(h), 0, HUE_MAX, e.shiftKey ? 10 : 1);
+		if (next == null) return;
 		e.preventDefault();
 		commit(clamp(next, 0, HUE_MAX), s, v);
 	};
 
 	const onAlphaKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-		const step = e.shiftKey ? 0.1 : 0.01;
-		let next = alpha;
-		switch (e.key) {
-			case "ArrowRight":
-			case "ArrowUp":
-				next += step;
-				break;
-			case "ArrowLeft":
-			case "ArrowDown":
-				next -= step;
-				break;
-			case "Home":
-				next = 0;
-				break;
-			case "End":
-				next = 1;
-				break;
-			default:
-				return;
-		}
+		const next = nextSliderValue(e.key, alpha, 0, 1, e.shiftKey ? 0.1 : 0.01);
+		if (next == null) return;
 		e.preventDefault();
 		setAlpha(round2(clamp(next, 0, 1)));
 	};
@@ -347,7 +334,7 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 	const alphaRounded = round2(alpha);
 	const hexOut = (alpha < 1 ? `${hex}${alphaByte}` : hex).toUpperCase();
 	const rgbOut = alpha < 1 ? `${r}, ${g}, ${b}, ${alphaRounded}` : `${r}, ${g}, ${b}`;
-	const valueText = hasColor ? hexOut : EMPTY_VALUE;
+	const valueText = hasColor ? hexOut : (placeholder ?? labels.colorPlaceholder);
 
 	const applyColor = (parsed: { rgb: [number, number, number]; alpha?: number } | null) => {
 		if (!parsed) return;
@@ -371,12 +358,12 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 				ref={svRef}
 				role="slider"
 				tabIndex={0}
-				aria-label={svLabel}
+				aria-label={labels.colorPickerSaturation}
 				aria-valuemin={0}
 				aria-valuemax={100}
 				aria-valuenow={Math.round(s * 100)}
 				aria-valuetext={`${percent.format(s)} / ${percent.format(v)}`}
-				className={"camply-focus-ring camply-colorpicker__square"}
+				className="camply-focus-ring camply-colorpicker__square"
 				style={{
 					background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, ${hueHex})`,
 				}}
@@ -384,7 +371,7 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 				onKeyDown={onSvKeyDown}
 			>
 				<span
-					className={"camply-colorpicker__svKnob"}
+					className="camply-colorpicker__svKnob"
 					style={{ left: `${s * 100}%`, top: `${(1 - v) * 100}%`, background: solidHex }}
 				/>
 			</div>
@@ -393,17 +380,17 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 				ref={hueRef}
 				role="slider"
 				tabIndex={0}
-				aria-label={hueLabel}
+				aria-label={labels.colorPickerHue}
 				aria-valuemin={0}
 				aria-valuemax={HUE_MAX}
 				aria-valuenow={Math.round(h)}
 				aria-valuetext={`${Math.round(h)}°`}
-				className={"camply-focus-ring camply-colorpicker__hue"}
+				className="camply-focus-ring camply-colorpicker__hue"
 				onPointerDown={dragHue}
 				onKeyDown={onHueKeyDown}
 			>
 				<span
-					className={"camply-colorpicker__hueKnob"}
+					className="camply-colorpicker__hueKnob"
 					style={{ left: `${(h / HUE_MAX) * 100}%`, background: hueHex }}
 				/>
 			</div>
@@ -412,21 +399,21 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 				ref={alphaRef}
 				role="slider"
 				tabIndex={0}
-				aria-label={alphaLabel}
+				aria-label={labels.colorPickerAlpha}
 				aria-valuemin={0}
 				aria-valuemax={100}
 				aria-valuenow={Math.round(alpha * 100)}
 				aria-valuetext={percent.format(alpha)}
-				className={"camply-checkerboard camply-focus-ring camply-colorpicker__alpha"}
+				className="camply-checkerboard camply-focus-ring camply-colorpicker__alpha"
 				onPointerDown={dragAlpha}
 				onKeyDown={onAlphaKeyDown}
 			>
 				<span
-					className={"camply-colorpicker__alphaFill"}
+					className="camply-colorpicker__alphaFill"
 					style={{ background: `linear-gradient(to right, transparent, ${solidHex})` }}
 				/>
 				<span
-					className={"camply-colorpicker__alphaKnob"}
+					className="camply-colorpicker__alphaKnob"
 					style={{ left: `${alpha * 100}%`, background: rgbaFill }}
 				/>
 			</div>
@@ -434,7 +421,7 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 	);
 
 	const editFields = (
-		<div className={"camply-colorpicker__fields"}>
+		<div className="camply-colorpicker__fields">
 			<Input
 				label="HEX"
 				size="sm"
@@ -478,7 +465,7 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 				required={required}
 				id={id}
 				idPrefix="colorpicker"
-				className={"camply-colorpicker__field"}
+				className="camply-colorpicker__field"
 			>
 				{({ id: controlId, labelId, describedBy, invalid }) => {
 					const panelId = `${controlId}-panel`;
@@ -523,11 +510,11 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 										{compact ? (
 											<>
 												<span
-													className={"camply-checkerboard camply-colorpicker__swatch"}
+													className="camply-checkerboard camply-colorpicker__swatch"
 													aria-hidden="true"
 												>
 													<span
-														className={"camply-colorpicker__swatchFill"}
+														className="camply-colorpicker__swatchFill"
 														style={{ background: hasColor ? rgbaFill : "transparent" }}
 													/>
 												</span>
@@ -540,17 +527,12 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 												>
 													{valueText}
 												</span>
-												<span
-													className={cn("camply-chevron", open && "camply-chevron--open")}
-													aria-hidden="true"
-												>
-													<ChevronDown size={16} />
-												</span>
+												<FieldChevron open={open} />
 											</>
 										) : (
 											<>
 												<span
-													className={"camply-colorpicker__swatchFill"}
+													className="camply-colorpicker__swatchFill"
 													style={{ background: hasColor ? rgbaFill : "transparent" }}
 												/>
 												<span id={valueId} hidden>
@@ -589,7 +571,7 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 										aria-label={labelId ? undefined : labels.colorPicker}
 										aria-describedby={describedBy}
 										aria-invalid={invalid}
-										className={"camply-colorpicker__core"}
+										className="camply-colorpicker__core"
 									>
 										{pickerCore}
 									</fieldset>
@@ -598,7 +580,7 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 							)}
 
 							{/* Valeur soumise par un <form> natif (les champs du panneau sont portalisés). */}
-							{name && <input type="hidden" name={name} value={hasColor ? hexOut : ""} />}
+							<HiddenField name={name} value={hasColor ? hexOut : ""} />
 						</>
 					);
 				}}

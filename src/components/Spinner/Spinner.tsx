@@ -2,14 +2,20 @@ import { forwardRef, type HTMLAttributes } from "react";
 import { cn } from "../../lib/cn";
 
 /**
- * Avec un label le spinner annonce le chargement (région live) ; sans label il est purement
- * décoratif et doit rester muet — un `aria-label` sur un `<span>` sans rôle serait ignoré.
+ * Avec un nom accessible le spinner annonce le chargement (région live) ; sans nom il est
+ * purement décoratif et doit rester muet — un `aria-label` sur un `<span>` sans rôle serait
+ * ignoré.
+ *
+ * `named` couvre le nom posé par le consommateur via `...rest` (`aria-label` ou
+ * `aria-labelledby`) : `aria-hidden` le rendrait inaudible.
  */
-function loadingA11y(label: string | undefined) {
-	return label
-		? ({ role: "status", "aria-label": label } as const)
-		: ({ "aria-hidden": true } as const);
+function loadingA11y(label: string | undefined, named: boolean) {
+	if (label) return { role: "status", "aria-label": label } as const;
+	return named ? ({ role: "status" } as const) : ({ "aria-hidden": true } as const);
 }
+
+const isNamed = (props: { "aria-label"?: string; "aria-labelledby"?: string }) =>
+	Boolean(props["aria-label"] ?? props["aria-labelledby"]);
 
 export interface SpinnerProps extends Omit<HTMLAttributes<HTMLSpanElement>, "children"> {
 	size?: number;
@@ -25,7 +31,7 @@ export const Spinner = forwardRef<HTMLSpanElement, SpinnerProps>(
 				ref={ref}
 				className={cn("camply-spinner__spinner", className)}
 				style={{ width: size, height: size, borderWidth: thickness, ...style }}
-				{...loadingA11y(label)}
+				{...loadingA11y(label, isNamed(props))}
 				{...props}
 			/>
 		);
@@ -46,7 +52,7 @@ export const Dots = forwardRef<HTMLSpanElement, DotsProps>(
 			<span
 				ref={ref}
 				className={cn("camply-spinner__dots", className)}
-				{...loadingA11y(label)}
+				{...loadingA11y(label, isNamed(props))}
 				{...props}
 			>
 				<span style={{ width: size, height: size }} />

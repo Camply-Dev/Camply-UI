@@ -1,40 +1,48 @@
 import {
 	type FocusEvent,
+	type ForwardedRef,
+	forwardRef,
 	type InputHTMLAttributes,
 	type KeyboardEvent,
+	type MouseEvent,
+	type ReactNode,
+	type RefAttributes,
 	useCallback,
-	useEffect,
 	useMemo,
-	useRef,
 	useState,
 } from "react";
 import { cn } from "../../lib/cn";
-import { Field } from "../../lib/Field";
+import { Field, idRefs } from "../../lib/Field";
+import { FieldChevron } from "../../lib/FieldChevron";
+import { HiddenField } from "../../lib/HiddenField";
 import { useLabels } from "../../lib/i18n";
-import { Check, ChevronDown, Search } from "../../lib/icons";
+import { Check, Search } from "../../lib/icons";
 import { Listbox, ListboxOption } from "../../lib/Listbox";
 import { Portal } from "../../lib/Portal";
-import { useAnchor } from "../../lib/useAnchor";
+import type { Option } from "../../lib/types";
 import { useControllable } from "../../lib/useControllable";
-import { useDismiss } from "../../lib/useDismiss";
-import { useId } from "../../lib/useId";
-import { firstEnabledIndex, useListboxNav } from "../../lib/useListboxNav";
+import { type ReservedListboxAttr, useListboxField } from "../../lib/useListboxField";
+import { firstEnabledIndex } from "../../lib/useListboxNav";
 
-export interface ComboboxOption<T extends string = string> {
-	value: T;
-	label: string;
-	disabled?: boolean;
-}
+/** Alias de `Option` : Select, Combobox et MultiSelect partagent la même forme. */
+export type ComboboxOption<T extends string = string> = Option<T>;
 
 export interface ComboboxProps<T extends string = string>
 	extends Omit<
 		InputHTMLAttributes<HTMLInputElement>,
-		"value" | "defaultValue" | "onChange" | "type" | "name"
+		| "value"
+		| "defaultValue"
+		| "onChange"
+		| "type"
+		| "name"
+		| "aria-autocomplete"
+		| ReservedListboxAttr
 	> {
 	options: ComboboxOption<T>[];
 	value?: T;
 	defaultValue?: T;
 	onChange?: (value: T) => void;
+	/** Texte du champ de recherche (défaut : libellés de la lib). */
 	placeholder?: string;
 	label?: string;
 	/** Texte d'aide affiché sous le champ. */
@@ -63,99 +71,122 @@ const defaultFilter = <T extends string>(option: ComboboxOption<T>, query: strin
 	return option.label.toLowerCase().includes(q);
 };
 
-export function Combobox<T extends string = string>({
-	options,
-	value,
-	defaultValue,
-	onChange,
-	placeholder = "Rechercher…",
-	label,
-	hint,
-	error,
-	name,
-	required,
-	emptyMessage,
-	disabled = false,
-	id,
-	className,
-	style,
-	filter = defaultFilter,
-	onFocus: onFocusProp,
-	onKeyDown: onKeyDownProp,
-	...rest
-}: ComboboxProps<T>) {
+const ComboboxBase = forwardRef(function Combobox<T extends string = string>(
+	{
+		options,
+		value,
+		defaultValue,
+		onChange,
+		placeholder,
+		label,
+		hint,
+		error,
+		name,
+		required,
+		emptyMessage,
+		disabled = false,
+		id,
+		className,
+		style,
+		filter = defaultFilter,
+		"aria-describedby": ariaDescribedBy,
+		"aria-invalid": ariaInvalid,
+		onFocus: onFocusProp,
+		onBlur: onBlurProp,
+		onClick: onClickProp,
+		onKeyDown: onKeyDownProp,
+		...rest
+	}: ComboboxProps<T>,
+	ref: ForwardedRef<HTMLInputElement>,
+) {
 	const labels = useLabels();
 	const [selected, setSelected] = useControllable(value, defaultValue, onChange, {
 		allowUndefined: true,
 	});
-	const [open, setOpen] = useState(false);
 	const [query, setQuery] = useState("");
 
-	const wrapRef = useRef<HTMLDivElement>(null);
-	const listRef = useRef<HTMLDivElement>(null);
-	const inputRef = useRef<HTMLInputElement>(null);
-	const listId = useId("combobox");
-
-	const { style: floatStyle } = useAnchor(wrapRef, listRef, open, {
-		placement: "bottom-start",
-		gap: 6,
-		matchWidth: true,
-		constrainHeight: true,
-	});
-
-	const close = useCallback(() => setOpen(false), []);
-	useDismiss(open, close, [wrapRef, listRef]);
-
 	const selectedOption = options.find((o) => o.value === selected);
-	const filtered = useMemo(
-		() => (query ? options.filter((o) => filter(o, query)) : options),
-		[options, query, filter],
+	const applyFilter = useCallback(
+		(q: string) => (q ? options.filter((o) => filter(o, q)) : options),
+		[options, filter],
 	);
-	const { active, setActive, moveActive } = useListboxNav(listRef, open, filtered, {
+	const filtered = useMemo(() => applyFilter(query), [applyFilter, query]);
+
+	const list = useListboxField<HTMLDivElement, ComboboxOption<T>>({
+		idPrefix: "combobox",
+		items: filtered,
+		// Boucler ferait repartir la surbrillance en haut sans mouvement visible.
 		wrap: false,
+		// Home/End appartiennent au caret dans un champ de saisie.
+		homeEnd: false,
+		// Vider la recherche avec la liste : sinon `displayValue` garderait un texte
+		// qui ne correspond plus à la valeur sélectionnée.
+		onClose: () => setQuery(""),
 	});
 
-	useEffect(() => {
-		const first = firstEnabledIndex(filtered);
-		setActive(first < 0 ? 0 : first);
-	}, [filtered, setActive]);
+	/**
+	 * L'option active repart sur la première réellement sélectionnable. Appelé
+	 * depuis les gestionnaires et non depuis un effet : `options` écrit en littéral
+	 * change d'identité à chaque rendu du parent, et la surbrillance ne doit PAS
+	 * sauter pour autant. Même règle que Select.
+	 */
+	const resetActive = (items: ComboboxOption<T>[]) => {
+		const first = firstEnabledIndex(items);
+		list.setActive(first < 0 ? 0 : first);
+	};
 
-	const displayValue = open ? query : (selectedOption?.label ?? "");
+	const openList = () => {
+		resetActive(filtered);
+		list.setOpen(true);
+	};
+
+	const displayValue = list.open ? query : (selectedOption?.label ?? "");
 
 	const pick = (opt: ComboboxOption<T>) => {
 		if (opt.disabled) return;
 		setSelected(opt.value);
-		setQuery("");
-		setOpen(false);
-		inputRef.current?.blur();
+		// Le focus RESTE sur l'input (pattern APG). Il ne l'a jamais quitté — Entrée
+		// vient du clavier, le clic est neutralisé par le onMouseDown de l'option —
+		// donc aucun onFocus n'est émis et la liste ne se rouvre pas.
+		list.close();
 	};
 
+	// React marque `defaultPrevented` même sur focus/blur, non annulables côté DOM :
+	// c'est le veto du consommateur sur l'ouverture (règle 4), comme sur `Tooltip`.
 	const onFocus = (e: FocusEvent<HTMLInputElement>) => {
 		onFocusProp?.(e);
-		if (disabled) return;
-		setOpen(true);
+		if (e.defaultPrevented || disabled) return;
+		openList();
+	};
+
+	// Le focus reste sur l'input après une sélection : sans un clic qui rouvre,
+	// l'utilisateur à la souris n'aurait aucun moyen de revoir la liste.
+	const onClick = (e: MouseEvent<HTMLInputElement>) => {
+		onClickProp?.(e);
+		if (e.defaultPrevented || disabled || list.open) return;
+		openList();
+	};
+
+	const onBlur = (e: FocusEvent<HTMLInputElement>) => {
+		onBlurProp?.(e);
+		if (e.defaultPrevented) return;
+		// Quitter le champ doit refermer le popup portalisé, qui resterait sinon
+		// affiché par-dessus la page avec aria-expanded sur un input sans focus.
+		if (list.listRef.current?.contains(e.relatedTarget)) return;
+		list.close();
 	};
 
 	const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
 		onKeyDownProp?.(e);
 		if (e.defaultPrevented || disabled) return;
-		if (!open && ["ArrowDown", "ArrowUp"].includes(e.key)) {
-			setOpen(true);
+		if (!list.open && ["ArrowDown", "ArrowUp"].includes(e.key)) {
+			openList();
 			return;
 		}
-		switch (e.key) {
-			case "ArrowDown":
-				e.preventDefault();
-				moveActive(1);
-				break;
-			case "ArrowUp":
-				e.preventDefault();
-				moveActive(-1);
-				break;
-			case "Enter":
-				e.preventDefault();
-				if (filtered[active]) pick(filtered[active]);
-				break;
+		if (list.handleNavKey(e)) return;
+		if (e.key === "Enter") {
+			e.preventDefault();
+			if (filtered[list.active]) pick(filtered[list.active]);
 		}
 	};
 
@@ -173,77 +204,79 @@ export function Combobox<T extends string = string>({
 			{({ id: inputId, describedBy, invalid }) => (
 				<>
 					<div
-						ref={wrapRef}
+						ref={list.anchorRef}
 						className={cn(
 							"camply-field-shell",
 							error && "camply-field-shell--error",
-							open && "camply-field-shell--open",
+							list.open && "camply-field-shell--open",
 							disabled && "camply-field-shell--disabled camply-field-shell--inert",
 						)}
 					>
-						<Search size={16} className={"camply-combobox__searchIcon"} />
+						<Search size={16} className="camply-combobox__searchIcon" />
 						<input
-							ref={inputRef}
+							{...rest}
+							ref={ref}
 							id={inputId}
 							type="text"
+							// Invariants du contrat combobox — cf. `ReservedListboxAttr`.
 							role="combobox"
-							aria-expanded={open}
-							aria-controls={listId}
+							aria-haspopup="listbox"
+							aria-expanded={list.open}
 							aria-autocomplete="list"
-							aria-describedby={describedBy}
-							aria-invalid={invalid}
 							aria-required={required || undefined}
-							aria-activedescendant={
-								open && filtered[active] ? `${listId}-opt-${active}` : undefined
-							}
-							className={"camply-field-control"}
-							placeholder={placeholder}
+							{...list.aria}
+							// Composés, jamais écrasés (règle 4). Pas d'`aria-labelledby` ici : le
+							// <label htmlFor> nomme déjà l'input, celui du consommateur passe donc
+							// par {...rest} et remplace ce nom, comme sur `Input`.
+							aria-describedby={idRefs(describedBy, ariaDescribedBy)}
+							aria-invalid={invalid ?? ariaInvalid}
+							className="camply-field-control"
+							placeholder={placeholder ?? labels.search}
 							disabled={disabled}
-							{...rest}
 							value={displayValue}
 							onFocus={onFocus}
+							onBlur={onBlur}
+							onClick={onClick}
 							onChange={(e) => {
-								setQuery(e.target.value);
-								setActive(0);
-								setOpen(true);
+								const q = e.target.value;
+								setQuery(q);
+								// La liste filtrée du rendu suivant n'existe pas encore : on la
+								// recalcule ici pour viser une option qui existera vraiment.
+								resetActive(applyFilter(q));
+								list.setOpen(true);
 							}}
 							onKeyDown={onKeyDown}
 						/>
-						<ChevronDown
-							size={16}
-							className={cn("camply-chevron", open && "camply-chevron--open")}
-						/>
+						<FieldChevron open={list.open} />
 					</div>
 
-					{name && <input type="hidden" name={name} value={selected ?? ""} />}
+					<HiddenField name={name} value={selected ?? ""} disabled={disabled} />
 
-					{open && (
+					{list.open && (
 						<Portal>
 							<Listbox
-								listRef={listRef}
-								id={listId}
+								{...list.props}
 								className="camply-floating-surface camply-floating-list camply-combobox__list"
-								style={floatStyle}
 							>
 								{filtered.length === 0 ? (
-									<div className={"camply-combobox__empty"}>{emptyMessage ?? labels.noResults}</div>
+									<div className="camply-combobox__empty">{emptyMessage ?? labels.noResults}</div>
 								) : (
 									filtered.map((opt, i) => {
 										const isSelected = opt.value === selected;
 										return (
 											<ListboxOption
 												key={opt.value}
-												id={`${listId}-opt-${i}`}
-												active={i === active}
+												id={list.optionId(i)}
+												active={i === list.active}
 												selected={isSelected}
 												disabled={opt.disabled}
 												className="camply-combobox__option"
-												onMouseEnter={() => !opt.disabled && setActive(i)}
+												onMouseEnter={() => !opt.disabled && list.setActive(i)}
 												onMouseDown={(e) => e.preventDefault()}
 												onClick={() => pick(opt)}
 											>
 												<span>{opt.label}</span>
-												{isSelected && <Check size={15} className={"camply-combobox__tick"} />}
+												{isSelected && <Check size={15} className="camply-combobox__tick" />}
 											</ListboxOption>
 										);
 									})
@@ -255,4 +288,14 @@ export function Combobox<T extends string = string>({
 			)}
 		</Field>
 	);
-}
+});
+
+/**
+ * Champ de recherche à liste filtrée (pattern APG « combobox »).
+ * `forwardRef` efface le paramètre générique : on le restaure par un cast pour que
+ * `T` continue d'être inféré depuis `options`. La ref vise l'input de recherche,
+ * de quoi lui rendre le focus après une erreur de validation.
+ */
+export const Combobox = ComboboxBase as <T extends string = string>(
+	props: ComboboxProps<T> & RefAttributes<HTMLInputElement>,
+) => ReactNode;

@@ -10,21 +10,35 @@ import {
 	useState,
 } from "react";
 import { cn } from "../../lib/cn";
+import { HiddenField } from "../../lib/HiddenField";
 import { nextRovingIndex } from "../../lib/rovingIndex";
+import type { Option, Size } from "../../lib/types";
 import { useControllable } from "../../lib/useControllable";
 
-export interface SegmentOption<T extends string = string> {
-	value: T;
-	label: string;
-}
+/**
+ * Un segment est une `Option` dérivée, jamais recopiée (règle 1) — comme
+ * `SelectOption` ou `ComboboxOption`. `disabled` en est retiré : un segment isolé
+ * ne se désactive pas ici, et l'accepter pour l'ignorer serait une prop sans effet.
+ */
+export type SegmentOption<T extends string = string> = Omit<Option<T>, "disabled">;
+
+/**
+ * Règle 3. Les `role="radio"` des segments dépendent de `role="radiogroup"` ; les
+ * états ARIA dérivent de `required` et `readOnly` ; l'orientation est le contrat
+ * du clavier.
+ */
+type ReservedSegmentedControlAttr = "role" | "aria-orientation" | "aria-readonly" | "aria-required";
 
 export interface SegmentedControlProps<T extends string = string>
-	extends Omit<ComponentPropsWithoutRef<"div">, "onChange" | "defaultValue"> {
+	extends Omit<
+		ComponentPropsWithoutRef<"div">,
+		"onChange" | "defaultValue" | ReservedSegmentedControlAttr
+	> {
 	options: SegmentOption<T>[];
 	value?: T;
 	defaultValue?: T;
 	onChange?: (value: T) => void;
-	size?: "sm" | "md";
+	size?: Extract<Size, "sm" | "md">;
 	fullWidth?: boolean;
 	/** Nom soumis avec le formulaire : la valeur part dans un <input type="hidden">. */
 	name?: string;
@@ -50,6 +64,7 @@ const SegmentedControlBase = forwardRef(function SegmentedControl<T extends stri
 		required,
 		readOnly = false,
 		className,
+		onKeyDown,
 		...rest
 	}: SegmentedControlProps<T>,
 	ref: ForwardedRef<HTMLDivElement>,
@@ -84,8 +99,10 @@ const SegmentedControlBase = forwardRef(function SegmentedControl<T extends stri
 		buttonRefs.current[index]?.focus();
 	};
 
-	const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-		if (readOnly || options.length === 0) return;
+	const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+		// Règle 4.
+		onKeyDown?.(e);
+		if (e.defaultPrevented || readOnly || options.length === 0) return;
 		// La lib ne connaît que des segments horizontaux, mais un radiogroup accepte
 		// aussi les flèches verticales : on tente les deux axes.
 		const next =
@@ -100,6 +117,7 @@ const SegmentedControlBase = forwardRef(function SegmentedControl<T extends stri
 		<div
 			ref={ref}
 			{...rest}
+			// Invariants du composant — cf. `ReservedSegmentedControlAttr`.
 			role="radiogroup"
 			aria-orientation="horizontal"
 			aria-readonly={readOnly || undefined}
@@ -110,12 +128,12 @@ const SegmentedControlBase = forwardRef(function SegmentedControl<T extends stri
 				fullWidth && "camply-segmentedcontrol__fullWidth",
 				className,
 			)}
-			onKeyDown={onKeyDown}
+			onKeyDown={handleKeyDown}
 		>
 			{thumb && (
 				<span
 					aria-hidden="true"
-					className={"camply-segmentedcontrol__thumb"}
+					className="camply-segmentedcontrol__thumb"
 					style={{ left: thumb.left, width: thumb.width }}
 				/>
 			)}
@@ -142,13 +160,16 @@ const SegmentedControlBase = forwardRef(function SegmentedControl<T extends stri
 					{opt.label}
 				</button>
 			))}
-			{name && <input type="hidden" name={name} value={current ?? ""} />}
+			<HiddenField name={name} value={current ?? ""} />
 		</div>
 	);
 });
 
 /**
  * Groupe de segments exclusifs (pattern radiogroup : tabindex mouvant + flèches).
+ * Le groupe se nomme par `aria-label`, qui traverse le spread : c'est un sélecteur
+ * de vue, pas un champ — il n'a pas de libellé visible, et `label` mentirait sur ce
+ * point puisque partout ailleurs dans la lib cette prop rend un vrai `<label>`.
  * `forwardRef` efface le paramètre générique : on le restaure par un cast pour que
  * `T` continue d'être inféré depuis `options`.
  */

@@ -26,8 +26,8 @@
 	transform: scale(1.12);
 }
 .camply-rating__on {
-	color: var(--camply-warning);
+	color: var(--camply-warn);
 }
 .camply-rating__on svg {
-	fill: var(--camply-warning);
+	fill: var(--camply-warn);
 }

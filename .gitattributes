@@ -1,0 +1,5 @@
+# Un paquet publié doit livrer des fins de ligne stables, et `bun run sync` écrit
+# en LF : sans cette normalisation, un contributeur Windows voit des diffs
+# fantômes sur src/index.ts et package.json, que la garde de fraîcheur en CI
+# transforme en échec.
+* text=auto eol=lf
