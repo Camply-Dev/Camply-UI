@@ -3,7 +3,7 @@
 Toutes les évolutions notables de `@camply/ui`.
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versionnage [SemVer](https://semver.org/lang/fr/).
 
-## [0.2.0] — non publiée
+## [0.2.0] — 2026-10-11
 
 Changements depuis `0.1.0-beta.0`. `tsc` signale la plupart des ruptures ; celles
 qu'il ne voit pas sont marquées **⚠️ silencieuse** et se relisent à la main.
