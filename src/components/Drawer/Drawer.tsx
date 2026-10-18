@@ -1,10 +1,14 @@
 import { forwardRef, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
 import { DialogHeader } from "../../lib/DialogHeader";
-import { type DialogPanelProps, OverlayDialog } from "../../lib/OverlayDialog";
+import {
+	type DialogFocusProps,
+	type DialogPanelProps,
+	OverlayDialog,
+} from "../../lib/OverlayDialog";
 import { useId } from "../../lib/useId";
 
-export interface DrawerProps extends DialogPanelProps<"aside"> {
+export interface DrawerProps extends DialogPanelProps<"aside">, DialogFocusProps {
 	open: boolean;
 	onClose: () => void;
 	title?: ReactNode;
@@ -28,6 +32,7 @@ export const Drawer = forwardRef<HTMLElement, DrawerProps>(
 			width = 380,
 			showClose = true,
 			closeOnBackdrop = true,
+			initialFocus,
 			className,
 			style,
 			...rest
@@ -45,6 +50,7 @@ export const Drawer = forwardRef<HTMLElement, DrawerProps>(
 				backdropClassName="camply-drawer__backdrop"
 				panelClassName={cn("camply-drawer__panel", `camply-drawer__${side}`, className)}
 				ariaLabelledBy={title ? titleId : undefined}
+				initialFocus={initialFocus}
 				style={{ width, ...style }}
 				panelRef={ref}
 				panelProps={rest}
@@ -56,7 +62,10 @@ export const Drawer = forwardRef<HTMLElement, DrawerProps>(
 					showClose={showClose}
 					onClose={onClose}
 				/>
-				<div className="camply-drawer__content">{children}</div>
+				{/* La zone qui défile n'a pas de marge : la marge est celle du corps. */}
+				<div className="camply-drawer__content">
+					<div className="camply-drawer__body">{children}</div>
+				</div>
 				{footer && <div className="camply-drawer__footer">{footer}</div>}
 			</OverlayDialog>
 		);

@@ -6,3 +6,8 @@
 	font-family: var(--camply-font-sans);
 	font-size: 14px;
 }
+
+/* Focalisé lui-même (rien de focalisable dedans) : pas de contour autour du panneau. */
+.camply-popover__panel:focus {
+	outline: none;
+}

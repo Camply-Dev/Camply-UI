@@ -5,7 +5,7 @@
 
 ## 1. La librairie en 30 secondes
 
-- **`@camply/ui`** — librairie de composants React (v0.2.0).
+- **`@camply/ui`** — librairie de composants React (v0.3.0).
 - **60 composants** (80 exports avec les sous-composants), **4 hooks**, **2128 icônes**, **92 design tokens** CSS.
 - **ESM uniquement**, **zéro dépendance runtime**, types TypeScript fournis.
 - **Thème sombre par défaut**, entièrement thémable via variables CSS.
@@ -135,10 +135,16 @@ Familles de tokens disponibles (préfixe `--camply-`) :
 | Élévation | `shadow-sm` `shadow-md` `shadow-lg` `shadow-pop` `shadow-color` · `fill-1` `fill-2` `fill-3` `fill-4` |
 | Typo | `font-sans` `font-display` `font-mono` |
 | Mouvement | `ease` `ease-spring` `duration` |
-| Couches | `z-dropdown` `z-tooltip` `z-modal` `z-toast` · `float-z` `float-dur` (crans de `.camply-floating-surface`) |
+| Couches | `z-dropdown` `z-tooltip` `z-modal` `z-toast` · `float-z` `float-dur` (crans de `.camply-floating-surface`). Dialogues et couches flottantes partagent un niveau : la dernière ouverte passe dessus. |
 | Divers | `ring` `field-bg` `disabled-opacity` `hover-soft` `neutral-solid` `knob` `sheen` · `checker-fg` `checker-bg` (damier de transparence) |
 | Infobulle | `tooltip-bg` `tooltip-fg` `tooltip-dark` |
 | Défilement & dégradés | `scrollbar-size` `scrollbar-thumb` `scrollbar-thumb-hover` · `gradient-accent` `gradient-info` `gradient-warn` `gradient-danger` |
+
+**Variables de composant** (API publique, à poser sur un parent ou un thème — jamais une
+classe interne `.camply-x__y`) : `--camply-segmented-rail` `-rail-border` `-thumb`
+`-thumb-shadow` `-thumb-ink` (SegmentedControl) · `--camply-progress-height`
+`--camply-progress-track` (Progress) · `--camply-table-edge-padding` (Table) ·
+`--camply-toast-offset-x` `--camply-toast-offset-y` (toasts).
 
 ## 8. Providers & APIs impératives
 
@@ -206,9 +212,13 @@ import { CamplyProvider } from "@camply/ui";
 11. **Un lien qui ressemble à un bouton** : `<Button asChild><Link to="/projets">Projets</Link></Button>`
     (ou un `<a>`, idem pour `IconButton`). Jamais de `<button>` dans un `<a>`, ni de `onClick` qui
     navigue à la main.
-12. **Titres** : `CardTitle`, `EmptyState` et `AccordionItem` prennent `headingLevel` (2 à 6, défaut 3)
-    pour suivre le plan de la page. `Stack` prend `as` (`section`, `ul`, `nav`…) pour garder la
-    sémantique d'un empilement.
+12. **Titres** : `CardTitle`, `EmptyState` et `AccordionItem` prennent `headingLevel` (2 à 6, défaut 3 ;
+    `CardTitle` accepte 1 quand la carte porte le titre de la page) pour suivre le plan de la page.
+    `Stack` et `Card` prennent `as` (`section`, `article`, `ul`…) pour garder la sémantique d'un bloc.
+13. **Dialogues** : seul le contenu défile, l'en-tête et le pied restent à l'écran (un enfant
+    `position: sticky; top: 0` se colle au bord de la zone qui défile). Pour focaliser un champ à
+    l'ouverture, `initialFocus={ref}` (ou `autoFocus` sur le champ) ; le focus revient seul au
+    déclencheur. `size="full"` occupe la fenêtre.
 
 ## 12. Exemple minimal complet (Vite + React + TS)
 

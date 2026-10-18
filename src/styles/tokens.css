@@ -8,7 +8,7 @@
 	--camply-text: #e7edf5;
 	--camply-text-strong: #f5f9ff;
 	--camply-text-muted: #93a4bd;
-	--camply-text-muted-2: #6b7d95;
+	--camply-text-muted-2: #7587a0;
 	--camply-text-disabled: #47566b;
 
 	--camply-accent: #38bdf8;
@@ -108,8 +108,14 @@
 	--camply-ease-spring: cubic-bezier(0.34, 1.5, 0.5, 1);
 	--camply-duration: 0.2s;
 
-	/* Empilement : les couches flottantes doivent passer AU-DESSUS du voile
-	   modal, sinon un Select/Popover ouvert dans une Modal est peint derrière. */
+	/* Empilement. Dialogues et couches flottantes (menus, listes, popovers, cartes
+	   de survol) partagent un même niveau : à égalité, l'ordre du DOM tranche, et
+	   chaque couche est portalisée en fin de <body> à son ouverture — la dernière
+	   ouverte passe donc dessus, qu'elle soit un Select dans une Modal ou une
+	   Modal ouverte depuis un Popover. Un niveau fixe par TYPE (menus au-dessus
+	   des dialogues) peignait la seconde sous le Popover resté ouvert. Seules les
+	   infobulles et les toasts restent au-dessus de tout. `z-dropdown` reste
+	   exposé pour les surfaces de l'application. */
 	--camply-z-modal: 1000;
 	--camply-z-dropdown: 1100;
 	--camply-z-tooltip: 1200;
@@ -119,7 +125,7 @@
 	   flottant les repose sur lui-même (cf. HoverCard, Menubar) au lieu de
 	   redéclarer un z-index ou une animation en dur. Déclarés ici pour être
 	   visibles dans la doc et dans l'éditeur de tokens de la vitrine. */
-	--camply-float-z: var(--camply-z-dropdown);
+	--camply-float-z: var(--camply-z-modal);
 	--camply-float-dur: 0.14s;
 
 	/* Damier d'aperçu de transparence (ColorPicker). */
@@ -170,7 +176,7 @@
    un bundler qui vise plus bas l'aplatit. */
 .camply-floating-list,
 .camply-commandpalette__list,
-.camply-modal__panel,
+.camply-modal__content,
 .camply-drawer__content,
 .camply-sheet__content,
 .camply-table__wrap,
@@ -462,6 +468,20 @@
 .camply-field-control:disabled {
 	cursor: not-allowed;
 	color: var(--camply-text-disabled);
+}
+
+/* Texte réservé aux technologies d'assistance (le nom annoncé d'un Spinner) : présent
+   dans l'arbre d'accessibilité, absent de l'écran. */
+.camply-visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
 }
 
 .camply-focus-ring:focus-visible {
@@ -854,6 +874,7 @@
    droite sans filet, c'est un autre objet. */
 .camply-drawer__footer,
 .camply-sheet__footer {
+	flex: none;
 	padding: 16px 24px;
 	border-top: 1px solid var(--camply-border);
 }
@@ -978,12 +999,14 @@
 	--camply-text-muted-2: #64748b;
 	--camply-text-disabled: #94a3b8;
 
-	--camply-accent: #0284c7;
-	--camply-accent-hover: #0369a1;
+	/* Accent et avertissement : au moins 4,5:1 en texte sur le blanc comme sous un
+	   texte blanc (l'accent #0284c7 d'avant donnait 4,10:1 à un bouton plein). */
+	--camply-accent: #0369a1;
+	--camply-accent-hover: #075985;
 	--camply-accent-contrast: #ffffff;
-	--camply-accent-soft: rgba(2, 132, 199, 0.1);
-	--camply-accent-soft-hover: rgba(2, 132, 199, 0.18);
-	--camply-accent-border: rgba(2, 132, 199, 0.35);
+	--camply-accent-soft: rgba(3, 105, 161, 0.1);
+	--camply-accent-soft-hover: rgba(3, 105, 161, 0.18);
+	--camply-accent-border: rgba(3, 105, 161, 0.35);
 
 	--camply-danger: #dc2626;
 	--camply-danger-hover: #b91c1c;
@@ -993,10 +1016,10 @@
 	--camply-danger-ring: 0 0 0 3px rgba(220, 38, 38, 0.28);
 	--camply-danger-soft-hover: rgba(220, 38, 38, 0.18);
 
-	--camply-warn: #b45309;
+	--camply-warn: #a14a0a;
 	--camply-warn-contrast: #ffffff;
-	--camply-warn-soft: rgba(180, 83, 9, 0.1);
-	--camply-warn-border: rgba(180, 83, 9, 0.28);
+	--camply-warn-soft: rgba(161, 74, 10, 0.1);
+	--camply-warn-border: rgba(161, 74, 10, 0.28);
 
 	--camply-success: #047857;
 	--camply-success-contrast: #ffffff;
@@ -1019,9 +1042,12 @@
 	--camply-shadow-pop: 0 12px 32px rgba(15, 23, 42, 0.14);
 	--camply-shadow-color: rgba(15, 23, 42, 0.18);
 
-	--camply-ring: 0 0 0 3px rgba(2, 132, 199, 0.35);
+	--camply-ring: 0 0 0 3px rgba(3, 105, 161, 0.35);
 
 	--camply-field-bg: #ffffff;
+	/* Redéfini ici et pas seulement hérité : `var()` se résout là où le jeton est
+	   déclaré, et un thème clair posé sous <html> héritait du survol sombre. */
+	--camply-hover-soft: var(--camply-fill-2);
 
 	--camply-fill-1: rgba(15, 23, 42, 0.02);
 	--camply-fill-2: rgba(15, 23, 42, 0.05);
@@ -1044,8 +1070,8 @@
 	--camply-checker-fg: rgba(15, 23, 42, 0.1);
 	--camply-checker-bg: #f1f5f9;
 
-	--camply-gradient-accent: linear-gradient(90deg, #0369a1, var(--camply-accent));
+	--camply-gradient-accent: linear-gradient(90deg, #075985, var(--camply-accent));
 	--camply-gradient-info: linear-gradient(90deg, #4338ca, var(--camply-info));
-	--camply-gradient-warn: linear-gradient(90deg, #92400e, var(--camply-warn));
+	--camply-gradient-warn: linear-gradient(90deg, #7c2d12, var(--camply-warn));
 	--camply-gradient-danger: linear-gradient(90deg, #991b1b, var(--camply-danger));
 }

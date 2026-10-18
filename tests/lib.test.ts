@@ -54,6 +54,13 @@ describe("sliderGeometry", () => {
 		expect(snapToStep(-999, 0, 10, 1)).toBe(0);
 	});
 
+	// Régression : l'arrondi ne suivait que les décimales du pas, alors que les crans
+	// partent de `min` (min 0,5 pas 1 → 1,5 ; min 0,25 pas 0,5 → 0,75).
+	it("arrondit aussi aux décimales de min", () => {
+		expect(snapToStep(1.5, 0.5, 10.5, 1)).toBe(1.5);
+		expect(snapToStep(0.75, 0.25, 5, 0.5)).toBe(0.75);
+	});
+
 	it("survit aux entrées dégénérées (jamais de NaN)", () => {
 		expect(snapToStep(Number.NaN, 0, 10, 1)).toBe(0);
 		expect(snapToStep(5, 0, 10, 0)).toBe(0);
@@ -363,6 +370,20 @@ describe("tableSort.sortRows", () => {
 		const nums = [{ v: 10 }, { v: 9 }, { v: 100 }];
 		expect(sortRows(nums, (r) => r.v, "asc").map((r) => r.v)).toEqual([9, 10, 100]);
 	});
+
+	// Régression : comparés par `<`, « Émile » passait après « zoé » et les
+	// majuscules avant les minuscules.
+	it("trie les textes comme on les lit : accents, casse et nombres", () => {
+		const noms = [{ n: "zoé" }, { n: "Émile" }, { n: "alice" }, { n: "Bob" }];
+		expect(sortRows(noms, (r) => r.n, "asc", "fr-FR").map((r) => r.n)).toEqual([
+			"alice",
+			"Bob",
+			"Émile",
+			"zoé",
+		]);
+		const lots = [{ n: "Lot 10" }, { n: "Lot 9" }];
+		expect(sortRows(lots, (r) => r.n, "asc", "fr-FR").map((r) => r.n)).toEqual(["Lot 9", "Lot 10"]);
+	});
 });
 
 describe("commandPalette", () => {
@@ -403,6 +424,13 @@ describe("sliderKeys.nextSliderValue", () => {
 		expect(nextSliderValue("PageDown", 50, 0, 100, 1)).toBe(40);
 		expect(nextSliderValue("Home", 50, 10, 90, 1)).toBe(10);
 		expect(nextSliderValue("End", 50, 10, 90, 1)).toBe(90);
+	});
+
+	// Régression : avec un pas plus grand que le dixième de plage (0–10, pas 5),
+	// Page± déplaçait de 1, que le calage ramenait sur place : la touche ne faisait rien.
+	it("Page± avance d'un pas au moins, en pas entiers", () => {
+		expect(nextSliderValue("PageUp", 0, 0, 10, 5)).toBe(5);
+		expect(nextSliderValue("PageDown", 10, 0, 10, 5)).toBe(5);
 	});
 
 	it("laisse filer les touches qui ne le concernent pas", () => {

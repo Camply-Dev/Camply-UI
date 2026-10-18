@@ -1,3 +1,5 @@
+import { isInDismissLayer } from "./dismissStack";
+
 const FOCUSABLE = [
 	"a[href]",
 	"button:not([disabled])",
@@ -26,13 +28,35 @@ function inInertSubtree(el: HTMLElement, container: HTMLElement): boolean {
 	return false;
 }
 
-/** Éléments réellement focalisables d'un conteneur (visibles et non inertes). */
-export function focusableWithin(container: HTMLElement): HTMLElement[] {
-	return [...container.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
-		(el) =>
-			!inInertSubtree(el, container) &&
-			(el.offsetWidth > 0 || el.offsetHeight > 0 || el === document.activeElement),
+/** Un candidat que le clavier atteint vraiment : visible et hors d'un sous-arbre inerte. */
+function isReachable(el: HTMLElement, container: HTMLElement): boolean {
+	return (
+		!inInertSubtree(el, container) &&
+		(el.offsetWidth > 0 || el.offsetHeight > 0 || el === document.activeElement)
 	);
+}
+
+/**
+ * Premier et dernier éléments focalisables d'un conteneur, cherchés depuis chaque
+ * bout : seuls les bords sont mesurés. Mesurer TOUTE la liste à chaque Tab
+ * (`offsetWidth` force la mise en page, et celle de chaque bloc en
+ * `content-visibility: auto` traversé) figeait un dialogue de quelques centaines
+ * de boutons ; le piège n'a besoin que des deux bouts.
+ */
+export function focusEdges(container: HTMLElement): {
+	first: HTMLElement | undefined;
+	last: HTMLElement | undefined;
+} {
+	const candidates = container.querySelectorAll<HTMLElement>(FOCUSABLE);
+	let first: HTMLElement | undefined;
+	let last: HTMLElement | undefined;
+	for (let i = 0; i < candidates.length && !first; i++) {
+		if (isReachable(candidates[i], container)) first = candidates[i];
+	}
+	for (let i = candidates.length - 1; i >= 0 && !last; i--) {
+		if (isReachable(candidates[i], container)) last = candidates[i];
+	}
+	return { first, last };
 }
 
 /**
@@ -42,16 +66,14 @@ export function focusableWithin(container: HTMLElement): HTMLElement[] {
 export function trapTab(e: KeyboardEvent, container: HTMLElement): boolean {
 	if (e.key !== "Tab") return false;
 
-	const items = focusableWithin(container);
-	if (items.length === 0) {
+	const { first, last } = focusEdges(container);
+	if (!first || !last) {
 		// Rien de focalisable : on garde le focus sur le conteneur lui-même.
 		e.preventDefault();
 		container.focus();
 		return true;
 	}
 
-	const first = items[0];
-	const last = items[items.length - 1];
 	const active = document.activeElement;
 
 	if (e.shiftKey && (active === first || active === container)) {
@@ -65,7 +87,10 @@ export function trapTab(e: KeyboardEvent, container: HTMLElement): boolean {
 		return true;
 	}
 	// Le focus a fui hors du conteneur (ex. via la barre d'adresse) : on le rapatrie.
+	// Sauf s'il est dans une autre couche ouverte (un menu portalisé, ouvert depuis
+	// le dialogue) : c'est elle qui gère Tab, se referme et rend le focus.
 	if (active instanceof HTMLElement && !container.contains(active)) {
+		if (isInDismissLayer(active)) return false;
 		e.preventDefault();
 		first.focus();
 		return true;

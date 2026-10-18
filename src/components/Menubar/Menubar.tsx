@@ -6,6 +6,7 @@ import {
 	type ReactNode,
 	useCallback,
 	useEffect,
+	useMemo,
 	useRef,
 	useState,
 } from "react";
@@ -105,8 +106,22 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 		const [focusIndex, setFocusIndex] = useState(0);
 		const roving = menus.length > 0 ? clamp(focusIndex, 0, menus.length - 1) : 0;
 
-		const anchorRef = useRef<HTMLElement | null>(null);
-		anchorRef.current = openIdx != null ? triggerRefs.current[openIdx] : null;
+		// Lu au moment de la mesure, pas pendant le rendu : au premier rendu d'un menu
+		// ouvert d'emblée (`defaultOpenIndex`), les refs des déclencheurs ne sont pas
+		// encore posées, et le menu restait invisible avec le focus dedans.
+		const openIdxRef = useRef(openIdx);
+		openIdxRef.current = openIdx;
+		const anchorRef = useMemo(
+			() => ({
+				get current(): HTMLElement | null {
+					const i = openIdxRef.current;
+					return i != null ? (triggerRefs.current[i] ?? null) : null;
+				},
+			}),
+			[],
+		);
+		// Ouvert au survol : le menu ne prend pas le focus (on tapait peut-être ailleurs).
+		const openedByHover = useRef(false);
 
 		const { style } = useAnchor(anchorRef, menuRef, open, {
 			placement: "bottom-start",
@@ -122,6 +137,8 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 		// Le focus vit dans le menu portalisé : à la fermeture (Échap, clic extérieur,
 		// sélection) il doit revenir au déclencheur, sinon il retombe sur <body>.
 		const close = useCallback(() => {
+			// Rien d'ouvert (la souris a traversé la barre) : aucun `onOpenIndexChange(null)`.
+			if (openIdx == null) return;
 			const hadFocus = menuRef.current?.contains(document.activeElement) ?? false;
 			const trigger = openIdx != null ? triggerRefs.current[openIdx] : null;
 			setOpenIdx(null);
@@ -145,7 +162,11 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 		const hoverOpen = (i: number) => {
 			clearTimers();
 			if (open) setOpenIdx(i);
-			else openTimer.current = setTimeout(() => setOpenIdx(i), OPEN_DELAY);
+			else
+				openTimer.current = setTimeout(() => {
+					openedByHover.current = true;
+					setOpenIdx(i);
+				}, OPEN_DELAY);
 		};
 		const cancelOpen = () => clearTimeout(openTimer.current);
 		// close() et non setOpenIdx(null) : si le menu a été ouvert au clavier, le
@@ -169,7 +190,7 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 			});
 		};
 
-		const { onKeyDown: onItemsKeyDown } = useMenuNav(menuRef, open);
+		const { onKeyDown: onItemsKeyDown } = useMenuNav(menuRef, open, !openedByHover.current);
 
 		const onBarKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
 			// Règle 4 : le spread précède ce handler, celui du consommateur est donc appelé ici.
@@ -181,6 +202,7 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 			if (e.key === "ArrowDown") {
 				e.preventDefault();
 				clearTimers();
+				openedByHover.current = false;
 				setOpenIdx(roving);
 				// Si un menu était DÉJÀ ouvert (survol, autre entrée), `open` ne change pas
 				// et useMenuNav ne se redéclenche pas : on entre à la main.
@@ -262,6 +284,7 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 							onClick={() => {
 								cancelOpen();
 								setFocusIndex(i);
+								openedByHover.current = false;
 								setOpenIdx(openIdx === i ? null : i);
 							}}
 							onFocus={() => setFocusIndex(i)}

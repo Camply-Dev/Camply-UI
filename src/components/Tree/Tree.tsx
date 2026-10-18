@@ -242,6 +242,9 @@ const TreeRoot = forwardRef(function Tree<T>(
 						)}
 						style={{ paddingLeft: guides ? 8 : 8 + depth * 18 }}
 						onClick={() => activate(node, hasChildren)}
+						// Le focus arrive aussi d'ailleurs (lecteur d'écran, `.focus()`, glisser
+						// hors d'un clic) : les flèches doivent partir de là où il est.
+						onFocus={() => setFocusedId(node.id)}
 					>
 						<span className="camply-tree__caret">
 							{hasChildren && (

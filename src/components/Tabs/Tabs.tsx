@@ -36,6 +36,14 @@ type ReservedTabListAttr = "role" | "aria-orientation";
 type ReservedTabAttr = "type" | "role" | "id" | "aria-selected" | "aria-controls" | "tabIndex";
 type ReservedTabPanelAttr = "role" | "id" | "aria-labelledby";
 
+/**
+ * Ids de l'onglet et de son panneau. La valeur est encodée : `aria-controls` et
+ * `aria-labelledby` sont des LISTES d'ids séparés par des espaces, et une valeur
+ * comme « Mes cartes » y valait deux ids inexistants.
+ */
+const tabId = (base: string, value: string) => `${base}-tab-${encodeURIComponent(value)}`;
+const panelId = (base: string, value: string) => `${base}-panel-${encodeURIComponent(value)}`;
+
 export interface TabsProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "onChange" | "defaultValue"> {
 	value?: string;
@@ -122,11 +130,11 @@ export const Tab = forwardRef<HTMLButtonElement, TabProps>(function Tab(
 			ref={ref}
 			type="button"
 			role="tab"
-			id={`${idBase}-tab-${value}`}
+			id={tabId(idBase, value)}
 			aria-selected={selected}
 			// Le panneau inactif est démonté : hors sélection, l'IDREF pointerait
 			// dans le vide (règle 8).
-			aria-controls={selected ? `${idBase}-panel-${value}` : undefined}
+			aria-controls={selected ? panelId(idBase, value) : undefined}
 			// Roving tabindex : un seul onglet dans l'ordre de tabulation.
 			tabIndex={selected ? 0 : -1}
 			className={cn(
@@ -166,8 +174,8 @@ export const TabPanel = forwardRef<HTMLDivElement, TabPanelProps>(function TabPa
 			{...rest}
 			ref={ref}
 			role="tabpanel"
-			id={`${idBase}-panel-${value}`}
-			aria-labelledby={`${idBase}-tab-${value}`}
+			id={panelId(idBase, value)}
+			aria-labelledby={tabId(idBase, value)}
 			className={cn("camply-tabs__panel", className)}
 		>
 			{children}

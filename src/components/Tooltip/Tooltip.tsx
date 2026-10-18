@@ -5,7 +5,7 @@ import {
 	type ReactNode,
 	useRef,
 } from "react";
-import { cloneTrigger } from "../../lib/cloneTrigger";
+import { cloneTrigger, markTriggerSlot } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { idRefs } from "../../lib/Field";
 import { useMergedRefs } from "../../lib/mergeRefs";
@@ -153,3 +153,4 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
 );
 
 Tooltip.displayName = "Tooltip";
+markTriggerSlot(Tooltip, "children");

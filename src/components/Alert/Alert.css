@@ -18,9 +18,10 @@
 .camply-alert__title {
 	font-size: 14px;
 	font-weight: 600;
-	/* Le ton brut, sans éclaircissement : mélangé à du blanc, le titre passerait
-	   sous le seuil AA sur le fond clair (contraste mesuré 3,43:1). */
-	color: var(--_c);
+	/* Le ton, poussé vers l'encre forte : sur le fond teinté de l'alerte, le ton brut
+	   restait sous le seuil AA en clair (danger 4,14:1). Mêlé à l'encre du thème, il
+	   fonce en clair et s'éclaircit en sombre : plus lisible dans les deux. */
+	color: color-mix(in srgb, var(--_c) 82%, var(--camply-text-strong));
 }
 .camply-alert__text {
 	margin-top: 2px;

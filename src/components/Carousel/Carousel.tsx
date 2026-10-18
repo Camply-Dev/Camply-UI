@@ -233,8 +233,9 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 							type="button"
 							className={cn("camply-carousel__arrow", "camply-focus-ring", "camply-carousel__prev")}
 							aria-label={labels.previous}
-							disabled={!canPrev}
-							onClick={() => go(active - 1)}
+							// Comme la pagination : `disabled` jetait le focus sur la page au bout.
+							aria-disabled={!canPrev || undefined}
+							onClick={() => canPrev && go(active - 1)}
 						>
 							<ChevronLeft size={18} />
 						</button>
@@ -242,8 +243,8 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 							type="button"
 							className={cn("camply-carousel__arrow", "camply-focus-ring", "camply-carousel__next")}
 							aria-label={labels.next}
-							disabled={!canNext}
-							onClick={() => go(active + 1)}
+							aria-disabled={!canNext || undefined}
+							onClick={() => canNext && go(active + 1)}
 						>
 							<ChevronRight size={18} />
 						</button>
@@ -258,7 +259,12 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 							type="button"
 							className={cn("camply-carousel__toggle", "camply-round-btn", "camply-focus-ring")}
 							aria-label={playing ? labels.pause : labels.play}
-							onClick={() => setPlaying((p) => !p)}
+							// Le focus est sur ce bouton, DANS le carrousel : sans lever la pause du
+							// focus, « Lecture » ne relançait rien avant qu'il en sorte.
+							onClick={() => {
+								if (!playing) setFocused(false);
+								setPlaying(!playing);
+							}}
 						>
 							{playing ? <Pause size={15} /> : <Play size={15} />}
 						</button>

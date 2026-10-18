@@ -76,6 +76,11 @@ export const FEEDBACK: Record<string, PlaygroundConfig> = {
 			["size", "enum", "sm · md (défaut md)"],
 			["label", "string", "libellé affiché au-dessus de la barre, qui la nomme pour l'a11y"],
 			["showValue", "boolean", "affiche le pourcentage ; ignoré quand la barre est indéterminée"],
+			[
+				"--camply-progress-height / -track",
+				"CSS",
+				"hauteur de la barre (défaut 7px, 5px en sm) et fond de la piste",
+			],
 		],
 	},
 
@@ -244,7 +249,16 @@ export const FEEDBACK: Record<string, PlaygroundConfig> = {
 			],
 			["toast() · title / description", "ReactNode", "contenu de la notification"],
 			["toast() · tone", "ToastTone", "default (défaut) · success · info · warn · danger"],
-			["toast() · duration", "number", "surcharge le provider ; 0 = fermeture manuelle seulement"],
+			[
+				"toast() · duration",
+				"number",
+				"surcharge le provider ; 0 ou Infinity = fermeture manuelle seulement",
+			],
+			[
+				"--camply-toast-offset-x / -y",
+				"CSS",
+				"écart au bord de l'écran (défaut 22px), zone sûre des écrans à encoche ajoutée",
+			],
 			[
 				"toast() · action",
 				"{ label, onClick }",

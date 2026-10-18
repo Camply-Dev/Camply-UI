@@ -97,7 +97,19 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 			});
 		}
 		return (
-			<button ref={ref} type={type} className={classes} disabled={disabled || loading} {...props}>
+			<button
+				ref={ref}
+				type={type}
+				className={classes}
+				disabled={disabled}
+				{...props}
+				// En chargement, le bouton garde le focus (`disabled` le jetterait sur la page,
+				// au moment même où l'on vient de l'activer) : il est annoncé occupé et
+				// indisponible, et son clic — soumission comprise — est annulé.
+				aria-disabled={loading || props["aria-disabled"] || undefined}
+				aria-busy={loading || undefined}
+				onClick={loading ? (e) => e.preventDefault() : props.onClick}
+			>
 				{content(children)}
 			</button>
 		);

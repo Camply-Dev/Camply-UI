@@ -1,8 +1,11 @@
 import {
+	type FocusEvent,
 	type ForwardedRef,
 	forwardRef,
 	type HTMLAttributes,
+	type KeyboardEvent,
 	useCallback,
+	useEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -19,8 +22,9 @@ import {
 	YEAR_PAGE,
 	yearPageStart,
 } from "../../lib/dateField";
-import { Field } from "../../lib/Field";
-import { HiddenField } from "../../lib/HiddenField";
+import { Field, idRefs } from "../../lib/Field";
+import { trapTab } from "../../lib/focusTrap";
+import { FormReset, HiddenField } from "../../lib/HiddenField";
 import { useLabels, useLocale } from "../../lib/i18n";
 import { Calendar, ChevronLeft, ChevronRight } from "../../lib/icons";
 import { useMergedRefs } from "../../lib/mergeRefs";
@@ -35,6 +39,39 @@ export type DateRange = [Date | null, Date | null];
 /** Valeur soumise : date locale en ISO court (YYYY-MM-DD), sans décalage UTC. */
 const toISODate = (d: Date) =>
 	`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+
+/** `n` mois plus loin, le jour ramené au dernier du mois (31 janvier + 1 mois → 28 ou 29 février). */
+const addMonths = (d: Date, n: number) => {
+	const last = new Date(d.getFullYear(), d.getMonth() + n + 1, 0).getDate();
+	return new Date(d.getFullYear(), d.getMonth() + n, Math.min(d.getDate(), last));
+};
+
+/** Déplacement du jour actif au clavier (pattern APG « Date Picker Dialog »). */
+function dayFromKey(e: KeyboardEvent, day: Date, weekStart: number): Date | null {
+	const column = (day.getDay() - weekStart + 7) % 7;
+	switch (e.key) {
+		case "ArrowLeft":
+			return addDays(day, -1);
+		case "ArrowRight":
+			return addDays(day, 1);
+		case "ArrowUp":
+			return addDays(day, -7);
+		case "ArrowDown":
+			return addDays(day, 7);
+		case "Home":
+			return addDays(day, -column);
+		case "End":
+			return addDays(day, 6 - column);
+		case "PageUp":
+			return addMonths(day, e.shiftKey ? -12 : -1);
+		case "PageDown":
+			return addMonths(day, e.shiftKey ? 12 : 1);
+		default:
+			return null;
+	}
+}
 
 interface DatePickerBaseProps
 	extends Omit<HTMLAttributes<HTMLDivElement>, "onChange" | "defaultValue"> {
@@ -162,6 +199,17 @@ export const DatePicker = forwardRef(function DatePicker(
 	const [view, setView] = useState<Date>(() => selected ?? range[0] ?? new Date());
 	const [draft, setDraft] = useState<string | null>(null);
 	const [yearView, setYearView] = useState(false);
+	// Le jour actif de la grille : le seul atteint par Tab (tabindex mouvant), que
+	// les flèches déplacent. `focusTarget` demande d'y porter le focus après rendu
+	// (un objet neuf par demande : l'effet se relance même vers le même jour).
+	const [focusDay, setFocusDay] = useState<Date>(() =>
+		startOfDay(selected ?? range[0] ?? new Date()),
+	);
+	const [focusTarget, setFocusTarget] = useState<{ day: Date } | null>(null);
+	const daysRef = useRef<HTMLDivElement>(null);
+	const inputRef = useRef<HTMLInputElement>(null);
+	const valueButtonRef = useRef<HTMLButtonElement>(null);
+	const valueId = useId("datepicker-value");
 
 	const triggerRef = useRef<HTMLDivElement>(null);
 	// Le déclencheur exposé est le shell, pas le contrôle : celui-ci change de
@@ -182,13 +230,67 @@ export const DatePicker = forwardRef(function DatePicker(
 		setOpen(false);
 		setYearView(false);
 	}, []);
-	useDismiss(open, close, [triggerRef, popRef]);
+	/**
+	 * Referme, et rend le focus au champ s'il était dans le calendrier (Échap, un
+	 * jour choisi au clavier) : portalisé, le calendrier le perdrait sinon dans la
+	 * page. Après un clic extérieur, le navigateur le pose ensuite où l'on a cliqué.
+	 */
+	const closeAndRestore = useCallback(() => {
+		const active = document.activeElement;
+		if (active && popRef.current?.contains(active)) {
+			(mode === "single" ? inputRef.current : valueButtonRef.current)?.focus();
+		}
+		close();
+	}, [close, mode]);
+	useDismiss(open, closeAndRestore, [triggerRef, popRef]);
+
+	useEffect(() => {
+		if (!focusTarget) return;
+		daysRef.current
+			?.querySelector<HTMLButtonElement>(`[data-day="${toISODate(focusTarget.day)}"]`)
+			?.focus();
+	}, [focusTarget]);
 
 	const weekdays = useMemo(() => weekdayNames(locale, weekStart), [locale, weekStart]);
 	const grid = useMemo(() => buildMonthGrid(view, weekStart), [view, weekStart]);
 
 	const outOfRange = (d: Date) =>
 		(min && startOfDay(d) < startOfDay(min)) || (max && startOfDay(d) > startOfDay(max));
+
+	/** Le jour ramené dans [min, max] : le jour actif n'est jamais un jour désactivé. */
+	const clampDay = (d: Date) => {
+		const day = startOfDay(d);
+		if (min && day < startOfDay(min)) return startOfDay(min);
+		if (max && day > startOfDay(max)) return startOfDay(max);
+		return day;
+	};
+
+	/** Déplace le jour actif (et le mois affiché s'il en sort), puis y porte le focus. */
+	const moveFocus = (d: Date) => {
+		const day = clampDay(d);
+		setFocusDay(day);
+		if (day.getMonth() !== view.getMonth() || day.getFullYear() !== view.getFullYear()) {
+			setView(new Date(day.getFullYear(), day.getMonth(), 1));
+		}
+		setFocusTarget({ day });
+	};
+
+	const onDaysKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+		const next = dayFromKey(e, focusDay, weekStart);
+		if (!next) return;
+		e.preventDefault();
+		moveFocus(next);
+	};
+
+	/** Tab reste dans le calendrier tant qu'il est ouvert ; Échap en sort (useDismiss). */
+	const onPopKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+		if (popRef.current) trapTab(e.nativeEvent, popRef.current);
+	};
+
+	/** Le focus quitte le champ pour ailleurs que le calendrier : on le referme. */
+	const onControlBlur = (e: FocusEvent<HTMLElement>) => {
+		if (!popRef.current?.contains(e.relatedTarget)) close();
+	};
 
 	const monthLabel = new Intl.DateTimeFormat(locale, {
 		month: "long",
@@ -204,43 +306,59 @@ export const DatePicker = forwardRef(function DatePicker(
 		if (outOfRange(raw)) return;
 		const d = startOfDay(raw);
 		setDraft(null);
+		setFocusDay(d);
 		if (mode === "single") {
 			setSelected(d);
-			setOpen(false);
+			closeAndRestore();
 			return;
 		}
 		if (!rangeStart || rangeEnd || d <= startOfDay(rangeStart)) {
 			setRange([d, null]);
 		} else {
 			setRange([rangeStart, d]);
-			setOpen(false);
+			closeAndRestore();
 		}
 	};
 
 	const clear = () => {
 		if (mode === "single") setSelected(null);
 		else setRange([null, null]);
-		setOpen(false);
+		closeAndRestore();
 	};
 
-	const shiftPage = (delta: number) =>
-		setView(
-			yearView
-				? new Date(view.getFullYear() + delta * YEAR_PAGE, view.getMonth(), 1)
-				: new Date(view.getFullYear(), view.getMonth() + delta, 1),
-		);
-
-	const syncView = () => {
-		const focus = mode === "single" ? selected : range[0];
-		if (focus) setView(focus);
+	/** Mois (ou page d'années) précédent ou suivant ; le jour actif suit, sans prendre le focus. */
+	const shiftPage = (delta: number) => {
+		if (yearView) {
+			setView(new Date(view.getFullYear() + delta * YEAR_PAGE, view.getMonth(), 1));
+			return;
+		}
+		setView(new Date(view.getFullYear(), view.getMonth() + delta, 1));
+		setFocusDay(clampDay(addMonths(focusDay, delta)));
 	};
-	const openCalendar = () => {
+
+	/**
+	 * Ouvre sur la date choisie, sinon aujourd'hui. `focusGrid` : le focus entre dans
+	 * la grille (bouton calendrier, flèche bas) ; à la prise de focus du champ, il y
+	 * reste pour la saisie.
+	 */
+	const openCalendar = (focusGrid: boolean) => {
 		if (disabled) return;
-		syncView();
+		const day = clampDay((mode === "single" ? selected : range[0]) ?? new Date());
+		setView(new Date(day.getFullYear(), day.getMonth(), 1));
+		setFocusDay(day);
 		setYearView(false);
 		setOpen(true);
+		if (focusGrid) setFocusTarget({ day });
 	};
-	const toggleCalendar = () => (open ? close() : openCalendar());
+	const toggleCalendar = () => (open ? closeAndRestore() : openCalendar(true));
+
+	/** Flèche bas (Alt+flèche bas comprise) depuis le champ : le focus entre dans le calendrier. */
+	const onInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+		if (e.key !== "ArrowDown") return;
+		e.preventDefault();
+		if (open && !yearView) setFocusTarget({ day: focusDay });
+		else openCalendar(true);
+	};
 
 	const onType = (raw: string) => {
 		const masked = maskDate(raw);
@@ -263,6 +381,7 @@ export const DatePicker = forwardRef(function DatePicker(
 	const pickYear = (year: number) => {
 		setView(new Date(year, view.getMonth(), 1));
 		setYearView(false);
+		moveFocus(new Date(year, focusDay.getMonth(), Math.min(focusDay.getDate(), 28)));
 	};
 
 	const today = new Date();
@@ -313,11 +432,13 @@ export const DatePicker = forwardRef(function DatePicker(
 							aria-label={labels.openCalendar}
 							className="camply-icon-ghost-btn"
 							onClick={toggleCalendar}
+							onBlur={onControlBlur}
 						>
 							<Calendar size={16} />
 						</button>
 						{mode === "single" ? (
 							<input
+								ref={inputRef}
 								id={controlId}
 								className="camply-field-control"
 								value={draft ?? (selected ? formatInput(selected) : "")}
@@ -329,16 +450,22 @@ export const DatePicker = forwardRef(function DatePicker(
 								aria-describedby={describedBy}
 								aria-invalid={invalid}
 								onChange={(e) => onType(e.target.value)}
-								onFocus={openCalendar}
-								onBlur={() => setDraft(null)}
+								onFocus={() => openCalendar(false)}
+								onKeyDown={onInputKeyDown}
+								onBlur={(e) => {
+									setDraft(null);
+									onControlBlur(e);
+								}}
 							/>
 						) : (
 							<button
+								ref={valueButtonRef}
 								id={controlId}
 								type="button"
 								disabled={disabled}
-								aria-labelledby={labelId}
-								aria-label={label ? undefined : placeholderText}
+								// Le libellé PUIS la plage : `aria-labelledby` seul remplaçait le texte
+								// du bouton, et les dates choisies n'étaient jamais annoncées.
+								aria-labelledby={label ? idRefs(labelId, valueId) : undefined}
 								aria-describedby={describedBy}
 								aria-invalid={invalid}
 								className={cn(
@@ -347,8 +474,9 @@ export const DatePicker = forwardRef(function DatePicker(
 									!hasValue && "camply-datepicker__placeholder",
 								)}
 								onClick={toggleCalendar}
+								onBlur={onControlBlur}
 							>
-								{display}
+								<span id={valueId}>{display}</span>
 							</button>
 						)}
 					</div>
@@ -373,6 +501,17 @@ export const DatePicker = forwardRef(function DatePicker(
 							/>
 						</>
 					)}
+					<FormReset
+						onReset={
+							(mode === "single" ? value : rangeValue) === undefined
+								? () => {
+										setDraft(null);
+										if (mode === "single") setSelected(defaultValue);
+										else setRange(defaultRangeValue);
+									}
+								: undefined
+						}
+					/>
 
 					{open && (
 						<Portal>
@@ -383,6 +522,10 @@ export const DatePicker = forwardRef(function DatePicker(
 								aria-label={labels.calendar}
 								className="camply-floating-surface camply-datepicker__pop"
 								style={floatStyle}
+								onKeyDown={onPopKeyDown}
+								// Un clic garde le focus dans le champ : sans quoi certains navigateurs
+								// le posent sur la page et le champ, quitté, refermerait le calendrier.
+								onMouseDown={(e) => e.preventDefault()}
 							>
 								<div className="camply-datepicker__head">
 									<button
@@ -440,7 +583,12 @@ export const DatePicker = forwardRef(function DatePicker(
 											))}
 										</div>
 
-										<div className="camply-datepicker__days">
+										{/* biome-ignore lint/a11y/noStaticElementInteractions: délégation — les flèches pressées sur un jour (un vrai bouton, focalisé) remontent ici ; ce conteneur ne reçoit jamais le focus */}
+										<div
+											ref={daysRef}
+											className="camply-datepicker__days"
+											onKeyDown={onDaysKeyDown}
+										>
 											{grid.map((d) => {
 												const muted = d.getMonth() !== view.getMonth();
 												const disabledDay = outOfRange(d);
@@ -461,6 +609,8 @@ export const DatePicker = forwardRef(function DatePicker(
 														key={d.getTime()}
 														type="button"
 														disabled={disabledDay}
+														data-day={toISODate(d)}
+														tabIndex={isSameDay(d, focusDay) ? 0 : -1}
 														aria-label={fmt(d)}
 														aria-current={isToday ? "date" : undefined}
 														aria-pressed={isSel ? true : undefined}

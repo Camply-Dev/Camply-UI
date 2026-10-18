@@ -1,10 +1,14 @@
 import { forwardRef, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
 import { DialogHeader } from "../../lib/DialogHeader";
-import { type DialogPanelProps, OverlayDialog } from "../../lib/OverlayDialog";
+import {
+	type DialogFocusProps,
+	type DialogPanelProps,
+	OverlayDialog,
+} from "../../lib/OverlayDialog";
 import { useId } from "../../lib/useId";
 
-export interface SheetProps extends DialogPanelProps<"div"> {
+export interface SheetProps extends DialogPanelProps<"div">, DialogFocusProps {
 	open: boolean;
 	onClose: () => void;
 	title?: ReactNode;
@@ -30,6 +34,7 @@ export const Sheet = forwardRef<HTMLDivElement, SheetProps>(
 			showClose = true,
 			handle = true,
 			closeOnBackdrop = true,
+			initialFocus,
 			className,
 			style,
 			...rest
@@ -46,6 +51,7 @@ export const Sheet = forwardRef<HTMLDivElement, SheetProps>(
 				backdropClassName="camply-sheet__backdrop"
 				panelClassName={cn("camply-sheet__sheet", `camply-sheet__${side}`, className)}
 				ariaLabelledBy={title ? titleId : undefined}
+				initialFocus={initialFocus}
 				style={{ height, ...style }}
 				panelRef={ref}
 				panelProps={rest}
@@ -58,7 +64,10 @@ export const Sheet = forwardRef<HTMLDivElement, SheetProps>(
 					showClose={showClose}
 					onClose={onClose}
 				/>
-				<div className="camply-sheet__content">{children}</div>
+				{/* La zone qui défile n'a pas de marge : la marge est celle du corps. */}
+				<div className="camply-sheet__content">
+					<div className="camply-sheet__body">{children}</div>
+				</div>
 				{footer && <div className="camply-sheet__footer">{footer}</div>}
 			</OverlayDialog>
 		);

@@ -192,7 +192,7 @@ export const TOKEN_GROUPS: TokenGroup[] = [
 			{ name: "--camply-text", value: "#e7edf5", color: true },
 			{ name: "--camply-text-strong", value: "#f5f9ff", color: true },
 			{ name: "--camply-text-muted", value: "#93a4bd", color: true },
-			{ name: "--camply-text-muted-2", value: "#6b7d95", color: true },
+			{ name: "--camply-text-muted-2", value: "#7587a0", color: true },
 		],
 	},
 	{

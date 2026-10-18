@@ -1,9 +1,15 @@
+/* Variable de composant (API publique) : --camply-table-edge-padding, la marge
+   intérieure des première et dernière colonnes (défaut 16px, celle des cellules). */
 .camply-table__wrap {
 	border: 1px solid var(--camply-border);
 	border-radius: var(--camply-radius-lg);
 	overflow: hidden;
 	overflow-x: auto;
 	font-family: var(--camply-font-sans);
+}
+.camply-table__borderless {
+	border: 0;
+	border-radius: 0;
 }
 .camply-table__table {
 	width: 100%;
@@ -110,4 +116,14 @@ button.camply-table__thInner.camply-focus-ring:focus-visible {
 	padding: 40px 16px;
 	text-align: center;
 	color: var(--camply-text-muted-2);
+}
+
+/* Les colonnes du bord, alignées sur la marge du bloc qui contient le tableau. */
+.camply-table__th:first-child,
+.camply-table__td:first-child {
+	padding-left: var(--camply-table-edge-padding, 16px);
+}
+.camply-table__th:last-child,
+.camply-table__td:last-child {
+	padding-right: var(--camply-table-edge-padding, 16px);
 }

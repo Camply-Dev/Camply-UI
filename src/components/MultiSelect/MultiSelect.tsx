@@ -11,7 +11,7 @@ import {
 import { cn } from "../../lib/cn";
 import { Field, idRefs } from "../../lib/Field";
 import { FieldChevron } from "../../lib/FieldChevron";
-import { HiddenField } from "../../lib/HiddenField";
+import { FormReset, HiddenField } from "../../lib/HiddenField";
 import { useLabels } from "../../lib/i18n";
 import { Check, X } from "../../lib/icons";
 import { Listbox, ListboxOption } from "../../lib/Listbox";
@@ -210,6 +210,7 @@ const MultiSelectBase = forwardRef(function MultiSelect<T extends string = strin
 					{selected.map((v) => (
 						<HiddenField key={v} name={name} value={v} disabled={disabled} />
 					))}
+					<FormReset onReset={value === undefined ? () => setSelected(defaultValue) : undefined} />
 
 					{list.open && (
 						<Portal>

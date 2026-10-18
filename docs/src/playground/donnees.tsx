@@ -126,34 +126,48 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 	stat: {
 		component: "Stat",
 		controls: [
-			{ key: "delta", label: "Variation", type: "seg", options: ["-8", "0", "18", "42"] },
+			{ key: "delta", label: "Variation", type: "seg", options: ["-8", "0", "12.5", "42"] },
 			{ key: "invertDelta", label: "Inverser le sens", type: "toggle" },
+			{ key: "variant", label: "Variante", type: "seg", options: ["card", "plain"] },
+			{ key: "size", label: "Taille", type: "seg", options: ["md", "sm"] },
 		],
-		defaults: { delta: "18", invertDelta: false },
+		defaults: { delta: "12.5", invertDelta: false, variant: "card", size: "md" },
 		render: (p) => (
 			<Stat
 				label="Revenu mensuel"
 				value="12 480 €"
 				delta={num(p.delta)}
 				invertDelta={bool(p.invertDelta)}
+				variant={str(p.variant)}
+				size={str(p.size)}
 			/>
 		),
 		code: (p) =>
 			`import { Stat } from "@camply/ui";\n\n<Stat\n  label="Revenu mensuel"\n  value="12 480 €"\n  delta={${p.delta}}${
 				p.invertDelta ? "\n  invertDelta" : ""
-			}\n/>`,
+			}${p.variant === "plain" ? '\n  variant="plain"' : ""}${p.size === "sm" ? '\n  size="sm"' : ""}\n/>`,
 		props: [
 			["label / value", "ReactNode", "libellé et valeur mise en avant"],
-			["delta / deltaSuffix", "number / string", "variation signée (défaut suffixe %)"],
+			[
+				"delta / deltaSuffix",
+				"number / string",
+				"variation signée, mise en forme selon la locale (« +12,5 »), défaut suffixe % — hausse en succès, baisse en danger, zéro neutre",
+			],
 			["invertDelta", "boolean", "une hausse est mauvaise (ex. churn)"],
 			["icon / hint", "ReactNode", "icône en haut à droite / note en bas"],
+			["variant", "enum", "card (défaut) · plain — à plat, sans cadre ni fond, dans un panneau"],
+			[
+				"size",
+				"enum",
+				"md (défaut) · sm — compacte, sans icône (grille de chiffres sur téléphone)",
+			],
 		],
 	},
 
 	descriptionlist: {
 		component: "DescriptionList",
 		controls: [
-			{ key: "layout", label: "Disposition", type: "seg", options: ["row", "stacked"] },
+			{ key: "layout", label: "Disposition", type: "seg", options: ["row", "stacked", "split"] },
 			{ key: "divided", label: "Séparateurs", type: "toggle" },
 		],
 		defaults: { layout: "row", divided: true },
@@ -177,7 +191,11 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 			}\n  items={[\n    { term: "Forfait", description: "Pro" },\n    { term: "Membres", description: "12 / 20" },\n  ]}\n/>`,
 		props: [
 			["items", "DescriptionItem[]", "{ term, description }"],
-			["layout", "enum", "row (côte à côte, défaut) · stacked (empilé)"],
+			[
+				"layout",
+				"enum",
+				"row (côte à côte, défaut) · stacked (empilé) · split (montants : valeur à droite, chiffres alignés)",
+			],
 			["divided", "boolean", "séparateur entre les lignes (défaut true)"],
 		],
 	},
@@ -249,6 +267,12 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 				'noms accessibles des cases ("Tout sélectionner" · "Sélectionner la ligne n")',
 			],
 			["striped / emptyState", "boolean / ReactNode", "zébrures / contenu si vide"],
+			["bordered", "boolean", "cadre arrondi (défaut true) ; false : bord à bord, dans une Card"],
+			[
+				"--camply-table-edge-padding",
+				"CSS",
+				"marge des colonnes du bord (défaut 16px) — l'aligner sur celle du bloc parent",
+			],
 		],
 	},
 

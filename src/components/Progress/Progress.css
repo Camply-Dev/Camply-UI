@@ -1,16 +1,21 @@
-/* Racine et en-tête viennent de la jauge partagée (tokens.css). */
+/* Racine et en-tête viennent de la jauge partagée (tokens.css).
+   Variables de composant (API publique) : --camply-progress-height (défaut 7px,
+   5px en `sm`) et --camply-progress-track (le fond de la piste). */
 .camply-progress__track {
 	position: relative;
 	width: 100%;
 	border-radius: var(--camply-radius-pill);
-	background: var(--camply-fill-3);
+	background: var(--camply-progress-track, var(--camply-fill-3));
 	overflow: hidden;
+	transition:
+		height var(--camply-duration) var(--camply-ease),
+		background var(--camply-duration) var(--camply-ease);
 }
 .camply-progress__md {
-	height: 7px;
+	height: var(--camply-progress-height, 7px);
 }
 .camply-progress__sm {
-	height: 5px;
+	height: var(--camply-progress-height, 5px);
 }
 
 .camply-progress__fill {

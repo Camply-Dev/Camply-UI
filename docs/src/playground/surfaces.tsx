@@ -130,6 +130,11 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 				p.interactive ? " interactive" : ""
 			}>\n  <CardHeader>\n    <CardTitle>Forfait Pro</CardTitle>\n    <CardDescription>…</CardDescription>\n  </CardHeader>\n  <CardFooter>…</CardFooter>\n</Card>`,
 		props: [
+			[
+				"as",
+				"CardElement",
+				"div (défaut) · article · section · aside · li — la sémantique du bloc",
+			],
 			["padding", "enum", "none · sm · md · lg (défaut md)"],
 			["interactive", "boolean", "élévation + bordure accent au survol"],
 			[
@@ -139,8 +144,8 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 			],
 			[
 				"CardTitle · headingLevel",
-				"HeadingLevel",
-				"2 · 3 · 4 · 5 · 6 — niveau du titre (défaut 3)",
+				"1 | HeadingLevel",
+				"1 à 6 — niveau du titre (défaut 3) ; 1 quand la carte porte le titre de la page",
 			],
 		],
 	},
@@ -256,6 +261,16 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 			["closeOnBackdrop", "boolean", "fermeture au clic sur le voile (défaut true)"],
 			["showClose", "boolean", "bouton × dans l'en-tête (défaut true)"],
 			[
+				"initialFocus",
+				"RefObject<HTMLElement>",
+				"élément focalisé à l'ouverture (un champ de recherche) ; un contrôle autoFocus est aussi respecté — le focus revient au déclencheur",
+			],
+			[
+				"défilement",
+				"—",
+				"seul le contenu défile, en-tête et pied restent à l'écran ; un enfant sticky; top: 0 s'y colle au bord",
+			],
+			[
 				"ref + attributs natifs",
 				"Ref<HTMLDivElement>",
 				"la racine publique est le panneau, pas le voile — role, aria-modal, tabIndex restent réservés",
@@ -305,6 +320,7 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 			["title / footer", "ReactNode", "en-tête / pied"],
 			["showClose", "boolean", "bouton × dans l'en-tête (défaut true)"],
 			["closeOnBackdrop", "boolean", "fermeture au clic sur le voile (défaut true)"],
+			["initialFocus", "RefObject<HTMLElement>", "élément focalisé à l'ouverture (comme Modal)"],
 			[
 				"ref + attributs natifs",
 				"Ref<HTMLDivElement>",
@@ -341,6 +357,16 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 			],
 			["MenuItem · icon / shortcut / danger / disabled / onSelect", "—", "props de chaque entrée"],
 			["MenuLabel / MenuSeparator", "—", "libellé de section / séparateur"],
+			[
+				"MenuLabel · uppercase",
+				"boolean",
+				"petites capitales (défaut true) ; false : le texte tel quel (une adresse e-mail)",
+			],
+			[
+				"trigger enveloppé",
+				"—",
+				"un Tooltip autour du déclencheur fonctionne : les props du menu vont au bouton",
+			],
 		],
 	},
 

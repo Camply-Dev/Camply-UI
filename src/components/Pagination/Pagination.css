@@ -30,12 +30,12 @@
 	min-width: 36px;
 	padding: 0 10px;
 }
-.camply-pagination__arrow:hover:not(:disabled),
+.camply-pagination__arrow:hover:not([aria-disabled="true"]),
 .camply-pagination__page:hover:not(.camply-pagination__active) {
 	background: var(--camply-fill-3);
 	color: var(--camply-text);
 }
-.camply-pagination__arrow:disabled {
+.camply-pagination__arrow[aria-disabled="true"] {
 	opacity: 0.4;
 	cursor: not-allowed;
 }

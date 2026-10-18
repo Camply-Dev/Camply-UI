@@ -1,10 +1,12 @@
+import type { MouseEvent } from "react";
 import { IconButton } from "../components/IconButton";
 import { useLabels } from "./i18n";
 import { X } from "./icons";
 
 export interface CloseButtonProps {
 	className?: string;
-	onClick: () => void;
+	/** Le bouton est dans l'événement : qui ferme peut savoir d'où vient le clic (Toast). */
+	onClick: (event: MouseEvent<HTMLButtonElement>) => void;
 }
 
 /**

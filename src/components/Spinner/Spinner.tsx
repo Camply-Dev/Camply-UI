@@ -2,17 +2,21 @@ import { forwardRef, type HTMLAttributes } from "react";
 import { cn } from "../../lib/cn";
 
 /**
- * Avec un nom accessible le spinner annonce le chargement (région live) ; sans nom il est
- * purement décoratif et doit rester muet — un `aria-label` sur un `<span>` sans rôle serait
- * ignoré.
+ * Avec un nom le spinner annonce le chargement (région live `status`) ; sans nom il est
+ * purement décoratif et doit rester muet. Le `label` est le TEXTE de la région, masqué à
+ * l'écran (`LoadingText`) : une région live annonce son contenu, et plusieurs lecteurs
+ * d'écran taisent un simple `aria-label`.
  *
  * `named` couvre le nom posé par le consommateur via `...rest` (`aria-label` ou
  * `aria-labelledby`) : `aria-hidden` le rendrait inaudible.
  */
 function loadingA11y(label: string | undefined, named: boolean) {
-	if (label) return { role: "status", "aria-label": label } as const;
-	return named ? ({ role: "status" } as const) : ({ "aria-hidden": true } as const);
+	return label || named ? ({ role: "status" } as const) : ({ "aria-hidden": true } as const);
 }
+
+/** Le texte annoncé, invisible à l'écran. */
+const LoadingText = ({ label }: { label?: string }) =>
+	label ? <span className="camply-visually-hidden">{label}</span> : null;
 
 const isNamed = (props: { "aria-label"?: string; "aria-labelledby"?: string }) =>
 	Boolean(props["aria-label"] ?? props["aria-labelledby"]);
@@ -33,7 +37,9 @@ export const Spinner = forwardRef<HTMLSpanElement, SpinnerProps>(
 				style={{ width: size, height: size, borderWidth: thickness, ...style }}
 				{...loadingA11y(label, isNamed(props))}
 				{...props}
-			/>
+			>
+				<LoadingText label={label} />
+			</span>
 		);
 	},
 );
@@ -58,6 +64,7 @@ export const Dots = forwardRef<HTMLSpanElement, DotsProps>(
 				<span style={{ width: size, height: size }} />
 				<span style={{ width: size, height: size }} />
 				<span style={{ width: size, height: size }} />
+				<LoadingText label={label} />
 			</span>
 		);
 	},

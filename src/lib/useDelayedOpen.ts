@@ -21,14 +21,21 @@ export function useDelayedOpen(openDelay: number, closeDelay = 0, controlled: Co
 	// pour ne pas capturer un onOpenChange périmé.
 	const setOpenRef = useRef(setOpen);
 	setOpenRef.current = setOpen;
+	const openRef = useRef(open);
+	openRef.current = open;
 
+	// Déjà ouverte, `show` ne fait qu'annuler une fermeture en attente ; fermée, `hide`
+	// n'annule qu'une ouverture en attente : traverser le déclencheur en coup de vent
+	// n'émet plus `onOpenChange(false)` pour une couche jamais ouverte.
 	const show = useCallback(() => {
 		clearTimeout(timer.current);
+		if (openRef.current) return;
 		timer.current = setTimeout(() => setOpenRef.current(true), openDelay);
 	}, [openDelay]);
 
 	const hide = useCallback(() => {
 		clearTimeout(timer.current);
+		if (!openRef.current) return;
 		if (closeDelay > 0) timer.current = setTimeout(() => setOpenRef.current(false), closeDelay);
 		else setOpenRef.current(false);
 	}, [closeDelay]);

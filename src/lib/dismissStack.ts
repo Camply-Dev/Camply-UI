@@ -60,6 +60,15 @@ function unlisten() {
 	document.removeEventListener("pointerdown", onPointerDown, true);
 }
 
+/**
+ * La cible est-elle dans une couche ouverte (un menu, une liste portalisés) ? Le
+ * piège à focus d'un dialogue s'en sert pour laisser un menu ouvert DEPUIS lui
+ * gérer Tab (et se refermer) au lieu de lui reprendre le focus.
+ */
+export function isInDismissLayer(target: Node): boolean {
+	return stack.some((layer) => containsTarget(layer, target));
+}
+
 /** Empile une couche ; renvoie la fonction de dépilement. */
 export function pushDismissLayer(layer: DismissLayer): () => void {
 	if (stack.length === 0) listen();

@@ -8,7 +8,7 @@ import {
 } from "react";
 import { cn } from "../../lib/cn";
 import { Field, idRefs } from "../../lib/Field";
-import { HiddenField } from "../../lib/HiddenField";
+import { FormReset, HiddenField } from "../../lib/HiddenField";
 import { ratioToValue, snapToStep, valueToPercent } from "../../lib/sliderGeometry";
 import { nextSliderValue } from "../../lib/sliderKeys";
 import { useControllable } from "../../lib/useControllable";
@@ -167,6 +167,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
 				}}
 			</Field>
 			<HiddenField name={name} value={val} disabled={disabled} />
+			<FormReset onReset={value === undefined ? () => setVal(defaultValue) : undefined} />
 		</div>
 	);
 });

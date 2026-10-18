@@ -61,6 +61,8 @@ export interface CamplyLabels {
 	/** RangeSlider : suffixes des deux poignées. */
 	minimum: string;
 	maximum: string;
+	/** Avatar : le statut, ajouté à son nom accessible (la pastille n'est qu'une couleur). */
+	avatarStatus: { online: string; away: string; busy: string; offline: string };
 	/** FileUpload : zone de dépôt et messages de rejet. */
 	dropFiles: string;
 	browseFiles: string;
@@ -118,6 +120,7 @@ const FR: CamplyLabels = {
 	selectRow: (index) => `Sélectionner la ligne ${index + 1}`,
 	minimum: "minimum",
 	maximum: "maximum",
+	avatarStatus: { online: "en ligne", away: "absent", busy: "occupé", offline: "hors ligne" },
 	dropFiles: "Déposer des fichiers ou",
 	browseFiles: "parcourir",
 	fileTypeRejected: (name) => `Type non accepté : ${name}`,

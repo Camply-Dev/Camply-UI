@@ -9,7 +9,7 @@ import {
 } from "react";
 import { cn } from "../../lib/cn";
 import { Field, idRefs } from "../../lib/Field";
-import { HiddenField } from "../../lib/HiddenField";
+import { FormReset, HiddenField } from "../../lib/HiddenField";
 import { useLabels } from "../../lib/i18n";
 import { useControllable } from "../../lib/useControllable";
 import { Tag } from "../Tag";
@@ -88,6 +88,8 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(function TagIn
 	};
 
 	const onKeyDown = (e: KeyboardEvent) => {
+		// Entrée qui valide un mot en cours de composition (japonais, chinois…) : pas un tag.
+		if (e.nativeEvent.isComposing) return;
 		if (e.key === "Enter" || e.key === ",") {
 			e.preventDefault();
 			addTag(draft);
@@ -146,6 +148,16 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(function TagIn
 					{keyed.map(({ tag, key }) => (
 						<HiddenField key={`hidden:${key}`} name={name} value={tag} disabled={disabled} />
 					))}
+					<FormReset
+						onReset={
+							value === undefined
+								? () => {
+										setTags(defaultValue);
+										setDraft("");
+									}
+								: undefined
+						}
+					/>
 					{keyed.map(({ tag, i, key }) => (
 						<Tag
 							key={key}
@@ -161,15 +173,17 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(function TagIn
 						className="camply-field-control camply-taginput__input"
 						value={draft}
 						placeholder={tags.length === 0 ? (placeholder ?? labels.addTag) : ""}
-						disabled={disabled || full}
-						readOnly={readOnly}
+						disabled={disabled}
+						// Pleine, la saisie reste à sa place en lecture seule : masquée ou
+						// désactivée, elle perdait le focus (jeté sur la page) au dernier tag
+						// ajouté. Retour arrière y retire encore le dernier tag.
+						readOnly={readOnly || full}
 						// La validation native se joue sur la saisie : elle n'est requise
 						// que tant qu'aucun tag n'a été ajouté (et qu'elle reste visible).
 						required={isRequired && tags.length === 0 && !full}
 						aria-required={isRequired}
 						aria-describedby={idRefs(describedBy, ariaDescribedBy)}
 						aria-invalid={invalid ?? ariaInvalid}
-						style={full ? { display: "none" } : undefined}
 						onChange={(e) => setDraft(e.target.value)}
 						onKeyDown={onKeyDown}
 						onBlur={() => addTag(draft)}

@@ -5,6 +5,22 @@ type Props = Record<string, unknown>;
 type Handler = (...args: unknown[]) => void;
 
 /**
+ * Où un composant à déclencheur reçoit le sien (`children` pour Tooltip, `trigger`
+ * pour HoverCard, Popover, DropdownMenu), posé en statique sur le composant. Grâce à
+ * lui, ils s'imbriquent : `<DropdownMenu trigger={<Tooltip><button/></Tooltip>}>`
+ * — les props du menu vont au bouton, pas à l'infobulle qui les aurait posées sur
+ * sa bulle.
+ */
+const TRIGGER_SLOT = Symbol.for("camply.triggerSlot");
+type TriggerSlot = "children" | "trigger";
+type WithTriggerSlot = { [TRIGGER_SLOT]?: TriggerSlot };
+
+/** Déclare où `component` reçoit son déclencheur (voir `TRIGGER_SLOT`). */
+export function markTriggerSlot(component: object, slot: TriggerSlot) {
+	(component as WithTriggerSlot)[TRIGGER_SLOT] = slot;
+}
+
+/**
  * Vrai si le premier argument est un évènement dont le consommateur a posé le
  * veto. Tous les handlers ne reçoivent pas un évènement : `defaultPrevented`
  * n'est lu que s'il est booléen, sinon un objet quelconque vaudrait veto.
@@ -36,6 +52,14 @@ function chain(theirs: Handler, ours: Handler): Handler {
  */
 export function cloneTrigger(trigger: ReactElement, props: Props): ReactNode {
 	if (!isValidElement(trigger)) return trigger;
+
+	// Une enveloppe à déclencheur (une infobulle autour du bouton) : les props visent
+	// son déclencheur à elle, qu'elle composera ensuite avec les siennes.
+	const slot = (trigger.type as WithTriggerSlot)[TRIGGER_SLOT];
+	if (slot) {
+		const inner = (trigger.props as Props)[slot] as ReactElement;
+		return cloneElement(trigger as ReactElement<Props>, { [slot]: cloneTrigger(inner, props) });
+	}
 
 	const existing = (trigger.props ?? {}) as Props;
 	// React 19 : `ref` est une prop. React 18 : elle vit sur l'élément.

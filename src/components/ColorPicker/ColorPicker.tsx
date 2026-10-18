@@ -24,8 +24,8 @@ import {
 } from "../../lib/color";
 import { Field } from "../../lib/Field";
 import { FieldChevron } from "../../lib/FieldChevron";
-import { focusableWithin } from "../../lib/focusTrap";
-import { HiddenField } from "../../lib/HiddenField";
+import { focusEdges } from "../../lib/focusTrap";
+import { FormReset, HiddenField } from "../../lib/HiddenField";
 import { useLabels, useLocale } from "../../lib/i18n";
 import { Portal } from "../../lib/Portal";
 import { nextSliderValue } from "../../lib/sliderKeys";
@@ -223,7 +223,7 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 	const onTriggerKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
 		if (!open || e.key !== "Tab" || e.shiftKey) return;
 		const panel = panelRef.current;
-		const first = panel && focusableWithin(panel)[0];
+		const first = panel && focusEdges(panel).first;
 		if (!first) return;
 		e.preventDefault();
 		first.focus();
@@ -232,8 +232,8 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 	/** Tab hors du panneau par l'un ou l'autre bout : on referme et on revient au déclencheur. */
 	const onPanelKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
 		if (e.key !== "Tab" || !panelRef.current) return;
-		const items = focusableWithin(panelRef.current);
-		const edge = e.shiftKey ? items[0] : items[items.length - 1];
+		const { first, last } = focusEdges(panelRef.current);
+		const edge = e.shiftKey ? first : last;
 		if (!edge || document.activeElement !== edge) return;
 		e.preventDefault();
 		closeAndRestore();
@@ -581,6 +581,16 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 
 							{/* Valeur soumise par un <form> natif (les champs du panneau sont portalisés). */}
 							<HiddenField name={name} value={hasColor ? hexOut : ""} />
+							<FormReset
+								onReset={
+									value === undefined && alphaProp === undefined
+										? () => {
+												setHex(defaultValue ?? "");
+												setAlpha(defaultAlpha ?? 1);
+											}
+										: undefined
+								}
+							/>
 						</>
 					);
 				}}

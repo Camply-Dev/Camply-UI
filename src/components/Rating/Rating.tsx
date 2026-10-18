@@ -9,7 +9,7 @@ import {
 import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 import { Field, idRefs } from "../../lib/Field";
-import { HiddenField } from "../../lib/HiddenField";
+import { FormReset, HiddenField } from "../../lib/HiddenField";
 import { Star } from "../../lib/icons";
 import { useControllable } from "../../lib/useControllable";
 
@@ -198,6 +198,7 @@ export const Rating = forwardRef<HTMLDivElement, RatingProps>(function Rating(
 							</button>
 						))}
 						<HiddenField name={name} value={val} disabled={disabled} />
+						<FormReset onReset={value === undefined ? () => setVal(defaultValue) : undefined} />
 					</div>
 				);
 			}}

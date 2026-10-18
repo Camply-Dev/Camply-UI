@@ -31,6 +31,7 @@
 }
 
 .camply-drawer__header {
+	flex: none;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -38,9 +39,14 @@
 	padding: 22px 24px;
 	border-bottom: 1px solid var(--camply-border);
 }
+/* La zone qui défile, sans marge : `sticky; top: 0` s'y colle au bord. */
 .camply-drawer__content {
-	flex: 1;
+	flex: 1 1 auto;
+	min-height: 0;
 	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+.camply-drawer__body {
 	padding: 22px 24px;
 	color: var(--camply-text-muted);
 	font-size: 14px;

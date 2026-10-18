@@ -1,5 +1,6 @@
 import { forwardRef, type HTMLAttributes } from "react";
 import { cn } from "../../lib/cn";
+import { useLabels } from "../../lib/i18n";
 import { deriveInitials, hashString } from "../../lib/initials";
 import type { Size } from "../../lib/types";
 
@@ -37,14 +38,17 @@ const tintFor = (seed: string): string =>
 
 export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
 	({ src, name, initials, size = "md", status, className, style, ...props }, ref) => {
+		const labels = useLabels();
 		const label = initials ?? deriveInitials(name);
 		// Tout se dimensionne à partir du diamètre résolu — pastille de statut comprise,
 		// qu'on arrive par l'échelle nommée ou par un nombre.
 		const px = resolveSize(size);
 		const dotSize = Math.max(8, Math.round(px * 0.26));
 		// Sans nom, l'avatar n'a rien à annoncer : on le laisse décoratif plutôt que
-		// d'exposer un role="img" dépourvu de nom accessible.
-		const accessibleName = name ?? initials;
+		// d'exposer un role="img" dépourvu de nom accessible. Le statut s'y ajoute : la
+		// pastille n'est qu'une couleur, invisible pour un lecteur d'écran.
+		const who = name ?? initials;
+		const accessibleName = who && (status ? `${who}, ${labels.avatarStatus[status]}` : who);
 		const a11y: HTMLAttributes<HTMLSpanElement> = accessibleName
 			? { role: "img", "aria-label": accessibleName }
 			: {};

@@ -1,20 +1,21 @@
 import { clamp } from "./clamp";
 
-/** Nombre de décimales d'un pas (0.1 -> 1, 0.25 -> 2, 1 -> 0). */
-function decimalsOf(step: number): number {
-	const [, decimals = ""] = String(step).split(".");
+/** Nombre de décimales d'un nombre (0.1 -> 1, 0.25 -> 2, 1 -> 0). */
+function decimalsOf(n: number): number {
+	const [, decimals = ""] = String(n).split(".");
 	return decimals.length;
 }
 
 /**
  * Cale une valeur sur le pas le plus proche, puis la borne à [min, max].
- * L'arrondi final à la précision du pas évite les flottants dérivés
+ * L'arrondi final à la précision du pas ET de `min` (les crans partent de lui :
+ * min 0.25, pas 0.5 → 0.75, 1.25…) évite les flottants dérivés
  * (0.1 + 0.2 -> 0.30000000000000004) qui remonteraient jusqu'à l'API publique.
  */
 export function snapToStep(value: number, min: number, max: number, step: number): number {
 	if (!Number.isFinite(value) || step <= 0) return clamp(min, min, max);
 	const stepped = Math.round((value - min) / step) * step + min;
-	const rounded = Number(stepped.toFixed(decimalsOf(step)));
+	const rounded = Number(stepped.toFixed(Math.max(decimalsOf(step), decimalsOf(min))));
 	return clamp(rounded, min, max);
 }
 

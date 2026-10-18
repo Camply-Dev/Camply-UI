@@ -1,10 +1,14 @@
+/* Variables de composant (API publique, à poser sur un parent ou un thème) :
+   --camply-segmented-rail, --camply-segmented-rail-border, --camply-segmented-thumb,
+   --camply-segmented-thumb-shadow, --camply-segmented-thumb-ink. Par défaut, un
+   curseur à l'accent sur le fond des champs. */
 .camply-segmentedcontrol__root {
 	position: relative;
 	display: inline-flex;
 	padding: 3px;
-	border: 1px solid var(--camply-border);
+	border: 1px solid var(--camply-segmented-rail-border, var(--camply-border));
 	border-radius: var(--camply-radius-lg);
-	background: var(--camply-field-bg);
+	background: var(--camply-segmented-rail, var(--camply-field-bg));
 	font-family: var(--camply-font-sans);
 }
 .camply-segmentedcontrol__fullWidth {
@@ -17,7 +21,8 @@
 	top: 3px;
 	bottom: 3px;
 	border-radius: var(--camply-radius-sm);
-	background: var(--camply-accent);
+	background: var(--camply-segmented-thumb, var(--camply-accent));
+	box-shadow: var(--camply-segmented-thumb-shadow, none);
 	transition:
 		left 0.25s var(--camply-ease-spring),
 		width 0.25s var(--camply-ease-spring);
@@ -50,5 +55,13 @@
 	color: var(--camply-text);
 }
 .camply-segmentedcontrol__active {
-	color: var(--camply-accent-contrast);
+	color: var(--camply-segmented-thumb-ink, var(--camply-accent-contrast));
+}
+
+/* Sous un libellé (`Field`, une colonne flex), le groupe garde sa largeur, sauf `fullWidth`. */
+.camply-field > .camply-segmentedcontrol__root {
+	align-self: flex-start;
+}
+.camply-field > .camply-segmentedcontrol__fullWidth {
+	align-self: stretch;
 }

@@ -87,7 +87,6 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(
 			if (open) {
 				setQuery("");
 				setActive(0);
-				requestAnimationFrame(() => inputRef.current?.focus());
 			}
 		}, [open]);
 
@@ -100,6 +99,8 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(
 		);
 
 		const onKeyDown = (e: KeyboardEvent) => {
+			// Entrée qui valide un mot en cours de composition (japonais, chinois…) : pas une commande.
+			if (e.nativeEvent.isComposing) return;
 			switch (e.key) {
 				case "ArrowDown":
 					e.preventDefault();
@@ -127,7 +128,8 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(
 				backdropClassName="camply-commandpalette__backdrop"
 				panelClassName={cn("camply-commandpalette__panel", className)}
 				style={style}
-				focusPanel={false}
+				// Le focus entre dans le champ, pas sur le premier bouton : on tape aussitôt.
+				initialFocus={inputRef}
 				ariaLabel={paletteLabel}
 				// La racine publique de la palette, c'est le panneau : ref et attributs
 				// natifs y atterrissent, pas sur le voile.
@@ -194,7 +196,10 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(
 											"camply-commandpalette__item",
 											idx === active && "camply-commandpalette__active",
 										)}
-										onMouseEnter={() => setActive(idx)}
+										// Un vrai mouvement du pointeur, pas `mouseenter` : le défilement aux
+										// flèches fait passer la liste sous un curseur immobile, et l'entrée
+										// survolée volait alors la sélection (Entrée lançait la mauvaise).
+										onPointerMove={() => setActive(idx)}
 										onClick={() => run(cmd)}
 									>
 										{cmd.icon && (

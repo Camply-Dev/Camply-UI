@@ -1,4 +1,11 @@
+/* Variables de composant (API publique) : --camply-toast-offset-x et
+   --camply-toast-offset-y, l'écart au bord de l'écran (défaut 22px) — au-dessus
+   d'une barre d'onglets, par exemple. La zone sûre des écrans à encoche s'y ajoute. */
 .camply-toast__viewport {
+	--_left: calc(var(--camply-toast-offset-x, 22px) + env(safe-area-inset-left, 0px));
+	--_right: calc(var(--camply-toast-offset-x, 22px) + env(safe-area-inset-right, 0px));
+	--_top: calc(var(--camply-toast-offset-y, 22px) + env(safe-area-inset-top, 0px));
+	--_bottom: calc(var(--camply-toast-offset-y, 22px) + env(safe-area-inset-bottom, 0px));
 	position: fixed;
 	z-index: var(--camply-z-toast);
 	display: flex;
@@ -8,23 +15,23 @@
 	pointer-events: none;
 }
 .camply-toast__viewport[data-position="bottom-right"] {
-	bottom: 22px;
-	right: 22px;
+	bottom: var(--_bottom);
+	right: var(--_right);
 }
 .camply-toast__viewport[data-position="bottom-left"] {
-	bottom: 22px;
-	left: 22px;
+	bottom: var(--_bottom);
+	left: var(--_left);
 }
 .camply-toast__viewport[data-position="top-right"] {
-	top: 22px;
-	right: 22px;
+	top: var(--_top);
+	right: var(--_right);
 }
 .camply-toast__viewport[data-position="top-left"] {
-	top: 22px;
-	left: 22px;
+	top: var(--_top);
+	left: var(--_left);
 }
 .camply-toast__viewport[data-position="bottom-center"] {
-	bottom: 22px;
+	bottom: var(--_bottom);
 	left: 50%;
 	transform: translateX(-50%);
 }
@@ -50,7 +57,7 @@
 	}
 }
 .camply-toast__toast[data-tone="success"] {
-	--_c: var(--camply-accent);
+	--_c: var(--camply-success);
 }
 .camply-toast__toast[data-tone="info"] {
 	--_c: var(--camply-info);

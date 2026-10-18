@@ -10,7 +10,8 @@ import {
 	useState,
 } from "react";
 import { cn } from "../../lib/cn";
-import { HiddenField } from "../../lib/HiddenField";
+import { Field, idRefs } from "../../lib/Field";
+import { FormReset, HiddenField } from "../../lib/HiddenField";
 import { nextRovingIndex } from "../../lib/rovingIndex";
 import type { Option, Size } from "../../lib/types";
 import { useControllable } from "../../lib/useControllable";
@@ -40,6 +41,14 @@ export interface SegmentedControlProps<T extends string = string>
 	onChange?: (value: T) => void;
 	size?: Extract<Size, "sm" | "md">;
 	fullWidth?: boolean;
+	/**
+	 * Libellé visible, quand le groupe est un champ de formulaire (« Ajouter
+	 * comme »…) : il nomme le groupe (`aria-labelledby`), comme chez `RadioGroup`.
+	 * Un simple sélecteur de vue se nomme plutôt par `aria-label`.
+	 */
+	label?: string;
+	/** Aide sous le groupe, rattachée par `aria-describedby`. */
+	hint?: string;
 	/** Nom soumis avec le formulaire : la valeur part dans un <input type="hidden">. */
 	name?: string;
 	/**
@@ -60,11 +69,17 @@ const SegmentedControlBase = forwardRef(function SegmentedControl<T extends stri
 		onChange,
 		size = "md",
 		fullWidth,
+		label,
+		hint,
 		name,
 		required,
 		readOnly = false,
 		className,
+		style,
+		id,
 		onKeyDown,
+		"aria-labelledby": ariaLabelledBy,
+		"aria-describedby": ariaDescribedBy,
 		...rest
 	}: SegmentedControlProps<T>,
 	ref: ForwardedRef<HTMLDivElement>,
@@ -113,10 +128,17 @@ const SegmentedControlBase = forwardRef(function SegmentedControl<T extends stri
 		select(next);
 	};
 
-	return (
+	// Sans libellé ni aide, le groupe est la racine (`className`, `style`) ; avec, c'est
+	// le `Field` qui l'entoure, comme pour tout champ de la lib.
+	const field = Boolean(label || hint);
+	const group = (groupId: string | undefined, labelId?: string, describedBy?: string) => (
 		<div
 			ref={ref}
 			{...rest}
+			id={groupId}
+			// Règle 4 : le libellé et l'aide du champ s'ajoutent à ceux du consommateur.
+			aria-labelledby={idRefs(labelId, ariaLabelledBy)}
+			aria-describedby={idRefs(describedBy, ariaDescribedBy)}
 			// Invariants du composant — cf. `ReservedSegmentedControlAttr`.
 			role="radiogroup"
 			aria-orientation="horizontal"
@@ -126,8 +148,9 @@ const SegmentedControlBase = forwardRef(function SegmentedControl<T extends stri
 				"camply-segmentedcontrol__root",
 				`camply-segmentedcontrol__${size}`,
 				fullWidth && "camply-segmentedcontrol__fullWidth",
-				className,
+				!field && className,
 			)}
+			style={field ? undefined : style}
 			onKeyDown={handleKeyDown}
 		>
 			{thumb && (
@@ -161,15 +184,35 @@ const SegmentedControlBase = forwardRef(function SegmentedControl<T extends stri
 				</button>
 			))}
 			<HiddenField name={name} value={current ?? ""} />
+			<FormReset
+				onReset={
+					value === undefined ? () => setCurrent(defaultValue ?? options[0]?.value) : undefined
+				}
+			/>
 		</div>
+	);
+
+	if (!field) return group(id);
+	return (
+		<Field
+			label={label}
+			hint={hint}
+			required={required}
+			id={id}
+			idPrefix="segmented"
+			className={className}
+			style={style}
+		>
+			{({ id: groupId, labelId, describedBy }) => group(groupId, labelId, describedBy)}
+		</Field>
 	);
 });
 
 /**
  * Groupe de segments exclusifs (pattern radiogroup : tabindex mouvant + flèches).
- * Le groupe se nomme par `aria-label`, qui traverse le spread : c'est un sélecteur
- * de vue, pas un champ — il n'a pas de libellé visible, et `label` mentirait sur ce
- * point puisque partout ailleurs dans la lib cette prop rend un vrai `<label>`.
+ * Sélecteur de vue, il se nomme par `aria-label` ; champ de formulaire, il prend un
+ * `label` visible et un `hint`, comme `RadioGroup`. Couleurs : variables
+ * `--camply-segmented-*` (rail, curseur, encre du segment actif).
  * `forwardRef` efface le paramètre générique : on le restaure par un cast pour que
  * `T` continue d'être inféré depuis `options`.
  */

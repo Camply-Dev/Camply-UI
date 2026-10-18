@@ -5,7 +5,7 @@ import {
 	type ReactNode,
 	useRef,
 } from "react";
-import { cloneTrigger } from "../../lib/cloneTrigger";
+import { cloneTrigger, markTriggerSlot } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { useMergedRefs } from "../../lib/mergeRefs";
 import { Portal } from "../../lib/Portal";
@@ -91,3 +91,4 @@ export const HoverCard = forwardRef<HTMLDivElement, HoverCardProps>(
 );
 
 HoverCard.displayName = "HoverCard";
+markTriggerSlot(HoverCard, "trigger");

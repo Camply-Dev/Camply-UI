@@ -10,7 +10,7 @@ import {
 import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 import { Field, idRefs } from "../../lib/Field";
-import { HiddenField } from "../../lib/HiddenField";
+import { FormReset, HiddenField } from "../../lib/HiddenField";
 import type { Size } from "../../lib/types";
 import { useControllable } from "../../lib/useControllable";
 
@@ -117,6 +117,17 @@ export const PinInput = forwardRef<HTMLFieldSetElement, PinInputProps>(function 
 	};
 
 	const onKeyDown = (i: number, e: KeyboardEvent) => {
+		// Un caractère tapé au clavier est posé ici, pas par `onChange` : retaper le
+		// chiffre déjà présent ne change pas la valeur, React n'émet alors aucun
+		// changement, et le focus restait sur place (`maxLength` bloquant la suite).
+		// Les claviers virtuels (`key` « Unidentified ») passent toujours par `onChange`.
+		if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && !readOnly) {
+			e.preventDefault();
+			if (!pattern.test(e.key)) return;
+			if (cells[i] !== e.key) setCharAt(i, e.key);
+			focusCell(i + 1);
+			return;
+		}
 		if (e.key === "ArrowLeft") {
 			e.preventDefault();
 			focusCell(i - 1);
@@ -187,6 +198,7 @@ export const PinInput = forwardRef<HTMLFieldSetElement, PinInputProps>(function 
 					onPaste={handlePaste}
 				>
 					<HiddenField name={name} value={val} disabled={disabled} />
+					<FormReset onReset={value === undefined ? () => setVal(defaultValue) : undefined} />
 					{cells.map((c, i) => (
 						<input
 							// biome-ignore lint/suspicious/noArrayIndexKey: cellules à position fixe — l'index EST l'identité

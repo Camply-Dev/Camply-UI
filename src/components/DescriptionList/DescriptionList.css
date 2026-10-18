@@ -23,16 +23,29 @@
 	font-size: 14px;
 }
 
-.camply-descriptionlist__list.camply-descriptionlist__row .camply-descriptionlist__row {
+.camply-descriptionlist__layout-row .camply-descriptionlist__row {
 	display: grid;
 	grid-template-columns: minmax(120px, 34%) 1fr;
 	gap: 16px;
 	align-items: baseline;
 }
 
-.camply-descriptionlist__list.camply-descriptionlist__stacked .camply-descriptionlist__term {
+.camply-descriptionlist__layout-stacked .camply-descriptionlist__term {
 	margin-bottom: 3px;
 }
-.camply-descriptionlist__list.camply-descriptionlist__stacked .camply-descriptionlist__desc {
+.camply-descriptionlist__layout-stacked .camply-descriptionlist__desc {
 	font-size: 14.5px;
+}
+
+/* Le libellé prend la place (jamais coupé en deux lignes par la valeur), la valeur
+   se range à droite en chiffres alignés : des montants qui se lisent en colonne. */
+.camply-descriptionlist__layout-split .camply-descriptionlist__row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 16px;
+	align-items: baseline;
+}
+.camply-descriptionlist__layout-split .camply-descriptionlist__desc {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
 }

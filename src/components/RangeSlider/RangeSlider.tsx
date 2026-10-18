@@ -9,7 +9,7 @@ import {
 import { clamp } from "../../lib/clamp";
 import { cn } from "../../lib/cn";
 import { Field, idRefs } from "../../lib/Field";
-import { HiddenField } from "../../lib/HiddenField";
+import { FormReset, HiddenField } from "../../lib/HiddenField";
 import { useLabels } from "../../lib/i18n";
 import { ratioToValue, snapToStep, valueToPercent } from "../../lib/sliderGeometry";
 import { nextSliderValue } from "../../lib/sliderKeys";
@@ -133,6 +133,10 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 	};
 
 	const pct = (v: number) => valueToPercent(v, min, max);
+	// Poignées confondues : celle qui peut encore bouger passe dessus (la seconde,
+	// dernière du DOM, l'est par défaut — mais à `max`, seule la première peut
+	// redescendre, et la souris ne l'attrapait plus).
+	const onTop = (i: 0 | 1) => i === 0 && range[0] === range[1] && range[0] > (min + max) / 2;
 	// Les deux poignées portent des noms distincts : un seul intitulé partagé les
 	// rendrait indiscernables au lecteur d'écran.
 	const base = label ?? ariaLabel;
@@ -211,7 +215,7 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 										aria-disabled={disabled || undefined}
 										aria-readonly={readOnly || undefined}
 										className="camply-rangeslider__knob camply-focus-ring camply-focus-ring--raised"
-										style={{ left: `${pct(range[i])}%` }}
+										style={{ left: `${pct(range[i])}%`, zIndex: onTop(i) ? 2 : undefined }}
 										onPointerDown={onPointerDown(i)}
 										onKeyDown={onKey(i)}
 									/>
@@ -223,6 +227,7 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 			</Field>
 			<HiddenField name={name && `${name}-min`} value={range[0]} disabled={disabled} />
 			<HiddenField name={name && `${name}-max`} value={range[1]} disabled={disabled} />
+			<FormReset onReset={value === undefined ? () => setRange(defaultValue) : undefined} />
 		</div>
 	);
 });

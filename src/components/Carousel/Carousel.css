@@ -51,10 +51,10 @@
 		color var(--camply-duration),
 		opacity var(--camply-duration);
 }
-.camply-carousel__arrow:hover:not(:disabled) {
+.camply-carousel__arrow:hover:not([aria-disabled="true"]) {
 	color: var(--camply-accent-hover);
 }
-.camply-carousel__arrow:disabled {
+.camply-carousel__arrow[aria-disabled="true"] {
 	opacity: 0.3;
 	cursor: not-allowed;
 }

@@ -110,16 +110,24 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 		const onUploadRef = useRef(onUpload);
 		onUploadRef.current = onUpload;
 
-		const commit = useCallback((next: UploadFile[]) => {
+		/**
+		 * Enregistre la liste (`onFilesChange` suit tout, progression comprise).
+		 * `onChange(File[])` ne part que si la LISTE change (`listChanged`) : un fichier
+		 * ajouté ou retiré, pas chaque pourcentage d'un envoi.
+		 */
+		const commit = useCallback((next: UploadFile[], listChanged = true) => {
 			itemsRef.current = next;
 			setItemsRef.current(next);
-			onChangeRef.current?.(next.map((it) => it.file));
+			if (listChanged) onChangeRef.current?.(next.map((it) => it.file));
 		}, []);
 
 		/** Met à jour un fichier ; sans effet s'il a été retiré entre-temps. */
 		const patch = useCallback(
 			(fileId: string, update: (item: UploadFile) => UploadFile) => {
-				commit(itemsRef.current.map((it) => (it.id === fileId ? update(it) : it)));
+				commit(
+					itemsRef.current.map((it) => (it.id === fileId ? update(it) : it)),
+					false,
+				);
 			},
 			[commit],
 		);

@@ -14,7 +14,7 @@ import {
 import { cn } from "../../lib/cn";
 import { Field, idRefs } from "../../lib/Field";
 import { FieldChevron } from "../../lib/FieldChevron";
-import { HiddenField } from "../../lib/HiddenField";
+import { FormReset, HiddenField } from "../../lib/HiddenField";
 import { useLabels } from "../../lib/i18n";
 import { Check, Search } from "../../lib/icons";
 import { Listbox, ListboxOption } from "../../lib/Listbox";
@@ -178,13 +178,17 @@ const ComboboxBase = forwardRef(function Combobox<T extends string = string>(
 
 	const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
 		onKeyDownProp?.(e);
-		if (e.defaultPrevented || disabled) return;
+		// Une saisie en cours de composition (japonais, chinois…) : Entrée valide le mot,
+		// pas une option.
+		if (e.defaultPrevented || disabled || e.nativeEvent.isComposing) return;
 		if (!list.open && ["ArrowDown", "ArrowUp"].includes(e.key)) {
 			openList();
 			return;
 		}
 		if (list.handleNavKey(e)) return;
-		if (e.key === "Enter") {
+		// Liste fermée, Entrée appartient au formulaire (il s'envoie) : l'index actif
+		// date de l'ancien filtrage et désignerait une autre option.
+		if (e.key === "Enter" && list.open) {
 			e.preventDefault();
 			if (filtered[list.active]) pick(filtered[list.active]);
 		}
@@ -251,6 +255,7 @@ const ComboboxBase = forwardRef(function Combobox<T extends string = string>(
 					</div>
 
 					<HiddenField name={name} value={selected ?? ""} disabled={disabled} />
+					<FormReset onReset={value === undefined ? () => setSelected(defaultValue) : undefined} />
 
 					{list.open && (
 						<Portal>

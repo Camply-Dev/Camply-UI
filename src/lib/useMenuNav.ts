@@ -8,7 +8,12 @@ import { useTypeahead } from "./typeahead";
  * réellement d'un `[role="menuitem"]` à l'autre — sans ça, un menu portalisé
  * n'est atteignable ni au Tab ni aux flèches.
  */
-export function useMenuNav(containerRef: RefObject<HTMLElement | null>, open: boolean) {
+export function useMenuNav(
+	containerRef: RefObject<HTMLElement | null>,
+	open: boolean,
+	/** Faux pour un menu ouvert au survol : il ne prend pas le focus de la page (la saisie en cours). */
+	focusOnOpen = true,
+) {
 	const typeahead = useTypeahead();
 
 	const items = () => {
@@ -23,7 +28,7 @@ export function useMenuNav(containerRef: RefObject<HTMLElement | null>, open: bo
 		// Chaque ouverture/fermeture repart d'une recherche vierge : sans ça, les
 		// frappes de la fois précédente se recolleraient aux nouvelles pendant 500 ms.
 		typeahead.reset();
-		if (!open) return;
+		if (!open || !focusOnOpen) return;
 		const id = requestAnimationFrame(() => items()[0]?.focus());
 		return () => cancelAnimationFrame(id);
 	}, [open]);

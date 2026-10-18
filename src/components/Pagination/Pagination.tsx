@@ -30,12 +30,14 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
 				className={cn("camply-pagination__nav", className)}
 				{...props}
 			>
+				{/* `aria-disabled` et non `disabled` : arrivé à la première (ou dernière) page
+				    au clavier, le bouton désactivé perdait le focus, jeté sur la page. */}
 				<button
 					type="button"
 					className="camply-pagination__arrow camply-focus-ring"
 					aria-label={labels.previousPage}
-					disabled={current === 1}
-					onClick={() => go(current - 1)}
+					aria-disabled={current === 1 || undefined}
+					onClick={() => current > 1 && go(current - 1)}
 				>
 					<ChevronLeft size={15} />
 				</button>
@@ -69,8 +71,8 @@ export const Pagination = forwardRef<HTMLElement, PaginationProps>(
 					type="button"
 					className="camply-pagination__arrow camply-focus-ring"
 					aria-label={labels.nextPage}
-					disabled={current === total}
-					onClick={() => go(current + 1)}
+					aria-disabled={current === total || undefined}
+					onClick={() => current < total && go(current + 1)}
 				>
 					<ChevronRight size={15} />
 				</button>

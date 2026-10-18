@@ -5,6 +5,7 @@
 }
 
 .camply-checkbox__control {
+	position: relative;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -34,6 +35,24 @@
 	opacity: 1;
 	transform: scale(1);
 }
-.camply-control__input[aria-invalid="true"]:not(:checked) + .camply-checkbox__control {
+/* Case partielle (`indeterminate` : une partie seulement est cochée, la case
+   « tout » d'un tableau) : un tiret sur l'accent, pas une case vide qui mentirait. */
+.camply-control__input:indeterminate + .camply-checkbox__control {
+	background: var(--camply-accent);
+	border-color: var(--camply-accent);
+}
+.camply-control__input:indeterminate + .camply-checkbox__control::after {
+	content: "";
+	position: absolute;
+	width: 10px;
+	height: 2px;
+	border-radius: 1px;
+	background: currentColor;
+}
+.camply-control__input:indeterminate + .camply-checkbox__control .camply-checkbox__tick {
+	opacity: 0;
+}
+.camply-control__input[aria-invalid="true"]:not(:checked):not(:indeterminate)
+	+ .camply-checkbox__control {
 	border-color: var(--camply-danger);
 }

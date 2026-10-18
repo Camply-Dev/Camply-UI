@@ -12,7 +12,7 @@ import {
 	useRef,
 } from "react";
 import { cn } from "../../lib/cn";
-import { useLabels } from "../../lib/i18n";
+import { useLabels, useLocale } from "../../lib/i18n";
 import { ChevronDown, ChevronUp } from "../../lib/icons";
 import { nextSortState, type SortState, sortRows } from "../../lib/tableSort";
 import { useControllable } from "../../lib/useControllable";
@@ -78,6 +78,12 @@ export interface TableProps<Row> extends ComponentPropsWithoutRef<"div"> {
 	rowKey: (row: Row, index: number) => RowKey;
 	onRowClick?: (row: Row) => void;
 	striped?: boolean;
+	/**
+	 * Cadre arrondi autour du tableau (défaut `true`). `false` : bord à bord, quand le
+	 * tableau est déjà dans un bloc (une `Card`) ; `--camply-table-edge-padding` aligne
+	 * alors ses première et dernière colonnes sur la marge du bloc.
+	 */
+	bordered?: boolean;
 	emptyState?: ReactNode;
 	/** Tri contrôlé (`null` = aucun tri). */
 	sort?: SortState | null;
@@ -120,11 +126,13 @@ function cellContent<Row>(col: Column<Row>, row: Row): ReactNode {
 	return (row[col.key] as ReactNode) ?? null;
 }
 
-/** Un clic né d'un contrôle interne (case à cocher, lien, bouton) ne déclenche pas `onRowClick`. */
+/**
+ * Un clic né d'un contrôle interne (case à cocher, lien, bouton) ne déclenche pas
+ * `onRowClick`. `Element` et non `HTMLElement` : un clic sur l'icône d'un bouton
+ * a pour cible son `<svg>` ou son `<path>`.
+ */
 function fromControl(target: EventTarget | null): boolean {
-	return (
-		target instanceof HTMLElement && !!target.closest("input, button, a, select, textarea, label")
-	);
+	return target instanceof Element && !!target.closest("input, button, a, select, textarea, label");
 }
 
 const TableRoot = forwardRef(function Table<Row>(
@@ -134,6 +142,7 @@ const TableRoot = forwardRef(function Table<Row>(
 		rowKey,
 		onRowClick,
 		striped,
+		bordered = true,
 		className,
 		emptyState,
 		sort: sortProp,
@@ -153,6 +162,7 @@ const TableRoot = forwardRef(function Table<Row>(
 	ref: ForwardedRef<HTMLDivElement>,
 ) {
 	const labels = useLabels();
+	const locale = useLocale();
 	const [sort, setSort] = useControllable<SortState | null>(sortProp, defaultSort, onSortChange);
 	const [selection, setSelection] = useControllable<RowKey[]>(
 		selectedKeys,
@@ -161,14 +171,22 @@ const TableRoot = forwardRef(function Table<Row>(
 	);
 	const selectAllRef = useRef<HTMLInputElement>(null);
 
-	const sorted = useMemo(() => {
-		if (!sort) return data;
+	// Chaque ligne garde son rang dans `data` : `rowKey(row, index)` reçoit ce rang-là,
+	// pas la position après tri — sans quoi une clé tirée de l'index changeait de
+	// ligne au tri, et la sélection avec elle.
+	const entries = useMemo(() => data.map((row, index) => ({ row, index })), [data]);
+	const sortedEntries = useMemo(() => {
+		if (!sort) return entries;
 		const sortValue = columns.find((c) => c.key === sort.key)?.sortValue;
-		return sortValue ? sortRows(data, sortValue, sort.dir) : data;
-	}, [data, sort, columns]);
+		return sortValue ? sortRows(entries, (e) => sortValue(e.row), sort.dir, locale) : entries;
+	}, [entries, sort, columns, locale]);
+	const sorted = useMemo(() => sortedEntries.map((e) => e.row), [sortedEntries]);
 
 	const selected = useMemo(() => new Set(selection), [selection]);
-	const keys = useMemo(() => sorted.map((row, i) => rowKey(row, i)), [sorted, rowKey]);
+	const keys = useMemo(
+		() => sortedEntries.map((e) => rowKey(e.row, e.index)),
+		[sortedEntries, rowKey],
+	);
 	const allSelected = keys.length > 0 && keys.every((key) => selected.has(key));
 	const someSelected = !allSelected && keys.some((key) => selected.has(key));
 
@@ -182,7 +200,16 @@ const TableRoot = forwardRef(function Table<Row>(
 		setSort(nextSortState(sort, col.key));
 	};
 
-	const toggleAll = () => setSelection(allSelected ? [] : keys);
+	// « Tout » ne vaut que pour les lignes affichées : les clés sélectionnées ailleurs
+	// (une autre page, un filtre) restent sélectionnées.
+	const toggleAll = () => {
+		const shown = new Set(keys);
+		setSelection(
+			allSelected
+				? selection.filter((key) => !shown.has(key))
+				: [...selection, ...keys.filter((key) => !selected.has(key))],
+		);
+	};
 
 	const toggleRow = (key: RowKey) =>
 		setSelection(selected.has(key) ? selection.filter((k) => k !== key) : [...selection, key]);
@@ -205,7 +232,12 @@ const TableRoot = forwardRef(function Table<Row>(
 	return (
 		<div
 			ref={ref}
-			className={cn("camply-table__wrap", stickyHeader && "camply-table__stickyWrap", className)}
+			className={cn(
+				"camply-table__wrap",
+				!bordered && "camply-table__borderless",
+				stickyHeader && "camply-table__stickyWrap",
+				className,
+			)}
 			aria-busy={loading || undefined}
 			{...rest}
 		>

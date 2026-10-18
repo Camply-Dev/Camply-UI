@@ -7,8 +7,10 @@ export function useCopyFeedback(resetMs = 1400) {
 	useEffect(() => () => clearTimeout(timer.current), []);
 
 	const copy = async (text: string) => {
+		// Sans presse-papiers (http simple, certaines webviews), rien n'est copié : pas de « Copié ».
+		if (!navigator.clipboard) return;
 		try {
-			await navigator.clipboard?.writeText(text);
+			await navigator.clipboard.writeText(text);
 			setCopied(true);
 			clearTimeout(timer.current);
 			timer.current = setTimeout(() => setCopied(false), resetMs);

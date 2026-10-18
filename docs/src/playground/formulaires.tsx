@@ -105,13 +105,26 @@ export const FORMULAIRES: Record<string, PlaygroundConfig> = {
 		extraAttrs: ["defaultValue={3}", "min={0}"],
 		props: [
 			["value / defaultValue", "number", "valeur contrôlée / initiale (défaut 0)"],
-			["onChange", "(value: number) => void", "changement"],
+			[
+				"onChange",
+				"(value: number) => void",
+				"changement — rien tant que la saisie est hors bornes",
+			],
+			[
+				"allowEmpty",
+				"boolean",
+				"le champ peut rester vide : value, defaultValue et onChange passent à number | null",
+			],
 			[
 				"min / max / step",
 				"number",
 				"bornes (aucune par défaut), pas (défaut 1) — ↑/↓, PageUp/Down ×10",
 			],
-			["precision", "number", "décimales affichées (arrondi au commit)"],
+			[
+				"precision",
+				"number",
+				"décimales affichées (arrondi au commit) ; les pas suivent leur échelle (0,1 + 0,2 = 0,3)",
+			],
 			["prefix / suffix", "string", "texte avant / après la valeur"],
 			["label / hint / error", "string", "libellé, aide, erreur"],
 			["readOnly", "boolean", "valeur figée : boutons et flèches inertes"],

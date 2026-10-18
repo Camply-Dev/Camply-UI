@@ -4,12 +4,14 @@ import {
 	type HTMLAttributes,
 	type ReactNode,
 	type Ref,
+	type RefObject,
 	useEffect,
+	useInsertionEffect,
 	useRef,
 } from "react";
 import { cn } from "./cn";
 import { idRefs } from "./Field";
-import { focusableWithin, trapTab } from "./focusTrap";
+import { focusEdges, trapTab } from "./focusTrap";
 import { useMergedRefs } from "./mergeRefs";
 import { Portal } from "./Portal";
 import { useEscapeAndScrollLock } from "./useEscapeAndScrollLock";
@@ -40,14 +42,23 @@ export type DialogPanelProps<E extends OverlayDialogElement> = Omit<
 	"title" | ReservedPanelAttr
 >;
 
-export interface OverlayDialogProps {
+/** Ce que Modal, Drawer et Sheet exposent du focus d'entrée. */
+export interface DialogFocusProps {
+	/**
+	 * Élément qui reçoit le focus à l'ouverture (un champ de recherche…), à la place
+	 * du premier focalisable du panneau. Un contrôle `autoFocus` du contenu est aussi
+	 * respecté ; dans les deux cas, le focus revient au déclencheur à la fermeture.
+	 */
+	initialFocus?: RefObject<HTMLElement | null>;
+}
+
+export interface OverlayDialogProps extends DialogFocusProps {
 	open: boolean;
 	onClose: () => void;
 	closeOnBackdrop?: boolean;
 	backdropClassName?: string;
 	panelClassName?: string;
 	as?: OverlayDialogElement;
-	focusPanel?: boolean;
 	/** Nom accessible explicite (si le dialogue n'a pas de titre visible). */
 	ariaLabel?: string;
 	/** id du titre visible — donne son nom accessible au dialogue (à préférer). */
@@ -70,7 +81,8 @@ export interface OverlayDialogProps {
 /**
  * Socle commun des dialogues modaux (Modal, Drawer, Sheet, CommandPalette).
  * Implémente ce qu'`aria-modal="true"` promet : le focus entre dans le
- * dialogue, y reste (piège Tab), et revient au déclencheur à la fermeture.
+ * dialogue (`initialFocus`, un contrôle `autoFocus`, sinon le premier
+ * focalisable), y reste (piège Tab), et revient au déclencheur à la fermeture.
  */
 export function OverlayDialog({
 	open,
@@ -79,7 +91,7 @@ export function OverlayDialog({
 	backdropClassName,
 	panelClassName,
 	as = "div",
-	focusPanel = true,
+	initialFocus,
 	ariaLabel,
 	ariaLabelledBy,
 	panelRef,
@@ -96,21 +108,33 @@ export function OverlayDialog({
 	const backdropRef = useRef<HTMLDivElement | null>(null);
 	useEscapeAndScrollLock(open, onClose, backdropRef);
 
-	// Mémorise le focus d'origine et le restaure à la fermeture.
+	// Le focus d'origine, lu AVANT que le contenu monté ne le prenne : un contrôle
+	// `autoFocus` le prend pendant la phase de mise en page du commit, avant tout
+	// `useEffect` et même avant les `useLayoutEffect` du parent. Seul un effet
+	// d'insertion passe avant ; il ne fait que lire, c'est son usage permis.
+	const previousFocus = useRef<HTMLElement | null>(null);
+	useInsertionEffect(() => {
+		if (open) previousFocus.current = document.activeElement as HTMLElement | null;
+	}, [open]);
+
+	// Restaure le focus d'origine à la fermeture.
 	useEffect(() => {
 		if (!open) return;
-		const previous = document.activeElement as HTMLElement | null;
+		const previous = previousFocus.current;
 		return () => previous?.focus?.();
 	}, [open]);
 
-	// Entrée du focus dans le dialogue : premier élément focalisable, sinon le panneau.
+	// Entrée du focus dans le dialogue : un contrôle `autoFocus` qui l'a déjà pris le
+	// garde ; sinon `initialFocus`, le premier focalisable, ou le panneau lui-même.
+	// `initialFocus` est lu ici, à l'ouverture : il ne relance pas l'effet.
+	const initialFocusRef = useRef(initialFocus);
+	initialFocusRef.current = initialFocus;
 	useEffect(() => {
-		if (!open || !focusPanel) return;
+		if (!open) return;
 		const panel = innerRef.current;
-		if (!panel) return;
-		const [first] = focusableWithin(panel);
-		(first ?? panel).focus();
-	}, [open, focusPanel]);
+		if (!panel || panel.contains(document.activeElement)) return;
+		(initialFocusRef.current?.current ?? focusEdges(panel).first ?? panel).focus();
+	}, [open]);
 
 	// Piège Tab : le focus ne peut pas sortir derrière le voile.
 	useEffect(() => {
@@ -119,8 +143,23 @@ export function OverlayDialog({
 			const panel = innerRef.current;
 			if (panel) trapTab(e, panel);
 		};
+		// Un Tab né dans une autre couche (un menu ouvert depuis le dialogue) : le piège
+		// l'a laissé passer pour qu'elle se referme, et elle a rendu le focus à son
+		// déclencheur, DANS le dialogue. Ce second passage, après elle (phase de
+		// remontée), boucle de nouveau aux bords : sinon le Tab repartait du
+		// déclencheur et, s'il était le dernier, sortait du dialogue.
+		const onKeyDownAfter = (e: KeyboardEvent) => {
+			const panel = innerRef.current;
+			if (e.key !== "Tab" || e.defaultPrevented || !panel) return;
+			if (!(e.target instanceof Node) || panel.contains(e.target)) return;
+			if (panel.contains(document.activeElement)) trapTab(e, panel);
+		};
 		document.addEventListener("keydown", onKeyDown, true);
-		return () => document.removeEventListener("keydown", onKeyDown, true);
+		document.addEventListener("keydown", onKeyDownAfter);
+		return () => {
+			document.removeEventListener("keydown", onKeyDown, true);
+			document.removeEventListener("keydown", onKeyDownAfter);
+		};
 	}, [open]);
 
 	if (!open) return null;

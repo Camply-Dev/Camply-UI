@@ -3,6 +3,133 @@
 Toutes les évolutions notables de `@camply/ui`.
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versionnage [SemVer](https://semver.org/lang/fr/).
 
+## [0.3.0] — 2026-10-18
+
+Ce qu'une application devait contourner (classes internes surchargées, composants
+maison) devient une API, et une revue complète des 60 composants corrige 36 défauts
+de comportement et d'accessibilité. `tsc` signale les ruptures de type ; celles qu'il
+ne voit pas sont marquées **⚠️ silencieuse**, les changements de rendu **⚠️ visuel**.
+
+### ⚠️ Changements cassants
+
+- **`NumberInputProps` devient une union** discriminée sur `allowEmpty` (voir Ajouts) :
+  un `interface X extends NumberInputProps` ne compile plus — écrire
+  `type X = NumberInputProps & { … }`.
+- ⚠️ **silencieuse** — **Dialogues : seul le contenu défile.** Le panneau d'une `Modal`
+  ne défile plus en entier (en-tête et pied restent à l'écran) ; `.camply-modal__content`
+  devient la zone qui défile, **sans marge**, et la marge passe à un nouveau
+  `.camply-modal__body`. Même structure pour `Drawer` et `Sheet`
+  (`.camply-drawer__body`, `.camply-sheet__body`). Une feuille qui retouchait la marge
+  de `__content` vise désormais `__body`.
+- ⚠️ **silencieuse** — **`DescriptionList` : classes de mise en page renommées**
+  `camply-descriptionlist__layout-row` / `__layout-stacked` (et `__layout-split`). En
+  `row`, la liste portait la classe de ses lignes (`camply-descriptionlist__row`) et en
+  recevait une marge verticale de 12 px : elle disparaît.
+- ⚠️ **silencieuse** — **Empilement des couches.** Couches flottantes (menus, listes,
+  popovers, cartes de survol) et dialogues partagent un niveau (`--camply-float-z` vaut
+  `--camply-z-modal`) : la dernière ouverte passe dessus. Une `Modal` ouverte depuis un
+  `Popover` n'est plus peinte sous lui ; un menu ouvert depuis une `HoverCard` passe sur
+  elle (la carte n'est plus au niveau des infobulles). `--camply-z-dropdown` reste exposé.
+- ⚠️ **silencieuse** — **Plus de `disabled` qui jette le focus** : un `Button` en
+  `loading` porte `aria-disabled` et `aria-busy` (clic et soumission annulés) ; les
+  flèches de `Pagination` et de `Carousel` arrivées au bout portent `aria-disabled`.
+  Un sélecteur CSS `:disabled` ne les vise plus.
+- ⚠️ **silencieuse** — `Table` : `rowKey(row, index)` reçoit le rang de la ligne dans
+  `data`, plus sa position après tri (une clé tirée de l'index changeait de ligne au
+  tri). Les textes se trient selon la locale (`Intl.Collator` : accents et casse
+  ignorés, « 9 » avant « 10 ») : l'ordre peut changer.
+- ⚠️ **silencieuse** — `Combobox` : liste fermée, Entrée n'est plus captée, le formulaire
+  s'envoie (elle choisissait une autre option, d'après un index périmé).
+- ⚠️ **silencieuse** — `FileUpload` : `onChange(File[])` ne part plus à chaque progression
+  d'un envoi, seulement quand la liste change (`onFilesChange` suit toujours tout).
+- ⚠️ **silencieuse** — `Tabs` : les ids d'onglets et de panneaux encodent la valeur
+  (`encodeURIComponent`) ; ils changent pour une valeur à espaces ou caractères spéciaux.
+- ⚠️ **silencieuse** — `Tooltip`, `HoverCard`, `Menubar` : `onOpenChange` /
+  `onOpenIndexChange` ne sont plus émis quand rien ne change (pointeur qui traverse).
+- ⚠️ **visuel** — **`Stat`** : une hausse prend le ton `success` (et non plus l'accent,
+  qui se lisait comme une alerte avec un accent rouge ou jaune) ; un écart nul est
+  neutre ; l'écart est mis en forme selon la locale (« +12,5 » en fr-FR, deux décimales
+  au plus) ; la ligne du bas n'est plus rendue vide.
+- ⚠️ **visuel** — **Contrastes AA** : thème clair, accent `#0284c7` → `#0369a1` (avec
+  `-hover`, `-soft`, `-border`, l'anneau et le dégradé) et avertissement `#b45309` →
+  `#a14a0a` ; thème sombre, `--camply-text-muted-2` `#6b7d95` → `#7587a0`. Titres
+  d'`Alert` poussés vers l'encre forte, initiales d'`Avatar` à l'encre sombre dans les
+  deux thèmes, toast `success` au ton `success`.
+- ⚠️ **visuel** — `TagInput` plein : la saisie reste affichée, en lecture seule (elle
+  disparaissait et perdait le focus). `DatePicker` vide s'ouvre sur le mois du jour.
+
+### Ajouts
+
+- **`initialFocus`** sur `Modal`, `Drawer` et `Sheet` : l'élément focalisé à l'ouverture
+  (un champ de recherche). Un contrôle `autoFocus` du contenu est aussi respecté, et le
+  focus revient dans tous les cas au déclencheur.
+- **`NumberInput allowEmpty`** : le champ peut rester vide (`null`), pour une valeur
+  facultative ; `value`, `defaultValue` et `onChange` passent à `number | null`.
+- **`SegmentedControl label` / `hint`** : un libellé visible et une aide, comme
+  `RadioGroup`, quand le groupe est un champ de formulaire.
+- **`Stat variant="plain"`** (à plat, dans un panneau) et **`size="sm"`** (compacte).
+- **`DescriptionList layout="split"`** : le libellé prend la place, la valeur se range à
+  droite en chiffres alignés — des montants.
+- **`Table bordered={false}`** : bord à bord, dans une `Card`.
+- **`Card as`** (`article`, `section`, `aside`, `li`) et **`CardTitle headingLevel={1}`**.
+- **`MenuLabel uppercase={false}`** : le texte tel quel (une adresse e-mail).
+- **Variables de composant** (API publique) : `--camply-segmented-*` (rail, curseur),
+  `--camply-progress-height` / `-track`, `--camply-table-edge-padding`,
+  `--camply-toast-offset-x` / `-y` (zone sûre des écrans à encoche ajoutée).
+- **Remise à zéro des formulaires** : un `<button type="reset">` ramène à leur valeur par
+  défaut les widgets non contrôlés qui soumettent par un champ caché (`Select`,
+  `Combobox`, `MultiSelect`, `DatePicker`, `Rating`, `Slider`, `RangeSlider`,
+  `PinInput`, `TagInput`, `ColorPicker`, `SegmentedControl`).
+- **Déclencheurs imbriquables** : `<DropdownMenu trigger={<Tooltip><button/></Tooltip>}>`
+  fonctionne (les props du menu vont au bouton), comme l'inverse.
+- Libellé `avatarStatus` (`CamplyLabels`) : le statut d'un `Avatar` entre dans son nom
+  accessible.
+
+### Corrections
+
+**Clavier et focus**
+
+- `DatePicker` : le calendrier se pilote enfin au clavier (pattern APG : flèches,
+  Origine/Fin, Page préc./suiv., Maj pour l'année ; flèche bas depuis le champ), Tab y
+  reste, Échap et le jour choisi rendent le focus au champ, et il se referme quand le
+  focus le quitte. En plage, le bouton annonce son libellé **et** les dates.
+- `Popover` : le focus entre dans le panneau à l'ouverture (portalisé, il était hors
+  d'atteinte) ; Tab au bout le referme et revient au déclencheur.
+- Piège à focus des dialogues : il ne mesure plus que les bords (une fenêtre de
+  centaines de boutons se figeait à chaque Tab) ; un menu ouvert depuis un dialogue gère
+  Tab, se referme et rend le focus, au lieu de rester ouvert sans focus.
+- `CommandPalette` : focus d'entrée par `initialFocus` (plus de `requestAnimationFrame`) ;
+  le survol ne vole plus la sélection clavier ; Entrée qui valide une composition (IME)
+  ne lance plus de commande — de même dans `Combobox` et `TagInput`.
+- `Menubar` : un menu ouvert au survol ne prend plus le focus de la page ; un menu
+  ouvert au montage (`defaultOpenIndex`) n'est plus invisible.
+- `PinInput` : retaper le chiffre déjà présent fait avancer le focus.
+- `Tree` : les flèches partent de l'élément focalisé, même atteint autrement qu'au clic.
+- `Carousel` : « Lecture » relance la rotation même focus dans le carrousel.
+
+**Valeurs**
+
+- `NumberInput` : un pas décimal ne cumule plus d'erreur de flottant ; rien d'émis hors
+  bornes pendant la frappe (la sortie ramène dans les bornes) ni en sortant sans
+  changement ; les espaces de milliers sont lus (« 1 000,5 »).
+- `Slider` / `RangeSlider` : calage aux décimales de `min` ; Page± avance d'un pas au
+  moins ; deux poignées confondues à `max` se reprennent à la souris.
+- `Table` : un clic sur l'icône d'un bouton de ligne ne déclenche plus `onRowClick` ;
+  « Tout sélectionner » garde les lignes sélectionnées hors de l'affichage.
+- `Toast` : `duration: Infinity` garde le toast (il partait aussitôt) ; fermer un toast
+  focalisé passe le focus au voisin, et les autres ne restent plus suspendus.
+- `Snippet` : plus de « Copié » quand le presse-papiers est indisponible.
+
+**Rendu et accessibilité**
+
+- `Checkbox` : une case partielle (`indeterminate`) montre un tiret.
+- `--camply-hover-soft` redéfini dans le thème clair : posé sous `<html>`, le thème
+  héritait du survol sombre (menus et listes sans surbrillance visible).
+- `Spinner` / `Dots` : le nom est le texte de la région live (certains lecteurs d'écran
+  taisaient l'`aria-label`).
+- `Tabs` : ids valides pour toute valeur ; `aria-controls` et `aria-labelledby` ne
+  pointent plus dans le vide.
+
 ## [0.2.0] — 2026-10-11
 
 Changements depuis `0.1.0-beta.0`. `tsc` signale la plupart des ruptures ; celles

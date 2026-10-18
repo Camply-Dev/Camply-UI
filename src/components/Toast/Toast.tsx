@@ -154,7 +154,9 @@ export const ToastProvider = forwardRef<HTMLElement, ToastProviderProps>(
 				const record: ToastRecord = { tone: "default", ...options, id };
 				setToasts((list) => [...list, record]);
 				const ms = options.duration ?? duration;
-				if (ms > 0) {
+				// `0` ou `Infinity` : le toast reste. Un `setTimeout(…, Infinity)` partirait
+				// aussitôt (le délai déborde), il ne faut pas en créer.
+				if (ms > 0 && Number.isFinite(ms)) {
 					timers.current.set(id, { remaining: ms, startedAt: 0, handle: null });
 					if (!paused.current) start(id);
 				}
@@ -181,6 +183,28 @@ export const ToastProvider = forwardRef<HTMLElement, ToastProviderProps>(
 				map.clear();
 			};
 		}, []);
+
+		/**
+		 * Ferme un toast depuis l'un de ses boutons. S'il avait le focus, celui-ci passe au
+		 * toast voisin ; sans voisin, la pile ne le retient plus : certains navigateurs
+		 * n'émettent aucun `blur` quand le bouton focalisé disparaît, et les autres toasts
+		 * resteraient sinon suspendus pour toujours.
+		 */
+		const dismissFrom = (id: number, button: HTMLElement) => {
+			const item = button.closest<HTMLElement>(".camply-toast__toast");
+			const hadFocus = !!item?.contains(document.activeElement);
+			const neighbour = (item?.nextElementSibling ??
+				item?.previousElementSibling) as HTMLElement | null;
+			dismiss(id);
+			if (!hadFocus) return;
+			const next = neighbour?.querySelector<HTMLElement>(".camply-toast__close");
+			if (next) {
+				next.focus();
+				return;
+			}
+			focused.current = false;
+			syncPause();
+		};
 
 		const value = useMemo(() => ({ toast, dismiss }), [toast, dismiss]);
 
@@ -254,14 +278,17 @@ export const ToastProvider = forwardRef<HTMLElement, ToastProviderProps>(
 												className="camply-toast__action"
 												onClick={(e) => {
 													t.action?.onClick(e);
-													if (!e.defaultPrevented) dismiss(t.id);
+													if (!e.defaultPrevented) dismissFrom(t.id, e.currentTarget);
 												}}
 											>
 												{t.action.label}
 											</Button>
 										)}
 									</div>
-									<CloseButton className="camply-toast__close" onClick={() => dismiss(t.id)} />
+									<CloseButton
+										className="camply-toast__close"
+										onClick={(e) => dismissFrom(t.id, e.currentTarget)}
+									/>
 								</div>
 							);
 						})}

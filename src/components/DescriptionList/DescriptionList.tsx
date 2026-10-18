@@ -8,7 +8,12 @@ export interface DescriptionItem {
 
 export interface DescriptionListProps extends Omit<HTMLAttributes<HTMLDListElement>, "children"> {
 	items: DescriptionItem[];
-	layout?: "row" | "stacked";
+	/**
+	 * `row` (défaut) : libellé et valeur côte à côte, le libellé sur un tiers.
+	 * `stacked` : la valeur sous son libellé. `split` : le libellé prend la place, la
+	 * valeur se range à droite en chiffres alignés — des montants, un total.
+	 */
+	layout?: "row" | "stacked" | "split";
 	divided?: boolean;
 }
 
@@ -19,7 +24,8 @@ export const DescriptionList = forwardRef<HTMLDListElement, DescriptionListProps
 				ref={ref}
 				className={cn(
 					"camply-descriptionlist__list",
-					`camply-descriptionlist__${layout}`,
+					// `layout-` : sans lui, `row` donnait à la liste la classe de ses lignes.
+					`camply-descriptionlist__layout-${layout}`,
 					divided && "camply-descriptionlist__divided",
 					className,
 				)}

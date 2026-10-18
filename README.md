@@ -107,6 +107,27 @@ Tous les composants lisent les variables `--camply-*` définies dans `styles.css
 Chaque composant accepte aussi `className` et `style`, appliqués à sa **racine**. Pour
 atteindre le contrôle interne d'un champ (`Input`, `Textarea`…), cibler `.camply-field-control`.
 
+**Variables de composant.** Ce qu'une application règle souvent sur un seul composant passe
+par une variable à son nom, posée sur un parent, un thème ou une media query — jamais par
+une classe interne (`.camply-x__y`), qui n'est pas une API :
+
+| Variable | Défaut | Effet |
+|---|---|---|
+| `--camply-segmented-rail`, `-rail-border`, `-thumb`, `-thumb-shadow`, `-thumb-ink` | fond des champs, accent | rail et curseur d'un `SegmentedControl` |
+| `--camply-progress-height`, `--camply-progress-track` | `7px` (`5px` en `sm`), `fill-3` | hauteur et piste d'un `Progress` |
+| `--camply-table-edge-padding` | `16px` | marge des colonnes du bord d'une `Table` (l'aligner sur la `Card` parente) |
+| `--camply-toast-offset-x`, `--camply-toast-offset-y` | `22px` | écart des toasts au bord de l'écran (au-dessus d'une barre d'onglets) |
+
+```css
+/* Thème clair d'une application : un curseur blanc en relief plutôt qu'à l'accent. */
+[data-camply-theme="light"] {
+	--camply-segmented-rail: var(--camply-surface-2);
+	--camply-segmented-thumb: var(--camply-surface);
+	--camply-segmented-thumb-shadow: 0 0 0 1px var(--camply-border), var(--camply-shadow-sm);
+	--camply-segmented-thumb-ink: var(--camply-text-strong);
+}
+```
+
 ## Développement
 
 - **Bun** — runtime et gestionnaire de paquets
@@ -215,7 +236,8 @@ copie est celle qui finit par diverger : l'oubli de `disabled` sur l'input cach�
 **7. Classes CSS `camply-<slug>__<élément>`**, aucune couleur **de thème** en
 dur : tout passe par les tokens `--camply-*`, pour qu'un thème repeigne toute la
 lib. Seule exception, la palette décorative d'`Avatar` (cinq dégradés attribués
-par hachage du nom), volontairement identique dans les deux thèmes. Le style d'un
+par hachage du nom, et l'encre sombre de ses initiales), volontairement identique
+dans les deux thèmes. Le style d'un
 composant est surchargeable **sans `!important`** : pas de style inline pour ce qui
 peut vivre en feuille.
 

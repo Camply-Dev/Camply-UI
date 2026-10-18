@@ -7,7 +7,7 @@ import {
 	type ReactNode,
 	useContext,
 } from "react";
-import { cloneTrigger } from "../../lib/cloneTrigger";
+import { cloneTrigger, markTriggerSlot } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { useMergedRefs } from "../../lib/mergeRefs";
 import { Portal } from "../../lib/Portal";
@@ -123,6 +123,7 @@ export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(
 );
 
 DropdownMenu.displayName = "DropdownMenu";
+markTriggerSlot(DropdownMenu, "trigger");
 
 // `onSelect` existe déjà sur les props DOM (événement de sélection de texte) :
 // on garde notre signature « entrée choisie ». `type` et `role` sont l'invariant
@@ -179,11 +180,24 @@ MenuSeparator.displayName = "MenuSeparator";
 
 export interface MenuLabelProps extends ComponentPropsWithoutRef<"div"> {
 	children: ReactNode;
+	/**
+	 * Petites capitales d'intitulé de groupe (défaut `true`). `false` : le texte tel
+	 * quel — une adresse e-mail, une phrase, qu'une mise en capitales déformerait.
+	 */
+	uppercase?: boolean;
 }
 
 export const MenuLabel = forwardRef<HTMLDivElement, MenuLabelProps>(
-	({ children, className, ...rest }, ref) => (
-		<div {...rest} ref={ref} className={cn("camply-dropdownmenu__menuLabel", className)}>
+	({ children, uppercase = true, className, ...rest }, ref) => (
+		<div
+			{...rest}
+			ref={ref}
+			className={cn(
+				"camply-dropdownmenu__menuLabel",
+				!uppercase && "camply-dropdownmenu__menuLabelText",
+				className,
+			)}
+		>
 			{children}
 		</div>
 	),
