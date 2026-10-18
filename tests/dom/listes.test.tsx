@@ -288,6 +288,41 @@ describe("CommandPalette — filtrage", () => {
 	});
 });
 
+describe("CommandPalette — limit", () => {
+	const nombreuses = Array.from({ length: 30 }, (_, i) => ({
+		id: `fiche-${i}`,
+		label: `Fiche ${i + 1}`,
+		group: "Fiches",
+		onRun: vi.fn(),
+	}));
+
+	it("n'affiche que les premières, et dit combien d'autres correspondent", async () => {
+		const user = userEvent.setup();
+		render(<CommandPalette open onClose={vi.fn()} commands={nombreuses} limit={10} />);
+		expect(screen.getAllByRole("option")).toHaveLength(10);
+		expect(screen.getByRole("option", { name: "Fiche 1" })).toBeInTheDocument();
+		expect(screen.getByText("20 autres : précisez la recherche")).toBeInTheDocument();
+
+		// « Fiche 2 », « Fiche 20 » à « Fiche 29 » : 11 commandes, une seule de cachée.
+		await user.type(screen.getByRole("combobox"), "fiche 2");
+		expect(screen.getAllByRole("option")).toHaveLength(10);
+		expect(screen.getByText("1 autre : précisez la recherche")).toBeInTheDocument();
+
+		await user.type(screen.getByRole("combobox"), "5");
+		expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual(["Fiche 25"]);
+		expect(screen.queryByText(/précisez la recherche/)).not.toBeInTheDocument();
+	});
+
+	it("les flèches s'arrêtent à la dernière commande affichée", async () => {
+		const user = userEvent.setup();
+		render(<CommandPalette open onClose={vi.fn()} commands={nombreuses} limit={3} />);
+		const champ = screen.getByRole("combobox");
+		await user.click(champ);
+		await user.keyboard("{ArrowDown}{ArrowDown}{ArrowDown}{ArrowDown}");
+		expect(optionActive(champ)).toBe(screen.getByRole("option", { name: "Fiche 3" }));
+	});
+});
+
 describe("CommandPalette — navigation clavier", () => {
 	it("aria-activedescendant suit les flèches, d'un groupe à l'autre, et bute aux bords", async () => {
 		const user = userEvent.setup();

@@ -54,6 +54,13 @@ export interface CommandPaletteProps
 	commands: Command[];
 	placeholder?: string;
 	emptyMessage?: string;
+	/**
+	 * Au plus `limit` commandes affichées : les premières qui correspondent. Au-delà, une
+	 * ligne dit combien d'autres correspondent, que la recherche précise. Une liste de
+	 * plus de mille commandes (des fiches, des clients…) s'ouvre ainsi sans délai : la
+	 * palette ne rend que ce qu'on parcourt. Sans : toutes.
+	 */
+	limit?: number;
 }
 
 export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(
@@ -64,6 +71,7 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(
 			commands,
 			placeholder,
 			emptyMessage,
+			limit,
 			className,
 			style,
 			"aria-label": ariaLabel,
@@ -81,7 +89,12 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(
 		const paletteLabel = ariaLabel ?? labels.commandPalette;
 
 		const results = useMemo(() => filterCommands(commands, query), [commands, query]);
-		const groups = useMemo(() => groupCommands(results), [results]);
+		const shown = useMemo(
+			() => (limit !== undefined && results.length > limit ? results.slice(0, limit) : results),
+			[results, limit],
+		);
+		const groups = useMemo(() => groupCommands(shown), [shown]);
+		const hidden = results.length - shown.length;
 
 		useEffect(() => {
 			if (open) {
@@ -215,6 +228,13 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(
 						</div>
 					))}
 				</div>
+				{/* Hors de la listbox, qui ne possède que des options et des groupes ; annoncé quand
+				    une frappe change le nombre de commandes cachées. */}
+				{hidden > 0 && (
+					<p className="camply-commandpalette__more" aria-live="polite">
+						{labels.moreCommands(hidden)}
+					</p>
+				)}
 			</OverlayDialog>
 		);
 	},

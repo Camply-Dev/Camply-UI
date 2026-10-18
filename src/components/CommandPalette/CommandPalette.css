@@ -124,3 +124,13 @@
 	font-size: 14px;
 	color: var(--camply-text-muted-2);
 }
+/* Les commandes au-delà de `limit` : leur nombre, sous la liste. */
+.camply-commandpalette__more {
+	flex: none;
+	margin: 0;
+	padding: 10px 16px;
+	border-top: 1px solid var(--camply-border);
+	text-align: center;
+	font-size: 13px;
+	color: var(--camply-text-muted-2);
+}

@@ -420,6 +420,11 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 			["commands", "Command[]", "{ id, label, keywords?, group?, icon?, shortcut?, onRun }"],
 			["placeholder", "string", "texte du champ ; sinon labels.commandPalettePlaceholder"],
 			["emptyMessage", "string", "état vide ; sinon labels.noCommands"],
+			[
+				"limit",
+				"number",
+				"au plus N commandes rendues (les premières qui correspondent) ; au-delà, leur nombre (labels.moreCommands)",
+			],
 			["aria-label", "string", "nom accessible du dialogue ; sinon labels.commandPalette"],
 			["useCommandPalette()", "[open, setOpen]", "hook ⌘K/Ctrl+K prêt à l'emploi"],
 		],

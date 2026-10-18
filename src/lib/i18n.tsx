@@ -51,6 +51,8 @@ export interface CamplyLabels {
 	commandPalette: string;
 	commandPalettePlaceholder: string;
 	noCommands: string;
+	/** Les commandes cachées par `limit` de `CommandPalette`. */
+	moreCommands: (count: number) => string;
 	/** ColorPicker : nom complet de chacune des trois surfaces de réglage. */
 	colorPickerSaturation: string;
 	colorPickerHue: string;
@@ -113,6 +115,7 @@ const FR: CamplyLabels = {
 	commandPalette: "Palette de commandes",
 	commandPalettePlaceholder: "Rechercher une commande…",
 	noCommands: "Aucune commande",
+	moreCommands: (count) => `${count} autre${count > 1 ? "s" : ""} : précisez la recherche`,
 	colorPickerSaturation: "Sélecteur de couleur — saturation et luminosité",
 	colorPickerHue: "Sélecteur de couleur — teinte",
 	colorPickerAlpha: "Sélecteur de couleur — opacité",

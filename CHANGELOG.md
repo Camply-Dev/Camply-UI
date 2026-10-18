@@ -3,6 +3,16 @@
 Toutes les évolutions notables de `@camply/ui`.
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versionnage [SemVer](https://semver.org/lang/fr/).
 
+## [Non publié]
+
+### Ajouts
+
+- `CommandPalette` : `limit`, au plus N commandes rendues, les premières qui
+  correspondent ; au-delà, une ligne sous la liste dit combien d'autres correspondent
+  (`labels.moreCommands`, « 965 autres : précisez la recherche »). Une palette de plus
+  de mille commandes rendait tous ses boutons à l'ouverture et à chaque frappe (une
+  centaine de millisecondes).
+
 ## [0.3.0] — 2026-10-18
 
 Ce qu'une application devait contourner (classes internes surchargées, composants
