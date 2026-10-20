@@ -12,6 +12,7 @@ import { FormReset, HiddenField } from "../../lib/HiddenField";
 import { ratioToValue, snapToStep, valueToPercent } from "../../lib/sliderGeometry";
 import { nextSliderValue } from "../../lib/sliderKeys";
 import { useControllable } from "../../lib/useControllable";
+import { usePointerDrag } from "../../lib/usePointerDrag";
 
 export interface SliderProps
 	extends Omit<ComponentPropsWithoutRef<"div">, "onChange" | "defaultValue"> {
@@ -68,7 +69,6 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
 ) {
 	const [val, setVal] = useControllable<number>(value, defaultValue, onChange);
 	const trackRef = useRef<HTMLDivElement>(null);
-	const dragging = useRef(false);
 	const locked = disabled || readOnly;
 
 	const setFromClientX = useCallback(
@@ -81,19 +81,11 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
 		[min, max, step, setVal],
 	);
 
+	const drag = usePointerDrag((e) => setFromClientX(e.clientX));
 	const onPointerDown = (e: PointerEvent) => {
 		if (locked) return;
-		dragging.current = true;
-		(e.target as HTMLElement).setPointerCapture(e.pointerId);
+		drag.start(e);
 		setFromClientX(e.clientX);
-	};
-	const onPointerMove = (e: PointerEvent) => {
-		if (!dragging.current) return;
-		setFromClientX(e.clientX);
-	};
-	const onPointerUp = (e: PointerEvent) => {
-		dragging.current = false;
-		(e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
 	};
 
 	const onKeyDown = (e: KeyboardEvent) => {
@@ -135,8 +127,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>(function Slider(
 								ref={trackRef}
 								className="camply-slider__track"
 								onPointerDown={onPointerDown}
-								onPointerMove={onPointerMove}
-								onPointerUp={onPointerUp}
+								{...drag.handlers}
 							>
 								<div className="camply-slider__fill" style={{ width: `${pct}%` }} />
 								{/* La poignée porte l'id du champ : un <div role="slider"> n'est pas un

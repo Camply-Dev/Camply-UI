@@ -18,6 +18,10 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; ve
 - Paquet publié : `THIRD-PARTY-LICENSES.md` y entre enfin (les licences Tabler et
   Lucide des icônes exigent leurs mentions), avec `AI-CONTEXT.md`, que l'application
   peut désigner dans `node_modules/@camply/ui/`.
+- `Slider` / `RangeSlider` : un glisser interrompu par le navigateur (`pointercancel`
+  sur tactile : défilement, appui long) ou une perte de capture prend fin ; la poignée
+  suivait ensuite le doigt. `ColorPicker` glisse de même par capture du pointeur (plus
+  d'écouteurs sur `window`), et un second doigt n'y déplace plus la surface en cours.
 
 ## [0.3.0] — 2026-10-18
 

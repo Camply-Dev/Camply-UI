@@ -1,19 +1,22 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { ColorPicker } from "../../src/components/ColorPicker";
 import { Combobox } from "../../src/components/Combobox";
 import { DatePicker } from "../../src/components/DatePicker";
 import { NumberInput } from "../../src/components/NumberInput";
 import { PinInput } from "../../src/components/PinInput";
+import { RangeSlider } from "../../src/components/RangeSlider";
 import { SegmentedControl } from "../../src/components/SegmentedControl";
 import { Select } from "../../src/components/Select";
+import { Slider } from "../../src/components/Slider";
 import { TagInput } from "../../src/components/TagInput";
 
 /**
  * Saisie (0.3.0) : NumberInput vidable et sans émissions parasites, libellé de
  * SegmentedControl, Entrée du Combobox, calendrier au clavier, PinInput retapé,
- * TagInput plein, remise à zéro d'un formulaire.
+ * TagInput plein, remise à zéro d'un formulaire, fin d'un glisser au pointeur.
  */
 
 describe("NumberInput", () => {
@@ -261,5 +264,57 @@ describe("remise à zéro d'un formulaire", () => {
 		render(<Controle />);
 		await user.click(screen.getByRole("button", { name: "Effacer" }));
 		expect(onChange).not.toHaveBeenCalled();
+	});
+});
+
+/** Surface de 100 px depuis x = 0 : `clientX` se lit directement en pourcentage. */
+function poserLargeur(el: Element) {
+	el.getBoundingClientRect = () => new DOMRect(0, 0, 100, 10);
+}
+
+describe("glisser au pointeur", () => {
+	// Sur tactile, le navigateur reprend le pointeur (défilement, appui long) par
+	// `pointercancel`, sans `pointerup` : la poignée suivait ensuite le doigt.
+	it("Slider : pointercancel termine le glisser", () => {
+		render(<Slider label="Budget" defaultValue={50} />);
+		const poignee = screen.getByRole("slider", { name: "Budget" });
+		poserLargeur(poignee.closest(".camply-slider__track") as Element);
+
+		fireEvent.pointerDown(poignee, { pointerId: 1, clientX: 20 });
+		fireEvent.pointerMove(poignee, { pointerId: 1, clientX: 30 });
+		expect(poignee).toHaveAttribute("aria-valuenow", "30");
+
+		fireEvent.pointerCancel(poignee, { pointerId: 1 });
+		fireEvent.pointerMove(poignee, { pointerId: 1, clientX: 80 });
+		expect(poignee).toHaveAttribute("aria-valuenow", "30");
+	});
+
+	it("RangeSlider : la perte de capture termine aussi le glisser", () => {
+		render(<RangeSlider label="Budget" defaultValue={[20, 60]} />);
+		const haute = screen.getByRole("slider", { name: "Budget maximum" });
+		poserLargeur(haute.closest(".camply-rangeslider__track") as Element);
+
+		fireEvent.pointerDown(haute, { pointerId: 1, clientX: 60 });
+		fireEvent.pointerMove(haute, { pointerId: 1, clientX: 70 });
+		expect(haute).toHaveAttribute("aria-valuenow", "70");
+
+		fireEvent.lostPointerCapture(haute, { pointerId: 1 });
+		fireEvent.pointerMove(haute, { pointerId: 1, clientX: 90 });
+		expect(haute).toHaveAttribute("aria-valuenow", "70");
+	});
+
+	it("ColorPicker : pointercancel termine le glisser, un autre doigt est ignoré", () => {
+		render(<ColorPicker label="Couleur" defaultValue="#ff0000" />);
+		const opacite = screen.getByRole("slider", { name: /opacité/ });
+		poserLargeur(opacite);
+
+		fireEvent.pointerDown(opacite, { pointerId: 1, clientX: 40 });
+		expect(opacite).toHaveAttribute("aria-valuenow", "40");
+		fireEvent.pointerMove(opacite, { pointerId: 2, clientX: 90 });
+		expect(opacite).toHaveAttribute("aria-valuenow", "40");
+
+		fireEvent.pointerCancel(opacite, { pointerId: 1 });
+		fireEvent.pointerMove(opacite, { pointerId: 1, clientX: 70 });
+		expect(opacite).toHaveAttribute("aria-valuenow", "40");
 	});
 });

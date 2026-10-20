@@ -32,6 +32,7 @@ import { nextSliderValue } from "../../lib/sliderKeys";
 import { useAnchor } from "../../lib/useAnchor";
 import { useControllable } from "../../lib/useControllable";
 import { useDismiss } from "../../lib/useDismiss";
+import { usePointerDrag } from "../../lib/usePointerDrag";
 import { Input } from "../Input";
 
 export interface ColorPickerProps
@@ -54,6 +55,8 @@ export interface ColorPickerProps
 }
 
 const HUE_MAX = 360;
+
+type Surface = "sv" | "hue" | "alpha";
 
 /** Évite la dérive flottante des pas de 0,01 (0.1 + 0.2 -> 0.30000000000000004). */
 const round2 = (n: number) => Math.round(n * 100) / 100;
@@ -109,6 +112,32 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 		[setHex],
 	);
 
+	const surfaceRefs: Record<Surface, RefObject<HTMLDivElement | null>> = {
+		sv: svRef,
+		hue: hueRef,
+		alpha: alphaRef,
+	};
+	/** Applique la position du pointeur à la surface glissée. */
+	const moveOn = (e: PointerEvent, surface: Surface) => {
+		const el = surfaceRefs[surface].current;
+		if (!el) return;
+		// rect relu à chaque mouvement : useAnchor repositionne le panneau au
+		// défilement, un rect figé désaligne la couleur du pointeur.
+		const r = el.getBoundingClientRect();
+		const x = clamp((e.clientX - r.left) / r.width, 0, 1);
+		const y = clamp((e.clientY - r.top) / r.height, 0, 1);
+		if (surface === "sv") commit(hsv[0], x, 1 - y);
+		else if (surface === "hue") commit(x * HUE_MAX, hsv[1], hsv[2]);
+		else setAlpha(x);
+	};
+	const drag = usePointerDrag(moveOn);
+	const dragFrom = (surface: Surface) => (e: PointerEvent) => {
+		// La surface prend le focus : le clavier prend le relais du glisser.
+		surfaceRefs[surface].current?.focus();
+		drag.start(e, surface);
+		moveOn(e, surface);
+	};
+
 	useEffect(() => {
 		const rgb = parseHex(hex);
 		if (!rgb) return;
@@ -130,9 +159,6 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 	const triggerRef = useRef<HTMLButtonElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
 	const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-	const draggingRef = useRef(false);
-	/** Ferme le glisser en cours : appelé au démontage et avant tout nouveau glisser. */
-	const stopDragRef = useRef<(() => void) | null>(null);
 	const hoverRef = useRef(false);
 	// Le déclencheur ouvre au focus : ce drapeau évite qu'il rouvre le panneau
 	// quand c'est NOUS qui lui rendons le focus (Échap, sortie par Tab).
@@ -172,7 +198,7 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 		clearTimeout(closeTimer.current);
 		const tick = () => {
 			// Un glisser en cours retient le panneau, même curseur sorti.
-			if (draggingRef.current) {
+			if (drag.dragging()) {
 				closeTimer.current = setTimeout(tick, 150);
 				return;
 			}
@@ -182,15 +208,8 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 		};
 		closeTimer.current = setTimeout(tick, 200);
 	};
-	// Au démontage : la fermeture différée ET un glisser éventuellement en cours,
-	// dont les listeners vivent sur `window` et survivraient au composant.
-	useEffect(
-		() => () => {
-			clearTimeout(closeTimer.current);
-			stopDragRef.current?.();
-		},
-		[],
-	);
+	// Un timer en vol après démontage appellerait setState sur un composant mort.
+	useEffect(() => () => clearTimeout(closeTimer.current), []);
 
 	/** Referme, et rend le focus au déclencheur s'il était dans le panneau. */
 	const closeAndRestore = useCallback(() => {
@@ -239,50 +258,7 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 		closeAndRestore();
 	};
 
-	const startDrag = useCallback(
-		(
-			target: RefObject<HTMLDivElement | null>,
-			e: PointerEvent,
-			onMove: (x: number, y: number) => void,
-		) => {
-			const el = target.current;
-			if (!el) return;
-			// Un glisser déjà en cours (2e doigt sur une autre surface) est fermé
-			// d'abord : sans ça sa paire de listeners resterait orpheline sur window.
-			stopDragRef.current?.();
-			// La surface prend le focus : le clavier prend le relais du glisser.
-			el.focus();
-			draggingRef.current = true;
-			// rect relu à chaque mouvement : useAnchor repositionne le panneau au
-			// défilement, un rect figé désaligne la couleur du pointeur.
-			const apply = (cx: number, cy: number) => {
-				const r = el.getBoundingClientRect();
-				onMove(clamp((cx - r.left) / r.width, 0, 1), clamp((cy - r.top) / r.height, 0, 1));
-			};
-			apply(e.clientX, e.clientY);
-			const move = (ev: globalThis.PointerEvent) => apply(ev.clientX, ev.clientY);
-			const up = () => {
-				window.removeEventListener("pointermove", move);
-				window.removeEventListener("pointerup", up);
-				// pointercancel : sur tactile le navigateur reprend le pointeur (défilement,
-				// appui long, mise en arrière-plan) sans jamais émettre pointerup.
-				window.removeEventListener("pointercancel", up);
-				draggingRef.current = false;
-				stopDragRef.current = null;
-			};
-			stopDragRef.current = up;
-			window.addEventListener("pointermove", move);
-			window.addEventListener("pointerup", up);
-			window.addEventListener("pointercancel", up);
-		},
-		[],
-	);
-
 	const [h, s, v] = hsv;
-
-	const dragSV = (e: PointerEvent) => startDrag(svRef, e, (x, y) => commit(h, x, 1 - y));
-	const dragHue = (e: PointerEvent) => startDrag(hueRef, e, (x) => commit(x * HUE_MAX, s, v));
-	const dragAlpha = (e: PointerEvent) => startDrag(alphaRef, e, (x) => setAlpha(x));
 
 	const onSvKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
 		const step = e.shiftKey ? 0.1 : 0.01;
@@ -367,7 +343,8 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 				style={{
 					background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, ${hueHex})`,
 				}}
-				onPointerDown={dragSV}
+				onPointerDown={dragFrom("sv")}
+				{...drag.handlers}
 				onKeyDown={onSvKeyDown}
 			>
 				<span
@@ -386,7 +363,8 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 				aria-valuenow={Math.round(h)}
 				aria-valuetext={`${Math.round(h)}°`}
 				className="camply-focus-ring camply-colorpicker__hue"
-				onPointerDown={dragHue}
+				onPointerDown={dragFrom("hue")}
+				{...drag.handlers}
 				onKeyDown={onHueKeyDown}
 			>
 				<span
@@ -405,7 +383,8 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 				aria-valuenow={Math.round(alpha * 100)}
 				aria-valuetext={percent.format(alpha)}
 				className="camply-checkerboard camply-focus-ring camply-colorpicker__alpha"
-				onPointerDown={dragAlpha}
+				onPointerDown={dragFrom("alpha")}
+				{...drag.handlers}
 				onKeyDown={onAlphaKeyDown}
 			>
 				<span

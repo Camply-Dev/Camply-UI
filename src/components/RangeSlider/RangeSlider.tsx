@@ -14,6 +14,7 @@ import { useLabels } from "../../lib/i18n";
 import { ratioToValue, snapToStep, valueToPercent } from "../../lib/sliderGeometry";
 import { nextSliderValue } from "../../lib/sliderKeys";
 import { useControllable } from "../../lib/useControllable";
+import { usePointerDrag } from "../../lib/usePointerDrag";
 
 export type RangeValue = [number, number];
 
@@ -85,7 +86,6 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 	const [range, setRange] = useControllable<RangeValue>(value, defaultValue, onChange);
 	const labels = useLabels();
 	const trackRef = useRef<HTMLDivElement>(null);
-	const dragging = useRef<0 | 1 | null>(null);
 	const locked = disabled || readOnly;
 
 	const setHandle = useCallback(
@@ -110,18 +110,10 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 		[min, max],
 	);
 
+	const drag = usePointerDrag<0 | 1>((e, index) => setHandle(index, valueFromX(e.clientX)));
 	const onPointerDown = (index: 0 | 1) => (e: PointerEvent) => {
 		if (locked) return;
-		dragging.current = index;
-		(e.target as HTMLElement).setPointerCapture(e.pointerId);
-	};
-	const onPointerMove = (e: PointerEvent) => {
-		if (dragging.current === null) return;
-		setHandle(dragging.current, valueFromX(e.clientX));
-	};
-	const onPointerUp = (e: PointerEvent) => {
-		dragging.current = null;
-		(e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
+		drag.start(e, index);
 	};
 
 	const onKey = (index: 0 | 1) => (e: KeyboardEvent) => {
@@ -189,8 +181,7 @@ export const RangeSlider = forwardRef<HTMLDivElement, RangeSliderProps>(function
 								aria-label={labelledBy ? undefined : ariaLabel}
 								aria-labelledby={labelledBy}
 								className="camply-rangeslider__track"
-								onPointerMove={onPointerMove}
-								onPointerUp={onPointerUp}
+								{...drag.handlers}
 							>
 								<div
 									className="camply-rangeslider__fill"
