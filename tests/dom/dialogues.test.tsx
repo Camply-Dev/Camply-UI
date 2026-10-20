@@ -1,11 +1,12 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useRef, useState } from "react";
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { Drawer } from "../../src/components/Drawer";
 import { DropdownMenu, MenuItem } from "../../src/components/DropdownMenu";
 import { Modal } from "../../src/components/Modal";
 import { Popover } from "../../src/components/Popover";
+import { stubLayout } from "./layout";
 
 /**
  * Focus des dialogues et des couches (0.3.0) : entrée choisie (`initialFocus`,
@@ -14,29 +15,7 @@ import { Popover } from "../../src/components/Popover";
  * échouer si l'on annule le correctif correspondant.
  */
 
-// jsdom ne calcule aucune mise en page : `offsetWidth` vaut 0, et le piège à focus
-// croirait tout dialogue vide. Le leurre compte aussi les lectures, pour prouver que
-// le piège ne mesure plus toute la liste à chaque Tab.
-let layoutReads = 0;
-const saved = new Map<string, PropertyDescriptor | undefined>();
-beforeAll(() => {
-	for (const key of ["offsetWidth", "offsetHeight"] as const) {
-		saved.set(key, Object.getOwnPropertyDescriptor(HTMLElement.prototype, key));
-		Object.defineProperty(HTMLElement.prototype, key, {
-			configurable: true,
-			get: () => {
-				layoutReads++;
-				return 24;
-			},
-		});
-	}
-});
-afterAll(() => {
-	for (const [key, descriptor] of saved) {
-		if (descriptor) Object.defineProperty(HTMLElement.prototype, key, descriptor);
-		else delete (HTMLElement.prototype as unknown as Record<string, unknown>)[key];
-	}
-});
+const layout = stubLayout();
 afterEach(() => {
 	document.body.style.overflow = "";
 });
@@ -88,7 +67,7 @@ describe("entrée du focus dans un dialogue", () => {
 });
 
 describe("piège à focus", () => {
-	it("ne mesure que les bords du dialogue, pas chacun de ses centaines de boutons", async () => {
+	it("Tab boucle du dernier au premier, Maj+Tab l'inverse, sans mesurer chacun des centaines de boutons", async () => {
 		const user = userEvent.setup();
 		render(
 			<Modal open onClose={() => {}} title="Liste">
@@ -99,15 +78,20 @@ describe("piège à focus", () => {
 				))}
 			</Modal>,
 		);
+		const fermer = screen.getByRole("button", { name: "Fermer" });
 		const dernier = screen.getByRole("button", { name: "Choix 300" });
 		dernier.focus();
-		layoutReads = 0;
+		layout.reads = 0;
 		await user.tab();
 
 		// Le Tab boucle bien du dernier au premier…
-		expect(screen.getByRole("button", { name: "Fermer" })).toHaveFocus();
+		expect(fermer).toHaveFocus();
 		// …en mesurant une poignée d'éléments, pas les 301 du panneau.
-		expect(layoutReads).toBeLessThan(20);
+		expect(layout.reads).toBeLessThan(20);
+
+		// Et symétriquement, Maj+Tab depuis le premier retombe sur le dernier.
+		await user.tab({ shift: true });
+		expect(dernier).toHaveFocus();
 	});
 
 	it("laisse un menu ouvert depuis le dialogue gérer Tab : il se referme, le focus reste dans le dialogue", async () => {

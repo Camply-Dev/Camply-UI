@@ -1,6 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { ColorPicker } from "../../src/components/ColorPicker";
 import { Combobox } from "../../src/components/Combobox";
@@ -9,14 +8,13 @@ import { NumberInput } from "../../src/components/NumberInput";
 import { PinInput } from "../../src/components/PinInput";
 import { RangeSlider } from "../../src/components/RangeSlider";
 import { SegmentedControl } from "../../src/components/SegmentedControl";
-import { Select } from "../../src/components/Select";
 import { Slider } from "../../src/components/Slider";
 import { TagInput } from "../../src/components/TagInput";
 
 /**
  * Saisie (0.3.0) : NumberInput vidable et sans émissions parasites, libellé de
  * SegmentedControl, Entrée du Combobox, calendrier au clavier, PinInput retapé,
- * TagInput plein, remise à zéro d'un formulaire, fin d'un glisser au pointeur.
+ * TagInput plein, fin d'un glisser au pointeur.
  */
 
 describe("NumberInput", () => {
@@ -204,66 +202,6 @@ describe("TagInput", () => {
 		await user.type(champ, "lyon{Enter}nice{Enter}");
 		expect(champ).toHaveFocus();
 		expect(champ).toHaveAttribute("readonly");
-	});
-});
-
-describe("remise à zéro d'un formulaire", () => {
-	it("un Select non contrôlé revient à sa valeur par défaut, et le formulaire l'emporte", async () => {
-		const user = userEvent.setup();
-		let donnees: FormData | null = null;
-		render(
-			<form
-				onSubmit={(e) => {
-					e.preventDefault();
-					donnees = new FormData(e.currentTarget);
-				}}
-			>
-				<Select
-					label="Pays"
-					name="pays"
-					defaultValue="fr"
-					options={[
-						{ value: "fr", label: "France" },
-						{ value: "es", label: "Espagne" },
-					]}
-				/>
-				<button type="reset">Effacer</button>
-				<button type="submit">Envoyer</button>
-			</form>,
-		);
-		await user.click(screen.getByRole("combobox", { name: "Pays" }));
-		await user.click(screen.getByRole("option", { name: "Espagne" }));
-		await user.click(screen.getByRole("button", { name: "Effacer" }));
-		await user.click(screen.getByRole("button", { name: "Envoyer" }));
-		expect((donnees as FormData | null)?.get("pays")).toBe("fr");
-	});
-
-	it("un composant contrôlé n'est pas touché : sa valeur appartient au parent", async () => {
-		const user = userEvent.setup();
-		const onChange = vi.fn();
-		function Controle() {
-			const [v, setV] = useState("es");
-			return (
-				<form>
-					<Select
-						label="Pays"
-						value={v}
-						onChange={(next) => {
-							onChange(next);
-							setV(next);
-						}}
-						options={[
-							{ value: "fr", label: "France" },
-							{ value: "es", label: "Espagne" },
-						]}
-					/>
-					<button type="reset">Effacer</button>
-				</form>
-			);
-		}
-		render(<Controle />);
-		await user.click(screen.getByRole("button", { name: "Effacer" }));
-		expect(onChange).not.toHaveBeenCalled();
 	});
 });
 

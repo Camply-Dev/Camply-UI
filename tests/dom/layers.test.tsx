@@ -1,10 +1,11 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Modal } from "../../src/components/Modal";
 import { Popover } from "../../src/components/Popover";
 import { Select } from "../../src/components/Select";
+import { stubLayout } from "./layout";
 
 /**
  * Couches flottantes : pile de renvoi, piège de focus, voile, verrou de
@@ -14,30 +15,7 @@ import { Select } from "../../src/components/Select";
  */
 
 // --- Leurres jsdom -------------------------------------------------------
-// jsdom ne calcule aucune mise en page : `offsetWidth`/`offsetHeight` valent
-// toujours 0. Or `focusableWithin` s'en sert pour écarter ce qui est masqué :
-// sans ce leurre, le piège de focus croirait TOUT dialogue vide et les cas
-// « entrée du focus » et « Tab bouclé » passeraient sans rien prouver.
-const LAYOUT_KEYS = ["offsetWidth", "offsetHeight"] as const;
-const savedLayout = new Map<string, PropertyDescriptor | undefined>();
-
-beforeAll(() => {
-	for (const key of LAYOUT_KEYS) {
-		savedLayout.set(key, Object.getOwnPropertyDescriptor(HTMLElement.prototype, key));
-		Object.defineProperty(HTMLElement.prototype, key, {
-			configurable: true,
-			get: () => 24,
-		});
-	}
-});
-
-afterAll(() => {
-	for (const key of LAYOUT_KEYS) {
-		const descriptor = savedLayout.get(key);
-		if (descriptor) Object.defineProperty(HTMLElement.prototype, key, descriptor);
-		else delete (HTMLElement.prototype as unknown as Record<string, unknown>)[key];
-	}
-});
+stubLayout();
 
 // Le verrou de défilement écrit sur `document.body` : un cas qui échoue en
 // cours de route laisserait la page suivante avec un `overflow` parasite.
@@ -178,23 +156,6 @@ describe("focus du dialogue modal", () => {
 		await user.keyboard("{Escape}");
 		await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
 		expect(document.activeElement).toBe(declencheur);
-	});
-
-	it("piège Tab : du dernier focalisable on revient au premier", async () => {
-		const user = userEvent.setup();
-		render(<ModaleAvecDeclencheur />);
-		await user.click(screen.getByRole("button", { name: "Ouvrir" }));
-
-		const fermer = screen.getByRole("button", { name: "Fermer" });
-		const confirmer = screen.getByRole("button", { name: "Confirmer" });
-
-		confirmer.focus();
-		await user.tab();
-		expect(document.activeElement).toBe(fermer);
-
-		// Et symétriquement, Shift+Tab depuis le premier retombe sur le dernier.
-		await user.tab({ shift: true });
-		expect(document.activeElement).toBe(confirmer);
 	});
 });
 

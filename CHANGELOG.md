@@ -57,6 +57,10 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
   `Slider` et `RangeSlider` partageaient passent dans `tokens.css` en
   multi-sélecteurs ; `ColorPicker` fusionne ses poignées et remplissages identiques.
   `RangeSlider.css` reste, vide, pour son export.
+- Tests : un seul `stubLayout()` (`tests/dom/layout.ts`) pour les fichiers de
+  dialogues et de couches, un seul test de Tab bouclé (compteur de lectures et Maj+Tab),
+  la remise à zéro d'un formulaire rejoint `forms.test.tsx`, un seul test
+  d'accumulation du typeahead.
 
 ## [0.3.0] — 2026-10-18
 

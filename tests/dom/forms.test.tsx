@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { type ReactNode, useState } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { Input } from "../../src/components/Input";
 import { MultiSelect } from "../../src/components/MultiSelect";
 import { PinInput } from "../../src/components/PinInput";
@@ -234,5 +234,44 @@ describe("Input", () => {
 		expect(racine).toContainElement(screen.getByRole("textbox", { name: "Nom" }));
 		// Un seul nœud stylé : si le style migrait ailleurs, il y en aurait deux.
 		expect(container.querySelectorAll("[style]")).toHaveLength(1);
+	});
+});
+
+describe("remise à zéro d'un formulaire", () => {
+	it("un Select non contrôlé revient à sa valeur par défaut, et le formulaire l'emporte", async () => {
+		const { user, envoyer } = monterFormulaire(
+			<>
+				<Select label="Pays" name="pays" defaultValue="fr" options={PAYS} />
+				<button type="reset">Effacer</button>
+			</>,
+		);
+		await user.click(screen.getByRole("combobox", { name: "Pays" }));
+		await user.click(screen.getByRole("option", { name: "Espagne" }));
+		await user.click(screen.getByRole("button", { name: "Effacer" }));
+		expect((await envoyer()).get("pays")).toBe("fr");
+	});
+
+	it("un composant contrôlé n'est pas touché : sa valeur appartient au parent", async () => {
+		const onChange = vi.fn();
+		function Controle() {
+			const [v, setV] = useState("es");
+			return (
+				<>
+					<Select
+						label="Pays"
+						value={v}
+						onChange={(next) => {
+							onChange(next);
+							setV(next);
+						}}
+						options={PAYS}
+					/>
+					<button type="reset">Effacer</button>
+				</>
+			);
+		}
+		const { user } = monterFormulaire(<Controle />);
+		await user.click(screen.getByRole("button", { name: "Effacer" }));
+		expect(onChange).not.toHaveBeenCalled();
 	});
 });

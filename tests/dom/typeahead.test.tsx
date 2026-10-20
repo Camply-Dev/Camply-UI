@@ -95,13 +95,4 @@ describe("typeahead — menu", () => {
 		await user().keyboard("pa");
 		expect(screen.getByRole("menuitem", { name: "Paramètres" })).toHaveFocus();
 	});
-
-	it("accumule les frappes rapprochées, comme l'arbre", async () => {
-		await ouvrirMenu();
-
-		// Un menu qui ne garderait que la dernière lettre chercherait une entrée en
-		// « r » et ne bougerait pas : « pr » doit viser Profil.
-		await user().keyboard("pr");
-		expect(screen.getByRole("menuitem", { name: "Profil" })).toHaveFocus();
-	});
 });
