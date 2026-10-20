@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
-import { pushDismissLayer } from "./dismissStack";
 import { type Controllable, useControllable } from "./useControllable";
+import { useDismiss } from "./useDismiss";
 
 /**
  * Ouverture/fermeture au survol avec délais (Tooltip, HoverCard).
@@ -46,17 +46,15 @@ export function useDelayedOpen(openDelay: number, closeDelay = 0, controlled: Co
 	// Échap referme la couche de survol via la pile partagée, sinon la même frappe
 	// fermerait aussi le dialogue qui la contient. `escapeOnly` : la sortie au
 	// pointeur reste l'affaire de `hide()`.
-	useEffect(() => {
-		if (!open) return;
-		return pushDismissLayer({
-			refs: [],
-			escapeOnly: true,
-			onClose: () => {
-				clearTimeout(timer.current);
-				setOpenRef.current(false);
-			},
-		});
-	}, [open]);
+	useDismiss(
+		open,
+		() => {
+			clearTimeout(timer.current);
+			setOpenRef.current(false);
+		},
+		[],
+		{ escapeOnly: true },
+	);
 
 	return { open, show, hide };
 }

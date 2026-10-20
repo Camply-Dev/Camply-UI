@@ -14,7 +14,7 @@ import { idRefs } from "./Field";
 import { focusEdges, trapTab } from "./focusTrap";
 import { useMergedRefs } from "./mergeRefs";
 import { Portal } from "./Portal";
-import { useEscapeAndScrollLock } from "./useEscapeAndScrollLock";
+import { useDismiss } from "./useDismiss";
 
 /**
  * Attributs que le panneau se réserve, retirés du type (règle 3) : rôle, modalité
@@ -102,11 +102,25 @@ export function OverlayDialog({
 	const innerRef = useRef<HTMLElement | null>(null);
 	const setPanelRef = useMergedRefs<HTMLElement>(innerRef, panelRef);
 
+	// Échap passe par la pile partagée (et non par un écouteur `document` isolé) :
+	// sans ça, une seule frappe fermerait à la fois la liste d'un Select ouvert DANS
+	// le dialogue et le dialogue lui-même. La couche est `escapeOnly` — le clic
+	// extérieur reste l'affaire du voile, via `closeOnBackdrop`.
 	// Le voile, et non le seul panneau, est l'intérieur de la couche : il recouvre
 	// tout, donc un clic dessus ne concerne que ce dialogue et ne doit jamais
-	// refermer la couche d'où il est issu.
+	// refermer le Popover ou le menu d'où il est issu — ce qui le démonterait.
 	const backdropRef = useRef<HTMLDivElement | null>(null);
-	useEscapeAndScrollLock(open, onClose, backdropRef);
+	useDismiss(open, onClose, [backdropRef], { escapeOnly: true });
+
+	// Verrou de défilement : la page ne défile plus derrière le voile.
+	useEffect(() => {
+		if (!open) return;
+		const prev = document.body.style.overflow;
+		document.body.style.overflow = "hidden";
+		return () => {
+			document.body.style.overflow = prev;
+		};
+	}, [open]);
 
 	// Le focus d'origine, lu AVANT que le contenu monté ne le prenne : un contrôle
 	// `autoFocus` le prend pendant la phase de mise en page du commit, avant tout

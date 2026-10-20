@@ -30,6 +30,9 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
 - `compose(theirs, ours)` (`lib/cloneTrigger.ts`) remplace les 38 blocs
   `onX?.(e); if (e.defaultPrevented) return; …` écrits à la main dans 18 composants :
   le handler du consommateur d'abord, son `preventDefault()` pour veto (règle 4).
+- Un seul chemin vers la pile de renvoi : `useDismiss` prend `escapeOnly`, que
+  `OverlayDialog` (avec son verrou de défilement) et les couches de survol utilisent ;
+  `useEscapeAndScrollLock` disparaît.
 
 ## [0.3.0] — 2026-10-18
 
