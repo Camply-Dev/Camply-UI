@@ -177,6 +177,31 @@ function verifyEmittedImports() {
 	}
 }
 
+/**
+ * GARDE-FOU des sous-chemins. La map `exports` (package.json) n'énumère plus les
+ * composants : deux motifs les couvrent tous, `./*` → `dist/components/*` + `/index.js`
+ * (et `.d.ts`), `./*` + `/styles.css` → `dist/components/*` + `/*.css`. Les clés exactes
+ * (`.`, `./icons`, `./styles.css`, `./tokens.css`, et `./package.json`, que Vite, Jest
+ * ou Tailwind résolvent) passent avant les motifs. publint vérifie qu'un motif trouve
+ * des fichiers, pas que CHAQUE composant a les siens : un dossier sans index, ou une
+ * feuille nommée autrement que lui, sortirait du paquet en silence. On le vérifie donc
+ * ici, composant par composant.
+ */
+function verifyComponentEntries() {
+	const components = join(dist, "components");
+	const missing = [];
+	for (const name of readdirSync(components)) {
+		for (const file of ["index.js", "index.d.ts", `${name}.css`]) {
+			if (!existsSync(join(components, name, file))) missing.push(`components/${name}/${file}`);
+		}
+	}
+	if (missing.length > 0) {
+		console.error(`\n✖ ${missing.length} fichier(s) visé(s) par la map exports absent(s) :`);
+		for (const m of missing) console.error(`   ${m}`);
+		process.exit(1);
+	}
+}
+
 rmSync(dist, { recursive: true, force: true });
 
 // esbuild est lancé en premier et avance en tâche de fond pendant que tsc, appelé
@@ -188,6 +213,7 @@ emitCss();
 addJsExtensions();
 addUseClient();
 verifyEmittedImports();
+verifyComponentEntries();
 
 await minifyCss();
 

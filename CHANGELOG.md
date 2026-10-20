@@ -86,6 +86,17 @@ change dans l'attribut des coques de champ), et un seul écart de comportement, 
   la règle de base pose `color` au survol pour les quatre formes (seul `ghost` le
   faisait) ; un `color` posé par une classe du consommateur sur un bouton `primary`,
   `secondary` ou `soft` cède donc au survol, comme il le faisait déjà sur `ghost`.
+- ⚠️ **silencieuse** — Map `exports` : ses 120 entrées générées (deux par composant)
+  cèdent la place à deux motifs, `"./*"` (JS et types du composant) et
+  `"./*/styles.css"` (sa feuille) ; les clés exactes (`.`, `./icons`, `./styles.css`,
+  `./tokens.css`, `./package.json`) passent avant eux. Chaque sous-chemin résout les
+  mêmes fichiers qu'avant (Node, TypeScript 6 et 7 en `bundler`, `node16` et
+  `nodenext`, esbuild, rolldown, Bun). Seul écart : un sous-chemin à la mauvaise casse
+  (`@camply/ui/button`), refusé jusqu'ici, se résout sur un disque insensible à la
+  casse (Windows, macOS), en second exemplaire du module, et échoue toujours sous
+  Linux. `bun run sync` ne régénère plus que `src/index.ts` (la garde de la CI ne vise
+  plus que lui) ; `bun run build` vérifie que chaque composant a `index.js`,
+  `index.d.ts` et sa feuille, ce que publint ne voit plus derrière un motif.
 - Tests : un seul `stubLayout()` (`tests/dom/layout.ts`) pour les fichiers de
   dialogues et de couches, un seul test de Tab bouclé (compteur de lectures et Maj+Tab),
   la remise à zéro d'un formulaire rejoint `forms.test.tsx`, un seul test

@@ -55,7 +55,8 @@ import "@camply/ui/DatePicker/styles.css";   // …puis la feuille voulue
 
 Le **JS**, lui, est tree-shakable dans les deux cas : importer `{ Button }` n'embarque
 que Button. Un sous-chemin dédié existe si tu veux court-circuiter le barrel (casse
-exacte du dossier, `@camply/ui/button` n'existe pas) :
+exacte du dossier : `@camply/ui/button` n'existe pas, même si un disque insensible à la
+casse, sous Windows ou macOS, le résout) :
 
 ```tsx
 import { Button } from "@camply/ui/Button";
@@ -165,7 +166,7 @@ dist/               # sortie du build (généré)
 ### Ajouter un composant
 
 1. Créer `src/components/MonComposant/` avec `MonComposant.tsx`, `MonComposant.css` et `index.ts` (qui ré-exporte les symboles — **sans importer le CSS**, voir plus haut)
-2. `bun run sync` (régénère `src/index.ts` **et** la map `exports` du `package.json`)
+2. `bun run sync` (régénère `src/index.ts` ; les sous-chemins `@camply/ui/MonComposant` et `…/styles.css` viennent des motifs de la map `exports`, sans rien à ajouter)
 3. `bun run build`
 4. Vérifier le rendu dans la vitrine (`bun run dev`)
 

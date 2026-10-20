@@ -52,10 +52,11 @@ import type { ButtonProps } from "@camply/ui";         // types
 > ton bundler tree-shake automatiquement ce que tu n'utilises pas.
 >
 > Des **sous-chemins par composant** existent aussi (un par dossier de `src/components/`,
-> générés par `bun run sync`) : `@camply/ui/Button` (JS + types) et
+> par deux motifs de la map `exports`) : `@camply/ui/Button` (JS + types) et
 > `@camply/ui/Button/styles.css` (feuille du seul composant). Ils ne gagnent rien face à la
 > racine, ils ne servent qu'à court-circuiter le barrel. La casse est celle du dossier :
-> `@camply/ui/Button`, **jamais** `@camply/ui/button`.
+> `@camply/ui/Button`, **jamais** `@camply/ui/button` — qu'un disque insensible à la
+> casse (Windows, macOS) résout quand même, mais pas le serveur de build sous Linux.
 >
 > ⚠️ Un sous-chemin désigne un **dossier**, pas un export : `RadioGroup` vit dans
 > `@camply/ui/Radio`, `ToastProvider` et `useToast` dans `@camply/ui/Toast`,

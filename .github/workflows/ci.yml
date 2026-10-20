@@ -29,10 +29,11 @@ jobs:
       - run: bun run test
       - run: bun run knip
       - run: bun run sync
-      # Un composant ajouté sans `bun run sync` n'est ni dans le barrel ni dans la
-      # map "exports" : il est absent du paquet publié, avec une CI verte.
-      - name: "Barrel et map exports à jour ? (sinon : bun run sync)"
-        run: git diff --exit-code -- src/index.ts package.json
+      # Un composant ajouté sans `bun run sync` n'est pas dans le barrel : absent de
+      # `@camply/ui`, avec une CI verte. (Son sous-chemin vient des motifs de la map
+      # "exports", que `bun run build` vérifie composant par composant.)
+      - name: "Barrel à jour ? (sinon : bun run sync)"
+        run: git diff --exit-code -- src/index.ts
       - run: bun run build
       - name: Le paquet publié est-il valide ? (exports, types, champs)
         run: bunx --bun publint@0.3.16 --strict

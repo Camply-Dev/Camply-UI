@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
@@ -11,6 +11,9 @@ const components = readdirSync(join(root, "src/components")).sort((a, b) => a.lo
 // L'ordre ci-dessous est celui que produit l'assist `organizeImports` de biome :
 // sans ça, `bun run sync` puis `bun run fix` ne convergent pas et la garde de
 // fraîcheur en CI serait rouge en permanence.
+// Les sous-chemins par composant (`@camply/ui/Button`, `@camply/ui/Button/styles.css`)
+// ne se génèrent plus : deux motifs de la map `exports` (package.json) les couvrent
+// tous, et `scripts/build.js` vérifie que chaque composant a les fichiers qu'ils visent.
 const srcBarrel = `${components.map((name) => `export * from "./components/${name}";`).join("\n")}
 export type { CamplyLabels, CamplyProviderProps } from "./lib/i18n";
 // Provider global (textes + locale) — optionnel : sans lui, tout retombe en français.
@@ -19,34 +22,4 @@ export { CamplyProvider, useLabels, useLocale } from "./lib/i18n";
 
 writeFileSync(join(root, "src/index.ts"), srcBarrel);
 
-// --- Map "exports" : racine + CSS + icônes + une entrée par composant ---
-const pkgPath = join(root, "package.json");
-const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
-
-const exportsMap = {
-	".": { types: "./dist/index.d.ts", import: "./dist/index.js" },
-	// Une map `exports` close masque le package.json, que Vite, Jest ou les plugins
-	// Tailwind résolvent couramment pour localiser le paquet.
-	"./package.json": "./package.json",
-	"./styles.css": "./dist/styles.css",
-	// Couche partagée seule : sans elle, "./<Composant>/styles.css" est inutilisable.
-	"./tokens.css": "./dist/tokens.css",
-	"./icons": { types: "./dist/lib/icons.d.ts", import: "./dist/lib/icons.js" },
-};
-
-for (const name of components) {
-	// JS + types du composant seul (tree-shaking garanti, sans passer par le barrel)
-	exportsMap[`./${name}`] = {
-		types: `./dist/components/${name}/index.d.ts`,
-		import: `./dist/components/${name}/index.js`,
-	};
-	// Feuille de style du composant seul, pour ceux qui veulent du CSS granulaire
-	exportsMap[`./${name}/styles.css`] = `./dist/components/${name}/${name}.css`;
-}
-
-pkg.exports = exportsMap;
-writeFileSync(pkgPath, `${JSON.stringify(pkg, null, "\t")}\n`);
-
-console.log(
-	`Synced src/index.ts + package.json exports (${components.length} components, ${Object.keys(exportsMap).length} entrées)`,
-);
+console.log(`Synced src/index.ts (${components.length} components)`);
