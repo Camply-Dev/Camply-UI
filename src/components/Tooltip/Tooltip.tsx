@@ -3,17 +3,16 @@ import {
 	forwardRef,
 	type ReactElement,
 	type ReactNode,
-	useRef,
 } from "react";
-import { cloneTrigger, compose, markTriggerSlot } from "../../lib/cloneTrigger";
+import { cloneTrigger, markTriggerSlot } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { idRefs } from "../../lib/Field";
 import { useMergedRefs } from "../../lib/mergeRefs";
 import { Portal } from "../../lib/Portal";
 import type { Tone } from "../../lib/types";
-import { type Placement, useAnchor } from "../../lib/useAnchor";
+import type { Placement } from "../../lib/useAnchor";
 import type { Controllable } from "../../lib/useControllable";
-import { useDelayedOpen } from "../../lib/useDelayedOpen";
+import { useHoverDisclosure } from "../../lib/useHoverDisclosure";
 import { useId } from "../../lib/useId";
 
 /**
@@ -74,20 +73,21 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
 		},
 		ref,
 	) => {
-		const anchorRef = useRef<HTMLElement>(null);
-		const tipRef = useRef<HTMLDivElement>(null);
 		const autoId = useId("tooltip");
 		const tipId = id ?? autoId;
 
-		const { open, show, hide } = useDelayedOpen(delay, closeDelay, {
+		// `side` est le côté RÉELLEMENT retenu (après flip) : la flèche suit.
+		const { open, floatRef, style, side, triggerProps, surfaceProps } = useHoverDisclosure({
+			placement,
+			openDelay: delay,
+			closeDelay,
 			open: openProp,
 			defaultOpen,
 			onOpenChange,
+			onMouseEnter,
+			onMouseLeave,
 		});
-
-		// `side` est le côté RÉELLEMENT retenu (après flip) : la flèche suit.
-		const { style, side } = useAnchor(anchorRef, tipRef, open, { placement, gap: 8 });
-		const setTipRef = useMergedRefs(tipRef, ref);
+		const setTipRef = useMergedRefs(floatRef, ref);
 
 		// `cloneTrigger` ne compose que les `onX` : posé seul, notre id effacerait la
 		// description du consommateur (règles 4 et 8). `aria-describedby` étant une
@@ -99,17 +99,9 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
 		return (
 			<>
 				{cloneTrigger(children, {
-					ref: anchorRef,
+					...triggerProps,
 					// Sans ça, le contenu de l'infobulle n'est jamais annoncé au lecteur d'écran.
 					"aria-describedby": idRefs(theirDescribedBy, open && tipId),
-					// `cloneTrigger` compose ces handlers après ceux du consommateur et
-					// respecte son `preventDefault()` : c'est ce veto qui permet de figer
-					// une infobulle ou de couper le survol sur mobile (règle 4). React
-					// marque `defaultPrevented` même sur focus/blur, non annulables côté DOM.
-					onMouseEnter: show,
-					onMouseLeave: hide,
-					onFocus: show,
-					onBlur: hide,
 				})}
 				{open && (
 					<Portal>
@@ -125,9 +117,7 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
 								className,
 							)}
 							style={{ ...style, ...styleProp }}
-							// Le pointeur doit pouvoir entrer dans l'infobulle sans la faire fuir (règle 4).
-							onMouseEnter={compose(onMouseEnter, show)}
-							onMouseLeave={compose(onMouseLeave, hide)}
+							{...surfaceProps}
 						>
 							{icon && (
 								<span aria-hidden="true" className="camply-tooltip__icon">

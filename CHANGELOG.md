@@ -41,6 +41,8 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
   `restoreFocus` (retour au déclencheur : `Popover`, `DropdownMenu`, `Menubar`,
   `ColorPicker`, `DatePicker`). Le focus revient désormais au déclencheur partout
   *avant* la fermeture, donc avant `onOpenChange(false)`.
+- `useHoverDisclosure` porte l'état, les délais, l'ancrage et Échap de `Tooltip` et
+  `HoverCard` (il absorbe `useDelayedOpen`, leur seul usage).
 
 ## [0.3.0] — 2026-10-18
 
