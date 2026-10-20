@@ -497,8 +497,10 @@ html {
 	padding: 6px 16px 12px;
 }
 
+/* Une valeur longue (pile de polices) passe à la ligne au lieu d'écraser le nom. */
 .cu-token {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	gap: 11px;
 	padding: 8px 0;
@@ -531,7 +533,7 @@ html {
 }
 
 .cu-token__name {
-	flex: 1;
+	flex: 1 1 auto;
 	min-width: 0;
 	overflow: hidden;
 	font-family: var(--camply-font-mono);
@@ -541,6 +543,7 @@ html {
 }
 
 .cu-token__val {
+	margin-left: auto;
 	font-family: var(--camply-font-mono);
 	font-size: 11.5px;
 	color: #8fa1b8;

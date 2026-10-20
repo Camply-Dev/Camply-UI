@@ -32,8 +32,9 @@ export function TokensView() {
 		return init;
 	});
 	const dirty = Object.keys(overrides).length > 0;
-
-	const tokenValue = (name: string, fallback: string) => overrides[name] ?? fallback;
+	// Relu à chaque rendu : une surcharge posée sur :root, ou retirée par
+	// « Réinitialiser », change la valeur en vigueur.
+	const styles = getComputedStyle(document.documentElement);
 
 	const setToken = (name: string, value: string) => {
 		setOverrides((prev) => ({ ...prev, [name]: value }));
@@ -98,7 +99,7 @@ export function TokensView() {
 						<div className="cu-tokgroup__head">{group.title}</div>
 						<div className="cu-tokgroup__body">
 							{group.rows.map((row) => {
-								const current = tokenValue(row.name, row.value);
+								const current = styles.getPropertyValue(row.name).trim();
 								return (
 									<div key={row.name} className="cu-token">
 										{row.color ? (

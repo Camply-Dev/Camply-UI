@@ -154,9 +154,9 @@ export const BY_ID: Record<string, ComponentEntry> = Object.fromEntries(
 
 export const TOTAL = COMPONENTS.length;
 
+/** La valeur n'est pas recopiée ici : la page la lit dans la feuille (`getComputedStyle`). */
 interface TokenRow {
 	name: string;
-	value: string;
 	color?: boolean;
 }
 
@@ -169,73 +169,73 @@ export const TOKEN_GROUPS: TokenGroup[] = [
 	{
 		title: "Fond & surfaces",
 		rows: [
-			{ name: "--camply-bg", value: "#070b12", color: true },
-			{ name: "--camply-surface", value: "#0a1019", color: true },
-			{ name: "--camply-surface-2", value: "#0f1a29", color: true },
-			{ name: "--camply-elevated", value: "#111b2a", color: true },
+			{ name: "--camply-bg", color: true },
+			{ name: "--camply-surface", color: true },
+			{ name: "--camply-surface-2", color: true },
+			{ name: "--camply-elevated", color: true },
 		],
 	},
 	{
 		title: "Texte",
 		rows: [
-			{ name: "--camply-text", value: "#e7edf5", color: true },
-			{ name: "--camply-text-strong", value: "#f5f9ff", color: true },
-			{ name: "--camply-text-muted", value: "#93a4bd", color: true },
-			{ name: "--camply-text-muted-2", value: "#7587a0", color: true },
+			{ name: "--camply-text", color: true },
+			{ name: "--camply-text-strong", color: true },
+			{ name: "--camply-text-muted", color: true },
+			{ name: "--camply-text-muted-2", color: true },
 		],
 	},
 	{
 		title: "Accent",
 		rows: [
-			{ name: "--camply-accent", value: "#38bdf8", color: true },
-			{ name: "--camply-accent-hover", value: "#7dd3fc", color: true },
-			{ name: "--camply-accent-soft", value: "rgba(56,189,248,.12)", color: true },
+			{ name: "--camply-accent", color: true },
+			{ name: "--camply-accent-hover", color: true },
+			{ name: "--camply-accent-soft", color: true },
 		],
 	},
 	{
 		title: "Sémantique",
 		rows: [
-			{ name: "--camply-success", value: "#5bd6a5", color: true },
-			{ name: "--camply-warn", value: "#fbbf5c", color: true },
-			{ name: "--camply-danger", value: "#f4796e", color: true },
-			{ name: "--camply-info", value: "#a5b4fc", color: true },
+			{ name: "--camply-success", color: true },
+			{ name: "--camply-warn", color: true },
+			{ name: "--camply-danger", color: true },
+			{ name: "--camply-info", color: true },
 		],
 	},
 	{
 		title: "Films & élévation",
 		rows: [
-			{ name: "--camply-fill-1", value: "rgba(255,255,255,.02)", color: true },
-			{ name: "--camply-fill-2", value: "rgba(255,255,255,.05)", color: true },
-			{ name: "--camply-fill-3", value: "rgba(255,255,255,.1)", color: true },
-			{ name: "--camply-fill-4", value: "rgba(255,255,255,.2)", color: true },
+			{ name: "--camply-fill-1", color: true },
+			{ name: "--camply-fill-2", color: true },
+			{ name: "--camply-fill-3", color: true },
+			{ name: "--camply-fill-4", color: true },
 		],
 	},
 	{
 		title: "Contrôles & tooltip",
 		rows: [
-			{ name: "--camply-field-bg", value: "rgba(0,0,0,.25)", color: true },
-			{ name: "--camply-border-hover", value: "rgba(148,176,216,.32)", color: true },
-			{ name: "--camply-neutral-solid", value: "#cdd9e6", color: true },
-			{ name: "--camply-knob", value: "#e8eef5", color: true },
-			{ name: "--camply-tooltip-bg", value: "#e8eef5", color: true },
-			{ name: "--camply-tooltip-dark", value: "#1a2636", color: true },
+			{ name: "--camply-field-bg", color: true },
+			{ name: "--camply-border-hover", color: true },
+			{ name: "--camply-neutral-solid", color: true },
+			{ name: "--camply-knob", color: true },
+			{ name: "--camply-tooltip-bg", color: true },
+			{ name: "--camply-tooltip-dark", color: true },
 		],
 	},
 	{
 		title: "Rayons",
 		rows: [
-			{ name: "--camply-radius-sm", value: "8px" },
-			{ name: "--camply-radius", value: "10px" },
-			{ name: "--camply-radius-lg", value: "14px" },
-			{ name: "--camply-radius-pill", value: "999px" },
+			{ name: "--camply-radius-sm" },
+			{ name: "--camply-radius" },
+			{ name: "--camply-radius-lg" },
+			{ name: "--camply-radius-pill" },
 		],
 	},
 	{
 		title: "Typographie",
 		rows: [
-			{ name: "--camply-font-display", value: "Space Grotesk" },
-			{ name: "--camply-font-sans", value: "Manrope" },
-			{ name: "--camply-font-mono", value: "JetBrains Mono" },
+			{ name: "--camply-font-display" },
+			{ name: "--camply-font-sans" },
+			{ name: "--camply-font-mono" },
 		],
 	},
 ];
