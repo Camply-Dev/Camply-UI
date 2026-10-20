@@ -1,4 +1,5 @@
 import { type PointerEvent, useRef } from "react";
+import { useLatest } from "./useLatest";
 
 /**
  * Glisser au pointeur (Slider, RangeSlider, ColorPicker). `start` capture le
@@ -14,8 +15,7 @@ import { type PointerEvent, useRef } from "react";
  */
 export function usePointerDrag<K = void>(onMove: (e: PointerEvent, key: K) => void) {
 	const drag = useRef<{ pointerId: number; key: K; el: Element } | null>(null);
-	const onMoveRef = useRef(onMove);
-	onMoveRef.current = onMove;
+	const onMoveRef = useLatest(onMove);
 
 	const end = (e: PointerEvent) => {
 		if (drag.current?.pointerId === e.pointerId) drag.current = null;

@@ -15,6 +15,7 @@ import { useLabels } from "../../lib/i18n";
 import { AlertCircle, Check, Upload, X } from "../../lib/icons";
 import { useControllable } from "../../lib/useControllable";
 import { useId } from "../../lib/useId";
+import { useLatest } from "../../lib/useLatest";
 
 export type UploadStatus = "pending" | "uploading" | "done" | "error";
 
@@ -101,14 +102,10 @@ export const FileUpload = forwardRef<HTMLDivElement, FileUploadProps>(
 
 		// Miroirs synchrones : les callbacks de progression tombent hors rendu, et
 		// plusieurs mises à jour peuvent s'enchaîner dans le même tick.
-		const itemsRef = useRef(items);
-		itemsRef.current = items;
-		const setItemsRef = useRef(setItems);
-		setItemsRef.current = setItems;
-		const onChangeRef = useRef(onChange);
-		onChangeRef.current = onChange;
-		const onUploadRef = useRef(onUpload);
-		onUploadRef.current = onUpload;
+		const itemsRef = useLatest(items);
+		const setItemsRef = useLatest(setItems);
+		const onChangeRef = useLatest(onChange);
+		const onUploadRef = useLatest(onUpload);
 
 		/**
 		 * Enregistre la liste (`onFilesChange` suit tout, progression comprise).

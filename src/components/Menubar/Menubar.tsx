@@ -21,6 +21,7 @@ import { useAnchor } from "../../lib/useAnchor";
 import { useControllable } from "../../lib/useControllable";
 import { useDismiss } from "../../lib/useDismiss";
 import { useId } from "../../lib/useId";
+import { useLatest } from "../../lib/useLatest";
 import { useMenuNav } from "../../lib/useMenuNav";
 // Import direct plutôt que par le barrel : `MenuCloseContext` est interne à la
 // librairie (le barrel de DropdownMenu ne l'expose pas) et c'est lui qui permet
@@ -109,8 +110,7 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 		// Lu au moment de la mesure, pas pendant le rendu : au premier rendu d'un menu
 		// ouvert d'emblée (`defaultOpenIndex`), les refs des déclencheurs ne sont pas
 		// encore posées, et le menu restait invisible avec le focus dedans.
-		const openIdxRef = useRef(openIdx);
-		openIdxRef.current = openIdx;
+		const openIdxRef = useLatest(openIdx);
 		const anchorRef = useMemo(
 			() => ({
 				get current(): HTMLElement | null {

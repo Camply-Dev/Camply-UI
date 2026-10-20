@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useLatest } from "./useLatest";
 
 export interface HiddenFieldProps {
 	/** Absent = rien n'est rendu : le champ ne participe pas au formulaire. */
@@ -30,8 +31,7 @@ export function HiddenField({ name, value, disabled }: HiddenFieldProps) {
  */
 export function FormReset({ onReset }: { onReset?: () => void }) {
 	const ref = useRef<HTMLInputElement>(null);
-	const latest = useRef(onReset);
-	latest.current = onReset;
+	const latest = useLatest(onReset);
 	const active = Boolean(onReset);
 	useEffect(() => {
 		const form = active ? ref.current?.form : null;

@@ -16,6 +16,7 @@ import { useLabels } from "../../lib/i18n";
 import { ChevronLeft, ChevronRight, Pause, Play } from "../../lib/icons";
 import { wrapIndex } from "../../lib/rovingIndex";
 import { useControllable } from "../../lib/useControllable";
+import { useLatest } from "../../lib/useLatest";
 
 export type CarouselIndicator = "dots" | "lines" | "count" | "none";
 export type CarouselEffect = "slide" | "fade";
@@ -104,8 +105,7 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 	// est une lambda écrite dans le JSX. Sans ce miroir, `go` changerait avec lui et
 	// l'effet ci-dessous relancerait la minuterie à chaque rendu : un parent qui se
 	// rend plus souvent que `autoPlay` ne verrait jamais le carrousel défiler.
-	const setIndexRef = useRef(setIndex);
-	setIndexRef.current = setIndex;
+	const setIndexRef = useLatest(setIndex);
 
 	const go = useCallback(
 		(next: number) => {

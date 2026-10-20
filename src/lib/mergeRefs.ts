@@ -1,4 +1,5 @@
-import { type Ref, useCallback, useRef } from "react";
+import { type Ref, useCallback } from "react";
+import { useLatest } from "./useLatest";
 
 function assign<T>(ref: Ref<T> | undefined, value: T | null) {
 	if (typeof ref === "function") ref(value);
@@ -20,8 +21,7 @@ export function useMergedRefs<T>(...refs: Array<Ref<T> | undefined>) {
 	// Les refs sont lues au moment de l'appel, pas capturées : la callback rendue
 	// garde une identité stable, sinon React la rappellerait avec `null` à chaque
 	// rendu (détachement/rattachement du nœud à chaque fois).
-	const latest = useRef(refs);
-	latest.current = refs;
+	const latest = useLatest(refs);
 
 	return useCallback((value: T | null) => {
 		for (const ref of latest.current) assign(ref, value);

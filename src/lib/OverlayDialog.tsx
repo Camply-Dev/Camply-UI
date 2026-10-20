@@ -15,6 +15,7 @@ import { focusInto, trapTab } from "./focusTrap";
 import { useMergedRefs } from "./mergeRefs";
 import { Portal } from "./Portal";
 import { useDismiss } from "./useDismiss";
+import { useLatest } from "./useLatest";
 
 /**
  * Attributs que le panneau se réserve, retirés du type (règle 3) : rôle, modalité
@@ -141,8 +142,7 @@ export function OverlayDialog({
 	// Entrée du focus dans le dialogue : un contrôle `autoFocus` qui l'a déjà pris le
 	// garde ; sinon `initialFocus`, le premier focalisable, ou le panneau lui-même.
 	// `initialFocus` est lu ici, à l'ouverture : il ne relance pas l'effet.
-	const initialFocusRef = useRef(initialFocus);
-	initialFocusRef.current = initialFocus;
+	const initialFocusRef = useLatest(initialFocus);
 	useEffect(() => {
 		if (open && innerRef.current) focusInto(innerRef.current, initialFocusRef.current?.current);
 	}, [open]);

@@ -3,6 +3,7 @@ import { wrapIndex } from "./rovingIndex";
 import { useAnchor } from "./useAnchor";
 import { useDismiss } from "./useDismiss";
 import { useId } from "./useId";
+import { useLatest } from "./useLatest";
 
 type OptionLike = { disabled?: boolean };
 
@@ -77,8 +78,7 @@ export function useListboxField<E extends HTMLElement, O extends OptionLike>({
 	const { style: floatStyle } = useAnchor(anchorRef, listRef, open, ANCHOR);
 
 	// Lu au moment de la fermeture : `close` reste stable, donc la couche de renvoi aussi.
-	const onCloseRef = useRef(onClose);
-	onCloseRef.current = onClose;
+	const onCloseRef = useLatest(onClose);
 	const close = useCallback(() => {
 		setOpen(false);
 		onCloseRef.current?.();

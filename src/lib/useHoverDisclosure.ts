@@ -3,6 +3,7 @@ import { compose } from "./cloneTrigger";
 import { type Placement, useAnchor } from "./useAnchor";
 import { type Controllable, useControllable } from "./useControllable";
 import { useDismiss } from "./useDismiss";
+import { useLatest } from "./useLatest";
 
 interface HoverDisclosureOptions extends Controllable {
 	placement: Placement;
@@ -41,10 +42,8 @@ export function useHoverDisclosure({
 
 	// Les timers appellent setOpen en différé : on lit toujours la version fraîche
 	// pour ne pas capturer un onOpenChange périmé.
-	const setOpenRef = useRef(setOpen);
-	setOpenRef.current = setOpen;
-	const openRef = useRef(open);
-	openRef.current = open;
+	const setOpenRef = useLatest(setOpen);
+	const openRef = useLatest(open);
 
 	// Déjà ouverte, `show` ne fait qu'annuler une fermeture en attente ; fermée, `hide`
 	// n'annule qu'une ouverture en attente : traverser le déclencheur en coup de vent

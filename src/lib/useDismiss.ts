@@ -1,5 +1,6 @@
-import { type RefObject, useEffect, useRef } from "react";
+import { type RefObject, useEffect } from "react";
 import { pushDismissLayer } from "./dismissStack";
+import { useLatest } from "./useLatest";
 
 interface DismissOptions {
 	/**
@@ -21,10 +22,8 @@ export function useDismiss(
 	{ escapeOnly = false }: DismissOptions = {},
 ) {
 	// Refs et callback lus au moment de l'événement : la couche reste stable.
-	const refsRef = useRef(refs);
-	refsRef.current = refs;
-	const onCloseRef = useRef(onClose);
-	onCloseRef.current = onClose;
+	const refsRef = useLatest(refs);
+	const onCloseRef = useLatest(onClose);
 
 	useEffect(() => {
 		if (!open) return;

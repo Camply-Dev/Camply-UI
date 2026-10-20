@@ -17,6 +17,14 @@
 		"enabled": true,
 		"rules": {
 			"preset": "recommended",
+			"correctness": {
+				"useExhaustiveDependencies": {
+					"level": "error",
+					"options": {
+						"hooks": [{ "name": "useLatest", "stableResult": true }]
+					}
+				}
+			},
 			"suspicious": {
 				"noExplicitAny": "error"
 			},

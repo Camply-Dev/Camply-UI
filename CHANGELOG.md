@@ -47,6 +47,8 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
   `Sheet` : en-tête, `__content > __body`, `__footer`.
 - `Menubar` entre dans un menu par le `focusFirst()` de `useMenuNav` au lieu de son
   propre sélecteur d'entrées.
+- `useLatest(value)` remplace les 15 copies de `const xRef = useRef(x); xRef.current = x`
+  (Biome le connaît comme stable, `biome.json`).
 
 ## [0.3.0] — 2026-10-18
 
