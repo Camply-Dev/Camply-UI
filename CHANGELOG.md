@@ -136,6 +136,10 @@ change dans l'attribut des coques de champ), et un seul écart de comportement, 
 - CI : un seul job (un checkout, une installation, les vérifications à la suite) ;
   `typecheck` perd son premier `tsc --noEmit`, `tests/tsconfig.json` couvrant déjà
   `src/` (et `build` émet les déclarations sur la configuration racine).
+- CI : chaque vérification tourne même quand une précédente a échoué
+  (`if: !cancelled()`) : un échec de Biome ne masque plus le verdict des tests, et le
+  job reste rouge. Les étapes qui lisent le produit d'une autre (installation, `sync`,
+  `build`) attendent qu'elle ait réussi.
 - `@types/bun` disparaît (aucun code typé n'utilise Bun) : `tsconfig.json` pose
   `"types": []` et perd son `exclude` inutile, `tests/tsconfig.json` ne garde que
   `vitest/globals`.

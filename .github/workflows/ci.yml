@@ -19,23 +19,41 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
+      - id: install
+        run: bun install --frozen-lockfile
+      # Chaque vérification tourne même si une précédente a échoué (`!cancelled()`
+      # remplace le `success()` implicite) : un échec de Biome ne masque plus le
+      # verdict des tests, toutes les erreurs se lisent en une passe, et le job reste
+      # rouge dès qu'une étape l'est. Seules les étapes qui lisent le produit d'une
+      # autre (installation, `sync`, `build`) attendent qu'elle ait réussi : sans
+      # elle, leur échec ne dirait rien de plus.
+      #
       # Vérification seule : l'auto-commit précédent poussait sur `main` au push,
       # échouait sur toute PR de fork (jeton en lecture seule) et faisait fusionner
       # un code que les autres jobs n'avaient jamais vu. Le formatage revient au dev
       # via `bun run fix`.
-      - run: bun run check
-      - run: bun run typecheck
-      - run: bun run test
-      - run: bun run knip
-      - run: bun run sync
+      - if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bun run check
+      - if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bun run typecheck
+      - if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bun run test
+      - if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bun run knip
+      - id: sync
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bun run sync
       # Un composant ajouté sans `bun run sync` n'est pas dans le barrel : absent de
       # `@camply/ui`, avec une CI verte. (Son sous-chemin vient des motifs de la map
       # "exports", que `bun run build` vérifie composant par composant.)
       - name: "Barrel à jour ? (sinon : bun run sync)"
+        if: ${{ !cancelled() && steps.sync.outcome == 'success' }}
         run: git diff --exit-code -- src/index.ts
-      - run: bun run build
+      - id: build
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bun run build
       - name: Le paquet publié est-il valide ? (exports, types, champs)
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: bunx --bun publint@0.3.16 --strict
       # `du -sb` (taille apparente) et pas `du -sk` : ce dernier mesure l'occupation
       # disque, et 373 fichiers arrondis au bloc de 4 Ko sur ext4 pèsent ~2,5 Mo pour
@@ -43,8 +61,10 @@ jobs:
       # Seuil ~50 % au-dessus du réel (1,05 Mo, dont 536 Ko pour lib/icons.js) : on
       # attrape un saut de taille, pas la croissance normale.
       - name: Garde de taille du paquet
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: |
           SIZE=$(( $(du -sb dist | cut -f1) / 1024 ))
           echo "dist = ${SIZE} Ko (seuil 1600)"
           test "$SIZE" -lt 1600
-      - run: bun run docs:build
+      - if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bun run docs:build
