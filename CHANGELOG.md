@@ -25,7 +25,8 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; ve
 
 ### Interne
 
-Même DOM, mêmes classes, même comportement : du code partagé là où il était recopié.
+Du code partagé là où il était recopié : même DOM, mêmes classes (seul leur ordre
+change dans l'attribut des coques de champ), et un seul écart de comportement, marqué.
 
 - `compose(theirs, ours)` (`lib/cloneTrigger.ts`) remplace les 38 blocs
   `onX?.(e); if (e.defaultPrevented) return; …` écrits à la main dans 18 composants :
@@ -36,11 +37,13 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
 - Champs à liste : `useListboxNav` est fondu dans `useListboxField` ; `Listbox` porte
   son portail et les classes de surface, `ListboxOption` le `preventDefault` du clic et
   l'activation au survol, recopiés jusqu'ici dans `Select`, `MultiSelect` et `Combobox`.
-- Focus (`lib/focusTrap.ts`) : `focusInto` (entrée dans un dialogue ou un `Popover`),
-  `tabLeavesPanel` (sortie par Tab d'un `Popover` ou d'un `ColorPicker` flottant) et
-  `restoreFocus` (retour au déclencheur : `Popover`, `DropdownMenu`, `Menubar`,
-  `ColorPicker`, `DatePicker`). Le focus revient désormais au déclencheur partout
-  *avant* la fermeture, donc avant `onOpenChange(false)`.
+- ⚠️ **silencieuse** — Focus (`lib/focusTrap.ts`) : `focusInto` (entrée dans un
+  dialogue ou un `Popover`), `tabLeavesPanel` (sortie par Tab d'un `Popover` ou d'un
+  `ColorPicker` flottant) et `restoreFocus` (retour au déclencheur : `Popover`,
+  `DropdownMenu`, `Menubar`, `ColorPicker`, `DatePicker`). Le focus revient désormais
+  au déclencheur partout *avant* la fermeture, donc avant `onOpenChange(false)` /
+  `onOpenIndexChange(null)` : un consommateur qui y déplace le focus ailleurs n'est
+  plus contredit (`Popover`, `DropdownMenu` et `Menubar` le ramenaient après).
 - `useHoverDisclosure` porte l'état, les délais, l'ancrage et Échap de `Tooltip` et
   `HoverCard` (il absorbe `useDelayedOpen`, leur seul usage).
 - `DialogFrame` (ex-`DialogHeader`) rend toute la charpente de `Modal`, `Drawer` et
@@ -52,9 +55,10 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
 - `fieldShell({ size, layout, error, open, disabled })` (`lib/Field.tsx`) compose les
   classes de coque des 8 champs qui la recopiaient (`Select`, `MultiSelect`,
   `Combobox`, `DatePicker`, `Input`, `NumberInput`, `TagInput`, `ColorPicker`).
-- CSS, sans changement de valeur : la charpente des dialogues (colonne du panneau,
-  partie commune de `__header`, `__content`, typographie de `__body`) et ce que
-  `Slider` et `RangeSlider` partageaient passent dans `tokens.css` en
+- CSS, sans changement de valeur (styles calculés comparés avant/après) : la colonne
+  des panneaux de dialogue passe sur `.camply-overlay-panel` ; la partie commune de
+  `__header`, `__content` et la typographie de `__body` (`Modal`, `Drawer`, `Sheet`),
+  comme ce que `Slider` et `RangeSlider` partageaient, passent dans `tokens.css` en
   multi-sélecteurs ; `ColorPicker` fusionne ses poignées et remplissages identiques.
   `RangeSlider.css` reste, vide, pour son export.
 - Tests : un seul `stubLayout()` (`tests/dom/layout.ts`) pour les fichiers de
