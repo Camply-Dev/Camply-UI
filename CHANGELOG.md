@@ -62,6 +62,11 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
   la remise à zéro d'un formulaire rejoint `forms.test.tsx`, un seul test
   d'accumulation du typeahead.
 
+### Vitrine et outillage
+
+- Vitrine : la page Roadmap et le statut « à venir », jamais servis (les 60 composants
+  ont leur page), disparaissent.
+
 ## [0.3.0] — 2026-10-18
 
 Ce qu'une application devait contourner (classes internes surchargées, composants

@@ -10,7 +10,6 @@ import {
 	GUIDE,
 	HOME,
 	ICONS,
-	ROADMAP,
 	type Subfamily,
 	TOTAL,
 } from "../showcase-data";
@@ -29,7 +28,7 @@ export function Sidebar({ active, onNavigate, onOpenPalette }: SidebarProps) {
 	const q = query.trim().toLowerCase();
 	const searching = q.length > 0;
 	const activeIsComponent =
-		active !== HOME && active !== GUIDE && active !== ICONS && active !== CSS && active !== ROADMAP;
+		active !== HOME && active !== GUIDE && active !== ICONS && active !== CSS;
 
 	const matches = (label: string) => label.toLowerCase().includes(q);
 	const famHasMatch = (family: Family) =>
@@ -197,11 +196,6 @@ export function Sidebar({ active, onNavigate, onOpenPalette }: SidebarProps) {
 				})}
 				{noResults && <div className="cu-noresult">Aucun résultat pour « {query.trim()} ».</div>}
 			</nav>
-
-			<button type="button" className="cu-side__foot" onClick={() => onNavigate(ROADMAP)}>
-				<Icon name="arrow" size={15} />
-				Voir la roadmap
-			</button>
 		</aside>
 	);
 }

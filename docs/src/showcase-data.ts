@@ -1,13 +1,8 @@
-import { PLAYGROUNDS } from "./playground";
-
-type ComponentStatus = "available" | "upcoming";
-
 export interface ComponentEntry {
 	id: string;
 	label: string;
 	family: string;
 	subfamily: string;
-	status: ComponentStatus;
 	description: string;
 }
 
@@ -15,10 +10,6 @@ export const HOME = "__home";
 export const GUIDE = "__guide";
 export const ICONS = "__icons";
 export const CSS = "__css";
-export const ROADMAP = "__roadmap";
-
-const AVAILABLE_IDS = new Set(Object.keys(PLAYGROUNDS));
-
 const c = (
 	id: string,
 	label: string,
@@ -30,7 +21,6 @@ const c = (
 	label,
 	family,
 	subfamily,
-	status: AVAILABLE_IDS.has(id) ? "available" : "upcoming",
 	description,
 });
 
@@ -163,7 +153,6 @@ export const BY_ID: Record<string, ComponentEntry> = Object.fromEntries(
 );
 
 export const TOTAL = COMPONENTS.length;
-export const AVAILABLE = COMPONENTS.filter((entry) => entry.status === "available");
 
 interface TokenRow {
 	name: string;

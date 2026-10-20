@@ -4,10 +4,9 @@ import { ComponentPage } from "./components/ComponentPage";
 import { GuideView } from "./components/GuideView";
 import { HomeView } from "./components/HomeView";
 import { IconsView } from "./components/IconsView";
-import { RoadmapView } from "./components/RoadmapView";
 import { Sidebar } from "./components/Sidebar";
 import { TokensView } from "./components/TokensView";
-import { BY_ID, COMPONENTS, CSS, GUIDE, HOME, ICONS, ROADMAP } from "./showcase-data";
+import { BY_ID, COMPONENTS, CSS, GUIDE, HOME, ICONS } from "./showcase-data";
 
 export function App() {
 	const [active, setActive] = useState<string>(HOME);
@@ -26,8 +25,6 @@ export function App() {
 		crumbs.push({ label: "Icônes" });
 	} else if (active === CSS) {
 		crumbs.push({ label: "CSS par défaut" });
-	} else if (active === ROADMAP) {
-		crumbs.push({ label: "Roadmap" });
 	} else if (entry) {
 		const familyFirst = COMPONENTS.find((component) => component.family === entry.family)?.id;
 		crumbs.push({ label: entry.family, onClick: familyFirst ? () => go(familyFirst) : undefined });
@@ -41,7 +38,6 @@ export function App() {
 		{ id: GUIDE, label: "Guide d'utilisation", group: "Navigation", onRun: () => go(GUIDE) },
 		{ id: ICONS, label: "Icônes", group: "Navigation", onRun: () => go(ICONS) },
 		{ id: CSS, label: "CSS par défaut", group: "Navigation", onRun: () => go(CSS) },
-		{ id: ROADMAP, label: "Roadmap", group: "Navigation", onRun: () => go(ROADMAP) },
 		...COMPONENTS.map((c) => ({
 			id: c.id,
 			label: c.label,
@@ -72,8 +68,7 @@ export function App() {
 					{active === GUIDE && <GuideView onNavigate={setActive} />}
 					{active === ICONS && <IconsView />}
 					{active === CSS && <TokensView />}
-					{active === ROADMAP && <RoadmapView onNavigate={setActive} />}
-					{entry && <ComponentPage entry={entry} onNavigate={setActive} />}
+					{entry && <ComponentPage entry={entry} />}
 				</div>
 			</main>
 			<CommandPalette

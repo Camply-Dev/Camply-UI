@@ -1,7 +1,7 @@
 import { Badge, Button, Card, Snippet } from "@camply/ui";
 import { version } from "../../../package.json";
 import { Icon } from "../icons";
-import { AVAILABLE, CSS, FAMILIES, TOTAL } from "../showcase-data";
+import { CSS, FAMILIES, TOTAL } from "../showcase-data";
 
 interface HomeViewProps {
 	onNavigate: (id: string) => void;
@@ -10,7 +10,6 @@ interface HomeViewProps {
 export function HomeView({ onNavigate }: HomeViewProps) {
 	const stats = [
 		{ value: String(TOTAL), label: "composants" },
-		{ value: String(AVAILABLE.length), label: "disponibles" },
 		{ value: String(FAMILIES.length), label: "familles" },
 		{ value: "ESM", label: "tree-shakable" },
 	];
@@ -26,7 +25,7 @@ export function HomeView({ onNavigate }: HomeViewProps) {
 					height={58}
 				/>
 				<Badge tone="accent">
-					v{version} · {AVAILABLE.length} / {TOTAL} composants
+					v{version} · {TOTAL} composants
 				</Badge>
 				<h1 className="cu-hero__title">La librairie UI de Camply</h1>
 				<p className="cu-hero__sub">
