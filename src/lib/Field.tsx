@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { cn } from "./cn";
+import type { Size } from "./types";
 import { useId } from "./useId";
 
 interface FieldRenderProps {
@@ -32,6 +33,34 @@ export interface FieldProps {
  */
 export function idRefs(...ids: Array<string | false | null | undefined>): string | undefined {
 	return cn(...ids) || undefined;
+}
+
+interface FieldShellState {
+	size?: Size;
+	/** `wrap` : hauteur libre, contenu sur plusieurs lignes ; `flush` : ni marge ni écart. */
+	layout?: "wrap" | "flush";
+	error?: string;
+	open?: boolean;
+	/**
+	 * Pour une coque que `:disabled` ne couvre pas (un <div>) : le trigger <button>
+	 * de Select ou MultiSelect n'en a pas besoin.
+	 */
+	disabled?: boolean;
+}
+
+/**
+ * Classes de la coque de champ (`.camply-field-shell`, tokens.css) : bordure,
+ * hauteur et états communs aux champs texte et aux déclencheurs de liste.
+ */
+export function fieldShell({ size, layout, error, open, disabled }: FieldShellState): string {
+	return cn(
+		"camply-field-shell",
+		size && `camply-field-shell--${size}`,
+		layout && `camply-field-shell--${layout}`,
+		error && "camply-field-shell--error",
+		open && "camply-field-shell--open",
+		disabled && "camply-field-shell--disabled",
+	);
 }
 
 /**

@@ -22,7 +22,7 @@ import {
 	YEAR_PAGE,
 	yearPageStart,
 } from "../../lib/dateField";
-import { Field, idRefs } from "../../lib/Field";
+import { Field, fieldShell, idRefs } from "../../lib/Field";
 import { restoreFocus, trapTab } from "../../lib/focusTrap";
 import { FormReset, HiddenField } from "../../lib/HiddenField";
 import { useLabels, useLocale } from "../../lib/i18n";
@@ -409,16 +409,7 @@ export const DatePicker = forwardRef(function DatePicker(
 		>
 			{({ id: controlId, labelId, describedBy, invalid }) => (
 				<>
-					<div
-						ref={setTriggerRef}
-						className={cn(
-							"camply-field-shell",
-							error && "camply-field-shell--error",
-							open && "camply-field-shell--open",
-							disabled && "camply-field-shell--disabled",
-						)}
-						{...rest}
-					>
+					<div ref={setTriggerRef} className={fieldShell({ error, open, disabled })} {...rest}>
 						<button
 							type="button"
 							disabled={disabled}

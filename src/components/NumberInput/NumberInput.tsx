@@ -2,7 +2,7 @@ import { type CSSProperties, forwardRef, type InputHTMLAttributes, useState } fr
 import { clamp } from "../../lib/clamp";
 import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
-import { Field, idRefs } from "../../lib/Field";
+import { Field, fieldShell, idRefs } from "../../lib/Field";
 import { useLabels } from "../../lib/i18n";
 import { Minus, Plus } from "../../lib/icons";
 import type { Size } from "../../lib/types";
@@ -183,12 +183,8 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 			{({ id: inputId, describedBy, invalid, required: isRequired }) => (
 				<div
 					className={cn(
-						"camply-field-shell",
-						"camply-field-shell--flush",
-						`camply-field-shell--${size}`,
+						fieldShell({ size, layout: "flush", error, disabled }),
 						"camply-numberinput__wrap",
-						error && "camply-field-shell--error",
-						disabled && "camply-field-shell--disabled",
 					)}
 				>
 					<button

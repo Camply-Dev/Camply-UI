@@ -49,6 +49,9 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
   propre sélecteur d'entrées.
 - `useLatest(value)` remplace les 15 copies de `const xRef = useRef(x); xRef.current = x`
   (Biome le connaît comme stable, `biome.json`).
+- `fieldShell({ size, layout, error, open, disabled })` (`lib/Field.tsx`) compose les
+  classes de coque des 8 champs qui la recopiaient (`Select`, `MultiSelect`,
+  `Combobox`, `DatePicker`, `Input`, `NumberInput`, `TagInput`, `ColorPicker`).
 
 ## [0.3.0] — 2026-10-18
 

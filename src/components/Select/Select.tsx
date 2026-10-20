@@ -7,7 +7,7 @@ import {
 } from "react";
 import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
-import { Field, idRefs } from "../../lib/Field";
+import { Field, fieldShell, idRefs } from "../../lib/Field";
 import { FieldChevron } from "../../lib/FieldChevron";
 import { FormReset, HiddenField } from "../../lib/HiddenField";
 import { useLabels } from "../../lib/i18n";
@@ -155,13 +155,7 @@ const SelectBase = forwardRef(function Select<T extends string = string>(
 						aria-describedby={idRefs(describedBy, ariaDescribedBy)}
 						aria-invalid={invalid ?? ariaInvalid}
 						disabled={disabled}
-						className={cn(
-							"camply-field-shell",
-							"camply-select__trigger",
-							`camply-field-shell--${size}`,
-							error && "camply-field-shell--error",
-							list.open && "camply-field-shell--open",
-						)}
+						className={cn(fieldShell({ size, error, open: list.open }), "camply-select__trigger")}
 						onClick={onClick}
 						onKeyDown={onKeyDown}
 					>

@@ -8,7 +8,7 @@ import {
 } from "react";
 import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
-import { Field, idRefs } from "../../lib/Field";
+import { Field, fieldShell, idRefs } from "../../lib/Field";
 import { FieldChevron } from "../../lib/FieldChevron";
 import { FormReset, HiddenField } from "../../lib/HiddenField";
 import { useLabels } from "../../lib/i18n";
@@ -164,15 +164,11 @@ const MultiSelectBase = forwardRef(function MultiSelect<T extends string = strin
 						aria-describedby={idRefs(describedBy, ariaDescribedBy)}
 						aria-invalid={invalid ?? ariaInvalid}
 						disabled={disabled}
+						// Pas de `disabled` : le trigger est un <button>, que
+						// `.camply-field-shell:disabled` couvre déjà.
 						className={cn(
-							"camply-field-shell",
-							"camply-field-shell--wrap",
+							fieldShell({ layout: "wrap", error, open: list.open }),
 							"camply-multiselect__trigger",
-							error && "camply-field-shell--error",
-							list.open && "camply-field-shell--open",
-							// Pas de `--disabled` : le trigger est un <button>, que
-							// `.camply-field-shell:disabled` couvre déjà. Le modificateur n'existe
-							// que pour les coques non désactivables nativement (le <div> de Combobox).
 						)}
 						onClick={onClick}
 						onKeyDown={onKeyDown}

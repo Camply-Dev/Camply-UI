@@ -8,7 +8,7 @@ import {
 } from "react";
 import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
-import { Field, idRefs } from "../../lib/Field";
+import { Field, fieldShell, idRefs } from "../../lib/Field";
 import { FormReset, HiddenField } from "../../lib/HiddenField";
 import { useLabels } from "../../lib/i18n";
 import { useControllable } from "../../lib/useControllable";
@@ -134,13 +134,7 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(function TagIn
 				// biome-ignore lint/a11y/noStaticElementInteractions: shell non interactif — le mousedown ne fait que renvoyer le focus vers la saisie, déjà atteignable au clavier
 				<div
 					ref={ref}
-					className={cn(
-						"camply-field-shell",
-						"camply-field-shell--wrap",
-						"camply-taginput__wrap",
-						error && "camply-field-shell--error",
-						disabled && "camply-field-shell--disabled",
-					)}
+					className={cn(fieldShell({ layout: "wrap", error, disabled }), "camply-taginput__wrap")}
 					onMouseDown={onShellMouseDown}
 					{...rest}
 				>

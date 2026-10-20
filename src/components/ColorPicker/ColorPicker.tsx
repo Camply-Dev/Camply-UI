@@ -22,7 +22,7 @@ import {
 	rgbToHsv,
 	toHex,
 } from "../../lib/color";
-import { Field } from "../../lib/Field";
+import { Field, fieldShell } from "../../lib/Field";
 import { FieldChevron } from "../../lib/FieldChevron";
 import { focusEdges, restoreFocus, tabLeavesPanel } from "../../lib/focusTrap";
 import { FormReset, HiddenField } from "../../lib/HiddenField";
@@ -464,14 +464,15 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 										aria-labelledby={`${labelId ?? nameId} ${valueId}`}
 										aria-describedby={describedBy}
 										aria-invalid={invalid}
-										className={cn(
-											"camply-focus-ring",
+										className={
 											compact
-												? "camply-field-shell camply-colorpicker__trigger"
-												: "camply-checkerboard camply-colorpicker__swatch camply-colorpicker__swatchTrigger",
-											compact && open && "camply-field-shell--open",
-											compact && error && "camply-field-shell--error",
-										)}
+												? cn(
+														"camply-focus-ring",
+														fieldShell({ error, open }),
+														"camply-colorpicker__trigger",
+													)
+												: "camply-focus-ring camply-checkerboard camply-colorpicker__swatch camply-colorpicker__swatchTrigger"
+										}
 										onMouseEnter={onEnter}
 										onMouseLeave={onLeave}
 										onFocus={openNow}

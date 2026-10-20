@@ -1,6 +1,6 @@
 import { forwardRef, type InputHTMLAttributes, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
-import { Field, idRefs } from "../../lib/Field";
+import { Field, fieldShell, idRefs } from "../../lib/Field";
 import type { Size } from "../../lib/types";
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
 	label?: string;
@@ -43,15 +43,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 				style={style}
 			>
 				{({ id: inputId, describedBy, invalid, required: isRequired }) => (
-					<div
-						className={cn(
-							"camply-input__wrap",
-							"camply-field-shell",
-							`camply-field-shell--${size}`,
-							error && "camply-field-shell--error",
-							disabled && "camply-field-shell--disabled",
-						)}
-					>
+					<div className={cn("camply-input__wrap", fieldShell({ size, error, disabled }))}>
 						{leftIcon && <span className="camply-input__iconLeft">{leftIcon}</span>}
 						<input
 							ref={ref}
