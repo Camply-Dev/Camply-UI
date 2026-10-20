@@ -22,14 +22,20 @@ export function useMenuNav(
 		return [...el.querySelectorAll<HTMLElement>('[role="menuitem"]:not([disabled])')];
 	};
 
+	/**
+	 * Focalise la première entrée active, à la frame suivante : le menu vient
+	 * d'ouvrir ou de changer de contenu, ses entrées ne sont pas encore rendues.
+	 */
+	const focusFirst = () => requestAnimationFrame(() => items()[0]?.focus());
+
 	// À l'ouverture, le focus entre dans le menu (première entrée active).
-	// biome-ignore lint/correctness/useExhaustiveDependencies: containerRef est un RefObject stable
+	// biome-ignore lint/correctness/useExhaustiveDependencies: containerRef est un RefObject stable, seul lu par focusFirst
 	useEffect(() => {
 		// Chaque ouverture/fermeture repart d'une recherche vierge : sans ça, les
 		// frappes de la fois précédente se recolleraient aux nouvelles pendant 500 ms.
 		typeahead.reset();
 		if (!open || !focusOnOpen) return;
-		const id = requestAnimationFrame(() => items()[0]?.focus());
+		const id = focusFirst();
 		return () => cancelAnimationFrame(id);
 	}, [open]);
 
@@ -57,5 +63,5 @@ export function useMenuNav(
 		list[at].focus();
 	};
 
-	return { onKeyDown };
+	return { onKeyDown, focusFirst };
 }

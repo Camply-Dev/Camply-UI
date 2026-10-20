@@ -68,8 +68,6 @@ export interface MenubarProps
 const OPEN_DELAY = 110;
 const CLOSE_DELAY = 180;
 
-const ITEM_SELECTOR = '[role="menuitem"]:not([disabled])';
-
 /**
  * Barre de menus au pattern APG. Passe-lui un `aria-label` (transmis tel quel à
  * l'élément `role="menubar"`) : sans nom, un lecteur d'écran annonce une « barre
@@ -183,14 +181,12 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 		};
 
 		// useMenuNav ne pose le focus qu'à l'OUVERTURE : quand on passe d'un menu à
-		// l'autre alors qu'un menu est déjà ouvert, on entre à la main.
-		const focusFirstItem = () => {
-			requestAnimationFrame(() => {
-				menuRef.current?.querySelector<HTMLElement>(ITEM_SELECTOR)?.focus();
-			});
-		};
-
-		const { onKeyDown: onItemsKeyDown } = useMenuNav(menuRef, open, !openedByHover.current);
+		// l'autre alors qu'un menu est déjà ouvert, on entre à la main (`focusFirst`).
+		const { onKeyDown: onItemsKeyDown, focusFirst } = useMenuNav(
+			menuRef,
+			open,
+			!openedByHover.current,
+		);
 
 		// Règle 4 : le spread précède ce handler, celui du consommateur est donc appelé ici.
 		const onBarKeyDown = compose(onKeyDownProp, (e) => {
@@ -204,7 +200,7 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 				setOpenIdx(roving);
 				// Si un menu était DÉJÀ ouvert (survol, autre entrée), `open` ne change pas
 				// et useMenuNav ne se redéclenche pas : on entre à la main.
-				if (open) focusFirstItem();
+				if (open) focusFirst();
 				return;
 			}
 
@@ -233,7 +229,7 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 				clearTimers();
 				setFocusIndex(next);
 				setOpenIdx(next);
-				focusFirstItem();
+				focusFirst();
 				return;
 			}
 

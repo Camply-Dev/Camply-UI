@@ -45,6 +45,8 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
   `HoverCard` (il absorbe `useDelayedOpen`, leur seul usage).
 - `DialogFrame` (ex-`DialogHeader`) rend toute la charpente de `Modal`, `Drawer` et
   `Sheet` : en-tête, `__content > __body`, `__footer`.
+- `Menubar` entre dans un menu par le `focusFirst()` de `useMenuNav` au lieu de son
+  propre sélecteur d'entrées.
 
 ## [0.3.0] — 2026-10-18
 
