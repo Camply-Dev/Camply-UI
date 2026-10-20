@@ -33,6 +33,9 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
 - Un seul chemin vers la pile de renvoi : `useDismiss` prend `escapeOnly`, que
   `OverlayDialog` (avec son verrou de défilement) et les couches de survol utilisent ;
   `useEscapeAndScrollLock` disparaît.
+- Champs à liste : `useListboxNav` est fondu dans `useListboxField` ; `Listbox` porte
+  son portail et les classes de surface, `ListboxOption` le `preventDefault` du clic et
+  l'activation au survol, recopiés jusqu'ici dans `Select`, `MultiSelect` et `Combobox`.
 
 ## [0.3.0] — 2026-10-18
 

@@ -15,7 +15,6 @@ import { useLabels } from "../../lib/i18n";
 import { Check, X } from "../../lib/icons";
 import { Listbox, ListboxOption } from "../../lib/Listbox";
 import { useMergedRefs } from "../../lib/mergeRefs";
-import { Portal } from "../../lib/Portal";
 import type { Option } from "../../lib/types";
 import { useControllable } from "../../lib/useControllable";
 import { type ReservedListboxAttr, useListboxField } from "../../lib/useListboxField";
@@ -210,46 +209,37 @@ const MultiSelectBase = forwardRef(function MultiSelect<T extends string = strin
 					<FormReset onReset={value === undefined ? () => setSelected(defaultValue) : undefined} />
 
 					{list.open && (
-						<Portal>
-							<Listbox
-								{...list.props}
-								multiselectable
-								className="camply-floating-surface camply-floating-list camply-multiselect__list"
-							>
-								{options.map((opt, i) => {
-									const isSelected = selectedSet.has(opt.value);
-									const blocked = !isSelected && max != null && selected.length >= max;
-									return (
-										<ListboxOption
-											key={opt.value}
-											id={list.optionId(i)}
-											active={i === list.active}
-											selected={isSelected}
-											disabled={opt.disabled || blocked}
+						<Listbox {...list.props} multiselectable className="camply-multiselect__list">
+							{options.map((opt, i) => {
+								const isSelected = selectedSet.has(opt.value);
+								return (
+									<ListboxOption
+										key={opt.value}
+										id={list.optionId(i)}
+										active={i === list.active}
+										selected={isSelected}
+										disabled={opt.disabled}
+										blocked={!isSelected && max != null && selected.length >= max}
+										className={cn(
+											"camply-multiselect__option",
+											isSelected && "camply-multiselect__selected",
+										)}
+										onActivate={() => list.setActive(i)}
+										onClick={() => toggle(opt)}
+									>
+										<span
 											className={cn(
-												"camply-multiselect__option",
-												isSelected && "camply-multiselect__selected",
+												"camply-multiselect__box",
+												isSelected && "camply-multiselect__boxOn",
 											)}
-											onMouseEnter={() => !opt.disabled && list.setActive(i)}
-											// La liste reste ouverte après un clic : sans ça le focus tomberait
-											// sur <body> et les flèches ne piloteraient plus rien.
-											onMouseDown={(e) => e.preventDefault()}
-											onClick={() => toggle(opt)}
 										>
-											<span
-												className={cn(
-													"camply-multiselect__box",
-													isSelected && "camply-multiselect__boxOn",
-												)}
-											>
-												{isSelected && <Check size={12} />}
-											</span>
-											<span>{opt.label}</span>
-										</ListboxOption>
-									);
-								})}
-							</Listbox>
-						</Portal>
+											{isSelected && <Check size={12} />}
+										</span>
+										<span>{opt.label}</span>
+									</ListboxOption>
+								);
+							})}
+						</Listbox>
 					)}
 				</>
 			)}

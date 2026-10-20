@@ -1,8 +1,17 @@
-import { type KeyboardEvent, useCallback, useRef, useState } from "react";
+import { type KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
+import { wrapIndex } from "./rovingIndex";
 import { useAnchor } from "./useAnchor";
 import { useDismiss } from "./useDismiss";
 import { useId } from "./useId";
-import { firstEnabledIndex, lastEnabledIndex, useListboxNav } from "./useListboxNav";
+
+type OptionLike = { disabled?: boolean };
+
+export const firstEnabledIndex = (options: OptionLike[]): number =>
+	options.findIndex((o) => !o.disabled);
+const lastEnabledIndex = (options: OptionLike[]): number => {
+	for (let i = options.length - 1; i >= 0; i--) if (!options[i].disabled) return i;
+	return -1;
+};
 
 /**
  * Ancrage commun aux trois champs à liste : juste sous le champ, aligné sur son
@@ -32,7 +41,7 @@ export type ReservedListboxAttr =
 	| "aria-activedescendant"
 	| "aria-required";
 
-interface ListboxFieldConfig<O extends { disabled?: boolean }> {
+interface ListboxFieldConfig<O extends OptionLike> {
 	/** Préfixe de l'id de liste ; les ids d'options en dérivent. */
 	idPrefix: string;
 	/** Liste RÉELLEMENT rendue — Combobox y passe ses options filtrées. */
@@ -53,18 +62,18 @@ interface ListboxFieldConfig<O extends { disabled?: boolean }> {
  * d'ouverture, ancrage, renvoi (Échap / clic extérieur), navigation clavier et
  * identifiants ARIA. La sélection reste propre à chacun.
  */
-export function useListboxField<E extends HTMLElement, O extends { disabled?: boolean }>({
+export function useListboxField<E extends HTMLElement, O extends OptionLike>({
 	idPrefix,
 	items,
-	wrap,
+	wrap = true,
 	homeEnd = true,
 	onClose,
 }: ListboxFieldConfig<O>) {
 	const [open, setOpen] = useState(false);
+	const [active, setActive] = useState(0);
 	const anchorRef = useRef<E>(null);
 	const listRef = useRef<HTMLDivElement>(null);
 	const listId = useId(idPrefix);
-	const { active, setActive, moveActive } = useListboxNav(listRef, open, items, { wrap });
 	const { style: floatStyle } = useAnchor(anchorRef, listRef, open, ANCHOR);
 
 	// Lu au moment de la fermeture : `close` reste stable, donc la couche de renvoi aussi.
@@ -77,6 +86,31 @@ export function useListboxField<E extends HTMLElement, O extends { disabled?: bo
 	useDismiss(open, close, [anchorRef, listRef]);
 
 	const optionId = (index: number) => `${listId}-opt-${index}`;
+
+	/** Option active suivante ou précédente, options désactivées sautées. */
+	const moveActive = (dir: 1 | -1) => {
+		setActive((prev) => {
+			if (!wrap) {
+				for (let next = prev + dir; next >= 0 && next < items.length; next += dir) {
+					if (!items[next].disabled) return next;
+				}
+				return prev;
+			}
+			let next = prev;
+			for (let i = 0; i < items.length; i++) {
+				next = wrapIndex(next + dir, items.length);
+				if (!items[next].disabled) break;
+			}
+			return next;
+		});
+	};
+
+	// L'option active reste visible dans une liste qui défile.
+	useEffect(() => {
+		if (!open) return;
+		const el = listRef.current?.children[active] as HTMLElement | undefined;
+		el?.scrollIntoView({ block: "nearest" });
+	}, [active, open]);
 
 	/**
 	 * Touches de navigation pure. Renvoie `true` si la touche est consommée, à
@@ -131,7 +165,7 @@ export function useListboxField<E extends HTMLElement, O extends { disabled?: bo
 			"aria-controls": open ? listId : undefined,
 			"aria-activedescendant": open && items[active] ? optionId(active) : undefined,
 		},
-		/** À étaler sur `<Listbox>` ; la classe reste propre à chaque composant. */
+		/** À étaler sur `<Listbox>`, qui ajoute la classe propre à chaque composant. */
 		props: { listRef, id: listId, style: floatStyle },
 	};
 }

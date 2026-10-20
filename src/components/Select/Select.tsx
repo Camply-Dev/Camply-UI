@@ -14,7 +14,6 @@ import { useLabels } from "../../lib/i18n";
 import { Check } from "../../lib/icons";
 import { Listbox, ListboxOption } from "../../lib/Listbox";
 import { useMergedRefs } from "../../lib/mergeRefs";
-import { Portal } from "../../lib/Portal";
 import type { Option, Size } from "../../lib/types";
 import { useControllable } from "../../lib/useControllable";
 import { type ReservedListboxAttr, useListboxField } from "../../lib/useListboxField";
@@ -181,34 +180,26 @@ const SelectBase = forwardRef(function Select<T extends string = string>(
 					<FormReset onReset={value === undefined ? () => setSelected(defaultValue) : undefined} />
 
 					{list.open && (
-						<Portal>
-							<Listbox
-								{...list.props}
-								className="camply-floating-surface camply-floating-list camply-select__list"
-							>
-								{options.map((opt, i) => {
-									const isSelected = opt.value === selected;
-									return (
-										<ListboxOption
-											key={opt.value}
-											id={list.optionId(i)}
-											active={i === list.active}
-											selected={isSelected}
-											disabled={opt.disabled}
-											className="camply-select__option"
-											onMouseEnter={() => !opt.disabled && list.setActive(i)}
-											// Le focus ne quitte jamais le trigger : un aller-retour body → bouton
-											// émettrait un onBlur/onFocus parasite au clic.
-											onMouseDown={(e) => e.preventDefault()}
-											onClick={() => pick(opt)}
-										>
-											<span>{opt.label}</span>
-											{isSelected && <Check size={15} className="camply-select__tick" />}
-										</ListboxOption>
-									);
-								})}
-							</Listbox>
-						</Portal>
+						<Listbox {...list.props} className="camply-select__list">
+							{options.map((opt, i) => {
+								const isSelected = opt.value === selected;
+								return (
+									<ListboxOption
+										key={opt.value}
+										id={list.optionId(i)}
+										active={i === list.active}
+										selected={isSelected}
+										disabled={opt.disabled}
+										className="camply-select__option"
+										onActivate={() => list.setActive(i)}
+										onClick={() => pick(opt)}
+									>
+										<span>{opt.label}</span>
+										{isSelected && <Check size={15} className="camply-select__tick" />}
+									</ListboxOption>
+								);
+							})}
+						</Listbox>
 					)}
 				</>
 			)}

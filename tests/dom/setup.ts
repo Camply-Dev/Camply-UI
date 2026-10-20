@@ -3,7 +3,7 @@ import { cleanup } from "@testing-library/react";
 import { afterEach } from "vitest";
 
 // jsdom n'implémente pas `scrollIntoView`, que les listes appellent pour suivre
-// l'option active (`useListboxNav`, CommandPalette) : sans ce bouchon, ouvrir une
+// l'option active (`useListboxField`, CommandPalette) : sans ce bouchon, ouvrir une
 // liste jette. Chaque fichier de test a son propre jsdom, le bouchon n'en sort pas.
 if (typeof Element.prototype.scrollIntoView !== "function") {
 	Element.prototype.scrollIntoView = () => {};
