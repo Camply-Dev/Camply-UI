@@ -2,13 +2,13 @@ import {
 	type ComponentPropsWithoutRef,
 	type ForwardedRef,
 	forwardRef,
-	type KeyboardEvent,
 	type ReactNode,
 	type RefAttributes,
 	useLayoutEffect,
 	useRef,
 	useState,
 } from "react";
+import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { Field, idRefs } from "../../lib/Field";
 import { FormReset, HiddenField } from "../../lib/HiddenField";
@@ -114,10 +114,9 @@ const SegmentedControlBase = forwardRef(function SegmentedControl<T extends stri
 		buttonRefs.current[index]?.focus();
 	};
 
-	const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-		// Règle 4.
-		onKeyDown?.(e);
-		if (e.defaultPrevented || readOnly || options.length === 0) return;
+	// Règle 4.
+	const handleKeyDown = compose(onKeyDown, (e) => {
+		if (readOnly || options.length === 0) return;
 		// La lib ne connaît que des segments horizontaux, mais un radiogroup accepte
 		// aussi les flèches verticales : on tente les deux axes.
 		const next =
@@ -126,7 +125,7 @@ const SegmentedControlBase = forwardRef(function SegmentedControl<T extends stri
 		if (next === null) return;
 		e.preventDefault();
 		select(next);
-	};
+	});
 
 	// Sans libellé ni aide, le groupe est la racine (`className`, `style`) ; avec, c'est
 	// le `Field` qui l'entoure, comme pour tout champ de la lib.

@@ -1,12 +1,11 @@
 import {
 	type ComponentPropsWithoutRef,
 	forwardRef,
-	type KeyboardEvent,
 	type ReactElement,
 	type ReactNode,
 	useEffect,
 } from "react";
-import { cloneTrigger, markTriggerSlot } from "../../lib/cloneTrigger";
+import { cloneTrigger, compose, markTriggerSlot } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { focusEdges } from "../../lib/focusTrap";
 import { useMergedRefs } from "../../lib/mergeRefs";
@@ -58,17 +57,16 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(
 		}, [open, floatRef]);
 
 		/** Tab hors du panneau par l'un ou l'autre bout : il se referme, le focus revient au déclencheur. */
-		const onPanelKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-			onKeyDown?.(e);
+		const onPanelKeyDown = compose(onKeyDown, (e) => {
 			const panel = floatRef.current;
-			if (e.defaultPrevented || e.key !== "Tab" || !panel) return;
+			if (e.key !== "Tab" || !panel) return;
 			const { first, last } = focusEdges(panel);
 			const edge = e.shiftKey ? first : last;
 			const active = document.activeElement;
 			if (edge && active !== edge && active !== panel) return;
 			e.preventDefault();
 			close();
-		};
+		});
 
 		return (
 			<>

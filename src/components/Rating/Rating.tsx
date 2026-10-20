@@ -1,12 +1,6 @@
-import {
-	forwardRef,
-	type HTMLAttributes,
-	type KeyboardEvent,
-	type ReactNode,
-	useRef,
-	useState,
-} from "react";
+import { forwardRef, type HTMLAttributes, type ReactNode, useRef, useState } from "react";
 import { clamp } from "../../lib/clamp";
+import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { Field, idRefs } from "../../lib/Field";
 import { FormReset, HiddenField } from "../../lib/HiddenField";
@@ -110,10 +104,9 @@ export const Rating = forwardRef<HTMLDivElement, RatingProps>(function Rating(
 		starRefs.current[Math.max(next, 1) - 1]?.focus();
 	};
 
-	const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-		// Règle 4.
-		onKeyDown?.(e);
-		if (e.defaultPrevented || !interactive) return;
+	// Règle 4.
+	const handleKeyDown = compose(onKeyDown, (e) => {
+		if (!interactive) return;
 		switch (e.key) {
 			case "ArrowRight":
 			case "ArrowUp":
@@ -133,7 +126,7 @@ export const Rating = forwardRef<HTMLDivElement, RatingProps>(function Rating(
 				return;
 		}
 		e.preventDefault();
-	};
+	});
 
 	return (
 		// `Field` enveloppe : `label` rend un vrai libellé visible, pas un aria-label muet.

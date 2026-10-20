@@ -1,4 +1,5 @@
 import { type ButtonHTMLAttributes, forwardRef, type ReactNode } from "react";
+import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import type { Size } from "../../lib/types";
 import { useControllable } from "../../lib/useControllable";
@@ -57,11 +58,7 @@ export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
 					className,
 				)}
 				// Règle 4.
-				onClick={(e) => {
-					onClick?.(e);
-					if (e.defaultPrevented) return;
-					setOn(!on);
-				}}
+				onClick={compose(onClick, () => setOn(!on))}
 			>
 				{children}
 			</button>

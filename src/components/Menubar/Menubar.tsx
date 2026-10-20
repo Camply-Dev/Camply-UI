@@ -11,6 +11,7 @@ import {
 	useState,
 } from "react";
 import { clamp } from "../../lib/clamp";
+import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { useMergedRefs } from "../../lib/mergeRefs";
 import { Portal } from "../../lib/Portal";
@@ -192,10 +193,8 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 
 		const { onKeyDown: onItemsKeyDown } = useMenuNav(menuRef, open, !openedByHover.current);
 
-		const onBarKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-			// Règle 4 : le spread précède ce handler, celui du consommateur est donc appelé ici.
-			onKeyDownProp?.(e);
-			if (e.defaultPrevented) return;
+		// Règle 4 : le spread précède ce handler, celui du consommateur est donc appelé ici.
+		const onBarKeyDown = compose(onKeyDownProp, (e) => {
 			if (menus.length === 0) return;
 
 			// Bas : ouvre le menu du déclencheur focalisé et entre dedans.
@@ -217,7 +216,7 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 			focusTrigger(next);
 			// Barre déjà « active » : on suit le focus en gardant un menu ouvert.
 			if (open) setOpenIdx(next);
-		};
+		});
 
 		const onMenuKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
 			// Le focus quitte le menu : il ne doit pas rester ouvert derrière lui.
@@ -257,11 +256,7 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 					className={cn("camply-menubar__bar", className)}
 					style={styleProp}
 					onKeyDown={onBarKeyDown}
-					onMouseLeave={(e) => {
-						onMouseLeaveProp?.(e);
-						if (e.defaultPrevented) return;
-						scheduleClose();
-					}}
+					onMouseLeave={compose(onMouseLeaveProp, scheduleClose)}
 				>
 					{menus.map((menu, i) => (
 						<button

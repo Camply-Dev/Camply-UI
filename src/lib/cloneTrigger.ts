@@ -32,23 +32,27 @@ function isVetoed(arg: unknown): boolean {
 }
 
 /**
- * Appelle le handler du consommateur, puis le nôtre sauf veto (règle 4).
+ * Appelle le handler du consommateur, puis le nôtre sauf veto (règle 4) : un
+ * `preventDefault()` de sa part annule notre comportement. React marque
+ * `defaultPrevented` même sur focus/blur, non annulables côté DOM.
  *
  * Conséquence assumée : sur un `<a href="#">` dont l'onClick appelle
  * `preventDefault()` pour couper la navigation, la couche ne s'ouvre pas. Le
  * déclencheur doit alors être un `<button>`, ou l'ouverture pilotée par `open`.
  */
-function chain(theirs: Handler, ours: Handler): Handler {
+export function compose<A extends unknown[]>(
+	theirs: ((...args: A) => void) | undefined,
+	ours: (...args: A) => void,
+): (...args: A) => void {
 	return (...args) => {
-		theirs(...args);
-		if (isVetoed(args[0])) return;
-		ours(...args);
+		theirs?.(...args);
+		if (!isVetoed(args[0])) ours(...args);
 	};
 }
 
 /**
  * Clone le déclencheur d'un overlay en lui injectant nos props (ref, handlers,
- * aria-*), composées avec sa `ref` et ses `onX` (voir `chain`).
+ * aria-*), composées avec sa `ref` et ses `onX` (voir `compose`).
  */
 export function cloneTrigger(trigger: ReactElement, props: Props): ReactNode {
 	if (!isValidElement(trigger)) return trigger;
@@ -79,7 +83,7 @@ export function cloneTrigger(trigger: ReactElement, props: Props): ReactNode {
 		}
 		const theirs = existing[key];
 		if (/^on[A-Z]/.test(key) && typeof theirs === "function" && typeof ours === "function") {
-			merged[key] = chain(theirs as Handler, ours as Handler);
+			merged[key] = compose(theirs as Handler, ours as Handler);
 		}
 	}
 

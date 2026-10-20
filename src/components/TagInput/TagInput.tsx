@@ -3,10 +3,10 @@ import {
 	forwardRef,
 	type HTMLAttributes,
 	type KeyboardEvent,
-	type MouseEvent,
 	useRef,
 	useState,
 } from "react";
+import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { Field, idRefs } from "../../lib/Field";
 import { FormReset, HiddenField } from "../../lib/HiddenField";
@@ -104,14 +104,13 @@ export const TagInput = forwardRef<HTMLDivElement, TagInputProps>(function TagIn
 	 * Coque neutre qui rend le focus à la saisie. Pas de <label> englobant : le texte
 	 * des tags s'ajouterait au nom accessible (le vrai <label> vient de Field).
 	 */
-	const onShellMouseDown = (e: MouseEvent<HTMLDivElement>) => {
-		onMouseDown?.(e);
-		if (e.defaultPrevented || locked || full) return;
+	const onShellMouseDown = compose(onMouseDown, (e) => {
+		if (locked || full) return;
 		const target = e.target as HTMLElement;
 		if (target === inputRef.current || target.closest("button")) return;
 		e.preventDefault();
 		inputRef.current?.focus();
-	};
+	});
 
 	const seen = new Map<string, number>();
 	const keyed = tags.map((tag, i) => {

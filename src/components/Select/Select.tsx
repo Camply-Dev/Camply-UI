@@ -2,11 +2,10 @@ import {
 	type ButtonHTMLAttributes,
 	type ForwardedRef,
 	forwardRef,
-	type KeyboardEvent,
-	type MouseEvent,
 	type ReactNode,
 	type RefAttributes,
 } from "react";
+import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { Field, idRefs } from "../../lib/Field";
 import { FieldChevron } from "../../lib/FieldChevron";
@@ -105,16 +104,14 @@ const SelectBase = forwardRef(function Select<T extends string = string>(
 		list.anchorRef.current?.focus();
 	};
 
-	const onClick = (e: MouseEvent<HTMLButtonElement>) => {
-		onClickProp?.(e);
-		if (e.defaultPrevented || disabled) return;
+	const onClick = compose(onClickProp, () => {
+		if (disabled) return;
 		if (list.open) list.close();
 		else openMenu();
-	};
+	});
 
-	const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
-		onKeyDownProp?.(e);
-		if (e.defaultPrevented || disabled) return;
+	const onKeyDown = compose(onKeyDownProp, (e) => {
+		if (disabled) return;
 		if (!list.open) {
 			if (["ArrowDown", "ArrowUp", "Enter", " "].includes(e.key)) {
 				e.preventDefault();
@@ -127,7 +124,7 @@ const SelectBase = forwardRef(function Select<T extends string = string>(
 			e.preventDefault();
 			if (options[list.active]) pick(options[list.active]);
 		}
-	};
+	});
 
 	return (
 		<Field

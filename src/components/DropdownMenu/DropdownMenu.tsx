@@ -2,12 +2,11 @@ import {
 	type ComponentPropsWithoutRef,
 	createContext,
 	forwardRef,
-	type KeyboardEvent,
 	type ReactElement,
 	type ReactNode,
 	useContext,
 } from "react";
-import { cloneTrigger, markTriggerSlot } from "../../lib/cloneTrigger";
+import { cloneTrigger, compose, markTriggerSlot } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { useMergedRefs } from "../../lib/mergeRefs";
 import { Portal } from "../../lib/Portal";
@@ -68,12 +67,10 @@ export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(
 
 		const { onKeyDown: onItemsKeyDown } = useMenuNav(floatRef, open);
 
-		const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-			// Règle 4 : le handler du consommateur passe d'abord et garde le dernier
-			// mot. `{...rest}` étant étalé avant, sans ça son `onKeyDown` serait
-			// purement et simplement supprimé par le nôtre.
-			onKeyDownProp?.(e);
-			if (e.defaultPrevented) return;
+		// Règle 4 : le handler du consommateur passe d'abord et garde le dernier
+		// mot. `{...rest}` étant étalé avant, sans ça son `onKeyDown` serait
+		// purement et simplement supprimé par le nôtre.
+		const onKeyDown = compose(onKeyDownProp, (e) => {
 			// Le focus quitte le menu : il ne doit pas rester ouvert derrière lui.
 			// close() rend le focus au déclencheur, d'où la tabulation repart.
 			if (e.key === "Tab") {
@@ -82,7 +79,7 @@ export const DropdownMenu = forwardRef<HTMLDivElement, DropdownMenuProps>(
 			}
 			// Flèches, Home/End, typeahead. Échap est géré par useDismiss (pile de couches).
 			onItemsKeyDown(e);
-		};
+		});
 
 		// Le menu tire son nom accessible du déclencheur ; on ne génère un id que si
 		// le consommateur n'en a pas déjà posé un sur le sien.
@@ -151,12 +148,10 @@ export const MenuItem = forwardRef<HTMLButtonElement, MenuItemProps>(
 				className={cn("camply-menu-item", danger && "camply-menu-item--danger", className)}
 				// Composé, pas écrasé, et `preventDefault()` reste le veto explicite du
 				// consommateur sur la sélection ET sur la fermeture (règle 4).
-				onClick={(e) => {
-					onClick?.(e);
-					if (e.defaultPrevented) return;
+				onClick={compose(onClick, () => {
 					onSelect?.();
 					close?.();
-				}}
+				})}
 			>
 				{icon && <span className="camply-menu-item__icon">{icon}</span>}
 				<span className="camply-menu-item__label">{children}</span>

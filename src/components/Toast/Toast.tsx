@@ -12,6 +12,7 @@ import {
 	useState,
 } from "react";
 import { CloseButton } from "../../lib/CloseButton";
+import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { useLabels } from "../../lib/i18n";
 import { Info, STATUS_ICONS } from "../../lib/icons";
@@ -224,32 +225,24 @@ export const ToastProvider = forwardRef<HTMLElement, ToastProviderProps>(
 						aria-atomic="false"
 						// La pause relève de WCAG 2.2.1 : elle est composée avec les gestionnaires du
 						// consommateur, jamais écrasée ; seul son `preventDefault()` la neutralise.
-						onPointerEnter={(e) => {
-							onPointerEnter?.(e);
-							if (e.defaultPrevented) return;
+						onPointerEnter={compose(onPointerEnter, () => {
 							hovered.current = true;
 							syncPause();
-						}}
-						onPointerLeave={(e) => {
-							onPointerLeave?.(e);
-							if (e.defaultPrevented) return;
+						})}
+						onPointerLeave={compose(onPointerLeave, () => {
 							hovered.current = false;
 							syncPause();
-						}}
-						onFocus={(e) => {
-							onFocus?.(e);
-							if (e.defaultPrevented) return;
+						})}
+						onFocus={compose(onFocus, () => {
 							focused.current = true;
 							syncPause();
-						}}
-						onBlur={(e) => {
-							onBlur?.(e);
-							if (e.defaultPrevented) return;
+						})}
+						onBlur={compose(onBlur, (e) => {
 							// Focus qui reste dans la pile (toast → bouton fermer) : on ne reprend pas.
 							if (e.currentTarget.contains(e.relatedTarget)) return;
 							focused.current = false;
 							syncPause();
-						}}
+						})}
 					>
 						{toasts.map((t) => {
 							const tone = t.tone ?? "default";
@@ -276,10 +269,9 @@ export const ToastProvider = forwardRef<HTMLElement, ToastProviderProps>(
 												size="sm"
 												variant="soft"
 												className="camply-toast__action"
-												onClick={(e) => {
-													t.action?.onClick(e);
-													if (!e.defaultPrevented) dismissFrom(t.id, e.currentTarget);
-												}}
+												onClick={compose(t.action.onClick, (e) =>
+													dismissFrom(t.id, e.currentTarget),
+												)}
 											>
 												{t.action.label}
 											</Button>

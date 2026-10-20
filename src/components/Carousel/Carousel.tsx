@@ -1,10 +1,7 @@
 import {
 	type CSSProperties,
-	type FocusEvent,
 	forwardRef,
 	type HTMLAttributes,
-	type KeyboardEvent,
-	type MouseEvent,
 	type ReactNode,
 	type TouchEvent,
 	useCallback,
@@ -13,6 +10,7 @@ import {
 	useState,
 } from "react";
 import { clamp } from "../../lib/clamp";
+import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { useLabels } from "../../lib/i18n";
 import { ChevronLeft, ChevronRight, Pause, Play } from "../../lib/icons";
@@ -141,9 +139,8 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 			// biome-ignore lint/a11y/noNoninteractiveTabindex: carrousel focusable pour la navigation ←/→ (pattern APG carousel)
 			tabIndex={0}
 			{...rest}
-			onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
-				onKeyDown?.(e);
-				if (e.defaultPrevented || isTextTarget(e.target)) return;
+			onKeyDown={compose(onKeyDown, (e) => {
+				if (isTextTarget(e.target)) return;
 				if (e.key === "ArrowLeft") {
 					e.preventDefault();
 					go(active - 1);
@@ -151,34 +148,19 @@ export const Carousel = forwardRef<HTMLElement, CarouselProps>(function Carousel
 					e.preventDefault();
 					go(active + 1);
 				}
-			}}
-			onMouseEnter={(e: MouseEvent<HTMLElement>) => {
-				onMouseEnter?.(e);
-				if (e.defaultPrevented) return;
-				setHovered(true);
-			}}
-			onMouseLeave={(e: MouseEvent<HTMLElement>) => {
-				onMouseLeave?.(e);
-				if (e.defaultPrevented) return;
-				setHovered(false);
-			}}
-			onFocusCapture={(e: FocusEvent<HTMLElement>) => {
-				onFocusCapture?.(e);
-				if (e.defaultPrevented) return;
-				setFocused(true);
-			}}
-			onBlurCapture={(e: FocusEvent<HTMLElement>) => {
-				onBlurCapture?.(e);
-				if (e.defaultPrevented) return;
+			})}
+			onMouseEnter={compose(onMouseEnter, () => setHovered(true))}
+			onMouseLeave={compose(onMouseLeave, () => setHovered(false))}
+			onFocusCapture={compose(onFocusCapture, () => setFocused(true))}
+			onBlurCapture={compose(onBlurCapture, (e) => {
 				// Un déplacement interne du focus ne doit pas relancer la rotation.
 				if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false);
-			}}
-			onTouchStart={(e: TouchEvent<HTMLElement>) => {
-				onTouchStart?.(e);
-				if (e.defaultPrevented) return;
+			})}
+			onTouchStart={compose(onTouchStart, (e) => {
 				touchX.current = e.touches[0].clientX;
-			}}
+			})}
 			onTouchEnd={(e: TouchEvent<HTMLElement>) => {
+				// Hors `compose` : le point de départ s'efface même sous veto.
 				onTouchEnd?.(e);
 				const startX = touchX.current;
 				touchX.current = null;

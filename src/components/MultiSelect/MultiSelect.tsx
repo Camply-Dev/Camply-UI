@@ -2,12 +2,11 @@ import {
 	type ButtonHTMLAttributes,
 	type ForwardedRef,
 	forwardRef,
-	type KeyboardEvent,
-	type MouseEvent,
 	type ReactNode,
 	type RefAttributes,
 	useMemo,
 } from "react";
+import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { Field, idRefs } from "../../lib/Field";
 import { FieldChevron } from "../../lib/FieldChevron";
@@ -107,18 +106,16 @@ const MultiSelectBase = forwardRef(function MultiSelect<T extends string = strin
 
 	const remove = (val: T) => setSelected(selected.filter((v) => v !== val));
 
-	const onClick = (e: MouseEvent<HTMLButtonElement>) => {
-		onClickProp?.(e);
-		if (e.defaultPrevented || disabled) return;
+	const onClick = compose(onClickProp, () => {
+		if (disabled) return;
 		// Fermer passe TOUJOURS par close() : c'est le seul chemin qui déclenche le
 		// nettoyage joint au renvoi. setOpen(false) le court-circuiterait en silence.
 		if (list.open) list.close();
 		else list.setOpen(true);
-	};
+	});
 
-	const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
-		onKeyDownProp?.(e);
-		if (e.defaultPrevented || disabled) return;
+	const onKeyDown = compose(onKeyDownProp, (e) => {
+		if (disabled) return;
 		if (e.key === "Backspace" && selected.length > 0) {
 			remove(selected[selected.length - 1]);
 			return;
@@ -136,7 +133,7 @@ const MultiSelectBase = forwardRef(function MultiSelect<T extends string = strin
 			e.preventDefault();
 			if (options[list.active]) toggle(options[list.active]);
 		}
-	};
+	});
 
 	return (
 		<Field

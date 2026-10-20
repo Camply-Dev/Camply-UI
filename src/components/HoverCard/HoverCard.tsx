@@ -5,7 +5,7 @@ import {
 	type ReactNode,
 	useRef,
 } from "react";
-import { cloneTrigger, markTriggerSlot } from "../../lib/cloneTrigger";
+import { cloneTrigger, compose, markTriggerSlot } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { useMergedRefs } from "../../lib/mergeRefs";
 import { Portal } from "../../lib/Portal";
@@ -70,16 +70,8 @@ export const HoverCard = forwardRef<HTMLDivElement, HoverCardProps>(
 							className={cn("camply-floating-surface", "camply-hovercard__card", className)}
 							style={{ ...style, ...styleProp }}
 							// Le pointeur doit pouvoir entrer dans la carte sans la faire fuir. Règle 4.
-							onMouseEnter={(e) => {
-								onMouseEnter?.(e);
-								if (e.defaultPrevented) return;
-								show();
-							}}
-							onMouseLeave={(e) => {
-								onMouseLeave?.(e);
-								if (e.defaultPrevented) return;
-								hide();
-							}}
+							onMouseEnter={compose(onMouseEnter, show)}
+							onMouseLeave={compose(onMouseLeave, hide)}
 						>
 							{children}
 						</div>

@@ -23,6 +23,14 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; ve
   suivait ensuite le doigt. `ColorPicker` glisse de même par capture du pointeur (plus
   d'écouteurs sur `window`), et un second doigt n'y déplace plus la surface en cours.
 
+### Interne
+
+Même DOM, mêmes classes, même comportement : du code partagé là où il était recopié.
+
+- `compose(theirs, ours)` (`lib/cloneTrigger.ts`) remplace les 38 blocs
+  `onX?.(e); if (e.defaultPrevented) return; …` écrits à la main dans 18 composants :
+  le handler du consommateur d'abord, son `preventDefault()` pour veto (règle 4).
+
 ## [0.3.0] — 2026-10-18
 
 Ce qu'une application devait contourner (classes internes surchargées, composants

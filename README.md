@@ -217,9 +217,9 @@ sont posés **après** le spread, et retirés du type public.
 
 **4. Composer, jamais écraser.** Un `onClick`, un `onBlur` ou une `ref` fournis
 par le consommateur s'appellent **avant** les nôtres ; `e.defaultPrevented`
-permet d'annuler le comportement par défaut. Voir `lib/cloneTrigger.ts`. L'ordre
-du spread JSX est un piège : `{...props}` après `onClick={…}` supprime le nôtre,
-l'inverse supprime le sien.
+permet d'annuler le comportement par défaut. Voir `compose` dans
+`lib/cloneTrigger.ts`. L'ordre du spread JSX est un piège : `{...props}` après
+`onClick={…}` supprime le nôtre, l'inverse supprime le sien.
 
 **5. Aucun libellé en dur.** Tout texte rendu par la lib se résout en
 `prop ?? labels.clé` (`src/lib/i18n.tsx`). La prop couvre l'instance,

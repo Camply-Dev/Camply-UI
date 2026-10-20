@@ -1,11 +1,6 @@
-import {
-	type CSSProperties,
-	forwardRef,
-	type InputHTMLAttributes,
-	type KeyboardEvent,
-	useState,
-} from "react";
+import { type CSSProperties, forwardRef, type InputHTMLAttributes, useState } from "react";
 import { clamp } from "../../lib/clamp";
+import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { Field, idRefs } from "../../lib/Field";
 import { useLabels } from "../../lib/i18n";
@@ -154,9 +149,8 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 		else setDraft(null);
 	};
 
-	const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-		onKeyDown?.(e);
-		if (locked || e.defaultPrevented) return;
+	const handleKeyDown = compose(onKeyDown, (e) => {
+		if (locked) return;
 		if (e.key === "ArrowUp") {
 			e.preventDefault();
 			bump(1);
@@ -170,7 +164,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 			e.preventDefault();
 			bump(-1, true);
 		}
-	};
+	});
 
 	const display =
 		val === null ? "" : precision != null && !Number.isNaN(val) ? val.toFixed(precision) : `${val}`;
@@ -227,11 +221,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
 								const typed = parseTyped(raw);
 								if (typed !== null && typed >= min && typed <= max) emit(typed);
 							}}
-							onBlur={(e) => {
-								onBlur?.(e);
-								if (e.defaultPrevented) return;
-								leave();
-							}}
+							onBlur={compose(onBlur, leave)}
 							onKeyDown={handleKeyDown}
 							{...rest}
 							// Posés APRÈS le spread, mais composés : voir Input.

@@ -1,5 +1,4 @@
 import {
-	type ClipboardEvent,
 	type CSSProperties,
 	forwardRef,
 	type HTMLAttributes,
@@ -8,6 +7,7 @@ import {
 	useState,
 } from "react";
 import { clamp } from "../../lib/clamp";
+import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { Field, idRefs } from "../../lib/Field";
 import { FormReset, HiddenField } from "../../lib/HiddenField";
@@ -150,9 +150,7 @@ export const PinInput = forwardRef<HTMLFieldSetElement, PinInputProps>(function 
 		}
 	};
 
-	const handlePaste = (e: ClipboardEvent<HTMLFieldSetElement>) => {
-		onPaste?.(e);
-		if (e.defaultPrevented) return;
+	const handlePaste = compose(onPaste, (e) => {
 		e.preventDefault();
 		if (locked) return;
 		const text = e.clipboardData
@@ -167,7 +165,7 @@ export const PinInput = forwardRef<HTMLFieldSetElement, PinInputProps>(function 
 			commit(pad(text, length));
 			focusCell(text.length);
 		}
-	};
+	});
 
 	const nameOf = (i: number) => cellLabel?.(i) ?? (label ? `${label} ${i + 1}` : `${i + 1}`);
 

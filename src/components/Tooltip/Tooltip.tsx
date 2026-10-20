@@ -5,7 +5,7 @@ import {
 	type ReactNode,
 	useRef,
 } from "react";
-import { cloneTrigger, markTriggerSlot } from "../../lib/cloneTrigger";
+import { cloneTrigger, compose, markTriggerSlot } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { idRefs } from "../../lib/Field";
 import { useMergedRefs } from "../../lib/mergeRefs";
@@ -126,16 +126,8 @@ export const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(
 							)}
 							style={{ ...style, ...styleProp }}
 							// Le pointeur doit pouvoir entrer dans l'infobulle sans la faire fuir (règle 4).
-							onMouseEnter={(e) => {
-								onMouseEnter?.(e);
-								if (e.defaultPrevented) return;
-								show();
-							}}
-							onMouseLeave={(e) => {
-								onMouseLeave?.(e);
-								if (e.defaultPrevented) return;
-								hide();
-							}}
+							onMouseEnter={compose(onMouseEnter, show)}
+							onMouseLeave={compose(onMouseLeave, hide)}
 						>
 							{icon && (
 								<span aria-hidden="true" className="camply-tooltip__icon">

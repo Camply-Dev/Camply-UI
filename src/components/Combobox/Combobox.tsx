@@ -1,16 +1,14 @@
 import {
-	type FocusEvent,
 	type ForwardedRef,
 	forwardRef,
 	type InputHTMLAttributes,
-	type KeyboardEvent,
-	type MouseEvent,
 	type ReactNode,
 	type RefAttributes,
 	useCallback,
 	useMemo,
 	useState,
 } from "react";
+import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { Field, idRefs } from "../../lib/Field";
 import { FieldChevron } from "../../lib/FieldChevron";
@@ -151,36 +149,28 @@ const ComboboxBase = forwardRef(function Combobox<T extends string = string>(
 		list.close();
 	};
 
-	// React marque `defaultPrevented` même sur focus/blur, non annulables côté DOM :
-	// c'est le veto du consommateur sur l'ouverture (règle 4), comme sur `Tooltip`.
-	const onFocus = (e: FocusEvent<HTMLInputElement>) => {
-		onFocusProp?.(e);
-		if (e.defaultPrevented || disabled) return;
-		openList();
-	};
+	// Veto du consommateur sur l'ouverture (règle 4), comme sur `Tooltip`.
+	const onFocus = compose(onFocusProp, () => {
+		if (!disabled) openList();
+	});
 
 	// Le focus reste sur l'input après une sélection : sans un clic qui rouvre,
 	// l'utilisateur à la souris n'aurait aucun moyen de revoir la liste.
-	const onClick = (e: MouseEvent<HTMLInputElement>) => {
-		onClickProp?.(e);
-		if (e.defaultPrevented || disabled || list.open) return;
-		openList();
-	};
+	const onClick = compose(onClickProp, () => {
+		if (!disabled && !list.open) openList();
+	});
 
-	const onBlur = (e: FocusEvent<HTMLInputElement>) => {
-		onBlurProp?.(e);
-		if (e.defaultPrevented) return;
+	const onBlur = compose(onBlurProp, (e) => {
 		// Quitter le champ doit refermer le popup portalisé, qui resterait sinon
 		// affiché par-dessus la page avec aria-expanded sur un input sans focus.
 		if (list.listRef.current?.contains(e.relatedTarget)) return;
 		list.close();
-	};
+	});
 
-	const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-		onKeyDownProp?.(e);
+	const onKeyDown = compose(onKeyDownProp, (e) => {
 		// Une saisie en cours de composition (japonais, chinois…) : Entrée valide le mot,
 		// pas une option.
-		if (e.defaultPrevented || disabled || e.nativeEvent.isComposing) return;
+		if (disabled || e.nativeEvent.isComposing) return;
 		if (!list.open && ["ArrowDown", "ArrowUp"].includes(e.key)) {
 			openList();
 			return;
@@ -192,7 +182,7 @@ const ComboboxBase = forwardRef(function Combobox<T extends string = string>(
 			e.preventDefault();
 			if (filtered[list.active]) pick(filtered[list.active]);
 		}
-	};
+	});
 
 	return (
 		<Field

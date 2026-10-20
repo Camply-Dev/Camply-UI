@@ -2,7 +2,6 @@ import {
 	type ForwardedRef,
 	forwardRef,
 	type HTMLAttributes,
-	type KeyboardEvent,
 	type ReactNode,
 	type RefAttributes,
 	useCallback,
@@ -10,6 +9,7 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { ChevronRight } from "../../lib/icons";
 import { useTypeahead } from "../../lib/typeahead";
@@ -163,9 +163,8 @@ const TreeRoot = forwardRef(function Tree<T>(
 	};
 
 	// Navigation APG portée par l'arbre lui-même : les touches remontent depuis le nœud focusé.
-	const handleKeyDown = (e: KeyboardEvent<HTMLUListElement>) => {
-		onKeyDown?.(e);
-		if (e.defaultPrevented || visible.length === 0) return;
+	const handleKeyDown = compose(onKeyDown, (e) => {
+		if (visible.length === 0) return;
 
 		const found = visible.findIndex((f) => f.node.id === activeId);
 		const index = found === -1 ? 0 : found;
@@ -215,7 +214,7 @@ const TreeRoot = forwardRef(function Tree<T>(
 				focusNode(visible[at].node.id);
 			}
 		}
-	};
+	});
 
 	const renderNodes = (list: TreeNode<T>[], depth: number): ReactNode =>
 		list.map((node) => {

@@ -3,10 +3,10 @@ import {
 	createContext,
 	forwardRef,
 	type HTMLAttributes,
-	type KeyboardEvent,
 	type ReactNode,
 	useContext,
 } from "react";
+import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { nextRovingIndex } from "../../lib/rovingIndex";
 import { useControllable } from "../../lib/useControllable";
@@ -79,9 +79,7 @@ export const TabList = forwardRef<HTMLDivElement, TabListProps>(function TabList
 	const { variant } = useTabs();
 
 	// APG : ←/→ entre onglets (avec bouclage), Home/End aux extrémités, activation immédiate.
-	const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-		onKeyDown?.(e);
-		if (e.defaultPrevented) return;
+	const handleKeyDown = compose(onKeyDown, (e) => {
 		const tabs = Array.from(
 			e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]:not([disabled])'),
 		);
@@ -93,7 +91,7 @@ export const TabList = forwardRef<HTMLDivElement, TabListProps>(function TabList
 		e.preventDefault();
 		tabs[next].focus();
 		tabs[next].click();
-	};
+	});
 
 	return (
 		// Règle 3 : le spread d'abord, le contrat du bandeau après.
@@ -145,11 +143,7 @@ export const Tab = forwardRef<HTMLButtonElement, TabProps>(function Tab(
 				className,
 			)}
 			// Règle 4.
-			onClick={(e) => {
-				onClick?.(e);
-				if (e.defaultPrevented) return;
-				setValue(value);
-			}}
+			onClick={compose(onClick, () => setValue(value))}
 		>
 			{icon && <span className="camply-tabs__tabIcon">{icon}</span>}
 			{children}
