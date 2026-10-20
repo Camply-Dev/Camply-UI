@@ -88,6 +88,9 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
 - CI : un seul job (un checkout, une installation, les vérifications à la suite) ;
   `typecheck` perd son premier `tsc --noEmit`, `tests/tsconfig.json` couvrant déjà
   `src/` (et `build` émet les déclarations sur la configuration racine).
+- `@types/bun` disparaît (aucun code typé n'utilise Bun) : `tsconfig.json` pose
+  `"types": []` et perd son `exclude` inutile, `tests/tsconfig.json` ne garde que
+  `vitest/globals`.
 
 ## [0.3.0] — 2026-10-18
 

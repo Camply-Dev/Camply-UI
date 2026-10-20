@@ -11,7 +11,9 @@
 		"isolatedModules": true,
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
-		"types": ["bun"],
+		// Aucun type global (ni Node ni Bun) : la lib vise le navigateur, et un
+		// @types/node hissé par une dépendance n'y rendrait pas `process` valide.
+		"types": [],
 		"declaration": true,
 		"declarationMap": false,
 		"emitDeclarationOnly": true,
@@ -21,6 +23,5 @@
 			"@camply/ui": ["./src/index.ts"]
 		}
 	},
-	"include": ["src"],
-	"exclude": ["node_modules", "dist", "docs"]
+	"include": ["src"]
 }

@@ -8,7 +8,7 @@
 		"emitDeclarationOnly": false,
 		"declaration": false,
 		"rootDir": "..",
-		"types": ["bun", "vitest/globals"]
+		"types": ["vitest/globals"]
 	},
 	"include": ["../tests", "../src"]
 }
