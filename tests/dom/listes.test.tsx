@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { Combobox } from "../../src/components/Combobox";
 import { type Command, CommandPalette } from "../../src/components/CommandPalette";
+import { MultiSelect } from "../../src/components/MultiSelect";
 import { Select } from "../../src/components/Select";
 
 /**
@@ -237,7 +238,28 @@ describe("Combobox — sélection", () => {
 	});
 });
 
-// --- 3. CommandPalette ------------------------------------------------------
+// --- 3. MultiSelect ---------------------------------------------------------
+
+describe("MultiSelect — survol", () => {
+	it("au maximum, une option bloquée reste survolable, une option désactivée non", async () => {
+		const user = userEvent.setup();
+		render(<MultiSelect label="Pays" options={PAYS} defaultValue={["fr"]} max={1} />);
+		const champ = screen.getByRole("combobox", { name: "Pays" });
+		await user.click(champ);
+
+		// Italie est bloquée (max atteint) : annoncée indisponible, mais le survol la
+		// désigne toujours — seul `disabled` retire une option du parcours.
+		const italie = screen.getByRole("option", { name: "Italie" });
+		expect(italie).toHaveAttribute("aria-disabled", "true");
+		await user.hover(italie);
+		expect(optionActive(champ)).toBe(italie);
+
+		await user.hover(screen.getByRole("option", { name: "Espagne" }));
+		expect(optionActive(champ)).toBe(italie);
+	});
+});
+
+// --- 4. CommandPalette ------------------------------------------------------
 
 const COMMANDES: Omit<Command, "onRun">[] = [
 	{ id: "new", label: "Nouveau séjour", group: "Séjours" },

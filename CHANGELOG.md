@@ -60,7 +60,8 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
 - Tests : un seul `stubLayout()` (`tests/dom/layout.ts`) pour les fichiers de
   dialogues et de couches, un seul test de Tab bouclé (compteur de lectures et Maj+Tab),
   la remise à zéro d'un formulaire rejoint `forms.test.tsx`, un seul test
-  d'accumulation du typeahead.
+  d'accumulation du typeahead. Un test fige le survol d'une option bloquée de
+  `MultiSelect` (au maximum) : survolable, contrairement à une option désactivée.
 
 ### Vitrine et outillage
 
