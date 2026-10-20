@@ -83,6 +83,8 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
   langages affichés.
 - Vitrine : le registre d'icônes par nom (`docs/src/icons.tsx`) cède la place à des
   imports directs ; la démo de `Badge`, seul usage dynamique, garde sa petite table.
+- `.gitignore` : `components-test/`, `.turbo`, `coverage/` et `.env*`, sans objet
+  dans ce dépôt, disparaissent.
 
 ## [0.3.0] — 2026-10-18
 
