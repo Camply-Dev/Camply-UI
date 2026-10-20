@@ -3,7 +3,7 @@
 Toutes les évolutions notables de `@camply/ui`.
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versionnage [SemVer](https://semver.org/lang/fr/).
 
-## [0.4.0] — non publiée
+## [0.4.0] — 2026-10-20
 
 `CommandPalette limit`, trois corrections, une seule opacité pour tous les états
 désactivés, et du code partagé là où il était recopié : dans les composants, dans leurs
