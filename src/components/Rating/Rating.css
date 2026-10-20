@@ -4,7 +4,7 @@
 	font-family: var(--camply-font-sans);
 }
 .camply-rating__disabled {
-	opacity: 0.5;
+	opacity: var(--camply-disabled-opacity);
 }
 
 .camply-rating__star {

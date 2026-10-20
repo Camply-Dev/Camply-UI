@@ -55,7 +55,7 @@
 	color: var(--camply-accent-hover);
 }
 .camply-carousel__arrow[aria-disabled="true"] {
-	opacity: 0.3;
+	opacity: var(--camply-disabled-opacity);
 	cursor: not-allowed;
 }
 .camply-carousel__prev {

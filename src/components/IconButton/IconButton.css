@@ -26,11 +26,11 @@
 }
 .camply-iconbutton__btn:disabled {
 	cursor: not-allowed;
-	opacity: 0.5;
+	opacity: var(--camply-disabled-opacity);
 }
 /* `asChild` désactivé : voir Button.css. */
 .camply-iconbutton__btn[aria-disabled="true"] {
-	opacity: 0.5;
+	opacity: var(--camply-disabled-opacity);
 	pointer-events: none;
 }
 

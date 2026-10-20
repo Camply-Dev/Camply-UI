@@ -36,7 +36,7 @@
 	color: var(--camply-text);
 }
 .camply-pagination__arrow[aria-disabled="true"] {
-	opacity: 0.4;
+	opacity: var(--camply-disabled-opacity);
 	cursor: not-allowed;
 }
 .camply-pagination__active {

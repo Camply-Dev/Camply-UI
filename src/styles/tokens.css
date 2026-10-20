@@ -217,7 +217,7 @@
 }
 .camply-control__wrap.camply-control__disabled {
 	cursor: not-allowed;
-	opacity: 0.5;
+	opacity: var(--camply-disabled-opacity);
 }
 .camply-control__box {
 	position: relative;
@@ -253,7 +253,7 @@
 	color: var(--camply-text);
 }
 .camply-listbox-option--disabled {
-	opacity: 0.4;
+	opacity: var(--camply-disabled-opacity);
 	cursor: not-allowed;
 }
 
@@ -283,7 +283,7 @@
 	color: var(--camply-text);
 }
 .camply-menu-item:disabled {
-	opacity: 0.45;
+	opacity: var(--camply-disabled-opacity);
 	cursor: not-allowed;
 }
 .camply-menu-item--danger {
@@ -706,7 +706,7 @@
 
 .camply-slider__root.camply-slider__disabled,
 .camply-rangeslider__root.camply-rangeslider__disabled {
-	opacity: 0.5;
+	opacity: var(--camply-disabled-opacity);
 	pointer-events: none;
 }
 

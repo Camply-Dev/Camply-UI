@@ -5,6 +5,18 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; ve
 
 ## [Non publié]
 
+### ⚠️ Changements cassants
+
+- ⚠️ **visuel** — **Une seule opacité pour tout ce qui est désactivé** :
+  `--camply-disabled-opacity` (0,55), que seuls `Button`, les coques de champ,
+  `PinInput` et `FileUpload` lisaient, vaut désormais partout. Étaient plus pâles :
+  les flèches de `Carousel` au bout (0,3), les pas de `NumberInput`, les flèches de
+  `Pagination` et les options de liste de `Select`, `MultiSelect` et `Combobox` (0,4),
+  le déclencheur d'`AccordionItem`, l'onglet de `Tabs` et les entrées de
+  `DropdownMenu` / `Menubar` (0,45), `IconButton`, `Rating`, `Checkbox`, `Radio`,
+  `Switch`, `Slider` et `RangeSlider` (0,5). Surcharger le token repeint tous ces états
+  d'un coup.
+
 ### Ajouts
 
 - `CommandPalette` : `limit`, au plus N commandes rendues, les premières qui

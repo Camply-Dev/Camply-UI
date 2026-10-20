@@ -41,7 +41,7 @@
 	cursor: pointer;
 }
 .camply-accordion__trigger:disabled {
-	opacity: 0.45;
+	opacity: var(--camply-disabled-opacity);
 	cursor: not-allowed;
 }
 .camply-accordion__trigger.camply-focus-ring:focus-visible {
