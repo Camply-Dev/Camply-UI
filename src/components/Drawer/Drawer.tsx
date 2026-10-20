@@ -1,6 +1,6 @@
 import { forwardRef, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
-import { DialogHeader } from "../../lib/DialogHeader";
+import { DialogFrame } from "../../lib/DialogFrame";
 import {
 	type DialogFocusProps,
 	type DialogPanelProps,
@@ -55,18 +55,16 @@ export const Drawer = forwardRef<HTMLElement, DrawerProps>(
 				panelRef={ref}
 				panelProps={rest}
 			>
-				<DialogHeader
+				<DialogFrame
 					prefix="drawer"
 					title={title}
 					titleId={titleId}
 					showClose={showClose}
 					onClose={onClose}
-				/>
-				{/* La zone qui défile n'a pas de marge : la marge est celle du corps. */}
-				<div className="camply-drawer__content">
-					<div className="camply-drawer__body">{children}</div>
-				</div>
-				{footer && <div className="camply-drawer__footer">{footer}</div>}
+					footer={footer}
+				>
+					{children}
+				</DialogFrame>
 			</OverlayDialog>
 		);
 	},

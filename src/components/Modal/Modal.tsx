@@ -1,6 +1,6 @@
 import { forwardRef, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
-import { DialogHeader } from "../../lib/DialogHeader";
+import { DialogFrame } from "../../lib/DialogFrame";
 import { idRefs } from "../../lib/Field";
 import {
 	type DialogFocusProps,
@@ -73,7 +73,7 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
 				panelRef={ref}
 				panelProps={{ ...rest, "aria-describedby": describedBy }}
 			>
-				<DialogHeader
+				<DialogFrame
 					prefix="modal"
 					title={title}
 					titleId={titleId}
@@ -81,14 +81,11 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
 					descriptionId={descId}
 					showClose={showClose}
 					onClose={onClose}
-				/>
-				{children && (
-					// La zone qui défile n'a pas de marge : la marge est celle du corps.
-					<div className="camply-modal__content">
-						<div className="camply-modal__body">{children}</div>
-					</div>
-				)}
-				{footer && <div className="camply-modal__footer">{footer}</div>}
+					footer={footer}
+					optionalBody
+				>
+					{children}
+				</DialogFrame>
 			</OverlayDialog>
 		);
 	},

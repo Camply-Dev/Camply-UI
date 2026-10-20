@@ -853,7 +853,7 @@
 	background: var(--camply-fill-3);
 }
 
-/* Titre des dialogues : `DialogHeader` le rend pour les trois côté JS, cette
+/* Titre des dialogues : `DialogFrame` le rend pour les trois côté JS, cette
    règle le met en forme pour les trois côté CSS. Comme pour le bouton de
    fermeture juste au-dessus, les préfixes sont figés côté TSX, donc le
    sélecteur les énumère. Pas de classe doublée : aucune feuille de composant

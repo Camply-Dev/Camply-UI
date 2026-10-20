@@ -43,6 +43,8 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
   *avant* la fermeture, donc avant `onOpenChange(false)`.
 - `useHoverDisclosure` porte l'état, les délais, l'ancrage et Échap de `Tooltip` et
   `HoverCard` (il absorbe `useDelayedOpen`, leur seul usage).
+- `DialogFrame` (ex-`DialogHeader`) rend toute la charpente de `Modal`, `Drawer` et
+  `Sheet` : en-tête, `__content > __body`, `__footer`.
 
 ## [0.3.0] — 2026-10-18
 
