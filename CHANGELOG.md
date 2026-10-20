@@ -52,6 +52,11 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
 - `fieldShell({ size, layout, error, open, disabled })` (`lib/Field.tsx`) compose les
   classes de coque des 8 champs qui la recopiaient (`Select`, `MultiSelect`,
   `Combobox`, `DatePicker`, `Input`, `NumberInput`, `TagInput`, `ColorPicker`).
+- CSS, sans changement de valeur : la charpente des dialogues (colonne du panneau,
+  partie commune de `__header`, `__content`, typographie de `__body`) et ce que
+  `Slider` et `RangeSlider` partageaient passent dans `tokens.css` en
+  multi-sélecteurs ; `ColorPicker` fusionne ses poignées et remplissages identiques.
+  `RangeSlider.css` reste, vide, pour son export.
 
 ## [0.3.0] — 2026-10-18
 

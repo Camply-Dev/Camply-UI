@@ -58,7 +58,9 @@
 	touch-action: none;
 	background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
 }
-.camply-colorpicker__hueKnob {
+/* Poignées des deux barres (teinte, opacité). */
+.camply-colorpicker__hueKnob,
+.camply-colorpicker__alphaKnob {
 	position: absolute;
 	top: 50%;
 	width: 18px;
@@ -136,7 +138,8 @@
 	height: 150px;
 }
 
-.camply-colorpicker__swatchFill {
+.camply-colorpicker__swatchFill,
+.camply-colorpicker__alphaFill {
 	position: absolute;
 	inset: 0;
 	border-radius: inherit;
@@ -148,20 +151,4 @@
 	border-radius: var(--camply-radius-pill);
 	cursor: pointer;
 	touch-action: none;
-}
-.camply-colorpicker__alphaFill {
-	position: absolute;
-	inset: 0;
-	border-radius: inherit;
-}
-.camply-colorpicker__alphaKnob {
-	position: absolute;
-	top: 50%;
-	width: 18px;
-	height: 18px;
-	border-radius: 50%;
-	border: 2px solid #fff;
-	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-	transform: translate(-50%, -50%);
-	pointer-events: none;
 }

@@ -322,10 +322,13 @@
 	animation: camply-fade-in 0.18s ease;
 }
 
-/* Panneau de dialogue (Modal, Drawer, Sheet, CommandPalette) : la police est
-   posée ici plutôt que recopiée dans chaque feuille — un dialogue qui l'oublie
-   hérite sinon de la police de l'application hôte. */
+/* Panneau de dialogue (Modal, Drawer, Sheet, CommandPalette) : la colonne
+   (en-tête, contenu, pied) et la police sont posées ici plutôt que recopiées
+   dans chaque feuille — un dialogue qui oublie la police hérite sinon de celle
+   de l'application hôte. */
 .camply-overlay-panel {
+	display: flex;
+	flex-direction: column;
 	outline: none;
 	font-family: var(--camply-font-sans);
 }
@@ -691,6 +694,16 @@
 	font-family: var(--camply-font-sans);
 }
 
+/* Le libellé de Slider et RangeSlider est rendu par `Field` : l'en-tête ne
+   porte que la valeur, et c'est l'espacement de `.camply-field` qui tient la
+   colonne — d'où une marge d'en-tête nulle. Le texte reste d'un cran plus grand
+   que celui des jauges de lecture. */
+.camply-slider__root,
+.camply-rangeslider__root {
+	--_head-mb: 0;
+	--_head-fs: 13px;
+}
+
 .camply-slider__root.camply-slider__disabled,
 .camply-rangeslider__root.camply-rangeslider__disabled {
 	opacity: 0.5;
@@ -724,14 +737,26 @@
 	color: var(--_head-ink, var(--camply-accent-hover));
 }
 
+/* Seul contenu de l'en-tête d'un curseur, la valeur se recale à droite sans
+   surcharger le `justify-content` de l'en-tête : `margin-inline-start` lui est
+   disjoint. */
+.camply-slider__value,
+.camply-rangeslider__value {
+	margin-inline-start: auto;
+}
+
 /* Piste et poignée : Slider et RangeSlider sont le même widget à une ou deux
-   poignées. Ce qui reste propre à l'un (curseur de la piste, poignée animée,
-   remplissage ancré à gauche) vit dans sa feuille, en propriétés DISJOINTES de
-   celles-ci : rien ne s'y surcharge, l'ordre des feuilles n'entre pas en jeu. */
+   poignées. Ce qui reste propre à l'un (piste cliquable, remplissage ancré à
+   gauche) vit dans sa feuille, en propriétés DISJOINTES de celles-ci : rien ne
+   s'y surcharge, l'ordre des feuilles n'entre pas en jeu.
+   La marge verticale réserve le débordement de la poignée (6 px de part et
+   d'autre d'une piste de 6 px), que `Field` colle sinon à la valeur au-dessus
+   et au message d'aide en dessous. */
 .camply-slider__track,
 .camply-rangeslider__track {
 	position: relative;
 	height: 6px;
+	margin-block: 6px;
 	border-radius: var(--camply-radius-pill);
 	background: var(--camply-fill-3);
 	touch-action: none;
@@ -746,6 +771,8 @@
 	background: var(--camply-gradient-accent);
 }
 
+/* L'anneau de focus de la lib EST une box-shadow : la transition le fond au lieu
+   de le faire apparaître d'un coup. */
 .camply-slider__knob,
 .camply-rangeslider__knob {
 	position: absolute;
@@ -757,11 +784,25 @@
 	background: var(--camply-knob);
 	box-shadow: var(--camply-shadow-sm);
 	cursor: grab;
+	transition: box-shadow var(--camply-duration);
 }
 
 .camply-slider__knob:active,
 .camply-rangeslider__knob:active {
 	cursor: grabbing;
+}
+
+/* En erreur, la jauge se teinte comme le ferait la bordure d'un `field-shell` :
+   le message seul ne suffit pas à rattacher l'erreur au contrôle. La
+   surcharge des règles ci-dessus tient à la SPÉCIFICITÉ (deux classes contre
+   une), pas à l'ordre. */
+.camply-slider__root--error .camply-slider__track,
+.camply-rangeslider__root--error .camply-rangeslider__track {
+	background: var(--camply-danger-soft);
+}
+.camply-slider__root--error .camply-slider__fill,
+.camply-rangeslider__root--error .camply-rangeslider__fill {
+	background: var(--camply-gradient-danger);
 }
 
 /* ============================================================
@@ -867,6 +908,36 @@
 	font-weight: 700;
 	letter-spacing: -0.3px;
 	color: var(--camply-text);
+}
+
+/* Charpente des dialogues : `DialogFrame` rend la même pour les trois, et seul
+   le contenu défile — l'en-tête et le pied restent à l'écran. Chaque feuille
+   ne garde que ses écarts (alignement et rembourrage de l'en-tête, rembourrage
+   du corps), en propriétés DISJOINTES de celles-ci : rien ne s'y surcharge,
+   l'ordre des feuilles n'entre pas en jeu. */
+.camply-modal__header,
+.camply-drawer__header,
+.camply-sheet__header {
+	flex: none;
+	display: flex;
+	justify-content: space-between;
+	gap: 16px;
+}
+/* La zone qui défile, sans marge : `sticky; top: 0` s'y colle au bord. */
+.camply-modal__content,
+.camply-drawer__content,
+.camply-sheet__content {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+.camply-modal__body,
+.camply-drawer__body,
+.camply-sheet__body {
+	color: var(--camply-text-muted);
+	font-size: 14px;
+	line-height: 1.6;
 }
 
 /* Pied des panneaux latéraux : Drawer et Sheet sont le même dialogue glissant

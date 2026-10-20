@@ -9,13 +9,10 @@
 	width: 100%;
 	max-width: 560px;
 	max-height: 60vh;
-	display: flex;
-	flex-direction: column;
 	border: 1px solid var(--camply-border-strong);
 	border-radius: var(--camply-radius-xl);
 	background: var(--camply-elevated);
 	box-shadow: var(--camply-shadow-lg);
-	font-family: var(--camply-font-sans);
 	overflow: hidden;
 	animation: camply-cmd-in 0.2s var(--camply-ease);
 }

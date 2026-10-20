@@ -5,11 +5,9 @@
 	padding: 24px;
 }
 
-/* En colonne : l'en-tête et le pied restent à l'écran, seul le contenu défile
-   (`dvh` : la hauteur visible sur mobile, barre d'adresse déduite). */
+/* La colonne vient de `.camply-overlay-panel` (tokens.css). `dvh` : la hauteur
+   visible sur mobile, barre d'adresse déduite. */
 .camply-modal__panel {
-	display: flex;
-	flex-direction: column;
 	width: 100%;
 	max-height: calc(100dvh - 48px);
 	overflow: hidden;
@@ -48,12 +46,9 @@
 	}
 }
 
+/* Charpente commune (en-tête, zone qui défile, corps) : tokens.css. */
 .camply-modal__header {
-	flex: none;
-	display: flex;
 	align-items: flex-start;
-	justify-content: space-between;
-	gap: 16px;
 	padding: 24px 24px 0;
 }
 .camply-modal__desc {
@@ -63,18 +58,8 @@
 	color: var(--camply-text-muted);
 }
 
-/* La zone qui défile, sans marge : `sticky; top: 0` s'y colle au bord. */
-.camply-modal__content {
-	flex: 1 1 auto;
-	min-height: 0;
-	overflow-y: auto;
-	overscroll-behavior: contain;
-}
 .camply-modal__body {
 	padding: 18px 24px;
-	font-size: 14px;
-	line-height: 1.6;
-	color: var(--camply-text-muted);
 }
 .camply-modal__footer {
 	flex: none;
