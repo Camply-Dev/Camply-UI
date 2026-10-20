@@ -1,6 +1,6 @@
-/* Table de tons commune à Button, IconButton et Badge, avec son contrat de
-   variables : voir tokens.css. Ne restent ici que la forme et les dimensions,
-   propres au bouton à libellé. */
+/* Tons (Button, IconButton, Badge) et formes (Button, IconButton) vivent dans
+   tokens.css, avec leur contrat de variables ; la règle de base les consomme. Ne
+   restent ici que les dimensions et les états, propres au bouton à libellé. */
 .camply-button__btn {
 	--_h: 40px;
 	--_px: 18px;
@@ -13,8 +13,10 @@
 	gap: 8px;
 	height: var(--_h);
 	padding: 0 var(--_px);
-	border: 1px solid transparent;
+	border: 1px solid var(--_bd-c);
 	border-radius: var(--_radius);
+	background: var(--_bg);
+	color: var(--_fg);
 	font-family: var(--camply-font-sans);
 	font-size: var(--_fs);
 	font-weight: 600;
@@ -29,6 +31,11 @@
 		border-color var(--camply-duration),
 		color var(--camply-duration),
 		transform 0.12s var(--camply-ease-spring);
+}
+
+.camply-button__btn:hover:not(:disabled) {
+	background: var(--_bg-hover);
+	color: var(--_fg-hover);
 }
 
 .camply-button__btn:disabled {
@@ -79,45 +86,6 @@
 	--_px: 24px;
 	--_fs: 16px;
 	--_radius: var(--camply-radius-lg);
-}
-
-/* ── Formes ───────────────────────────────────────────────────────────────── */
-.camply-button__primary {
-	background: var(--_c);
-	color: var(--_contrast);
-}
-
-.camply-button__primary:hover:not(:disabled) {
-	background: var(--_c-hover);
-}
-
-.camply-button__secondary {
-	background: var(--camply-fill-2);
-	border-color: var(--camply-border-strong);
-	color: var(--_chrome-ink);
-}
-
-.camply-button__secondary:hover:not(:disabled) {
-	background: var(--camply-fill-3);
-}
-
-.camply-button__ghost {
-	background: transparent;
-	color: var(--_chrome-ink-quiet);
-}
-
-.camply-button__ghost:hover:not(:disabled) {
-	background: var(--camply-fill-2);
-	color: var(--_chrome-ink);
-}
-
-.camply-button__soft {
-	background: var(--_soft);
-	color: var(--_ink);
-}
-
-.camply-button__soft:hover:not(:disabled) {
-	background: var(--_soft-hover);
 }
 
 .camply-button__fullWidth {

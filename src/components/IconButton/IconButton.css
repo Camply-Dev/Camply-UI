@@ -1,5 +1,5 @@
-/* Mêmes deux axes que Button. La table de tons vit dans tokens.css — toujours
-   chargé, là où Button.css ne l'est pas forcément
+/* Mêmes deux axes que Button. Tables de tons et de formes vivent dans
+   tokens.css — toujours chargé, là où Button.css ne l'est pas forcément
    (`@camply/ui/IconButton/styles.css` s'importe seul). */
 .camply-iconbutton__btn {
 	--_s: 40px;
@@ -9,9 +9,10 @@
 	justify-content: center;
 	width: var(--_s);
 	height: var(--_s);
-	border: 1px solid transparent;
+	border: 1px solid var(--_bd-c);
 	border-radius: var(--_radius);
-	color: var(--camply-text);
+	background: var(--_bg);
+	color: var(--_fg);
 	/* Rendu en lien (`asChild`) : pas de soulignement hérité. */
 	text-decoration: none;
 	cursor: pointer;
@@ -20,6 +21,10 @@
 		border-color var(--camply-duration),
 		color var(--camply-duration),
 		transform 0.12s var(--camply-ease-spring);
+}
+.camply-iconbutton__btn:hover:not(:disabled) {
+	background: var(--_bg-hover);
+	color: var(--_fg-hover);
 }
 .camply-iconbutton__btn:active:not(:disabled) {
 	transform: scale(0.94);
@@ -44,36 +49,4 @@
 .camply-iconbutton__lg {
 	--_s: 48px;
 	--_radius: var(--camply-radius-lg);
-}
-
-/* ── Formes ───────────────────────────────────────────────────────────────── */
-.camply-iconbutton__primary {
-	background: var(--_c);
-	color: var(--_contrast);
-}
-.camply-iconbutton__primary:hover:not(:disabled) {
-	background: var(--_c-hover);
-}
-.camply-iconbutton__secondary {
-	background: var(--camply-fill-2);
-	border-color: var(--camply-border-strong);
-	color: var(--_chrome-ink);
-}
-.camply-iconbutton__secondary:hover:not(:disabled) {
-	background: var(--camply-fill-3);
-}
-.camply-iconbutton__ghost {
-	background: transparent;
-	color: var(--_chrome-ink-quiet);
-}
-.camply-iconbutton__ghost:hover:not(:disabled) {
-	background: var(--camply-fill-2);
-	color: var(--_chrome-ink);
-}
-.camply-iconbutton__soft {
-	background: var(--_soft);
-	color: var(--_ink);
-}
-.camply-iconbutton__soft:hover:not(:disabled) {
-	background: var(--_soft-hover);
 }

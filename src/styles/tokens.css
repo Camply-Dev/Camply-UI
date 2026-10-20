@@ -679,6 +679,60 @@
 }
 
 /* ============================================================
+   Table de formes partagée (Button, IconButton)
+   Même modèle que la table de tons : la classe de FORME ne pose que des
+   variables, que la règle de base de chaque bouton consomme (fond, encre,
+   contour, puis fond et encre au survol). Contrat de la forme :
+     --_bg        fond au repos
+     --_bg-hover  fond au survol
+     --_fg        encre au repos
+     --_fg-hover  encre au survol (repli : celle du repos)
+     --_bd-c      couleur du contour de 1px (repli : transparent)
+   Des variables, et non les déclarations elles-mêmes : la règle de base
+   (`border: 1px solid …`, `color`…) a la même spécificité qu'une classe de
+   forme et se charge APRÈS cette couche — elle écraserait tout `color` ou
+   `border-color` posé ici. Chaque forme se décrit en fonction du ton
+   (`--_c`, `--_soft`, `--_chrome-ink`…), d'où sa place juste après lui.
+   ============================================================ */
+
+/* Repli commun, avant la table pour la même raison que celui des tons. */
+.camply-button__btn,
+.camply-iconbutton__btn {
+	--_fg-hover: var(--_fg);
+	--_bd-c: transparent;
+}
+
+.camply-button__primary,
+.camply-iconbutton__primary {
+	--_bg: var(--_c);
+	--_bg-hover: var(--_c-hover);
+	--_fg: var(--_contrast);
+}
+
+.camply-button__secondary,
+.camply-iconbutton__secondary {
+	--_bg: var(--camply-fill-2);
+	--_bg-hover: var(--camply-fill-3);
+	--_fg: var(--_chrome-ink);
+	--_bd-c: var(--camply-border-strong);
+}
+
+.camply-button__ghost,
+.camply-iconbutton__ghost {
+	--_bg: transparent;
+	--_bg-hover: var(--camply-fill-2);
+	--_fg: var(--_chrome-ink-quiet);
+	--_fg-hover: var(--_chrome-ink);
+}
+
+.camply-button__soft,
+.camply-iconbutton__soft {
+	--_bg: var(--_soft);
+	--_bg-hover: var(--_soft-hover);
+	--_fg: var(--_ink);
+}
+
+/* ============================================================
    Jauges horizontales (Slider, RangeSlider, Progress, Meter)
    Même racine et même en-tête « libellé / valeur » pour les quatre. Les
    écarts entre composants passent par des variables À VALEUR DE REPLI
@@ -875,7 +929,7 @@
 /* Bouton de fermeture des dialogues (Modal, Drawer, Sheet) : même delta d'un
    IconButton ghost/sm pour les trois. Le fond au repos est propre aux
    dialogues — d'où la paire repos/survol, le survol devant dépasser
-   `.camply-iconbutton__ghost:hover:not(:disabled)` sans quoi il ne
+   `.camply-iconbutton__btn:hover:not(:disabled)` sans quoi il ne
    s'appliquerait jamais. Classe doublée à dessein : les feuilles sont
    concaténées par ordre alphabétique (scripts/build.js) et, en import
    granulaire, l'ordre est libre — c'est la spécificité, pas la position, qui

@@ -76,6 +76,16 @@ change dans l'attribut des coques de champ), et un seul écart de comportement, 
   comme ce que `Slider` et `RangeSlider` partageaient, passent dans `tokens.css` en
   multi-sélecteurs ; `ColorPicker` fusionne ses poignées et remplissages identiques.
   `RangeSlider.css` reste, vide, pour son export.
+- ⚠️ **silencieuse** — Formes de `Button` et `IconButton` : leurs huit règles de forme
+  (repos et survol de `primary`, `secondary`, `ghost`, `soft`), recopiées au préfixe
+  près d'une feuille à l'autre, deviennent une table de formes dans `tokens.css`, sur
+  le modèle de la table de tons : la classe de forme ne pose que des variables
+  (`--_bg`, `--_bg-hover`, `--_fg`, `--_fg-hover`, `--_bd-c`), que la règle de base de
+  chaque bouton consomme. Styles calculés identiques avant/après (1 382 boutons rendus
+  dans la vitrine, deux thèmes, au repos, survolés, pressés et focalisés). Seul écart :
+  la règle de base pose `color` au survol pour les quatre formes (seul `ghost` le
+  faisait) ; un `color` posé par une classe du consommateur sur un bouton `primary`,
+  `secondary` ou `soft` cède donc au survol, comme il le faisait déjà sur `ghost`.
 - Tests : un seul `stubLayout()` (`tests/dom/layout.ts`) pour les fichiers de
   dialogues et de couches, un seul test de Tab bouclé (compteur de lectures et Maj+Tab),
   la remise à zéro d'un formulaire rejoint `forms.test.tsx`, un seul test
