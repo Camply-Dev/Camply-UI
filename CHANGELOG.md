@@ -66,6 +66,9 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
 
 - Vitrine : la page Roadmap et le statut « à venir », jamais servis (les 60 composants
   ont leur page), disparaissent.
+- Vitrine : sa palette `--sc-*`, copie des tokens, cède la place à `var(--camply-*)` ;
+  ses barres de défilement prennent `--camply-scrollbar-*` (10 px au lieu de 11,
+  opacités de la lib).
 
 ## [0.3.0] — 2026-10-18
 

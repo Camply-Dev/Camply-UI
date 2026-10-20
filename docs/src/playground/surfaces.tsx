@@ -70,7 +70,7 @@ function DrawerPreview(p: Values) {
 					</Button>
 				}
 			>
-				<p style={{ color: "var(--sc-muted)", margin: 0 }}>
+				<p style={{ color: "var(--camply-text-muted)", margin: 0 }}>
 					Panneau latéral coulissant — idéal pour des filtres ou des réglages contextuels.
 				</p>
 			</Drawer>
@@ -90,7 +90,7 @@ function SheetPreview(p: Values) {
 				handle={bool(p.handle)}
 				title="Partager le projet"
 			>
-				<p style={{ color: "var(--sc-muted)", margin: 0 }}>
+				<p style={{ color: "var(--camply-text-muted)", margin: 0 }}>
 					Feuille montante — parfaite pour des actions rapides sur mobile.
 				</p>
 			</Sheet>
@@ -446,7 +446,7 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 			>
 				<div style={{ maxWidth: 240 }}>
 					<strong style={{ display: "block", marginBottom: 6 }}>Astuce</strong>
-					<span style={{ color: "var(--sc-muted)" }}>
+					<span style={{ color: "var(--camply-text-muted)" }}>
 						Un panneau flottant ancré au déclencheur, pour du contenu riche.
 					</span>
 				</div>
@@ -473,7 +473,7 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 			<HoverCard trigger={<Button variant="ghost">@camply</Button>}>
 				<div style={{ maxWidth: 240 }}>
 					<strong style={{ display: "block", marginBottom: 4 }}>Camply</strong>
-					<span style={{ color: "var(--sc-muted)" }}>
+					<span style={{ color: "var(--camply-text-muted)" }}>
 						Agence & communauté de développeurs — 58 composants livrés.
 					</span>
 				</div>
