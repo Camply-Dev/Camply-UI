@@ -6,17 +6,28 @@ on:
   pull_request:
     branches: [main]
 
-# Aucun job ne pousse quoi que ce soit : la CI vérifie, elle ne corrige pas.
+# Aucune étape ne pousse quoi que ce soit : la CI vérifie, elle ne corrige pas.
 permissions:
   contents: read
 
 jobs:
-  build:
+  # Un seul job : un checkout et une installation, puis les vérifications à la
+  # suite. Cinq jobs refaisaient cinq fois les deux pour quelques secondes de
+  # vérification chacun.
+  ci:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
+      # Vérification seule : l'auto-commit précédent poussait sur `main` au push,
+      # échouait sur toute PR de fork (jeton en lecture seule) et faisait fusionner
+      # un code que les autres jobs n'avaient jamais vu. Le formatage revient au dev
+      # via `bun run fix`.
+      - run: bun run check
+      - run: bun run typecheck
+      - run: bun run test
+      - run: bun run knip
       - run: bun run sync
       # Un composant ajouté sans `bun run sync` n'est ni dans le barrel ni dans la
       # map "exports" : il est absent du paquet publié, avec une CI verte.
@@ -36,39 +47,3 @@ jobs:
           echo "dist = ${SIZE} Ko (seuil 1600)"
           test "$SIZE" -lt 1600
       - run: bun run docs:build
-
-  type:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-      - run: bun run typecheck
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-      - run: bun run test
-
-  knip:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-      - run: bun run knip
-
-  # Vérification seule : l'auto-commit précédent poussait sur `main` au push,
-  # échouait sur toute PR de fork (jeton en lecture seule) et faisait fusionner
-  # un code que les autres jobs n'avaient jamais vu. Le formatage revient au dev
-  # via `bun run fix`.
-  biome:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-      - run: bun run check

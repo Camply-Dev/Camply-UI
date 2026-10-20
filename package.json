@@ -354,7 +354,7 @@
 		"dev": "bun --cwd docs dev",
 		"docs:build": "bun --cwd docs build",
 		"build": "bun scripts/build.js",
-		"typecheck": "tsc --noEmit && tsc --noEmit -p tests/tsconfig.json && tsc --noEmit -p docs/tsconfig.json",
+		"typecheck": "tsc --noEmit -p tests/tsconfig.json && tsc --noEmit -p docs/tsconfig.json",
 		"knip": "knip",
 		"check": "biome check .",
 		"fix": "biome check --write .",

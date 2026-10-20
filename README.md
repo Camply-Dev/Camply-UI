@@ -143,7 +143,7 @@ bun run typecheck    # TypeScript sans emit
 bun run test         # vitest (helpers de src/lib + rendu DOM des composants)
 bun run check        # Biome (lint + format, lecture seule)
 bun run fix          # Biome (lint + format, écriture)
-bun run knip         # code mort (job CI dédié)
+bun run knip         # code mort
 ```
 
 ### Structure

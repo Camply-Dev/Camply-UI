@@ -85,6 +85,9 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
   imports directs ; la démo de `Badge`, seul usage dynamique, garde sa petite table.
 - `.gitignore` : `components-test/`, `.turbo`, `coverage/` et `.env*`, sans objet
   dans ce dépôt, disparaissent.
+- CI : un seul job (un checkout, une installation, les vérifications à la suite) ;
+  `typecheck` perd son premier `tsc --noEmit`, `tests/tsconfig.json` couvrant déjà
+  `src/` (et `build` émet les déclarations sur la configuration racine).
 
 ## [0.3.0] — 2026-10-18
 
