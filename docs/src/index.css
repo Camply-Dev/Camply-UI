@@ -663,8 +663,7 @@ html {
 	font-style: italic;
 }
 .cu-tok--keyword,
-.cu-tok--atrule,
-.cu-tok--flag {
+.cu-tok--atrule {
 	color: #c39cf3;
 }
 .cu-tok--string {
@@ -676,17 +675,12 @@ html {
 }
 .cu-tok--type,
 .cu-tok--property,
-.cu-tok--attr,
-.cu-tok--variable,
-.cu-tok--builtin {
+.cu-tok--variable {
 	color: #7dd3fc;
 }
 .cu-tok--function,
 .cu-tok--selector {
 	color: #82aaff;
-}
-.cu-tok--tag {
-	color: #e5849b;
 }
 .cu-tok--punct {
 	color: #8091a6;

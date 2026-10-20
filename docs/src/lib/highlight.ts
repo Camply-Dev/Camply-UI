@@ -1,4 +1,5 @@
-export type Lang = "ts" | "tsx" | "js" | "jsx" | "bash" | "sh" | "html" | "css" | "json" | "text";
+/** Les langages que la vitrine affiche. */
+export type Lang = "ts" | "tsx" | "css";
 
 export interface Token {
 	type: string;
@@ -22,18 +23,6 @@ const JS: Rule[] = [
 	["punct", /[{}()[\]<>.,;:?=+\-*/%!&|]/y],
 ];
 
-const BASH: Rule[] = [
-	["comment", /#[^\n]*/y],
-	["string", /"(?:\\.|[^"\\])*"|'[^']*'/y],
-	[
-		"builtin",
-		/\b(?:bun|bunx|npm|npx|pnpm|yarn|node|git|cd|ls|echo|export|curl|mkdir|rm|cp|mv|cat|sudo)\b/y,
-	],
-	["flag", /--?[a-zA-Z][\w-]*/y],
-	["number", /\b\d+\b/y],
-	["punct", /[|&;()<>]/y],
-];
-
 const CSS: Rule[] = [
 	["comment", /\/\*[\s\S]*?\*\//y],
 	["string", /"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/y],
@@ -45,38 +34,10 @@ const CSS: Rule[] = [
 	["punct", /[{}():;,>]/y],
 ];
 
-const HTML: Rule[] = [
-	["comment", /<!--[\s\S]*?-->/y],
-	["tag", /<\/?[a-zA-Z][\w-]*|\/?>/y],
-	["string", /"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/y],
-	["attr", /[a-zA-Z-]+(?=\s*=)/y],
-	["punct", /[=]/y],
-];
-
-const JSON_: Rule[] = [
-	["property", /"(?:\\.|[^"\\])*"(?=\s*:)/y],
-	["string", /"(?:\\.|[^"\\])*"/y],
-	["number", /-?\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b/y],
-	["boolean", /\b(?:true|false|null)\b/y],
-	["punct", /[{}[\]:,]/y],
-];
-
-const RULES: Record<string, Rule[]> = {
-	ts: JS,
-	tsx: JS,
-	js: JS,
-	jsx: JS,
-	bash: BASH,
-	sh: BASH,
-	css: CSS,
-	html: HTML,
-	json: JSON_,
-};
+const RULES: Record<Lang, Rule[]> = { ts: JS, tsx: JS, css: CSS };
 
 export function highlight(code: string, lang: Lang): Token[] {
 	const rules = RULES[lang];
-	if (!rules) return [{ type: "plain", value: code, start: 0 }];
-
 	const tokens: Token[] = [];
 	let i = 0;
 	while (i < code.length) {

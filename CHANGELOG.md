@@ -79,6 +79,8 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
 - Vitrine, page Tokens : les valeurs ne sont plus recopiées dans `showcase-data.ts`,
   elles sont lues dans la feuille (`getComputedStyle`) ; une valeur longue (pile de
   polices) passe sous le nom au lieu de l'écraser.
+- Vitrine : la coloration syntaxique ne garde que `ts`, `tsx` et `css`, les seuls
+  langages affichés.
 
 ## [0.3.0] — 2026-10-18
 

@@ -5,11 +5,11 @@ import { highlight, type Lang } from "../lib/highlight";
 
 interface CodeBlockProps {
 	children: string;
-	lang?: Lang;
+	lang: Lang;
 	title?: string;
 }
 
-export function CodeBlock({ children, lang = "text", title }: CodeBlockProps) {
+export function CodeBlock({ children, lang, title }: CodeBlockProps) {
 	const [copied, setCopied] = useState(false);
 	const code = children.replace(/\n+$/, "");
 	const tokens = highlight(code, lang);
