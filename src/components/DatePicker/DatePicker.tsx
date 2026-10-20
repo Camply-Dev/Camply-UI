@@ -23,7 +23,7 @@ import {
 	yearPageStart,
 } from "../../lib/dateField";
 import { Field, idRefs } from "../../lib/Field";
-import { trapTab } from "../../lib/focusTrap";
+import { restoreFocus, trapTab } from "../../lib/focusTrap";
 import { FormReset, HiddenField } from "../../lib/HiddenField";
 import { useLabels, useLocale } from "../../lib/i18n";
 import { Calendar, ChevronLeft, ChevronRight } from "../../lib/icons";
@@ -236,10 +236,7 @@ export const DatePicker = forwardRef(function DatePicker(
 	 * page. Après un clic extérieur, le navigateur le pose ensuite où l'on a cliqué.
 	 */
 	const closeAndRestore = useCallback(() => {
-		const active = document.activeElement;
-		if (active && popRef.current?.contains(active)) {
-			(mode === "single" ? inputRef.current : valueButtonRef.current)?.focus();
-		}
+		restoreFocus(popRef.current, mode === "single" ? inputRef.current : valueButtonRef.current);
 		close();
 	}, [close, mode]);
 	useDismiss(open, closeAndRestore, [triggerRef, popRef]);

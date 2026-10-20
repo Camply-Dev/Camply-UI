@@ -24,7 +24,7 @@ import {
 } from "../../lib/color";
 import { Field } from "../../lib/Field";
 import { FieldChevron } from "../../lib/FieldChevron";
-import { focusEdges } from "../../lib/focusTrap";
+import { focusEdges, restoreFocus, tabLeavesPanel } from "../../lib/focusTrap";
 import { FormReset, HiddenField } from "../../lib/HiddenField";
 import { useLabels, useLocale } from "../../lib/i18n";
 import { Portal } from "../../lib/Portal";
@@ -213,13 +213,9 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 
 	/** Referme, et rend le focus au déclencheur s'il était dans le panneau. */
 	const closeAndRestore = useCallback(() => {
-		const panel = panelRef.current;
-		const active = document.activeElement;
-		if (panel && active && panel.contains(active)) {
-			restoringRef.current = true;
-			triggerRef.current?.focus();
-			restoringRef.current = false;
-		}
+		restoringRef.current = true;
+		restoreFocus(panelRef.current, triggerRef.current);
+		restoringRef.current = false;
 		setOpen(false);
 	}, []);
 
@@ -250,10 +246,7 @@ export const ColorPicker = forwardRef<HTMLDivElement, ColorPickerProps>(function
 
 	/** Tab hors du panneau par l'un ou l'autre bout : on referme et on revient au déclencheur. */
 	const onPanelKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-		if (e.key !== "Tab" || !panelRef.current) return;
-		const { first, last } = focusEdges(panelRef.current);
-		const edge = e.shiftKey ? first : last;
-		if (!edge || document.activeElement !== edge) return;
+		if (!panelRef.current || !tabLeavesPanel(e, panelRef.current)) return;
 		e.preventDefault();
 		closeAndRestore();
 	};

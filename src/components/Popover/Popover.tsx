@@ -7,7 +7,7 @@ import {
 } from "react";
 import { cloneTrigger, compose, markTriggerSlot } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
-import { focusEdges } from "../../lib/focusTrap";
+import { focusInto, tabLeavesPanel } from "../../lib/focusTrap";
 import { useMergedRefs } from "../../lib/mergeRefs";
 import { Portal } from "../../lib/Portal";
 import type { Placement } from "../../lib/useAnchor";
@@ -50,20 +50,13 @@ export const Popover = forwardRef<HTMLDivElement, PopoverProps>(
 		// Portalisé en fin de page, le panneau serait hors d'atteinte au clavier : à
 		// l'ouverture, le focus y entre (son premier focalisable, sinon lui-même).
 		useEffect(() => {
-			if (!open) return;
-			const panel = floatRef.current;
-			if (!panel || panel.contains(document.activeElement)) return;
-			(focusEdges(panel).first ?? panel).focus();
+			if (open && floatRef.current) focusInto(floatRef.current);
 		}, [open, floatRef]);
 
 		/** Tab hors du panneau par l'un ou l'autre bout : il se referme, le focus revient au déclencheur. */
 		const onPanelKeyDown = compose(onKeyDown, (e) => {
 			const panel = floatRef.current;
-			if (e.key !== "Tab" || !panel) return;
-			const { first, last } = focusEdges(panel);
-			const edge = e.shiftKey ? first : last;
-			const active = document.activeElement;
-			if (edge && active !== edge && active !== panel) return;
+			if (!panel || !tabLeavesPanel(e, panel)) return;
 			e.preventDefault();
 			close();
 		});

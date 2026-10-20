@@ -60,6 +60,42 @@ export function focusEdges(container: HTMLElement): {
 }
 
 /**
+ * Fait entrer le focus dans `panel` à l'ouverture, sauf s'il y est déjà (un
+ * contrôle `autoFocus` le garde) : `preferred`, sinon le premier focalisable,
+ * sinon le panneau lui-même.
+ */
+export function focusInto(panel: HTMLElement, preferred?: HTMLElement | null): void {
+	if (panel.contains(document.activeElement)) return;
+	(preferred ?? focusEdges(panel).first ?? panel).focus();
+}
+
+/**
+ * Ce Tab (ou Maj+Tab) quitte-t-il `panel` par son bout ? Vrai depuis le dernier
+ * focalisable (le premier), depuis le panneau lui-même, ou si rien n'y est
+ * focalisable. Un panneau portalisé referme alors et rend le focus au
+ * déclencheur : le navigateur l'enverrait en fin de page.
+ */
+export function tabLeavesPanel(
+	e: Pick<KeyboardEvent, "key" | "shiftKey">,
+	panel: HTMLElement,
+): boolean {
+	if (e.key !== "Tab") return false;
+	const { first, last } = focusEdges(panel);
+	const edge = e.shiftKey ? first : last;
+	const active = document.activeElement;
+	return !edge || active === edge || active === panel;
+}
+
+/**
+ * Rend le focus au déclencheur s'il était dans `panel` : un panneau portalisé qui
+ * se démonte le laisserait retomber sur <body>. À appeler AVANT de refermer.
+ * Après un clic extérieur, le navigateur le pose ensuite où l'on a cliqué.
+ */
+export function restoreFocus(panel: HTMLElement | null, trigger: HTMLElement | null | undefined) {
+	if (panel?.contains(document.activeElement)) trigger?.focus();
+}
+
+/**
  * Boucle le focus dans `container` sur Tab / Shift+Tab.
  * À brancher sur un `keydown`. Renvoie true si l'événement a été pris en charge.
  */

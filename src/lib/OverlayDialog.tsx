@@ -11,7 +11,7 @@ import {
 } from "react";
 import { cn } from "./cn";
 import { idRefs } from "./Field";
-import { focusEdges, trapTab } from "./focusTrap";
+import { focusInto, trapTab } from "./focusTrap";
 import { useMergedRefs } from "./mergeRefs";
 import { Portal } from "./Portal";
 import { useDismiss } from "./useDismiss";
@@ -144,10 +144,7 @@ export function OverlayDialog({
 	const initialFocusRef = useRef(initialFocus);
 	initialFocusRef.current = initialFocus;
 	useEffect(() => {
-		if (!open) return;
-		const panel = innerRef.current;
-		if (!panel || panel.contains(document.activeElement)) return;
-		(initialFocusRef.current?.current ?? focusEdges(panel).first ?? panel).focus();
+		if (open && innerRef.current) focusInto(innerRef.current, initialFocusRef.current?.current);
 	}, [open]);
 
 	// Piège Tab : le focus ne peut pas sortir derrière le voile.

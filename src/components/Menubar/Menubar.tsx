@@ -13,6 +13,7 @@ import {
 import { clamp } from "../../lib/clamp";
 import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
+import { restoreFocus } from "../../lib/focusTrap";
 import { useMergedRefs } from "../../lib/mergeRefs";
 import { Portal } from "../../lib/Portal";
 import { nextRovingIndex } from "../../lib/rovingIndex";
@@ -140,10 +141,8 @@ export const Menubar = forwardRef<HTMLDivElement, MenubarProps>(
 		const close = useCallback(() => {
 			// Rien d'ouvert (la souris a traversé la barre) : aucun `onOpenIndexChange(null)`.
 			if (openIdx == null) return;
-			const hadFocus = menuRef.current?.contains(document.activeElement) ?? false;
-			const trigger = openIdx != null ? triggerRefs.current[openIdx] : null;
+			restoreFocus(menuRef.current, triggerRefs.current[openIdx]);
 			setOpenIdx(null);
-			if (hadFocus) trigger?.focus();
 		}, [openIdx, setOpenIdx]);
 
 		useDismiss(open, close, [barRef, menuRef]);

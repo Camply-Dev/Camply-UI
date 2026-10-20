@@ -36,6 +36,11 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
 - Champs à liste : `useListboxNav` est fondu dans `useListboxField` ; `Listbox` porte
   son portail et les classes de surface, `ListboxOption` le `preventDefault` du clic et
   l'activation au survol, recopiés jusqu'ici dans `Select`, `MultiSelect` et `Combobox`.
+- Focus (`lib/focusTrap.ts`) : `focusInto` (entrée dans un dialogue ou un `Popover`),
+  `tabLeavesPanel` (sortie par Tab d'un `Popover` ou d'un `ColorPicker` flottant) et
+  `restoreFocus` (retour au déclencheur : `Popover`, `DropdownMenu`, `Menubar`,
+  `ColorPicker`, `DatePicker`). Le focus revient désormais au déclencheur partout
+  *avant* la fermeture, donc avant `onOpenChange(false)`.
 
 ## [0.3.0] — 2026-10-18
 

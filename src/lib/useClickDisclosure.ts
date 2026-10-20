@@ -1,4 +1,5 @@
 import { useCallback, useRef } from "react";
+import { restoreFocus } from "./focusTrap";
 import { type Placement, useAnchor } from "./useAnchor";
 import { type Controllable, useControllable } from "./useControllable";
 import { useDismiss } from "./useDismiss";
@@ -36,9 +37,8 @@ export function useClickDisclosure({
 	// Si le focus était DANS la couche (navigation clavier), il faut le rendre au
 	// déclencheur : sans ça, Échap ou la sélection d'une entrée le perdent sur <body>.
 	const close = useCallback(() => {
-		const hadFocus = floatRef.current?.contains(document.activeElement) ?? false;
+		restoreFocus(floatRef.current, anchorRef.current);
 		setOpen(false);
-		if (hadFocus) anchorRef.current?.focus();
 	}, [setOpen]);
 
 	const toggle = useCallback(() => setOpen(!open), [open, setOpen]);
