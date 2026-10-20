@@ -5,7 +5,7 @@
 
 ## 1. La librairie en 30 secondes
 
-- **`@camply/ui`** — librairie de composants React (v0.3.0).
+- **`@camply/ui`** — librairie de composants React (v0.4.0).
 - **60 composants** (80 exports avec les sous-composants), **4 hooks**, **2128 icônes**, **92 design tokens** CSS.
 - **ESM uniquement**, **zéro dépendance runtime**, types TypeScript fournis.
 - **Thème sombre par défaut**, entièrement thémable via variables CSS.

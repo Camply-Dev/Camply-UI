@@ -3,7 +3,13 @@
 Toutes les évolutions notables de `@camply/ui`.
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versionnage [SemVer](https://semver.org/lang/fr/).
 
-## [Non publié]
+## [0.4.0] — non publiée
+
+`CommandPalette limit`, trois corrections, une seule opacité pour tous les états
+désactivés, et du code partagé là où il était recopié : dans les composants, dans leurs
+feuilles et dans la map `exports` du paquet. `tsc` signale la seule rupture de type
+(`STATUS_ICONS`) ; ce qu'il ne voit pas est marqué **⚠️ silencieuse**, les changements
+de rendu **⚠️ visuel**.
 
 ### ⚠️ Changements cassants
 
@@ -46,7 +52,8 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; ve
 ### Interne
 
 Du code partagé là où il était recopié : même DOM, mêmes classes (seul leur ordre
-change dans l'attribut des coques de champ), et un seul écart de comportement, marqué.
+change dans l'attribut des coques de champ), mêmes styles calculés ; les rares écarts
+de comportement sont marqués.
 
 - `compose(theirs, ours)` (`lib/cloneTrigger.ts`) remplace les 38 blocs
   `onX?.(e); if (e.defaultPrevented) return; …` écrits à la main dans 18 composants :
