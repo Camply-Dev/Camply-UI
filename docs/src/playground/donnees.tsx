@@ -12,7 +12,7 @@ import {
 	Table,
 	Tree,
 } from "@camply/ui";
-import { Icon } from "../icons";
+import { Copy, Plus } from "../../../src/lib/icons";
 import { useDisclosure } from "../lib/useDisclosure";
 import { bool, num, type PlaygroundConfig, str } from "./engine";
 
@@ -40,14 +40,14 @@ function CommandPalettePreview() {
 						label: "Nouveau projet",
 						group: "Actions",
 						shortcut: "⌘N",
-						icon: <Icon name="plus" size={15} />,
+						icon: <Plus size={15} />,
 						onRun: onClose,
 					},
 					{
 						id: "copy",
 						label: "Dupliquer le projet",
 						group: "Actions",
-						icon: <Icon name="copy" size={15} />,
+						icon: <Copy size={15} />,
 						onRun: onClose,
 					},
 					{

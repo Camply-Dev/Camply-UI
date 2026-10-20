@@ -1,7 +1,7 @@
 import { Badge, Banner, Button, Card, ColorPicker } from "@camply/ui";
 import { useState } from "react";
+import { Download, Palette, RotateCcw } from "../../../src/lib/icons";
 import tokensRaw from "../../../src/styles/tokens.css?raw";
-import { Icon } from "../icons";
 import { parseColor, toCss } from "../lib/color";
 import { buildTokensCss } from "../lib/tokensFile";
 import { TOKEN_GROUPS } from "../showcase-data";
@@ -63,7 +63,7 @@ export function TokensView() {
 	return (
 		<div>
 			<header className="cu-pagehead">
-				<Badge tone="accent" icon={<Icon name="tokens" size={12} />}>
+				<Badge tone="accent" icon={<Palette size={12} />}>
 					Fondations
 				</Badge>
 				<h1 className="cu-pagehead__title">Tokens CSS</h1>
@@ -76,18 +76,13 @@ export function TokensView() {
 					<Button
 						variant="secondary"
 						size="sm"
-						leftIcon={<Icon name="reset" size={15} />}
+						leftIcon={<RotateCcw size={15} />}
 						onClick={reset}
 						disabled={!dirty}
 					>
 						Réinitialiser
 					</Button>
-					<Button
-						variant="primary"
-						size="sm"
-						leftIcon={<Icon name="download" size={15} />}
-						onClick={download}
-					>
+					<Button variant="primary" size="sm" leftIcon={<Download size={15} />} onClick={download}>
 						Télécharger tokens.css
 					</Button>
 				</div>

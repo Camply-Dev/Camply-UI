@@ -1,6 +1,6 @@
 import { IconButton } from "@camply/ui";
 import { useState } from "react";
-import { Icon } from "../icons";
+import { Check, Copy } from "../../../src/lib/icons";
 import { highlight, type Lang } from "../lib/highlight";
 
 interface CodeBlockProps {
@@ -32,7 +32,7 @@ export function CodeBlock({ children, lang, title }: CodeBlockProps) {
 					className="cu-code__copy"
 					onClick={copy}
 				>
-					<Icon name={copied ? "check" : "copy"} size={14} />
+					{copied ? <Check size={14} /> : <Copy size={14} />}
 				</IconButton>
 			</div>
 			<pre className="cu-code__pre">

@@ -1,6 +1,6 @@
 import { Badge, Button, Card, Snippet } from "@camply/ui";
 import { version } from "../../../package.json";
-import { Icon } from "../icons";
+import { ArrowRight } from "../../../src/lib/icons";
 import { CSS, FAMILIES, TOTAL } from "../showcase-data";
 
 interface HomeViewProps {
@@ -36,7 +36,7 @@ export function HomeView({ onNavigate }: HomeViewProps) {
 					<Button
 						variant="primary"
 						size="sm"
-						rightIcon={<Icon name="arrow" />}
+						rightIcon={<ArrowRight />}
 						onClick={() => onNavigate("button")}
 					>
 						Explorer les composants

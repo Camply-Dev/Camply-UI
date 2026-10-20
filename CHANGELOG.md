@@ -81,6 +81,8 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
   polices) passe sous le nom au lieu de l'écraser.
 - Vitrine : la coloration syntaxique ne garde que `ts`, `tsx` et `css`, les seuls
   langages affichés.
+- Vitrine : le registre d'icônes par nom (`docs/src/icons.tsx`) cède la place à des
+  imports directs ; la démo de `Badge`, seul usage dynamique, garde sa petite table.
 
 ## [0.3.0] — 2026-10-18
 

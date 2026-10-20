@@ -13,7 +13,7 @@ import {
 	useToast,
 } from "@camply/ui";
 import { type CSSProperties, type ReactNode, useState } from "react";
-import { Icon } from "../icons";
+import { ArrowRight, Book, Check, LayoutGrid, Palette, Plus, Search } from "../../../src/lib/icons";
 import { CSS } from "../showcase-data";
 import { ClickableCard } from "./ClickableCard";
 import { CodeBlock } from "./CodeBlock";
@@ -51,10 +51,7 @@ function ToastDemo() {
 function ToastTrigger() {
 	const { toast } = useToast();
 	return (
-		<Button
-			leftIcon={<Icon name="check" />}
-			onClick={() => toast({ title: "Enregistré", tone: "success" })}
-		>
+		<Button leftIcon={<Check />} onClick={() => toast({ title: "Enregistré", tone: "success" })}>
 			Déclencher un toast
 		</Button>
 	);
@@ -64,7 +61,7 @@ function PaletteDemo({ onNavigate }: GuideViewProps) {
 	const [open, setOpen] = useState(false);
 	return (
 		<>
-			<Button variant="secondary" leftIcon={<Icon name="search" />} onClick={() => setOpen(true)}>
+			<Button variant="secondary" leftIcon={<Search />} onClick={() => setOpen(true)}>
 				Ouvrir la palette
 			</Button>
 			<CommandPalette
@@ -98,7 +95,7 @@ export function GuideView({ onNavigate }: GuideViewProps) {
 	return (
 		<div>
 			<header className="cu-pagehead">
-				<Badge tone="accent" icon={<Icon name="book" size={12} />}>
+				<Badge tone="accent" icon={<Book size={12} />}>
 					Prise en main
 				</Badge>
 				<h1 className="cu-pagehead__title">Guide d'utilisation</h1>
@@ -150,7 +147,7 @@ export function GuideView({ onNavigate }: GuideViewProps) {
 					<Preview>
 						<Button variant="primary">Enregistrer</Button>
 						<Button variant="secondary">Annuler</Button>
-						<Button variant="primary" leftIcon={<Icon name="plus" />}>
+						<Button variant="primary" leftIcon={<Plus />}>
 							Nouveau
 						</Button>
 						<Button variant="primary" loading>
@@ -245,7 +242,7 @@ import type { ButtonProps } from "@camply/ui";`}</CodeBlock>
 					<Button
 						variant="ghost"
 						size="sm"
-						rightIcon={<Icon name="arrow" />}
+						rightIcon={<ArrowRight />}
 						onClick={() => onNavigate(CSS)}
 					>
 						Voir tous les tokens
@@ -295,7 +292,7 @@ function Page() {
 				<div className="cu-guide__next">
 					<ClickableCard className="cu-guide__nextcard" onActivate={() => onNavigate("button")}>
 						<div className="cu-guide__nextcard-title">
-							<Icon name="components" size={16} />
+							<LayoutGrid size={16} />
 							Explorer les composants
 						</div>
 						<p className="cu-guide__nextcard-desc">
@@ -304,7 +301,7 @@ function Page() {
 					</ClickableCard>
 					<ClickableCard className="cu-guide__nextcard" onActivate={() => onNavigate(CSS)}>
 						<div className="cu-guide__nextcard-title">
-							<Icon name="tokens" size={16} />
+							<Palette size={16} />
 							Personnaliser les tokens
 						</div>
 						<p className="cu-guide__nextcard-desc">

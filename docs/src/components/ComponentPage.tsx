@@ -1,5 +1,5 @@
 import { Badge } from "@camply/ui";
-import { Icon } from "../icons";
+import { Check, ChevronRight } from "../../../src/lib/icons";
 import { PLAYGROUNDS, PlaygroundView } from "../playground";
 import type { ComponentEntry } from "../showcase-data";
 
@@ -14,12 +14,12 @@ export function ComponentPage({ entry }: ComponentPageProps) {
 			<header className="cu-pagehead">
 				<div className="cu-crumbrow">
 					<Badge tone="accent">{entry.family}</Badge>
-					<Icon name="chevron" size={12} />
+					<ChevronRight size={12} />
 					<span className="cu-crumb">{entry.subfamily}</span>
 				</div>
 				<div className="cu-titlerow">
 					<h1 className="cu-pagehead__title">{entry.label}</h1>
-					<Badge tone="success" icon={<Icon name="check" size={12} />}>
+					<Badge tone="success" icon={<Check size={12} />}>
 						Disponible
 					</Badge>
 				</div>

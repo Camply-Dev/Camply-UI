@@ -12,8 +12,20 @@ import {
 	Tag,
 	Toggle,
 } from "@camply/ui";
-import { Icon } from "../icons";
+import type { ComponentType } from "react";
+import { Check, Clock, type IconProps, Plus } from "../../../src/lib/icons";
 import { bool, num, type PlaygroundConfig, str } from "./engine";
+
+/** Icônes proposées par la démo de Badge, désignées par le nom du contrôle. */
+const BADGE_ICONS: Record<string, ComponentType<IconProps>> = {
+	check: Check,
+	clock: Clock,
+	plus: Plus,
+};
+const badgeIcon = (name: string) => {
+	const BadgeIcon = BADGE_ICONS[name];
+	return BadgeIcon ? <BadgeIcon size={13} /> : undefined;
+};
 
 export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 	button: {
@@ -53,7 +65,7 @@ export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 				size={str(p.size)}
 				disabled={p.state === "disabled"}
 				loading={p.state === "loading"}
-				leftIcon={p.icon ? <Icon name="plus" size={16} /> : undefined}
+				leftIcon={p.icon ? <Plus size={16} /> : undefined}
 			>
 				{str(p.text)}
 			</Button>
@@ -111,7 +123,7 @@ export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 				tone={str(p.tone)}
 				variant={str(p.variant)}
 				size={str(p.size)}
-				icon={p.icon !== "aucune" ? <Icon name={str(p.icon)} size={13} /> : undefined}
+				icon={badgeIcon(str(p.icon))}
 			>
 				{str(p.text)}
 			</Badge>
@@ -212,7 +224,7 @@ export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 				size={str(p.size)}
 				disabled={bool(p.disabled)}
 			>
-				<Icon name="plus" size={17} />
+				<Plus size={17} />
 			</IconButton>
 		),
 		code: (p) =>

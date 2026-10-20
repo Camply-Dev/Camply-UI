@@ -1,7 +1,7 @@
 import { Badge, Input } from "@camply/ui";
 import { type ComponentType, useState } from "react";
 import * as LibIcons from "../../../src/lib/icons";
-import { Icon } from "../icons";
+import { Search, Shapes } from "../../../src/lib/icons";
 
 type IconComponent = ComponentType<{ size?: number }>;
 
@@ -21,7 +21,7 @@ export function IconsView() {
 	return (
 		<div>
 			<header className="cu-pagehead">
-				<Badge tone="accent" icon={<Icon name="shapes" size={12} />}>
+				<Badge tone="accent" icon={<Shapes size={12} />}>
 					Icônes
 				</Badge>
 				<h1 className="cu-pagehead__title">Icônes</h1>
@@ -34,7 +34,7 @@ export function IconsView() {
 					<Input
 						size="sm"
 						type="search"
-						leftIcon={<Icon name="search" size={15} />}
+						leftIcon={<Search size={15} />}
 						value={query}
 						onChange={(e) => setQuery(e.target.value)}
 						placeholder="Rechercher parmi les icônes…"

@@ -1,6 +1,6 @@
 import { Input } from "@camply/ui";
 import { useEffect, useState } from "react";
-import { Icon } from "../icons";
+import { ChevronRight, Search } from "../../../src/lib/icons";
 import { PAGES } from "../pages";
 import { BY_ID, COMPONENTS, FAMILIES, type Family, type Subfamily, TOTAL } from "../showcase-data";
 
@@ -69,7 +69,7 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
 				<Input
 					size="sm"
 					type="search"
-					leftIcon={<Icon name="search" size={15} />}
+					leftIcon={<Search size={15} />}
 					value={query}
 					onChange={(e) => setQuery(e.target.value)}
 					placeholder="Rechercher un composant…"
@@ -102,11 +102,7 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
 					return (
 						<div key={family.title}>
 							<button type="button" className="cu-fam-row" onClick={() => toggleFam(family)}>
-								<Icon
-									name="chevron"
-									size={13}
-									className={isOpen ? "cu-chev cu-chev--open" : "cu-chev"}
-								/>
+								<ChevronRight size={13} className={isOpen ? "cu-chev cu-chev--open" : "cu-chev"} />
 								<span className="cu-fam-row__label">{family.title}</span>
 								<span className="cu-count">{count}</span>
 							</button>
@@ -123,8 +119,7 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
 													className="cu-sub-row"
 													onClick={() => toggleSub(family, sub)}
 												>
-													<Icon
-														name="chevron"
+													<ChevronRight
 														size={12}
 														className={isSubOpen ? "cu-chev cu-chev--open" : "cu-chev"}
 													/>

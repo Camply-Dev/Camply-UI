@@ -18,7 +18,7 @@ import {
 	Sheet,
 	Tooltip,
 } from "@camply/ui";
-import { Icon } from "../icons";
+import { Check, Copy } from "../../../src/lib/icons";
 import { useDisclosure } from "../lib/useDisclosure";
 import { bool, type PlaygroundConfig, str, type Values } from "./engine";
 
@@ -335,10 +335,10 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 		render: () => (
 			<DropdownMenu trigger={<Button variant="secondary">Options</Button>}>
 				<MenuLabel>Mon compte</MenuLabel>
-				<MenuItem icon={<Icon name="check" size={15} />} shortcut="⌘P">
+				<MenuItem icon={<Check size={15} />} shortcut="⌘P">
 					Profil
 				</MenuItem>
-				<MenuItem icon={<Icon name="copy" size={15} />}>Dupliquer</MenuItem>
+				<MenuItem icon={<Copy size={15} />}>Dupliquer</MenuItem>
 				<MenuSeparator />
 				<MenuItem danger>Supprimer</MenuItem>
 			</DropdownMenu>
@@ -392,7 +392,7 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 				content={str(p.content)}
 				tone={str(p.tone)}
 				placement={str(p.placement)}
-				icon={bool(p.icon) ? <Icon name="check" size={13} /> : undefined}
+				icon={bool(p.icon) ? <Check size={13} /> : undefined}
 			>
 				<Button variant="secondary">Survole-moi</Button>
 			</Tooltip>

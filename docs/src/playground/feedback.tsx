@@ -9,7 +9,7 @@ import {
 	ToastProvider,
 	useToast,
 } from "@camply/ui";
-import { Icon } from "../icons";
+import { Search } from "../../../src/lib/icons";
 import { bool, num, type PlaygroundConfig, str, type Values } from "./engine";
 
 function ToastTrigger(p: Values) {
@@ -281,7 +281,7 @@ export const FEEDBACK: Record<string, PlaygroundConfig> = {
 				<EmptyState
 					align={str(p.align)}
 					headingLevel={num(p.headingLevel) as 2 | 3 | 4}
-					icon={bool(p.icon) ? <Icon name="search" size={22} /> : undefined}
+					icon={bool(p.icon) ? <Search size={22} /> : undefined}
 					title="Aucun résultat"
 					description="Aucun projet ne correspond à cette recherche. Essaie un autre mot-clé ou retire un filtre."
 					actions={
