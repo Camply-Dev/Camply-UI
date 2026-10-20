@@ -1,18 +1,8 @@
 import { Input } from "@camply/ui";
 import { useEffect, useState } from "react";
 import { Icon } from "../icons";
-import {
-	BY_ID,
-	COMPONENTS,
-	CSS,
-	FAMILIES,
-	type Family,
-	GUIDE,
-	HOME,
-	ICONS,
-	type Subfamily,
-	TOTAL,
-} from "../showcase-data";
+import { PAGES } from "../pages";
+import { BY_ID, COMPONENTS, FAMILIES, type Family, type Subfamily, TOTAL } from "../showcase-data";
 
 interface SidebarProps {
 	active: string;
@@ -26,8 +16,7 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
 
 	const q = query.trim().toLowerCase();
 	const searching = q.length > 0;
-	const activeIsComponent =
-		active !== HOME && active !== GUIDE && active !== ICONS && active !== CSS;
+	const activeIsComponent = !PAGES.some((p) => p.id === active);
 
 	const matches = (label: string) => label.toLowerCase().includes(q);
 	const famHasMatch = (family: Family) =>
@@ -89,38 +78,17 @@ export function Sidebar({ active, onNavigate }: SidebarProps) {
 			</div>
 
 			<div className="cu-links">
-				<button
-					type="button"
-					className={active === HOME ? "cu-link cu-link--active" : "cu-link"}
-					onClick={() => onNavigate(HOME)}
-				>
-					<Icon name="home" size={15} />
-					Accueil
-				</button>
-				<button
-					type="button"
-					className={active === GUIDE ? "cu-link cu-link--active" : "cu-link"}
-					onClick={() => onNavigate(GUIDE)}
-				>
-					<Icon name="book" size={15} />
-					Guide d'utilisation
-				</button>
-				<button
-					type="button"
-					className={active === ICONS ? "cu-link cu-link--active" : "cu-link"}
-					onClick={() => onNavigate(ICONS)}
-				>
-					<Icon name="shapes" size={15} />
-					Icônes
-				</button>
-				<button
-					type="button"
-					className={active === CSS ? "cu-link cu-link--active" : "cu-link"}
-					onClick={() => onNavigate(CSS)}
-				>
-					<Icon name="tokens" size={15} />
-					CSS par défaut
-				</button>
+				{PAGES.map(({ id, label, icon: PageIcon }) => (
+					<button
+						key={id}
+						type="button"
+						className={active === id ? "cu-link cu-link--active" : "cu-link"}
+						onClick={() => onNavigate(id)}
+					>
+						<PageIcon size={15} />
+						{label}
+					</button>
+				))}
 			</div>
 
 			<div className="cu-nav__label">Composants</div>

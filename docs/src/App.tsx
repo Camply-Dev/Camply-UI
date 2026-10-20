@@ -1,17 +1,15 @@
 import { Breadcrumbs, CommandPalette, type Crumb, Kbd, useCommandPalette } from "@camply/ui";
 import { useState } from "react";
 import { ComponentPage } from "./components/ComponentPage";
-import { GuideView } from "./components/GuideView";
-import { HomeView } from "./components/HomeView";
-import { IconsView } from "./components/IconsView";
 import { Sidebar } from "./components/Sidebar";
-import { TokensView } from "./components/TokensView";
-import { BY_ID, COMPONENTS, CSS, GUIDE, HOME, ICONS } from "./showcase-data";
+import { PAGES } from "./pages";
+import { BY_ID, COMPONENTS, HOME } from "./showcase-data";
 
 export function App() {
 	const [active, setActive] = useState<string>(HOME);
 	const [paletteOpen, setPaletteOpen] = useCommandPalette();
 	const entry = BY_ID[active];
+	const page = PAGES.find((p) => p.id === active);
 
 	const go = (id: string) => {
 		setActive(id);
@@ -19,25 +17,16 @@ export function App() {
 	};
 
 	const crumbs: Crumb[] = [{ label: "Camply UI", onClick: () => go(HOME) }];
-	if (active === GUIDE) {
-		crumbs.push({ label: "Guide d'utilisation" });
-	} else if (active === ICONS) {
-		crumbs.push({ label: "Icônes" });
-	} else if (active === CSS) {
-		crumbs.push({ label: "CSS par défaut" });
-	} else if (entry) {
+	if (entry) {
 		const familyFirst = COMPONENTS.find((component) => component.family === entry.family)?.id;
 		crumbs.push({ label: entry.family, onClick: familyFirst ? () => go(familyFirst) : undefined });
 		crumbs.push({ label: entry.label });
 	} else {
-		crumbs.push({ label: "Accueil" });
+		crumbs.push({ label: page?.label ?? "Accueil" });
 	}
 
 	const commands = [
-		{ id: HOME, label: "Accueil", group: "Navigation", onRun: () => go(HOME) },
-		{ id: GUIDE, label: "Guide d'utilisation", group: "Navigation", onRun: () => go(GUIDE) },
-		{ id: ICONS, label: "Icônes", group: "Navigation", onRun: () => go(ICONS) },
-		{ id: CSS, label: "CSS par défaut", group: "Navigation", onRun: () => go(CSS) },
+		...PAGES.map((p) => ({ id: p.id, label: p.label, group: "Navigation", onRun: () => go(p.id) })),
 		...COMPONENTS.map((c) => ({
 			id: c.id,
 			label: c.label,
@@ -64,10 +53,7 @@ export function App() {
 					</button>
 				</header>
 				<div className="cu-view">
-					{active === HOME && <HomeView onNavigate={setActive} />}
-					{active === GUIDE && <GuideView onNavigate={setActive} />}
-					{active === ICONS && <IconsView />}
-					{active === CSS && <TokensView />}
+					{page && <page.View onNavigate={setActive} />}
 					{entry && <ComponentPage entry={entry} />}
 				</div>
 			</main>

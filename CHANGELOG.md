@@ -72,6 +72,8 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
 - Vitrine : ⌘K / Ctrl+K depuis le champ de recherche de la barre latérale ouvre la
   palette ; son propre raccourci l'ouvrait, puis celui de `useCommandPalette` la
   refermait aussitôt.
+- Vitrine : un seul tableau `PAGES` (id, libellé, icône, vue) décrit les pages fixes
+  pour l'App (fil d'Ariane, palette, rendu) et la barre latérale.
 
 ## [0.3.0] — 2026-10-18
 
