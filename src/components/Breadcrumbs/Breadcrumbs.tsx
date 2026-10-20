@@ -28,9 +28,9 @@ export const Breadcrumbs = forwardRef<HTMLElement, BreadcrumbsProps>(
 				<ol className="camply-breadcrumbs__list">
 					{items.map((item, i) => {
 						const isLast = i === items.length - 1;
-						const key = item.href ?? (typeof item.label === "string" ? item.label : i);
 						return (
-							<Fragment key={key}>
+							// biome-ignore lint/suspicious/noArrayIndexKey: ni href ni label ne sont uniques (deux crumbs en "#") et la liste est figée à chaque rendu — la position est l'identité
+							<Fragment key={i}>
 								<li className="camply-breadcrumbs__crumb">
 									{!isLast && item.href ? (
 										<a href={item.href} className="camply-breadcrumbs__link">

@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { Avatar } from "../../src/components/Avatar";
+import { Breadcrumbs } from "../../src/components/Breadcrumbs";
 import { Table } from "../../src/components/Table";
 import { Tree } from "../../src/components/Tree";
 
@@ -39,6 +40,29 @@ describe("Avatar : échelle nommée", () => {
 			width: "68px",
 			height: "68px",
 		});
+	});
+});
+
+describe("Breadcrumbs : deux crumbs au même href", () => {
+	it("les rend tous deux, sans clé React en double", () => {
+		// La démo pose `href: "#"` sur deux crumbs : une clé tirée du href les faisait
+		// entrer en collision (avertissement de React, et un crumb risquait d'être omis).
+		const erreur = vi.spyOn(console, "error").mockImplementation(() => {});
+		render(
+			<Breadcrumbs
+				items={[
+					{ label: "Accueil", href: "#" },
+					{ label: "Composants", href: "#" },
+					{ label: "Navigation" },
+				]}
+			/>,
+		);
+		const avertissements = erreur.mock.calls.map(([message]) => String(message));
+		erreur.mockRestore();
+
+		expect(screen.getByRole("link", { name: "Accueil" })).toBeInTheDocument();
+		expect(screen.getByRole("link", { name: "Composants" })).toBeInTheDocument();
+		expect(avertissements).toEqual([]);
 	});
 });
 

@@ -22,6 +22,9 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; ve
   sur tactile : défilement, appui long) ou une perte de capture prend fin ; la poignée
   suivait ensuite le doigt. `ColorPicker` glisse de même par capture du pointeur (plus
   d'écouteurs sur `window`), et un second doigt n'y déplace plus la surface en cours.
+- `Breadcrumbs` : deux crumbs au même `href` (`"#"`) ne partagent plus leur clé React
+  (avertissement de React, et l'un des deux pouvait disparaître au rendu suivant) ;
+  chaque crumb est identifié par sa position.
 
 ### Interne
 
