@@ -120,6 +120,8 @@ change dans l'attribut des coques de champ), et un seul écart de comportement, 
   refermait aussitôt.
 - Vitrine : un seul tableau `PAGES` (id, libellé, icône, vue) décrit les pages fixes
   pour l'App (fil d'Ariane, palette, rendu) et la barre latérale.
+- Vitrine : dans la palette, les pages fixes ont leur propre groupe, « Pages » ; elles
+  se mêlaient au groupe « Navigation » de la famille de composants du même nom.
 - Vitrine : l'option `imports` des démos, jamais lue (les 8 démos qui la posaient
   écrivent leur propre `code`), disparaît.
 - Vitrine, page Tokens : les valeurs ne sont plus recopiées dans `showcase-data.ts`,

@@ -26,7 +26,7 @@ export function App() {
 	}
 
 	const commands = [
-		...PAGES.map((p) => ({ id: p.id, label: p.label, group: "Navigation", onRun: () => go(p.id) })),
+		...PAGES.map((p) => ({ id: p.id, label: p.label, group: "Pages", onRun: () => go(p.id) })),
 		...COMPONENTS.map((c) => ({
 			id: c.id,
 			label: c.label,
