@@ -101,7 +101,6 @@ function SheetPreview(p: Values) {
 export const SURFACES: Record<string, PlaygroundConfig> = {
 	card: {
 		component: "Card",
-		imports: ["Card", "CardHeader", "CardTitle", "CardDescription", "CardFooter"],
 		controls: [
 			{ key: "padding", label: "Padding", type: "seg", options: ["none", "sm", "md", "lg"] },
 			{ key: "interactive", label: "Interactive", type: "toggle" },
@@ -331,7 +330,6 @@ export const SURFACES: Record<string, PlaygroundConfig> = {
 
 	dropdownmenu: {
 		component: "DropdownMenu",
-		imports: ["DropdownMenu", "MenuItem", "MenuLabel", "MenuSeparator"],
 		controls: [],
 		defaults: {},
 		render: () => (

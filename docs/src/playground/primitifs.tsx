@@ -135,7 +135,6 @@ export const PRIMITIFS: Record<string, PlaygroundConfig> = {
 
 	buttongroup: {
 		component: "ButtonGroup",
-		imports: ["Button", "ButtonGroup"],
 		controls: [
 			{ key: "attached", label: "Attachés", type: "toggle" },
 			{

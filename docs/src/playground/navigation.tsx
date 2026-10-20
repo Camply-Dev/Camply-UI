@@ -17,7 +17,6 @@ import { bool, num, type PlaygroundConfig, str } from "./engine";
 export const NAVIGATION: Record<string, PlaygroundConfig> = {
 	tabs: {
 		component: "Tabs",
-		imports: ["Tab", "TabList", "TabPanel", "Tabs"],
 		controls: [{ key: "variant", label: "Variante", type: "seg", options: ["line", "soft"] }],
 		defaults: { variant: "line" },
 		render: (p) => (
@@ -144,7 +143,6 @@ export const NAVIGATION: Record<string, PlaygroundConfig> = {
 
 	accordion: {
 		component: "Accordion",
-		imports: ["Accordion", "AccordionItem"],
 		controls: [
 			{ key: "multiple", label: "Multiple", type: "toggle" },
 			{ key: "expanded", label: "Tout déplier", type: "toggle" },

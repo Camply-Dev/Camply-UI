@@ -409,7 +409,6 @@ export const DONNEES: Record<string, PlaygroundConfig> = {
 
 	commandpalette: {
 		component: "CommandPalette",
-		imports: ["CommandPalette", "useCommandPalette"],
 		controls: [],
 		defaults: {},
 		render: () => <CommandPalettePreview />,

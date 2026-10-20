@@ -449,7 +449,6 @@ export const FORMULAIRES: Record<string, PlaygroundConfig> = {
 
 	radiogroup: {
 		component: "RadioGroup",
-		imports: ["Radio", "RadioGroup"],
 		controls: [{ key: "disabled", label: "Désactivé", type: "toggle" }],
 		defaults: { disabled: false },
 		render: (p) => (

@@ -74,6 +74,8 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
   refermait aussitôt.
 - Vitrine : un seul tableau `PAGES` (id, libellé, icône, vue) décrit les pages fixes
   pour l'App (fil d'Ariane, palette, rendu) et la barre latérale.
+- Vitrine : l'option `imports` des démos, jamais lue (les 8 démos qui la posaient
+  écrivent leur propre `code`), disparaît.
 
 ## [0.3.0] — 2026-10-18
 

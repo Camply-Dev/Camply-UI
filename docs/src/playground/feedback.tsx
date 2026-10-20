@@ -211,7 +211,6 @@ export const FEEDBACK: Record<string, PlaygroundConfig> = {
 
 	toast: {
 		component: "ToastProvider",
-		imports: ["ToastProvider", "useToast"],
 		controls: [
 			{
 				key: "tone",

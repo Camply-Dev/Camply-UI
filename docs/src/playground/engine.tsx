@@ -21,7 +21,6 @@ type PropRow = [name: string, type: string, description: string];
 
 export interface PlaygroundConfig {
 	component: string;
-	imports?: string[];
 	controls: Control[];
 	defaults: Values;
 	childrenKey?: string;
@@ -46,11 +45,10 @@ function genCode(cfg: PlaygroundConfig, p: Values): string {
 	for (const extra of cfg.extraAttrs ?? []) attrs.push(`  ${extra}`);
 
 	const name = cfg.component;
-	const imports = (cfg.imports ?? [name]).join(", ");
 	const child = cfg.childrenKey ? String(p[cfg.childrenKey] ?? "") : "";
 	const open = attrs.length ? `<${name}\n${attrs.join("\n")}\n` : `<${name}`;
 	const jsx = child ? `${open}>\n  ${child}\n</${name}>` : `${open}${attrs.length ? "/>" : " />"}`;
-	return `import { ${imports} } from "@camply/ui";\n\n${jsx}`;
+	return `import { ${name} } from "@camply/ui";\n\n${jsx}`;
 }
 
 function UsageBlock({ code }: { code: string }) {
