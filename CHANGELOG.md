@@ -7,6 +7,11 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; ve
 
 ### ⚠️ Changements cassants
 
+- **`STATUS_ICONS` quitte `@camply/ui/icons`**, dont c'était le seul export qui ne soit
+  pas une icône : la table ton → icône d'`Alert`, `Banner` et `Toast` devient interne
+  (`lib/statusIcons.ts`). Un import de `STATUS_ICONS` ne compile plus ; la table se
+  recompose avec les icônes, toujours exportées :
+  `const STATUS_ICONS = { info: Info, success: CheckCircle, warn: AlertTriangle, danger: AlertCircle }`.
 - ⚠️ **visuel** — **Une seule opacité pour tout ce qui est désactivé** :
   `--camply-disabled-opacity` (0,55), que seuls `Button`, les coques de champ,
   `PinInput` et `FileUpload` lisaient, vaut désormais partout. Étaient plus pâles :

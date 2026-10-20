@@ -5,11 +5,10 @@ import { Search, Shapes } from "../../../src/lib/icons";
 
 type IconComponent = ComponentType<{ size?: number }>;
 
-const ICON_LIST: { name: string; Cmp: IconComponent }[] = (
-	Object.entries(LibIcons) as [string, unknown][]
-)
-	.filter(([, value]) => typeof value === "function")
-	.map(([name, value]) => ({ name, Cmp: value as IconComponent }))
+// Le module n'exporte que des icônes (le type `IconProps` ne survit pas à l'exécution) :
+// chaque export est un composant à afficher.
+const ICON_LIST: { name: string; Cmp: IconComponent }[] = Object.entries(LibIcons)
+	.map(([name, Cmp]) => ({ name, Cmp }))
 	.sort((a, b) => a.name.localeCompare(b.name));
 
 export function IconsView() {

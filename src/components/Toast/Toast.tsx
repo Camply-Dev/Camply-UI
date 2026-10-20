@@ -15,8 +15,9 @@ import { CloseButton } from "../../lib/CloseButton";
 import { compose } from "../../lib/cloneTrigger";
 import { cn } from "../../lib/cn";
 import { useLabels } from "../../lib/i18n";
-import { Info, STATUS_ICONS } from "../../lib/icons";
+import { Info } from "../../lib/icons";
 import { Portal } from "../../lib/Portal";
+import { STATUS_ICONS } from "../../lib/statusIcons";
 import type { Tone } from "../../lib/types";
 import { Button } from "../Button";
 /** `default` sort de la palette sémantique : notification neutre, sans statut. */

@@ -22,6 +22,7 @@ import {
 	yearPageStart,
 } from "../src/lib/dateField";
 import { formatFileSize, isFileAccepted } from "../src/lib/fileUtils";
+import * as icons from "../src/lib/icons";
 import { deriveInitials, hashString } from "../src/lib/initials";
 import { meterTone } from "../src/lib/meter";
 import { buildPages, DOTS } from "../src/lib/paginationRange";
@@ -444,5 +445,16 @@ describe("sliderKeys.nextSliderValue", () => {
 		const raw = nextSliderValue("ArrowRight", 100, 0, 100, 1) as number;
 		expect(raw).toBe(101);
 		expect(snapToStep(raw, 0, 100, 1)).toBe(100);
+	});
+});
+
+describe("icons", () => {
+	it("n'exporte que des composants d'icône", () => {
+		// `@camply/ui/icons` est le pack d'icônes, et la vitrine affiche chaque export
+		// comme une icône : une table (l'ancien `STATUS_ICONS`) n'y a pas sa place.
+		const autres = Object.entries(icons)
+			.filter(([, valeur]) => typeof valeur !== "function")
+			.map(([nom]) => nom);
+		expect(autres).toEqual([]);
 	});
 });

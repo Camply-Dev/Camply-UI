@@ -1,7 +1,7 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
 import { CloseButton } from "../../lib/CloseButton";
 import { cn } from "../../lib/cn";
-import { STATUS_ICONS } from "../../lib/icons";
+import { STATUS_ICONS } from "../../lib/statusIcons";
 import type { Tone } from "../../lib/types";
 import { type Controllable, useControllable } from "../../lib/useControllable";
 
