@@ -343,7 +343,9 @@
 	"files": [
 		"dist",
 		"LICENSE",
-		"README.md"
+		"README.md",
+		"THIRD-PARTY-LICENSES.md",
+		"AI-CONTEXT.md"
 	],
 	"publishConfig": {
 		"access": "public"

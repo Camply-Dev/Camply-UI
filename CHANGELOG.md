@@ -13,6 +13,12 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; ve
   de mille commandes rendait tous ses boutons à l'ouverture et à chaque frappe (une
   centaine de millisecondes).
 
+### Corrections
+
+- Paquet publié : `THIRD-PARTY-LICENSES.md` y entre enfin (les licences Tabler et
+  Lucide des icônes exigent leurs mentions), avec `AI-CONTEXT.md`, que l'application
+  peut désigner dans `node_modules/@camply/ui/`.
+
 ## [0.3.0] — 2026-10-18
 
 Ce qu'une application devait contourner (classes internes surchargées, composants
