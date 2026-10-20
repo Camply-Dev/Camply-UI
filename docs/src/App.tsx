@@ -49,7 +49,7 @@ export function App() {
 
 	return (
 		<div className="cu-shell">
-			<Sidebar active={active} onNavigate={setActive} onOpenPalette={() => setPaletteOpen(true)} />
+			<Sidebar active={active} onNavigate={setActive} />
 			<main className="cu-main">
 				<header className="cu-topbar">
 					<Breadcrumbs items={crumbs} />

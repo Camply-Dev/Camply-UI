@@ -17,12 +17,11 @@ import {
 interface SidebarProps {
 	active: string;
 	onNavigate: (id: string) => void;
-	onOpenPalette?: () => void;
 }
 
 const subKey = (family: string, sub: string) => `${family}|${sub}`;
 
-export function Sidebar({ active, onNavigate, onOpenPalette }: SidebarProps) {
+export function Sidebar({ active, onNavigate }: SidebarProps) {
 	const [query, setQuery] = useState("");
 
 	const q = query.trim().toLowerCase();
@@ -84,12 +83,6 @@ export function Sidebar({ active, onNavigate, onOpenPalette }: SidebarProps) {
 					leftIcon={<Icon name="search" size={15} />}
 					value={query}
 					onChange={(e) => setQuery(e.target.value)}
-					onKeyDown={(e) => {
-						if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-							e.preventDefault();
-							onOpenPalette?.();
-						}
-					}}
 					placeholder="Rechercher un composant…"
 					aria-label="Rechercher un composant"
 				/>

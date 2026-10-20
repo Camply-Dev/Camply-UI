@@ -69,6 +69,9 @@ Même DOM, mêmes classes, même comportement : du code partagé là où il éta
 - Vitrine : sa palette `--sc-*`, copie des tokens, cède la place à `var(--camply-*)` ;
   ses barres de défilement prennent `--camply-scrollbar-*` (10 px au lieu de 11,
   opacités de la lib).
+- Vitrine : ⌘K / Ctrl+K depuis le champ de recherche de la barre latérale ouvre la
+  palette ; son propre raccourci l'ouvrait, puis celui de `useCommandPalette` la
+  refermait aussitôt.
 
 ## [0.3.0] — 2026-10-18
 
