@@ -3,6 +3,43 @@
 Toutes les évolutions notables de `@camply/ui`.
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versionnage [SemVer](https://semver.org/lang/fr/).
 
+## [0.4.1] — non publiée
+
+Le `Radio` non coché et le `Switch` éteint passent la barre des 3:1 (WCAG 1.4.11) dans
+les deux thèmes, et `Radio` comme `SegmentedControl` acceptent un libellé en JSX. Aucune
+rupture pour qui passe un libellé ; un code qui relit `SegmentOption.label` ou
+`RadioProps["label"]` comme `string` doit le retyper (`ReactNode`). Les changements de
+rendu sont marqués **⚠️ visuel**. Contrastes mesurés sur `bg`, `surface`, `surface-2` et
+`elevated`, couleurs composées.
+
+### Ajouts
+
+- **`--camply-border-control`** (93ᵉ token) : bord du `Radio` non coché, bord et pouce du
+  `Switch` éteint, au moins 3:1 sur les quatre fonds (`rgba(148, 176, 216, 0.65)` en
+  sombre, `rgba(15, 23, 42, 0.55)` en clair). Une application qui repeint ses fonds
+  vérifie le sien, ou le repose.
+- `Radio label` et `SegmentOption.label` passent de `string` à `ReactNode`, une chaîne
+  restant valide : un drapeau, une icône ou une vignette, rendus tels quels, nomment
+  l'option. `Option.label` reste un texte, que `Select`, `Combobox` et `MultiSelect`
+  filtrent et comparent.
+
+### Corrections
+
+- ⚠️ **visuel** — `Radio` non coché : le bord passe de `border-strong` à
+  `border-control`, de 1,4–1,5:1 à 3,9–4,2:1 en sombre et 3,6–4,0:1 en clair.
+- ⚠️ **visuel** — `Switch` éteint : la piste prend un bord `border-control` (ombre
+  interne de 1 px, gardée sous l'anneau de focus ; 1,2–1,3:1 avant, la piste seule,
+  4,5–4,8:1 désormais) et le pouce la même couleur, au lieu d'`accent-contrast`, qui se
+  fondait dans la piste (1,2–1,5:1, désormais 3,4–3,8:1). Allumé, rien ne change : pouce
+  `accent-contrast` sur l'accent.
+
+### Vitrine et tests
+
+- Vitrine : `--camply-border-control` sur la page « CSS par défaut » ; `label` en
+  `ReactNode` dans les props de `RadioGroup` et de `SegmentedControl`.
+- Tests : un libellé en nœud (un SVG nommé) nomme l'option d'un `RadioGroup` et le
+  segment d'un `SegmentedControl`.
+
 ## [0.4.0] — 2026-10-20
 
 `CommandPalette limit`, trois corrections, une seule opacité pour tous les états

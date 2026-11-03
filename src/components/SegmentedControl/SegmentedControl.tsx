@@ -20,8 +20,12 @@ import { useControllable } from "../../lib/useControllable";
  * Un segment est une `Option` dérivée, jamais recopiée (règle 1) — comme
  * `SelectOption` ou `ComboboxOption`. `disabled` en est retiré : un segment isolé
  * ne se désactive pas ici, et l'accepter pour l'ignorer serait une prop sans effet.
+ * `label` s'élargit en `ReactNode` (un drapeau, une icône) : le segment le rend tel
+ * quel et en tire son nom. `Option.label` reste un texte, que les listes filtrent.
  */
-export type SegmentOption<T extends string = string> = Omit<Option<T>, "disabled">;
+export type SegmentOption<T extends string = string> = Omit<Option<T>, "disabled" | "label"> & {
+	label: ReactNode;
+};
 
 /**
  * Règle 3. Les `role="radio"` des segments dépendent de `role="radiogroup"` ; les

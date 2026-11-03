@@ -132,7 +132,8 @@ export interface RadioProps
 		"type" | "name" | "value" | "checked" | "defaultChecked" | "onChange" | "size" | "required"
 	> {
 	value: string;
-	label?: string;
+	/** Libellé de l'option, rendu tel quel : un texte ou un nœud (drapeau, vignette), qui la nomme. */
+	label?: ReactNode;
 	/** Précision sous le libellé de CETTE option, annoncée comme sa description. */
 	hint?: string;
 	disabled?: boolean;

@@ -79,7 +79,7 @@ export const NAVIGATION: Record<string, PlaygroundConfig> = {
 				p.readOnly ? "\n  readOnly" : ""
 			}\n  defaultValue="semaine"\n  options={[\n    { value: "jour", label: "Jour" },\n    { value: "semaine", label: "Semaine" },\n    { value: "mois", label: "Mois" },\n  ]}\n/>`,
 		props: [
-			["options", "SegmentOption[]", "{ value, label }"],
+			["options", "SegmentOption[]", "{ value, label } — label : texte ou nœud (icône, drapeau)"],
 			["value / defaultValue", "string", "segment actif contrôlé / initial (défaut : 1re option)"],
 			["onChange", "(value) => void", "changement"],
 			["aria-label", "string", "nom accessible d'un sélecteur de vue — ARIA l'exige sur un groupe"],

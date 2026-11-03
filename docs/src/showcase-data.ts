@@ -215,6 +215,7 @@ export const TOKEN_GROUPS: TokenGroup[] = [
 		rows: [
 			{ name: "--camply-field-bg", color: true },
 			{ name: "--camply-border-hover", color: true },
+			{ name: "--camply-border-control", color: true },
 			{ name: "--camply-neutral-solid", color: true },
 			{ name: "--camply-knob", color: true },
 			{ name: "--camply-tooltip-bg", color: true },

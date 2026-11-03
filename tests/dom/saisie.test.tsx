@@ -6,6 +6,7 @@ import { Combobox } from "../../src/components/Combobox";
 import { DatePicker } from "../../src/components/DatePicker";
 import { NumberInput } from "../../src/components/NumberInput";
 import { PinInput } from "../../src/components/PinInput";
+import { Radio, RadioGroup } from "../../src/components/Radio";
 import { RangeSlider } from "../../src/components/RangeSlider";
 import { SegmentedControl } from "../../src/components/SegmentedControl";
 import { Slider } from "../../src/components/Slider";
@@ -14,7 +15,8 @@ import { TagInput } from "../../src/components/TagInput";
 /**
  * Saisie (0.3.0) : NumberInput vidable et sans émissions parasites, libellé de
  * SegmentedControl, Entrée du Combobox, calendrier au clavier, PinInput retapé,
- * TagInput plein, fin d'un glisser au pointeur.
+ * TagInput plein, fin d'un glisser au pointeur ; et (0.4.1) libellé en nœud d'un
+ * Radio ou d'un segment.
  */
 
 describe("NumberInput", () => {
@@ -94,6 +96,37 @@ describe("SegmentedControl", () => {
 		);
 		const groupe = screen.getByRole("radiogroup", { name: "Ajouter comme" });
 		expect(groupe).toHaveAccessibleDescription("Le statut de la carte ajoutée.");
+	});
+});
+
+describe("libellé en nœud (Radio, SegmentedControl)", () => {
+	// Un drapeau dessiné, nommé par son aria-label : le contrôle le rend tel quel et en
+	// tire son nom (la vérification de type, elle, est celle de `bun run typecheck`).
+	const drapeau = (nom: string) => <svg role="img" aria-label={nom} />;
+
+	it("nomme l'option d'un RadioGroup", () => {
+		render(
+			<RadioGroup label="Langue">
+				<Radio value="fr" label={drapeau("Français")} />
+				<Radio value="en" label="Anglais" />
+			</RadioGroup>,
+		);
+		expect(screen.getByRole("radio", { name: "Français" })).toBeInTheDocument();
+		expect(screen.getByRole("radio", { name: "Anglais" })).toBeInTheDocument();
+	});
+
+	it("nomme le segment d'un SegmentedControl", () => {
+		render(
+			<SegmentedControl
+				aria-label="Langue"
+				options={[
+					{ value: "fr", label: drapeau("Français") },
+					{ value: "en", label: "Anglais" },
+				]}
+			/>,
+		);
+		expect(screen.getByRole("radio", { name: "Français" })).toBeChecked();
+		expect(screen.getByRole("radio", { name: "Anglais" })).not.toBeChecked();
 	});
 });
 

@@ -42,6 +42,10 @@
 	--camply-border: rgba(148, 176, 216, 0.13);
 	--camply-border-soft: rgba(148, 176, 216, 0.08);
 	--camply-border-strong: rgba(148, 176, 216, 0.22);
+	/* Bord d'un contrôle non coché (Radio, Switch éteint, et son pouce) : au moins
+	   3:1 sur bg, surface, surface-2 et elevated, dans les deux thèmes (WCAG
+	   1.4.11). `border-strong` n'en donnait que 1,4 à 1,5. */
+	--camply-border-control: rgba(148, 176, 216, 0.65);
 
 	--camply-radius-xs: 6px;
 	--camply-radius-sm: 8px;
@@ -1160,6 +1164,7 @@
 	--camply-border-soft: rgba(15, 23, 42, 0.07);
 	--camply-border-strong: rgba(15, 23, 42, 0.2);
 	--camply-border-hover: rgba(15, 23, 42, 0.32);
+	--camply-border-control: rgba(15, 23, 42, 0.55);
 
 	--camply-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
 	--camply-shadow-md: 0 6px 18px rgba(15, 23, 42, 0.1);

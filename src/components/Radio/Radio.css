@@ -23,7 +23,7 @@
 	justify-content: center;
 	width: 20px;
 	height: 20px;
-	border: 1px solid var(--camply-border-strong);
+	border: 1px solid var(--camply-border-control);
 	border-radius: 50%;
 	background: var(--camply-field-bg);
 	transition: border-color var(--camply-duration);

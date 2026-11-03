@@ -5,8 +5,8 @@
 
 ## 1. La librairie en 30 secondes
 
-- **`@camply/ui`** — librairie de composants React (v0.4.0).
-- **60 composants** (80 exports avec les sous-composants), **4 hooks**, **2128 icônes**, **92 design tokens** CSS.
+- **`@camply/ui`** — librairie de composants React (v0.4.1).
+- **60 composants** (80 exports avec les sous-composants), **4 hooks**, **2128 icônes**, **93 design tokens** CSS.
 - **ESM uniquement**, **zéro dépendance runtime**, types TypeScript fournis.
 - **Thème sombre par défaut**, entièrement thémable via variables CSS.
 
@@ -103,7 +103,7 @@ import { Home, Search, ArrowRight, BrandGithub } from "@camply/ui/icons";
 - Ce sont des **composants purs**, et le **seul module de la lib sans `"use client"`** → les seuls réellement utilisables en Server Components (voir §9).
 - Couleur : elles héritent de `currentColor` → il suffit de définir `color` sur le parent.
 
-## 7. Thème — 92 tokens CSS
+## 7. Thème — 93 tokens CSS
 
 Re-thémer = surcharger des variables. **Aucun rebuild, aucune prop de couleur** : c'est de la cascade CSS.
 
@@ -130,7 +130,7 @@ Familles de tokens disponibles (préfixe `--camply-`) :
 | Texte | `text` `text-strong` `text-muted` `text-muted-2` `text-disabled` |
 | Accent | `accent` `accent-hover` `accent-contrast` `accent-soft` `accent-soft-hover` `accent-border` |
 | Sémantique | `danger` `danger-hover` `danger-contrast` `danger-soft` `danger-soft-hover` `danger-border` `danger-ring` · `warn` `success` `info` (ceux-là **uniquement** : base, `-contrast`, `-soft`, `-border`) |
-| Bordures | `border` `border-soft` `border-strong` `border-hover` |
+| Bordures | `border` `border-soft` `border-strong` `border-hover` `border-control` (bord du `Radio` non coché, bord et pouce du `Switch` éteint, au moins 3:1) |
 | Formes | `radius-xs` `radius-sm` `radius` `radius-lg` `radius-xl` `radius-pill` |
 | Espacement | `space-1` `space-2` `space-3` `space-4` `space-5` `space-6` `space-8` (il n'y a **pas** de `space-7`) |
 | Élévation | `shadow-sm` `shadow-md` `shadow-lg` `shadow-pop` `shadow-color` · `fill-1` `fill-2` `fill-3` `fill-4` |
