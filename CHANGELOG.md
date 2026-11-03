@@ -3,14 +3,26 @@
 Toutes les évolutions notables de `@camply/ui`.
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versionnage [SemVer](https://semver.org/lang/fr/).
 
-## [0.4.1] — non publiée
+## [0.5.0] — non publiée
 
 Le `Radio` non coché et le `Switch` éteint passent la barre des 3:1 (WCAG 1.4.11) dans
-les deux thèmes, et `Radio` comme `SegmentedControl` acceptent un libellé en JSX. Aucune
-rupture pour qui passe un libellé ; un code qui relit `SegmentOption.label` ou
-`RadioProps["label"]` comme `string` doit le retyper (`ReactNode`). Les changements de
+les deux thèmes, et `Radio` comme `SegmentedControl` acceptent un libellé en JSX. `tsc`
+signale la seule rupture de type (un libellé relu comme `string`) ; les changements de
 rendu sont marqués **⚠️ visuel**. Contrastes mesurés sur `bg`, `surface`, `surface-2` et
 `elevated`, couleurs composées.
+
+### ⚠️ Changements cassants
+
+- **`SegmentOption.label` et `RadioProps["label"]` se relisent en `ReactNode`** (voir
+  Ajouts) : passer une chaîne reste valide, mais un code qui relit ce libellé comme
+  `string` ne compile plus et doit le retyper.
+- ⚠️ **visuel** — `Radio` non coché : le bord passe de `border-strong` à
+  `border-control`, de 1,4–1,5:1 à 3,9–4,2:1 en sombre et 3,6–4,0:1 en clair.
+- ⚠️ **visuel** — `Switch` éteint : la piste prend un bord `border-control` (ombre
+  interne de 1 px, gardée sous l'anneau de focus ; 1,2–1,3:1 avant, la piste seule,
+  4,5–4,8:1 désormais) et le pouce la même couleur, au lieu d'`accent-contrast`, qui se
+  fondait dans la piste (1,2–1,5:1, désormais 3,4–3,8:1). Allumé, rien ne change : pouce
+  `accent-contrast` sur l'accent.
 
 ### Ajouts
 
@@ -22,16 +34,6 @@ rendu sont marqués **⚠️ visuel**. Contrastes mesurés sur `bg`, `surface`, 
   restant valide : un drapeau, une icône ou une vignette, rendus tels quels, nomment
   l'option. `Option.label` reste un texte, que `Select`, `Combobox` et `MultiSelect`
   filtrent et comparent.
-
-### Corrections
-
-- ⚠️ **visuel** — `Radio` non coché : le bord passe de `border-strong` à
-  `border-control`, de 1,4–1,5:1 à 3,9–4,2:1 en sombre et 3,6–4,0:1 en clair.
-- ⚠️ **visuel** — `Switch` éteint : la piste prend un bord `border-control` (ombre
-  interne de 1 px, gardée sous l'anneau de focus ; 1,2–1,3:1 avant, la piste seule,
-  4,5–4,8:1 désormais) et le pouce la même couleur, au lieu d'`accent-contrast`, qui se
-  fondait dans la piste (1,2–1,5:1, désormais 3,4–3,8:1). Allumé, rien ne change : pouce
-  `accent-contrast` sur l'accent.
 
 ### Vitrine et tests
 

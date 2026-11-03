@@ -23,9 +23,7 @@
 	height: var(--_h);
 	border-radius: var(--camply-radius-pill);
 	background: var(--camply-fill-3);
-	transition:
-		background var(--camply-duration),
-		box-shadow var(--camply-duration);
+	transition: background var(--camply-duration);
 }
 /* Éteint, le pouce prend le bord du contrôle : `accent-contrast` se fondait dans
    la piste (1,2 à 1,5:1). Allumé, il garde `accent-contrast` sur l'accent. */

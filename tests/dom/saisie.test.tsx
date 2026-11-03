@@ -15,7 +15,7 @@ import { TagInput } from "../../src/components/TagInput";
 /**
  * Saisie (0.3.0) : NumberInput vidable et sans émissions parasites, libellé de
  * SegmentedControl, Entrée du Combobox, calendrier au clavier, PinInput retapé,
- * TagInput plein, fin d'un glisser au pointeur ; et (0.4.1) libellé en nœud d'un
+ * TagInput plein, fin d'un glisser au pointeur ; et (0.5.0) libellé en nœud d'un
  * Radio ou d'un segment.
  */
 
