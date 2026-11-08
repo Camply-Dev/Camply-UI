@@ -3,7 +3,7 @@
 Toutes les évolutions notables de `@camply/ui`.
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) ; versionnage [SemVer](https://semver.org/lang/fr/).
 
-## [0.5.0] — non publiée
+## [0.5.0] — 2026-11-08
 
 Le `Radio` non coché et le `Switch` éteint passent la barre des 3:1 (WCAG 1.4.11) dans
 les deux thèmes, et `Radio` comme `SegmentedControl` acceptent un libellé en JSX. `tsc`
